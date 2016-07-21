@@ -12,3 +12,11 @@ main {
     width: 40%;
     margin-bottom: 60px;
 }
+
+.documents-card {
+    width: 90%;
+    margin-top: 30px;
+}
+/*md-list .md-button {
+    text-align: left;
+}*/

@@ -9,4 +9,20 @@ function home($scope, $rootScope) {
 
     $scope.isOpen = false;
 
+    $scope.getSidenavHeight = function() {
+        return {
+            // 129 = header and footer height, approx
+            'height':($(window).height() - 129)
+        };
+    }
+
+    $scope.getMainContentWidth = function() {
+        var width = document.getElementById('sidenav').offsetWidth;
+        console.log(width);
+        return {
+            'margin-left':width
+        };
+    }
+
+
 }
