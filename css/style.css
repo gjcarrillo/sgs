@@ -1,9 +1,14 @@
 
-html, body, main {
+main {
   background-color: #F5F5F5;
 }
 
 main {
-    /*172 = aprox. toolbar + footer height */
-  min-height: calc(100vh - 146px);
+    /*129 = aprox. toolbar + footer height */
+  min-height: calc(100vh - 129px);
+}
+
+.login-card {
+    width: 40%;
+    margin-bottom: 60px;
 }

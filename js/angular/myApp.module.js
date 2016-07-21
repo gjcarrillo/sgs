@@ -37,11 +37,9 @@ sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $lo
     // Application theme
     $mdThemingProvider.theme('default')
         .primaryPalette('teal')
-        .accentPalette('red');
+        .accentPalette('blue');
     $mdThemingProvider.theme('input')
         .primaryPalette('grey');
-    // $mdThemingProvider.theme('white-toolbar')
-    //     .primaryPalette('white');
 });
 
 

@@ -20,12 +20,13 @@
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/angular-material.min.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/angular-ui-router.min.js"></script>
         <!-- App module, controllers nad utilities -->
+        <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/myApp.module.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/cookies.min.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/login/login.module.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/login/authenticate.factory.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/login/controllers/LoginController.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/home/controllers/HomeController.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/angular-ui-router.min.js"></script>
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/myApp.module.js"></script>
         <!--Let browser know website is optimized for mobile-->
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <meta charset="utf-8">
@@ -33,21 +34,28 @@
 </head>
 <body>
     <md-toolbar ng-controller="MainController" layout-padding>
-        <h1 ng-if="!isLoggedIn()" layout layout-align="center center" class="md-headline">
-            <span>Sistema de Gestión de Documentos de Préstamo</span>
-        </h1>
-        <div ng-if="isLoggedIn()" class="md-toolbar-tools">
-            <md-button class="md-icon-button" aria-label="Back" href="#/login">
+        <div layout layout-align="center center" ng-if="!isLoggedIn()" class="md-toolbar-tools">
+            <h1 class="md-headline">
+                <span>Sistema de Gestión de Documentos de Préstamo</span>
+            </h1>
+        </div>
+        <div ng-show="isLoggedIn()" class="md-toolbar-tools">
+            <md-button class="md-icon-button" ng-click="logout()" aria-label="Back">
                 <md-icon>arrow_back</md-icon>
             </md-button>
-            <h2 class="md-headline">
+            <h2 flex="10" class="md-headline">
                 <span>SGDP</span>
             </h2>
-            <span flex></span>
-            <md-input-container md-no-float class="md-accent" flex="30" style="padding-bottom:0px;margin-right:25px">
+            <md-input-container md-no-float class="md-accent" flex="30" flex-offset="20" style="padding-bottom:0px;margin-right:25px">
                <md-icon style="color:white" class="material-icons">&#xE8B6;</md-icon>
-               <input ng-model="searchInput" placeholder="Ingrese una cédula" style="color:white;padding-left:25px;margin-right:5px">
+               <input aria-label="Search" ng-model="searchInput" style="color:white;padding-left:25px;margin-right:5px">
+               <md-tooltip md-direction="right">Ingrese una cédula</md-tooltip>
             </md-input-container>
+            <span flex></span>
+            <md-button class="md-fab md-mini" ng-click="logout()" aria-label="Back">
+                <md-icon>exit_to_app</md-icon>
+                <md-tooltip md-direction="left">Cerrar sesión</md-tooltip>
+            </md-button>
         </div>
     </md-toolbar>
     <main ui-view autoscroll="false"></main>

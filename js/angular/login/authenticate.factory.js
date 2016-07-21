@@ -5,24 +5,24 @@ angular.module('sgdp.login').factory("auth", function($cookies,$location, $http 
     return{
         login : function(username, password)
         {
-            $http.get('index.php/login/LoginController/authenticate', {params:{username: username , password:password}})
+            $http.get('index.php/login/LoginController/authenticate', {params:{id: username , password:password}})
                 .then(function(response) {
-                    console.log("response: " + response);
+                    console.log(response);
                     if(response.data.message === "success") {
                         $rootScope.loading = false;
                         var timeToExpire =  new Date();
                         timeToExpire.setDate(timeToExpire.getDate() + 7 );
                          // create the session cookie
-                        $cookies.putObject('session', {username: username , password:password, id:response.data.id, profile:response.data.profile}, {
+                        $cookies.putObject('session', {username: username , password:password, type:response.data.type}, {
                             expires : timeToExpire
                         });
                         // redirect to home
                         $location.path("/");
 
-                    }
-                    var obj = $cookies.getObject("session");
-                    console.log(obj);
-                   $rootScope.model.errorLogin =  response.data.message;
+                    } else {
+                        $rootScope.loading = false;
+                        $rootScope.model.loginError =  response.data.message;
+                   }
                 }, function (response){
 
             })
@@ -34,13 +34,6 @@ angular.module('sgdp.login').factory("auth", function($cookies,$location, $http 
             $cookies.remove('session');
             // redirect to login page
             $location.path("/login");
-        },
-        profile: function(){
-          if($cookies.get('session') !== "undefined")
-          {
-            var obj = $cookies.getObject("session");
-            return(obj.profile);
-          }
         },
         isLoggedIn : function()
         {
