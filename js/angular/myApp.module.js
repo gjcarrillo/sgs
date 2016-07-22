@@ -1,4 +1,4 @@
-var sgdp = angular.module("sgdp", ["sgdp.login", "ui.router", "ngMaterial",]);
+var sgdp = angular.module("sgdp", ["sgdp.login", "ui.router", "ngMaterial", "lfNgMdFileInput"]);
 
 
 sgdp.controller('MainController',

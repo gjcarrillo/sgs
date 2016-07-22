@@ -1,0 +1,61 @@
+<md-dialog aria-label="New Request">
+    <md-toolbar>
+        <div class="md-toolbar-tools">
+            <h2>Nueva de solicitud de préstamo</h2>
+            <span flex></span>
+            <md-button class="md-icon-button" ng-click="closeDialog()">
+                <md-icon aria-label="Close dialog">close</md-icon>
+            </md-button>
+        </div>
+    </md-toolbar>
+    <md-dialog-content class="md-padding">
+        <div layout>
+             <div flex layout-align="center">
+             <lf-ng-md-file-input
+                 multiple
+                 progress
+                 lf-files="files"
+                 lf-browse-label="Buscar"
+                 lf-remove-label="Cancelar"
+                 lf-caption="{{files.length}} {{files.length === 1 ? 'documento seleccionado' : 'documentos seleccionados'}}"
+                 lf-placeholder="Seleccione documentos">
+             </lf-ng-md-file-input>
+            </div>
+        </div>
+        <br/>
+        <div layout>
+            <div layout-align="center center" ng-repeat="(dKey, doc) in files">
+                <md-card>
+                    <md-card-title>
+                    <md-card-title-text>
+                        <span class="md-headline">{{doc.lfFileName}}</span>
+                        <span class="md-subhead">{{doc.comment}}</span>
+                    </md-card-title-text>
+                    </md-card-title>
+                    <md-card-actions ng-hide="enabledComment == dKey" layout="row" layout-align="end center">
+                        <md-button class="md-icon-button" ng-click="enabledComment = dKey"><md-icon>message</md-icon></md-button>
+                        <md-button class="md-icon-button" ng-click="removeDoc(dKey)"><md-icon>delete</md-icon></md-button>
+                    </md-card-actions>
+                    <md-card-actions ng-show="enabledComment == dKey" layout="row" layout-align="center center">
+                        <md-input-container md-no-float>
+                            <input type="text"
+                                ng-model="doc.comment"
+                                placeholder="Agrege comentario"
+                                ng-keyup="$event.keyCode == 13 && (enabledComment = -1)">
+                            </input>
+                        </md-input-container>
+                        <md-button class="md-icon-button" ng-click="enabledComment = -1"><md-icon>send</md-icon></md-button>
+                    </md-card-actions>
+                </md-card>
+            </div>
+        </div>
+    </md-dialog-content>
+    <md-dialog-actions>
+        <md-button ng-click="null" ng-disabled="files.length < 1" class="md-primary">
+            Crear
+        </md-button>
+        <md-button ng-click="closeDialog()" class="md-primary">
+            Cancelar
+        </md-button>
+    </md-dialog-actions>
+</md-dialog>

@@ -19,6 +19,9 @@
         <!-- Angular Material Library -->
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/angular-material.min.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/angular-ui-router.min.js"></script>
+        <!-- Angular Material file input -->
+        <link href="<?php echo base_url(); ?>lf-ng-md-file-input/lf-ng-md-file-input.css" rel="stylesheet" type="text/css"/>
+        <script type="text/javascript" src="<?php echo base_url(); ?>lf-ng-md-file-input/lf-ng-md-file-input.js"></script>
         <!-- App module, controllers nad utilities -->
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/myApp.module.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/cookies.min.js"></script>
@@ -55,7 +58,7 @@
                <md-tooltip md-direction="right">Ingrese una cédula. Ej: 11111111</md-tooltip>
             </md-input-container>
             <span flex></span>
-            <md-button class="md-fab md-mini" ng-click="logout()" aria-label="Back">
+            <md-button class="md-fab md-mini md-raised" ng-click="logout()" aria-label="Back">
                 <md-icon>exit_to_app</md-icon>
                 <md-tooltip md-direction="left">Cerrar sesión</md-tooltip>
             </md-button>

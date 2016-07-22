@@ -88,8 +88,18 @@
     <md-content flex ng-style="getDocumentContainerStyle()">
         <md-card class="documents-card">
             <md-card-content>
-                <md-content md-scroll-y>
-                <h2 class="md-headline">Préstamo solicitado el 19/04/2014</h2>
+                <div class="md-toolbar-tools">
+                    <h2 class="md-headline">Préstamo solicitado el 19/04/2014</h2>
+                    <span flex></span>
+                    <md-button class="md-icon-button">
+                        <md-tooltip>Editar solicitud</md-tooltip>
+                        <md-icon>edit</md-icon>
+                    </md-button>
+                    <md-button class="md-icon-button">
+                        <md-tooltip>Eliminar solicitud</md-tooltip>
+                        <md-icon>delete</md-icon>
+                    </md-icon-button>
+                </div>
                 <md-list>
                     <md-list-item class="md-2-line"class="noright">
                         <md-icon  ng-style="{'font-size':'36px'}">info_outline</md-icon>
@@ -153,7 +163,6 @@
                         <md-icon ng-click="null" aria-label="Download" class="md-secondary md-hue-3" >file_download</md-icon>
                     </md-list-item>
                 </md-list>
-            </md-content>
             </md-card-content>
         </md-card>
         <br/>
@@ -161,6 +170,18 @@
 </div>
 <!-- FAB -->
 <div class="relative">
+    <md-button
+        ng-click="openNewRequestDialog($event)"
+        style="margin-bottom:40px"
+        class="md-fab md-fab-bottom-right"
+        aria-label="Create request">
+        <md-tooltip md-direction="top">
+            Crear una solicitud
+        </md-tooltip>
+        <md-icon>add</md-icon>
+    </md-button>
+</div>
+<!-- <div class="relative">
     <md-fab-speed-dial
         style="margin-bottom:40px"
         class="md-fab-bottom-right md-fling md-scale md-hover-full"
@@ -172,10 +193,10 @@
             <md-button class="md-fab md-accent" aria-label="More options..."><md-icon>more_vert</md-icon></md-button>
         </md-fab-trigger>
         <md-fab-actions>
-            <md-button class="md-fab md-mini md-primary" aria-label="Create request">
+            <md-button ng-click="openNewRequestDialog($event)" class="md-fab md-mini md-primary" aria-label="Create request">
                 <md-tooltip md-direction="left" md-visible="tooltipVisible"
                     md-autohide="false">
-                    Crear una nueva solicitud
+                    Crear una solicitud
                 </md-tooltip>
                 <md-icon>add</md-icon>
             </md-button>
@@ -195,4 +216,4 @@
             </md-button>
         </md-fab-actions>
     </md-fab-speed-dial>
-</div>
+</div> -->
