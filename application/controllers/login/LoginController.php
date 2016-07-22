@@ -10,7 +10,7 @@ class LoginController extends CI_Controller {
 
        try {
            $em = $this->doctrine->em;
-           $user = $em->getRepository('\Entity\Users')->findOneBy(array("id"=>$_GET['id']));
+           $user = $em->getRepository('\Entity\User')->findOneBy(array("id"=>$_GET['id']));
            if($user != null) {
                if($user->getPassword() == $_GET['password']) {
                    $result['message'] ="success";
@@ -29,46 +29,6 @@ class LoginController extends CI_Controller {
            $result['message'] = "Error";
        }
 
-       echo json_encode($result);
-    }
-
-    public function getQuestion () {
-        // TODO: Get user data only if it's an AJAX request
-        try {
-           $em = $this->doctrine->em;
-           $user = $em->getRepository('\Entity\Users')->findOneBy(array("id"=>$_GET['id']));
-           if($user !== null){
-                $result['question']= $user->getQuestionText();
-                $result['answer']= $user->getAnswer();
-                $result['message'] = "success";
-           }else{
-                $result['message'] = "Error";
-           }
-       } catch(Exception $e) {
-           \ChromePhp::log($e);
-           $result['message'] = "Error";
-       }
-       echo json_encode($result);
-    }
-
-    public function setPassword () {
-        // TODO: Get user data only if it's an AJAX request
-        try {
-           $em = $this->doctrine->em;
-           $user = $em->getRepository('\Entity\Users')->findOneBy(array("id"=>$_GET['id']));
-           if($user !== null) {
-                $user->setPassword( $_GET['newPassword']);
-                $em->merge($user);
-                $em->persist($user);
-                $em->flush();
-                $result['message'] = "success";
-           } else {
-                $result['message'] = "Error";
-           }
-       } catch(Exception $e) {
-           \ChromePhp::log($e);
-           $result['message'] = "Error";
-       }
        echo json_encode($result);
     }
 }

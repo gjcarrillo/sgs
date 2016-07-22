@@ -51,15 +51,11 @@ function home($scope, $rootScope, $timeout, $mdDialog) {
         });
         // Isolated dialog controller
         function DialogController($scope, $mdDialog) {
-            $scope.enabledComment = -1;
+            $scope.enabledDescription = -1;
             
             $scope.closeDialog = function() {
                 $mdDialog.hide();
             };
-
-            $scope.$watch('files.length',function(newVal,oldVal) {
-                console.log($scope.files);
-            });
 
             $scope.removeDoc = function(index) {
                 $scope.files.splice(index, 1);

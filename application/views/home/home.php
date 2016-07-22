@@ -181,39 +181,3 @@
         <md-icon>add</md-icon>
     </md-button>
 </div>
-<!-- <div class="relative">
-    <md-fab-speed-dial
-        style="margin-bottom:40px"
-        class="md-fab-bottom-right md-fling md-scale md-hover-full"
-        md-open="fab.isOpen"
-        ng-mouseenter="fab.isOpen=true"
-        ng-mouseleave="fab.isOpen=false"
-         md-direction="up">
-        <md-fab-trigger>
-            <md-button class="md-fab md-accent" aria-label="More options..."><md-icon>more_vert</md-icon></md-button>
-        </md-fab-trigger>
-        <md-fab-actions>
-            <md-button ng-click="openNewRequestDialog($event)" class="md-fab md-mini md-primary" aria-label="Create request">
-                <md-tooltip md-direction="left" md-visible="tooltipVisible"
-                    md-autohide="false">
-                    Crear una solicitud
-                </md-tooltip>
-                <md-icon>add</md-icon>
-            </md-button>
-            <md-button class="md-fab md-mini md-accent" aria-label="Edit request">
-                <md-tooltip md-direction="left" md-visible="tooltipVisible"
-                    md-autohide="false">
-                    Editar solicitud seleccionada
-                </md-tooltip>
-                <md-icon>edit</md-icon>
-            </md-button>
-            <md-button class="md-fab md-mini md-warn" aria-label="Remove Document">
-                <md-tooltip md-direction="left" md-visible="tooltipVisible"
-                    md-autohide="false">
-                    Eliminar solicitud seleccionada
-                </md-tooltip>
-                <md-icon>delete</md-icon>
-            </md-button>
-        </md-fab-actions>
-    </md-fab-speed-dial>
-</div> -->

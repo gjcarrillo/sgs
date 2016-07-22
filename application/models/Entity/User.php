@@ -5,18 +5,19 @@ namespace Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Users
+ * User
  *
- * @ORM\Table(name="users")
+ * @ORM\Table(name="user")
  * @ORM\Entity(repositoryClass="Entity\UserRepository")
  */
-class Users
+class User
 {
     /**
      * @var integer
      *
      * @ORM\Column(name="id", type="integer", precision=0, scale=0, nullable=false, unique=true)
      * @ORM\Id
+     * @ORM\GeneratedValue(strategy="NONE")
      */
     private $id;
 
@@ -44,30 +45,30 @@ class Users
     /**
      * @var integer
      *
-     * @ORM\Column(name="type", type="integer", precision=0, scale=0, nullable=false, unique=false)
+     * @ORM\Column(name="type", type="smallint", precision=2, scale=0, nullable=false, unique=false)
      */
     private $type;
 
     /**
-     * @var integer
+     * @var \Doctrine\Common\Collections\Collection
      *
-     * @ORM\Column(name="question", type="integer", precision=0, scale=0, nullable=false, unique=false)
+     * @ORM\OneToMany(targetEntity="Entity\Request", mappedBy="userOwner")
      */
-    private $question;
+    private $requests;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="answer", type="string", length=255, precision=0, scale=0, nullable=false, unique=false)
+     * Constructor
      */
-    private $answer;
-
+    public function __construct()
+    {
+        $this->requests = new \Doctrine\Common\Collections\ArrayCollection();
+    }
 
     /**
      * Set id
      *
      * @param integer $id
-     * @return Users
+     * @return User
      */
     public function setId($id)
     {
@@ -90,7 +91,7 @@ class Users
      * Set password
      *
      * @param string $password
-     * @return Users
+     * @return User
      */
     public function setPassword($password)
     {
@@ -113,7 +114,7 @@ class Users
      * Set name
      *
      * @param string $name
-     * @return Users
+     * @return User
      */
     public function setName($name)
     {
@@ -136,7 +137,7 @@ class Users
      * Set lastName
      *
      * @param string $lastName
-     * @return Users
+     * @return User
      */
     public function setLastName($lastName)
     {
@@ -159,7 +160,7 @@ class Users
      * Set type
      *
      * @param integer $type
-     * @return Users
+     * @return User
      */
     public function setType($type)
     {
@@ -179,53 +180,35 @@ class Users
     }
 
     /**
-     * Set question
+     * Add requests
      *
-     * @param integer $question
-     * @return Users
+     * @param \Entity\Request $requests
+     * @return User
      */
-    public function setQuestion($question)
+    public function addRequest(\Entity\Request $requests)
     {
-        $this->question = $question;
+        $this->requests[] = $requests;
 
         return $this;
     }
 
     /**
-     * Get question
+     * Remove requests
      *
-     * @return integer
+     * @param \Entity\Request $requests
      */
-    public function getQuestion()
+    public function removeRequest(\Entity\Request $requests)
     {
-        return $this->question;
-    }
-
-    public function getQuestionText()
-    {
-        $question = $this->question;
-        return ($question == 1 ? "¿Quién fue tu mejor amigo de la infancia?" : ($question == 2 ? "¿Cuál es el nombre de tu primera mascota?" : ($question == 3 ? "¿Cuál es el titulo de tu libro favorito?" : ($question == 4 ? "¿Cómo se llama tu abuela materna?" : "¿Cuál es tu deporte favorito?"))));
-    }
-    /**
-     * Set answer
-     *
-     * @param string $answer
-     * @return Users
-     */
-    public function setAnswer($answer)
-    {
-        $this->answer = $answer;
-
-        return $this;
+        $this->requests->removeElement($requests);
     }
 
     /**
-     * Get answer
+     * Get requests
      *
-     * @return string
+     * @return \Doctrine\Common\Collections\Collection
      */
-    public function getAnswer()
+    public function getRequests()
     {
-        return $this->answer;
+        return $this->requests;
     }
 }

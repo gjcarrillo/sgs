@@ -29,22 +29,22 @@
                     <md-card-title>
                     <md-card-title-text>
                         <span class="md-headline">{{doc.lfFileName}}</span>
-                        <span class="md-subhead">{{doc.comment}}</span>
+                        <span class="md-subhead">{{doc.description}}</span>
                     </md-card-title-text>
                     </md-card-title>
-                    <md-card-actions ng-hide="enabledComment == dKey" layout="row" layout-align="end center">
-                        <md-button class="md-icon-button" ng-click="enabledComment = dKey"><md-icon>message</md-icon></md-button>
+                    <md-card-actions ng-hide="enabledDescription == dKey" layout="row" layout-align="end center">
+                        <md-button class="md-icon-button" ng-click="enabledDescription = dKey"><md-icon>message</md-icon></md-button>
                         <md-button class="md-icon-button" ng-click="removeDoc(dKey)"><md-icon>delete</md-icon></md-button>
                     </md-card-actions>
-                    <md-card-actions ng-show="enabledComment == dKey" layout="row" layout-align="center center">
+                    <md-card-actions ng-show="enabledDescription == dKey" layout="row" layout-align="center center">
                         <md-input-container md-no-float>
                             <input type="text"
-                                ng-model="doc.comment"
-                                placeholder="Agrege comentario"
-                                ng-keyup="$event.keyCode == 13 && (enabledComment = -1)">
+                                ng-model="doc.description"
+                                placeholder="Agrege descripción"
+                                ng-keyup="$event.keyCode == 13 && (enabledDescription = -1)">
                             </input>
                         </md-input-container>
-                        <md-button class="md-icon-button" ng-click="enabledComment = -1"><md-icon>send</md-icon></md-button>
+                        <md-button class="md-icon-button" ng-click="enabledDescription = -1"><md-icon>send</md-icon></md-button>
                     </md-card-actions>
                 </md-card>
             </div>
