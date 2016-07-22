@@ -12,15 +12,14 @@ function home($scope, $rootScope) {
     $scope.getSidenavHeight = function() {
         return {
             // 129 = header and footer height, approx
-            'height':($(window).height() - 129)
+            'max-height':($(window).height() - 129)
         };
     }
 
-    $scope.getMainContentWidth = function() {
-        var width = document.getElementById('sidenav').offsetWidth;
-        console.log(width);
+    $scope.getDocumentContainerStyle = function() {
         return {
-            'margin-left':width
+            'background-color': '#F5F5F5',
+            'max-height':($(window).height() - 129)
         };
     }
 

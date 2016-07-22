@@ -52,7 +52,7 @@
             <md-input-container md-no-float class="md-accent" flex="30" flex-offset="20" style="padding-bottom:0px;margin-right:25px">
                <md-icon style="color:white" class="material-icons">&#xE8B6;</md-icon>
                <input aria-label="Search" ng-model="searchInput" style="color:white;padding-left:25px;margin-right:5px">
-               <md-tooltip md-direction="right">Ingrese una cédula</md-tooltip>
+               <md-tooltip md-direction="right">Ingrese una cédula. Ej: 11111111</md-tooltip>
             </md-input-container>
             <span flex></span>
             <md-button class="md-fab md-mini" ng-click="logout()" aria-label="Back">

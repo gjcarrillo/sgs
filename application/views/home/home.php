@@ -80,16 +80,20 @@
         </md-sidenav>
     </div>
 </md-content>
-<md-content flex style="background-color: #F5F5F5">
+<md-content flex ng-style="getDocumentContainerStyle()">
     <md-card class="documents-card">
         <md-card-content>
             <md-content md-scroll-y>
-            <h2>Documentos</h2>
+            <h2 class="md-headline">Préstamo solicitado el 19/04/2014</h2>
             <md-list>
-                <md-list-item class="secondary-button-padding">
-                  <p>Clicking the button to the right will fire the secondary action</p>
-                  <md-button class="md-secondary" ng-click="null">More Info</md-button>
+                <md-list-item class="md-2-line"class="noright">
+                    <md-icon  ng-style="{'font-size':'36px'}">info_outline</md-icon>
+                    <div class="md-list-item-text" layout="column">
+                       <h3>Estado de la solicitud: Aprobada</h3>
+                       <p>Comentario opcional</p>
+                     </div>
                 </md-list-item>
+                <md-divider><md-divider>
                 <md-list-item class="md-2-line" ng-click="null" class="noright">
                     <md-icon  ng-style="{'color':'#2196F3', 'font-size':'36px'}">insert_drive_file</md-icon>
                     <div class="md-list-item-text" layout="column">
@@ -153,14 +157,17 @@
 <div class="relative">
     <md-fab-speed-dial style="margin-bottom:40px" class="md-fab-bottom-right md-scale" md-open="isOpen" ng-mouseenter="isOpen=true" ng-mouseleave="isOpen=false" md-direction="up" class="md-fling">
         <md-fab-trigger>
-            <md-button class="md-fab md-accent" aria-label="Menu..."><md-icon>menu</md-icon></md-button>
+            <md-button class="md-fab md-accent" aria-label="More options..."><md-icon>more_vert</md-icon></md-button>
         </md-fab-trigger>
         <md-fab-actions>
-            <md-button class="md-fab md-mini md-raised" aria-label="Add Document">
-                <md-icon style="color:teal">add</md-icon>
+            <md-button class="md-fab md-mini md-primary" aria-label="Create request">
+                <md-icon>add</md-icon>
             </md-button>
-            <md-button class="md-fab md-mini md-raised" aria-label="Remove Document">
-                <md-icon style="color:red">delete</md-icon>
+            <md-button class="md-fab md-mini md-accent" aria-label="Edit request">
+                <md-icon>edit</md-icon>
+            </md-button>
+            <md-button class="md-fab md-mini md-warn" aria-label="Remove Document">
+                <md-icon>delete</md-icon>
             </md-button>
         </md-fab-actions>
     </md-fab-speed-dial>
