@@ -1,8 +1,8 @@
-<md-dialog aria-label="New Request">
+<md-dialog aria-label="Edit Request">
     <!-- Dialog title -->
     <md-toolbar>
         <div class="md-toolbar-tools">
-            <h2>Nueva de solicitud de préstamo</h2>
+            <h2>Edición de solicitud</h2>
             <span flex></span>
             <md-button class="md-icon-button" ng-click="closeDialog()">
                 <md-icon aria-label="Close dialog">close</md-icon>
@@ -10,6 +10,24 @@
         </div>
     </md-toolbar>
     <md-dialog-content class="md-padding">
+        <div layout>
+            <!-- Optional comment input -->
+            <div flex="45">
+                <md-input-container class="md-block" md-no-float>
+                    <label>Comentario</label>
+                    <textarea type="text" placeholder="Sin comentario"></textarea>
+                </md-input-container>
+            </div>
+            <!-- State selection -->
+            <div flex="45" flex-offset="10">
+                <md-input-container class="md-block">
+                    <label>Estado</label>
+                    <md-select ng-model="request.state">
+                        <md-option ng-value="state" ng-repeat="state in states">{{state}}</md-option>
+                    </md-select>
+                </md-input-container>
+            </div>
+        </div>
         <div layout>
              <div flex layout-align="center">
                  <!-- File(s) input -->
@@ -41,8 +59,7 @@
                     </md-card-actions>
                     <md-card-actions ng-show="enabledDescription == dKey" layout="row" layout-align="center center">
                         <md-input-container md-no-float>
-                            <input
-                                type="text"
+                            <input type="text"
                                 ng-model="doc.description"
                                 placeholder="Descripción"
                                 ng-keyup="$event.keyCode == 13 && (enabledDescription = -1)">
@@ -55,8 +72,8 @@
         </div>
     </md-dialog-content>
     <md-dialog-actions>
-        <md-button ng-click="createNewRequest()" ng-disabled="files.length < 1" class="md-primary">
-            Crear
+        <md-button ng-click="updateRequest()" ng-disabled="files.length < 1" class="md-primary">
+            Actualizar
         </md-button>
         <md-button ng-click="closeDialog()" class="md-primary">
             Cancelar

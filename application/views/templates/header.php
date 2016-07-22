@@ -33,6 +33,10 @@
         <!--Import materialize-->
         <!-- <link type="text/css" rel="stylesheet" href="<?php echo base_url(); ?>css/materialize.css"  media="screen,projection"/>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/materialize.js"></script> -->
+        <!-- Sweet Alert load -->
+        <script type="text/javascript" src="<?php echo base_url(); ?>sweetalert/dist/sweetalert.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>sweetalert/dist/sweetalert.css">
+        <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>sweetalert/themes/google/google.css">
         <!--Let browser know website is optimized for mobile-->
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <meta charset="utf-8">
@@ -54,7 +58,11 @@
             </h2>
             <md-input-container md-no-float class="md-accent" flex="30" flex-offset="20" style="padding-bottom:0px;margin-right:25px">
                <md-icon style="color:white" class="material-icons">&#xE8B6;</md-icon>
-               <input aria-label="Search" ng-model="searchInput" style="color:white;padding-left:25px;margin-right:5px">
+               <input
+               placeholder="Busque solicitudes de préstamo"
+               aria-label="Search"
+               ng-model="searchInput"
+               style="color:white; padding-left:25px; margin-right:5px; font-size:16px">
                <md-tooltip md-direction="right">Ingrese una cédula. Ej: 11111111</md-tooltip>
             </md-input-container>
             <span flex></span>

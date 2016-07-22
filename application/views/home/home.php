@@ -2,7 +2,7 @@
 <div layout="row">
     <!-- Requests list -->
     <md-content style="background-color: #F5F5F5" ng-style="getSidenavHeight()" flex="30">
-        <div layout="column" flex>
+        <div layout="column" layout-fill flex>
             <md-sidenav
                 class="md-sidenav-left"
                 md-component-id="left"
@@ -91,11 +91,11 @@
                 <div class="md-toolbar-tools">
                     <h2 class="md-headline">Préstamo solicitado el 19/04/2014</h2>
                     <span flex></span>
-                    <md-button class="md-icon-button">
+                    <md-button ng-click="openEditRequestDialog($event)" class="md-icon-button">
                         <md-tooltip>Editar solicitud</md-tooltip>
                         <md-icon>edit</md-icon>
                     </md-button>
-                    <md-button class="md-icon-button">
+                    <md-button ng-click="deleteRequest()" class="md-icon-button">
                         <md-tooltip>Eliminar solicitud</md-tooltip>
                         <md-icon>delete</md-icon>
                     </md-icon-button>
