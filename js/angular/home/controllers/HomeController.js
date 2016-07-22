@@ -2,9 +2,9 @@ angular
     .module('sgdp')
     .controller('HomeController', home);
 
-home.$inject = ['$scope', '$rootScope'];
+home.$inject = ['$scope', '$rootScope', '$timeout'];
 
-function home($scope, $rootScope) {
+function home($scope, $rootScope, $timeout) {
     'use strict';
 
     $scope.isOpen = false;
@@ -12,7 +12,7 @@ function home($scope, $rootScope) {
     $scope.getSidenavHeight = function() {
         return {
             // 129 = header and footer height, approx
-            'max-height':($(window).height() - 129)
+            'height':($(window).height() - 129)
         };
     }
 
@@ -23,5 +23,18 @@ function home($scope, $rootScope) {
         };
     }
 
+    // On opening, add a delayed property which shows tooltips after the speed dial has opened
+    // so that they have the proper position; if closing, immediately hide the tooltips
+    $scope.$watch('fab.isOpen', function(isOpen) {
+      if (isOpen) {
+          console.log("Opened!");
+        $timeout(function() {
+          $scope.tooltipVisible = true;
+        }, 600);
+      } else {
+          console.log("Closed!");
+        $scope.tooltipVisible = false;
+      }
+    });
 
 }
