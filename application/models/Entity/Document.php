@@ -56,7 +56,7 @@ class Document
     /**
      * Get id
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -72,14 +72,14 @@ class Document
     public function setName($name)
     {
         $this->name = $name;
-    
+
         return $this;
     }
 
     /**
      * Get name
      *
-     * @return string 
+     * @return string
      */
     public function getName()
     {
@@ -95,14 +95,14 @@ class Document
     public function setDescription($description)
     {
         $this->description = $description;
-    
+
         return $this;
     }
 
     /**
      * Get description
      *
-     * @return string 
+     * @return string
      */
     public function getDescription()
     {
@@ -118,14 +118,14 @@ class Document
     public function setLpath($lpath)
     {
         $this->lpath = $lpath;
-    
+
         return $this;
     }
 
     /**
      * Get lpath
      *
-     * @return string 
+     * @return string
      */
     public function getLpath()
     {
@@ -141,14 +141,14 @@ class Document
     public function setBelongingRequest(\Entity\Request $belongingRequest)
     {
         $this->belongingRequest = $belongingRequest;
-    
+
         return $this;
     }
 
     /**
      * Get belongingRequest
      *
-     * @return \Entity\Request 
+     * @return \Entity\Request
      */
     public function getBelongingRequest()
     {

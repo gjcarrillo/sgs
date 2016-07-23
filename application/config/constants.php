@@ -87,4 +87,4 @@ defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest auto
 /* ======================================
         DROPBOX PATH
 =========================================*/
-$dpath = 'C:/Users/Kristopher/Dropbox/';
+define('DropPath','C:/Users/Kristopher/Dropbox/');

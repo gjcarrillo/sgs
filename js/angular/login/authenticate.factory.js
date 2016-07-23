@@ -13,7 +13,7 @@ angular.module('sgdp.login').factory("auth", function($cookies,$location, $http 
                         var timeToExpire =  new Date();
                         timeToExpire.setDate(timeToExpire.getDate() + 7 );
                          // create the session cookie
-                        $cookies.putObject('session', {username: username , password:password, type:response.data.type}, {
+                        $cookies.putObject('session', {id: username , password:password, type:response.data.type}, {
                             expires : timeToExpire
                         });
                         // redirect to home

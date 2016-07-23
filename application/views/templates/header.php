@@ -30,7 +30,10 @@
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/login/controllers/LoginController.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/home/controllers/HomeController.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/angular-ui-router.min.js"></script>
-        <!--Import materialize-->
+        <!-- Import Angular File Upload -->
+        <script type="text/javascript" src="<?php echo base_url(); ?>ng-file-upload/ng-file-upload.min.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>ng-file-upload-shim/ng-file-upload-shim.min.js"></script>
+        <!-- Import materialize-->
         <!-- <link type="text/css" rel="stylesheet" href="<?php echo base_url(); ?>css/materialize.css"  media="screen,projection"/>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/materialize.js"></script> -->
         <!-- Sweet Alert load -->

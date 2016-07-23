@@ -2,9 +2,9 @@ angular
     .module('sgdp')
     .controller('HomeController', home);
 
-home.$inject = ['$scope', '$rootScope', '$timeout', '$mdDialog'];
+home.$inject = ['$scope', '$rootScope', '$timeout', '$mdDialog', 'Upload', '$cookies', '$http'];
 
-function home($scope, $rootScope, $timeout, $mdDialog) {
+function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) {
     'use strict';
 
     $scope.isOpen = false;
@@ -30,6 +30,18 @@ function home($scope, $rootScope, $timeout, $mdDialog) {
         };
     }
 
+    // On opening, add a delayed property which shows tooltips after the speed dial has opened
+    // so that they have the proper position; if closing, immediately hide the tooltips
+    $scope.$watch('fab.isOpen', function(isOpen) {
+        if (isOpen) {
+            $timeout(function() {
+                $scope.tooltipVisible = true;
+            }, 600);
+        } else {
+            $scope.tooltipVisible = false;
+        }
+    });
+
     /**
     * Custom dialog for creating a new request
     */
@@ -39,11 +51,14 @@ function home($scope, $rootScope, $timeout, $mdDialog) {
             parent: parentEl,
             targetEvent: $event,
             templateUrl: 'templates/dialogs/newRequest.html',
-            clickOutsideToClose: true,
+            clickOutsideToClose: false,
+            escapeToClose: false,
             controller: DialogController
         });
         // Isolated dialog controller
         function DialogController($scope, $mdDialog) {
+            $scope.files = [];
+            $scope.uploading = false;
             $scope.enabledDescription = -1;
 
             $scope.closeDialog = function() {
@@ -52,10 +67,71 @@ function home($scope, $rootScope, $timeout, $mdDialog) {
 
             $scope.removeDoc = function(index) {
                 $scope.files.splice(index, 1);
-            }
+            };
+
+            $scope.showError = function(error, param) {
+                if (error === "pattern") {
+                    return "Archivo no aceptado. Por favor seleccione sólo documentos.";
+                } else if (error === "maxSize") {
+                    return "El archivo es muy grande. Tamaño máximo es: " + param;
+                }
+            };
 
             $scope.createNewRequest = function() {
-                // TODO: Send files to server & update database
+                $scope.uploading = true;
+                console.log($scope.files);
+                var userId = $cookies.getObject("session").id;
+                $http.get('index.php/home/HomeController/createRequest', {params:{userId:userId}})
+                    .then(function (response) {
+                        if (response.data.message== "success") {
+                            $scope.requestId = response.data.requestId;
+                            console.log($scope.requestId);
+                            uploadFiles(userId, $scope.requestId);
+                        }
+                    });
+            };
+
+            $scope.gatherFiles = function(files, errFiles) {
+                $scope.files = files;
+                console.log($scope.files);
+                $scope.errFiles = errFiles;
+            };
+
+            function uploadFiles(userId, requestId) {
+                var uploadedFiles = 0;
+                angular.forEach($scope.files, function(file) {
+                    file.upload = Upload.upload({
+                        url: 'index.php/home/HomeController/upload',
+                        data: {file: file, userId: userId, requestId: requestId},
+                    });
+                    file.upload.then(function (response) {
+                        file.lpath = response.data.lpath;
+                        file.requestId = $scope.requestId;
+                        // file.name is not passed through GET. Gotta create new property
+                        file.docName = file.name;
+                        uploadedFiles++;
+                        // Doc successfully uploaded. Now create it on database.
+                        console.log(file);
+                        console.log(file.name);
+                        $http.get('index.php/home/HomeController/createDocument', {params:file})
+                            .then(function (response) {
+                                if (response.data.message== "success") {
+                                    if (uploadedFiles == $scope.files.length) {
+                                        // Close dialog and alert user once everything is completed
+                                        $mdDialog.hide();
+                                        swal("Solicitud creada", "La solicitud ha sido creada exitosamente.", "success");
+                                    }
+                                }
+                            });
+                    }, function (response) {
+                        if (response.status > 0)
+                            $scope.errorMsg = response.status + ': ' + response.data;
+                            console.log($scope.errorMsg);
+                    }, function (evt) {
+                        file.progress = Math.min(100, parseInt(100.0 *
+                                                 evt.loaded / evt.total));
+                    });
+                });
             }
         }
     };
@@ -88,7 +164,7 @@ function home($scope, $rootScope, $timeout, $mdDialog) {
                 $scope.files.splice(index, 1);
             }
 
-            $scope.updateRequet = function() {
+            $scope.updateRequest = function() {
                 // TODO: Send files to server & update database
             }
         }
@@ -107,30 +183,29 @@ function home($scope, $rootScope, $timeout, $mdDialog) {
             showLoaderOnConfirm: true,
 
         }, function() {
-            $timeout(function() {
-                swal("Solicitud eliminada", "La solicitud selecionada ha sido eliminada exitosamente.", "success");
-            }, 600);
+
+
             // $http.get('index.php/configuration/TicketsConfigController/delete',{params:{id:$scope.ticketTypes[index].id}})
             // .then(function(response) {
             //     console.log(response)
             //     if (response.data.message == "success") {
-            //         $http.get('index.php/configuration/TicketsConfigController/getTicketTypes')
-            //             .then(function(response) {
-            //             if(response.data.message === "success") {
-            //                 $scope.ticketTypes = response.data.data;
-            //                 $scope.edit = false;
-            //                 initializeChipsContainers();
-            //                 // Look for active one.
-            //                 for (var i = 0; i < $scope.ticketTypes.length; i++) {
-            //                     if ($scope.ticketTypes[i].active) {
-            //                         $scope.active = i;
-            //                     }
-            //                 }
-            //             }
-            //             })
-            //         swal("Solicitud eliminada", "La solicitud selecionada ha sido eliminada exitosamente.", "success");
+            //     $http.get('index.php/configuration/TicketsConfigController/getTicketTypes')
+            //     .then(function(response){
+            //     if(response.data.message === "success") {
+            //     $scope.ticketTypes = response.data.data;
+            //     $scope.edit = false;
+            //     initializeChipsContainers();
+            //     // Look for active one.
+            //     for (var i = 0; i < $scope.ticketTypes.length; i++) {
+            //     if ($scope.ticketTypes[i].active) {
+            //         $scope.active = i;
+            //     }
+            //     }
+            //     }
+            //     })
+            //     swal("Solicitud eliminada", "La solicitud selecionada ha sido eliminada exitosamente.", "success");
             //     } else {
-            //         swal("Oops!", "Ha ocurrido un error y su solicitud no ha podido ser procesada. Por favor intente más tarde.", "error");
+            //     swal("Oops!", "Ha ocurrido un error y su solicitud no ha podido ser procesada. Por favor intente más tarde.", "error");
             //     }
             // })
 
