@@ -10,19 +10,17 @@
         </div>
     </md-toolbar>
     <md-dialog-content class="md-padding">
-        <div layout>
-             <div flex layout-align="center">
-                 <!-- File(s) input -->
-                 <span>Haga click en el botón para agregar documentos<span>
-                 <md-button
-                    ngf-select="gatherFiles($files, $invalidFiles)"
-                    multiple
-                    ngf-pattern="'image/*,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheetapplication/vnd.openxmlformats-officedocument.spreadsheetml.template,,application/pdf,application/msword'"
-                    ngf-max-size="4MB"
-                    class="md-raised md-primary md-icon-button">
-                    <md-icon>file_upload</md-icon>
-                </md-button>
-            </div>
+        <!-- File(s) input -->
+        <div layout layout-align="center center">
+             <span>Haga click en el botón para agregar documentos<span>
+             <md-button
+                ngf-select="gatherFiles($files, $invalidFiles)"
+                multiple
+                ngf-pattern="'image/*,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheetapplication/vnd.openxmlformats-officedocument.spreadsheetml.template,,application/pdf,application/msword'"
+                ngf-max-size="4MB"
+                class="md-raised md-primary md-icon-button">
+                <md-icon>file_upload</md-icon>
+            </md-button>
         </div>
         <br/>
         <div layout>

@@ -100,14 +100,12 @@
                                    <h3>{{doc.name}}</h3>
                                    <p>{{doc.description}}</p>
                                  </div>
-                                 <div layout>
-                                     <md-icon
-                                        ng-click="deleteDoc(dKey)" 
-                                        aria-label="Delete doc"
-                                        class="md-secondary">
-                                        delete
-                                    </md-icon>
-                                 </div>
+                                 <md-icon
+                                    ng-click="deleteDoc(dKey)"
+                                    aria-label="Delete doc"
+                                    class="md-secondary">
+                                    delete
+                                </md-icon>
                             </md-list-item>
                             <md-divider ng-if="!$last" md-inset></md-divider>
                         </div>

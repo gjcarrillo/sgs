@@ -157,6 +157,17 @@ class Request
     }
 
     /**
+    * Set status converted into text
+    * @param string $status
+    * @return Request
+    */
+    public function setStatusByText($status)
+    {
+        $this->status = ($status == "Recibido" ? 1 : ($status == "Aprobado" ? 2 : 3));
+        return $this;
+    }
+
+    /**
      * Add documents
      *
      * @param \Entity\Document $documents

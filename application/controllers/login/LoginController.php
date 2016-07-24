@@ -10,7 +10,7 @@ class LoginController extends CI_Controller {
 
        try {
            $em = $this->doctrine->em;
-           $user = $em->getRepository('\Entity\User')->findOneBy(array("id"=>$_GET['id']));
+           $user = $em->find('\Entity\User', $_GET['id']);
            if($user != null) {
                if($user->getPassword() == $_GET['password']) {
                    $result['message'] ="success";

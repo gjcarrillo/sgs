@@ -14,7 +14,7 @@ class HomeController extends CI_Controller {
 			$em = $this->doctrine->em;
 			// TODO: Fetch current session's usertype. If he does not have permission -- stop!
 			// otherwise authorize query.
-			$user = $em->getRepository('\Entity\User')->findOneBy(array("id"=>$_GET['fetchId']));
+			$user = $em->find('\Entity\User', $_GET['fetchId']);
 			if ($user === null) {
 				$result['error'] = "La cédula ingresada no se encuentra en la base de datos";
 			} else {

@@ -8,16 +8,11 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
     'use strict';
 
     $scope.isOpen = false;
-    $scope.states = ["Recibido", "Aprobado", "Rechazado"];
     $scope.loading = false;
     $scope.selectedReq = -1;
     $scope.requests = [];
     $scope.docs = [];
     $scope.request = {};
-    // EXAMPLE DATA
-    $scope.request.createdDate = '19/04/2014';
-    $scope.request.state = $scope.states[1];
-    // END OF EXAMPLE DATA
 
     $scope.getSidenavHeight = function() {
         return {
@@ -34,7 +29,6 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
     }
 
     $scope.selectRequest = function(req) {
-        console.log(req);
         $scope.selectedReq = req;
         if (req != -1) {
             $scope.docs = $scope.requests[req].docs;
@@ -116,13 +110,11 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
             $scope.createNewRequest = function() {
                 $scope.uploading = true;
                 console.log($scope.files);
-                var userId = $cookies.getObject("session").id;
-                $http.get('index.php/documents/NewRequest/createRequest', {params:{userId:userId}})
+                $http.get('index.php/documents/NewRequest/createRequest', {params:{userId:$scope.fetchId}})
                     .then(function (response) {
                         if (response.data.message== "success") {
                             $scope.requestId = response.data.requestId;
-                            console.log($scope.requestId);
-                            uploadFiles(userId, $scope.requestId);
+                            uploadFiles($scope.fetchId, $scope.requestId);
                         }
                     });
             };
@@ -143,8 +135,6 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
                         file.docName = file.name;
                         uploadedFiles++;
                         // Doc successfully uploaded. Now create it on database.
-                        console.log(file);
-                        console.log(file.name);
                         $http.get('index.php/documents/NewRequest/createDocument', {params:file})
                             .then(function (response) {
                                 if (response.data.message== "success") {
@@ -192,17 +182,19 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
             clickOutsideToClose: false,
             escapeToClose: false,
             locals: {
-                request: $scope.request,
-                states: $scope.states
+                fetchId: $scope.fetchId,
+                request: $scope.requests[$scope.selectedReq]
             },
             controller: DialogController
         });
         // Isolated dialog controller
-        function DialogController($scope, $mdDialog, request, states) {
+        function DialogController($scope, $mdDialog, fetchId, request) {
+            $scope.files = [];
+            $scope.fetchId = fetchId;
+            $scope.uploading = false;
             $scope.request = request;
-            $scope.states = states;
-            // TODO: files = $scope.request.docs;
             $scope.enabledDescription = -1;
+            $scope.statuses = ["Recibido", "Aprobado", "Rechazado"];
 
             $scope.closeDialog = function() {
                 $mdDialog.hide();
@@ -210,10 +202,86 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
 
             $scope.removeDoc = function(index) {
                 $scope.files.splice(index, 1);
-            }
+            };
 
+            $scope.showError = function(error, param) {
+                if (error === "pattern") {
+                    return "Archivo no aceptado. Por favor seleccione sólo documentos.";
+                } else if (error === "maxSize") {
+                    return "El archivo es muy grande. Tamaño máximo es: " + param;
+                }
+            };
+            // Gathers the files whenever the file input's content is updated
+            $scope.gatherFiles = function(files, errFiles) {
+                $scope.files = files;
+                console.log($scope.files);
+                $scope.errFiles = errFiles;
+            };
+
+            // Creates new request in database and uploads documents
             $scope.updateRequest = function() {
-                // TODO: Send files to server & update database
+                $scope.uploading = true;
+                console.log($scope.files);
+                console.log($scope.request.id);
+                $http.get('index.php/documents/EditRequest/updateRequest', {params:$scope.request})
+                    .then(function (response) {
+                        if (response.data.message== "success") {
+                            if ($scope.files.length === 0) {
+                                // Close dialog and alert user that operation was successful
+                                $mdDialog.hide();
+                                swal("Solicitud actualizada", "La solicitud ha sido actualizada exitosamente.", "success");
+                            } else {
+                                uploadFiles($scope.fetchId, $scope.request.id);
+                            }
+                        }
+                    });
+            };
+
+            // Uploads each of selected documents to the server
+            // and updates database
+            function uploadFiles(userId, requestId) {
+                var uploadedFiles = 0;
+                angular.forEach($scope.files, function(file) {
+                    file.upload = Upload.upload({
+                        url: 'index.php/documents/NewRequest/upload',
+                        data: {file: file, userId: userId, requestId: requestId},
+                    });
+                    file.upload.then(function (response) {
+                        file.lpath = response.data.lpath;
+                        file.requestId = requestId;
+                        // file.name is not passed through GET. Gotta create new property
+                        file.docName = file.name;
+                        uploadedFiles++;
+                        // Doc successfully uploaded. Now create it on database.
+                        console.log(file);
+                        console.log(file.name);
+                        $http.get('index.php/documents/NewRequest/createDocument', {params:file})
+                            .then(function (response) {
+                                if (response.data.message== "success") {
+                                    // Update interface
+                                    $http.get('index.php/home/HomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
+                                        .then(function (response) {
+                                            if (response.data.message === "success") {
+                                                updateContent(response.data.requests, response.data.requests.length-1);
+                                                console.log(response.data.requests);
+                                                // Close dialog and alert user that operation was successful
+                                                $mdDialog.hide();
+                                                swal("Solicitud actualizada", "La solicitud ha sido actualizada exitosamente.", "success");
+                                            }
+                                        });
+                                }
+                            });
+                    }, function (response) {
+                        if (response.status > 0) {
+                            // Show file error message
+                            $scope.errorMsg = response.status + ': ' + response.data;
+                        }
+                    }, function (evt) {
+                        // Fetch file updating progress
+                        file.progress = Math.min(100, parseInt(100.0 *
+                                                 evt.loaded / evt.total));
+                    });
+                });
             }
         }
     };

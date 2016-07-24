@@ -30,7 +30,8 @@ class NewRequest extends CI_Controller {
             $request->setStatus(1);
             // TODO: Configure TIMEZONE
             $request->setCreationDate(new \DateTime('now'));
-            $user = $em->getRepository('\Entity\User')->findOneBy(array("id"=>$_GET['userId']));
+            $user = $em->find('\Entity\User', $_GET['userId']);
+
             $request->setUserOwner($user);
             $user->addRequest($request);
             $em->persist($request);
@@ -57,7 +58,7 @@ class NewRequest extends CI_Controller {
                 $doc->setDescription($_GET['description']);
             }
             $doc->setLpath($_GET['lpath']);
-            $request = $em->getRepository('\Entity\Request')->findOneBy(array("id"=>$_GET['requestId']));
+            $request = $em->find('\Entity\Request', $_GET['requestId']);
             $doc->setBelongingRequest($request);
             $request->addDocument($doc);
 
