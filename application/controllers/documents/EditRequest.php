@@ -8,12 +8,14 @@ class EditRequest extends CI_Controller {
 		$this->load->view('documents/editRequest');
 	}
 
+	public function editionDialog() {
+		$this->load->view('documents/editDocDescription');
+	}
+
 	public function updateRequest() {
 		try {
 			$em = $this->doctrine->em;
 			// Update request
-			\ChromePhp::log($_GET['id']);
-			\ChromePhp::log($_GET['status']);
 			$request = $em->find('\Entity\Request', $_GET['id']);
 			$request->setStatusByText($_GET['status']);
 			if (isset($_GET['comment'])) {
@@ -21,6 +23,24 @@ class EditRequest extends CI_Controller {
 			}
 			$em->merge($request);
 			$em->persist($request);
+			$em->flush();
+			$result['message'] = "success";
+		} catch (Exception $e) {
+			\ChromePhp::log($e);
+			$result['message'] = "error";
+		}
+
+		echo json_encode($result);
+	}
+
+	public function updateDocDescription() {
+		try {
+			$em = $this->doctrine->em;
+			// Update document's description
+			$document = $em->find('\Entity\Document', $_GET['id']);
+			$document->setDescription($_GET['description']);
+			$em->merge($document);
+			$em->persist($document);
 			$em->flush();
 			$result['message'] = "success";
 		} catch (Exception $e) {

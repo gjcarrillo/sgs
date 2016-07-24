@@ -351,4 +351,28 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
         });
     };
 
+    $scope.editDescription = function($event, doc) {
+        var parentEl = angular.element(document.body);
+        $mdDialog.show({
+            parent: parentEl,
+            targetEvent: $event,
+            clickOutsideToClose: true,
+            escapeToClose: true,
+            templateUrl: 'index.php/documents/EditRequest/editionDialog',
+            locals: {
+                doc: doc
+            },
+            controller: DialogController
+        });
+
+        function DialogController($scope, $mdDialog, doc) {
+            $scope.doc = doc;
+
+            $scope.saveEdition = function() {
+                $http.get('index.php/documents/EditRequest/updateDocDescription', {params:doc});
+                $mdDialog.hide();
+            }
+        }
+    };
+
 }

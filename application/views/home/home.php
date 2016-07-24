@@ -100,12 +100,25 @@
                                    <h3>{{doc.name}}</h3>
                                    <p>{{doc.description}}</p>
                                  </div>
-                                 <md-icon
-                                    ng-click="deleteDoc(dKey)"
-                                    aria-label="Delete doc"
-                                    class="md-secondary">
-                                    delete
-                                </md-icon>
+                                <md-menu class="md-secondary">
+                                    <md-button ng-click="$mdOpenMenu($event)" class="md-icon-button" aria-label="More">
+                                        <md-icon>more_vert</md-icon>
+                                    </md-button>
+                                    <md-menu-content>
+                                        <md-menu-item>
+                                            <md-button ng-click="editDescription($event, doc)">
+                                                <md-icon>edit</md-icon>
+                                                Descripción
+                                            </md-button>
+                                        </md-menu-item>
+                                        <md-menu-item>
+                                            <md-button ng-click="deleteDoc(dKey)">
+                                                <md-icon>delete</md-icon>
+                                                Eliminar
+                                            </md-button>
+                                        </md-menu-item>
+                                    </md-menu-content>
+                                </md-menu>
                             </md-list-item>
                             <md-divider ng-if="!$last" md-inset></md-divider>
                         </div>
