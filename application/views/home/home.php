@@ -76,7 +76,7 @@
                             <md-tooltip>Editar solicitud</md-tooltip>
                             <md-icon>edit</md-icon>
                         </md-button>
-                        <md-button ng-click="deleteRequest()" class="md-icon-button">
+                        <md-button ng-click="deleteRequest($event)" class="md-icon-button">
                             <md-tooltip>Eliminar solicitud</md-tooltip>
                             <md-icon>delete</md-icon>
                         </md-icon-button>
@@ -112,7 +112,7 @@
                                             </md-button>
                                         </md-menu-item>
                                         <md-menu-item>
-                                            <md-button ng-click="deleteDoc(dKey)">
+                                            <md-button ng-click="deleteDoc($event, dKey)">
                                                 <md-icon>delete</md-icon>
                                                 Eliminar
                                             </md-button>

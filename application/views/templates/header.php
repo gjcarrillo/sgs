@@ -19,9 +19,6 @@
         <!-- Angular Material Library -->
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/angular-material.min.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/angular-ui-router.min.js"></script>
-        <!-- Angular Material file input -->
-        <link href="<?php echo base_url(); ?>lf-ng-md-file-input/lf-ng-md-file-input.css" rel="stylesheet" type="text/css"/>
-        <script type="text/javascript" src="<?php echo base_url(); ?>lf-ng-md-file-input/lf-ng-md-file-input.js"></script>
         <!-- App module, controllers nad utilities -->
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/myApp.module.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/cookies.min.js"></script>
@@ -33,13 +30,6 @@
         <!-- Import Angular File Upload -->
         <script type="text/javascript" src="<?php echo base_url(); ?>ng-file-upload/ng-file-upload.min.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>ng-file-upload-shim/ng-file-upload-shim.min.js"></script>
-        <!-- Import materialize-->
-        <!-- <link type="text/css" rel="stylesheet" href="<?php echo base_url(); ?>css/materialize.css"  media="screen,projection"/>
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/materialize.js"></script> -->
-        <!-- Sweet Alert load -->
-        <script type="text/javascript" src="<?php echo base_url(); ?>sweetalert/dist/sweetalert.min.js"></script>
-        <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>sweetalert/dist/sweetalert.css">
-        <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>sweetalert/themes/google/google.css">
         <!--Let browser know website is optimized for mobile-->
         <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"/> -->
         <meta charset="utf-8">

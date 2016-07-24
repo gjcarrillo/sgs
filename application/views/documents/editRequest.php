@@ -29,18 +29,16 @@
             </div>
         </div>
         <!-- File(s) input -->
-        <div layout>
-             <div flex layout-align="center">
-                 <span>Haga click en el botón para opcionalmente agregar más documentos</span>
-                 <md-button
-                    ngf-select="gatherFiles($files, $invalidFiles)"
-                    multiple
-                    ngf-pattern="'image/*,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheetapplication/vnd.openxmlformats-officedocument.spreadsheetml.template,,application/pdf,application/msword'"
-                    ngf-max-size="4MB"
-                    class="md-raised md-primary md-icon-button">
-                    <md-icon>file_upload</md-icon>
-                </md-button>
-            </div>
+        <div layout layout-align="center">
+             <span>Haga click en el botón para opcionalmente agregar más documentos</span>
+             <md-button
+                ngf-select="gatherFiles($files, $invalidFiles)"
+                multiple
+                ngf-pattern="'image/*,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheetapplication/vnd.openxmlformats-officedocument.spreadsheetml.template,,application/pdf,application/msword'"
+                ngf-max-size="4MB"
+                class="md-raised md-primary md-icon-button">
+                <md-icon>file_upload</md-icon>
+            </md-button>
         </div>
         <br/>
         <div layout>

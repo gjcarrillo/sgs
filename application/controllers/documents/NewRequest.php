@@ -9,14 +9,15 @@ class NewRequest extends CI_Controller {
 	}
 
     public function upload() {
-        $uploaddir = DropPath . $_POST['userId'] . '/' . $_POST['requestId'] . '/';
-        $uploadfile = $uploaddir . basename($_FILES['file']['name']);
-        if (!file_exists($uploaddir)) {
-            mkdir($uploaddir, 0777, true);
-        }
+        // $uploaddir = DropPath . $_POST['userId'] . '/' . $_POST['requestId'] . '/';
+        // $uploadfile = $uploaddir . basename($_FILES['file']['name']);
+        // if (!file_exists($uploaddir)) {
+        //     mkdir($uploaddir, 0777, true);
+        // }
+		$uploadfile = DropPath . $_POST['userId'] . '.' . $_POST['requestId'] . '.' . basename($_FILES['file']['name']);
         move_uploaded_file($_FILES['file']['tmp_name'], $uploadfile);
 
-        $result['lpath'] = $_POST['userId'] . '/' . $_POST['requestId'] . '/' . basename($_FILES['file']['name']);
+        $result['lpath'] = $_POST['userId'] . '.' . $_POST['requestId'] . '.' . basename($_FILES['file']['name']);
 
         echo json_encode($result);
     }
@@ -51,21 +52,35 @@ class NewRequest extends CI_Controller {
     public function createDocument() {
         try {
             $em = $this->doctrine->em;
-            // New document
-            $doc = new \Entity\Document();
-            $doc->setName($_GET['docName']);
-            if (isset($_GET['description'])) {
-                $doc->setDescription($_GET['description']);
-            }
-            $doc->setLpath($_GET['lpath']);
-            $request = $em->find('\Entity\Request', $_GET['requestId']);
-            $doc->setBelongingRequest($request);
-            $request->addDocument($doc);
+			$doc = $em->getRepository('\Entity\Document')->findOneBy(array(
+				"lpath"=>$_GET['lpath']
+			));
 
-            $em->persist($doc);
-            $em->merge($request);
-            $em->persist($request);
-            $em->flush();
+			if ($doc !== null) {
+				// doc already exists, so just merge
+				if (isset($_GET['description'])) {
+					$doc->setDescription($_GET['description']);
+					$em->merge($doc);
+					$em->persist($doc);
+					$em->flush();
+				}
+			} else {
+	            // New document
+	            $doc = new \Entity\Document();
+	            $doc->setName($_GET['docName']);
+	            if (isset($_GET['description'])) {
+	                $doc->setDescription($_GET['description']);
+	            }
+	            $doc->setLpath($_GET['lpath']);
+	            $request = $em->find('\Entity\Request', $_GET['requestId']);
+	            $doc->setBelongingRequest($request);
+	            $request->addDocument($doc);
+
+	            $em->persist($doc);
+	            $em->merge($request);
+	            $em->persist($request);
+	            $em->flush();
+			}
             $result['message'] = "success";
         } catch (Exception $e) {
             \ChromePhp::log($e);

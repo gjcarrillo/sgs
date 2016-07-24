@@ -31,6 +31,8 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
     $scope.selectRequest = function(req) {
         $scope.selectedReq = req;
         if (req != -1) {
+            console.log(req);
+            console.log($scope.requests[req]);
             $scope.docs = $scope.requests[req].docs;
         }
     };
@@ -133,22 +135,32 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
                         file.requestId = $scope.requestId;
                         // file.name is not passed through GET. Gotta create new property
                         file.docName = file.name;
-                        uploadedFiles++;
                         // Doc successfully uploaded. Now create it on database.
                         $http.get('index.php/documents/NewRequest/createDocument', {params:file})
                             .then(function (response) {
                                 if (response.data.message== "success") {
-                                    // Update interface
-                                    $http.get('index.php/home/HomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
-                                        .then(function (response) {
-                                            if (response.data.message === "success") {
-                                                updateContent(response.data.requests, response.data.requests.length-1);
-                                                console.log(response.data.requests);
-                                                // Close dialog and alert user that operation was successful
-                                                $mdDialog.hide();
-                                                swal("Solicitud creada", "La solicitud ha sido creada exitosamente.", "success");
-                                            }
-                                        });
+                                    uploadedFiles++;
+                                    if (uploadedFiles === $scope.files.length) {
+                                        // Update interface
+                                        $http.get('index.php/home/HomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
+                                            .then(function (response) {
+                                                if (response.data.message === "success") {
+                                                    updateContent(response.data.requests, response.data.requests.length-1);
+                                                    console.log(response.data.requests);
+                                                    // Close dialog and alert user that operation was successful
+                                                    $mdDialog.hide();
+                                                    $mdDialog.show(
+                                                        $mdDialog.alert()
+                                                            .parent(angular.element(document.body))
+                                                            .clickOutsideToClose(true)
+                                                            .title('Solicitud creada')
+                                                            .textContent('La solicitud ha sido creada exitosamente.')
+                                                            .ariaLabel('Successful request creation dialog')
+                                                            .ok('Ok')
+                                                    );
+                                                }
+                                            });
+                                    }
                                 }
                             });
                     }, function (response) {
@@ -173,6 +185,9 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
         $scope.selectRequest(selection);
     }
 
+    /**
+    * Custom dialog for updating an existing request
+    */
     $scope.openEditRequestDialog = function($event) {
         var parentEl = angular.element(document.body);
         $mdDialog.show({
@@ -183,13 +198,15 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
             escapeToClose: false,
             locals: {
                 fetchId: $scope.fetchId,
-                request: $scope.requests[$scope.selectedReq]
+                request: $scope.requests[$scope.selectedReq],
+                selectedReq: $scope.selectedReq
             },
             controller: DialogController
         });
         // Isolated dialog controller
-        function DialogController($scope, $mdDialog, fetchId, request) {
+        function DialogController($scope, $mdDialog, fetchId, request, selectedReq) {
             $scope.files = [];
+            $scope.selectedReq = selectedReq;
             $scope.fetchId = fetchId;
             $scope.uploading = false;
             $scope.request = request;
@@ -229,7 +246,15 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
                             if ($scope.files.length === 0) {
                                 // Close dialog and alert user that operation was successful
                                 $mdDialog.hide();
-                                swal("Solicitud actualizada", "La solicitud ha sido actualizada exitosamente.", "success");
+                                $mdDialog.show(
+                                    $mdDialog.alert()
+                                        .parent(angular.element(document.body))
+                                        .clickOutsideToClose(true)
+                                        .title('Solicitud actualizada')
+                                        .textContent('La solicitud fue actualizada exitosamente.')
+                                        .ariaLabel('Successful request update dialog')
+                                        .ok('Ok')
+                                );
                             } else {
                                 uploadFiles($scope.fetchId, $scope.request.id);
                             }
@@ -251,24 +276,34 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
                         file.requestId = requestId;
                         // file.name is not passed through GET. Gotta create new property
                         file.docName = file.name;
-                        uploadedFiles++;
                         // Doc successfully uploaded. Now create it on database.
                         console.log(file);
                         console.log(file.name);
                         $http.get('index.php/documents/NewRequest/createDocument', {params:file})
                             .then(function (response) {
                                 if (response.data.message== "success") {
-                                    // Update interface
-                                    $http.get('index.php/home/HomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
-                                        .then(function (response) {
-                                            if (response.data.message === "success") {
-                                                updateContent(response.data.requests, response.data.requests.length-1);
-                                                console.log(response.data.requests);
-                                                // Close dialog and alert user that operation was successful
-                                                $mdDialog.hide();
-                                                swal("Solicitud actualizada", "La solicitud ha sido actualizada exitosamente.", "success");
-                                            }
-                                        });
+                                    uploadedFiles++;
+                                    if (uploadedFiles == $scope.files.length) {
+                                        // Update interface
+                                        $http.get('index.php/home/HomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
+                                            .then(function (response) {
+                                                if (response.data.message === "success") {
+                                                    updateContent(response.data.requests, $scope.selectedReq);
+                                                    console.log(response.data.requests);
+                                                    // Close dialog and alert user that operation was successful
+                                                    $mdDialog.hide();
+                                                    $mdDialog.show(
+                                                        $mdDialog.alert()
+                                                            .parent(angular.element(document.body))
+                                                            .clickOutsideToClose(true)
+                                                            .title('Solicitud actualizada')
+                                                            .textContent('La solicitud fue actualizada exitosamente.')
+                                                            .ariaLabel('Successful request update dialog')
+                                                            .ok('Ok')
+                                                    );
+                                                }
+                                            });
+                                    }
                                 }
                             });
                     }, function (response) {
@@ -286,71 +321,103 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
         }
     };
 
-    $scope.deleteDoc = function(dKey) {
-        swal({
-         title: "Confirmación",
-         text: "El documento " + $scope.requests[$scope.selectedReq].docs[dKey].name + " será eliminado. ¿Desea proceder?",
-         type: "warning",
-         confirmButtonText: "Sí",
-         cancelButtonText: "No",
-         showCancelButton: true,
-         closeOnConfirm: false,
-         animation: "slide-from-top",
-         showLoaderOnConfirm: true
-     }, function() {
-         $http.get('index.php/home/HomeController/deleteDocument',{params:$scope.requests[$scope.selectedReq].docs[dKey]})
-             .then(function(response) {
-                 console.log(response)
-                 if (response.data.message == "success") {
-                     // Update the view
-                     $http.get('index.php/home/HomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
-                         .then(function (response) {
-                             if (response.data.message === "success") {
-                                 updateContent(response.data.requests, $scope.selectedReq);
-                             }
-                         });
-                     swal("Documento eliminado", "El documento selecionada ha sido eliminado exitosamente.", "success");
-                 } else {
-                     swal("Oops!", "Ha ocurrido un error y su solicitud no ha podido ser procesada. Por favor intente más tarde.", "error");
-                 }
+    $scope.deleteDoc = function(ev, dKey) {
+         var confirm = $mdDialog.confirm()
+             .title('Confirmación de eliminación')
+             .textContent("El documento " + $scope.requests[$scope.selectedReq].docs[dKey].name + " será eliminado.")
+             .ariaLabel('Document removal warning')
+             .targetEvent(ev)
+             .ok('Continuar')
+             .cancel('Cancelar');
+             $mdDialog.show(confirm).then(function() {
+                 $http.get('index.php/home/HomeController/deleteDocument',{params:$scope.requests[$scope.selectedReq].docs[dKey]})
+                     .then(function(response) {
+                         console.log(response)
+                         if (response.data.message == "success") {
+                             // Update the view
+                             $http.get('index.php/home/HomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
+                                 .then(function (response) {
+                                     if (response.data.message === "success") {
+                                         updateContent(response.data.requests, $scope.selectedReq);
+                                     }
+                                 });
+                             $mdDialog.show(
+                                 $mdDialog.alert()
+                                     .parent(angular.element(document.body))
+                                     .clickOutsideToClose(true)
+                                     .title('Documento eliminado')
+                                     .textContent('El documento fue eliminado exitosamente.')
+                                     .ariaLabel('Successful document removal dialog')
+                                     .ok('Ok')
+                                     .targetEvent(ev)
+                             );
+                         } else {
+                             $mdDialog.show(
+                                 $mdDialog.alert()
+                                     .parent(angular.element(document.body))
+                                     .clickOutsideToClose(true)
+                                     .title('Oops!')
+                                     .textContent('Ha ocurrido un error en el sistema. Por favor intente más tarde')
+                                     .ariaLabel('Failed document removal dialog')
+                                     .ok('Ok')
+                                     .targetEvent(ev)
+                             );
+                         }
+                     });
              });
-        });
     };
 
-    $scope.deleteRequest = function(index) {
-           swal({
-            title: "Confirmación",
-            text: "La solicitud seleccionada será eliminada del sistema. ¿Desea proceder?",
-            type: "warning",
-            confirmButtonText: "Sí",
-            cancelButtonText: "No",
-            showCancelButton: true,
-            closeOnConfirm: false,
-            animation: "slide-from-top",
-            showLoaderOnConfirm: true,
-
-        }, function() {
-            $http.get('index.php/home/HomeController/deleteRequest',{params:$scope.requests[$scope.selectedReq]})
-                .then(function(response) {
-                    console.log(response)
-                    if (response.data.message == "success") {
-                        // Update the view.
-                        $scope.docs = [];
-                        $http.get('index.php/home/HomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
-                            .then(function (response) {
-                                if (response.data.message === "success") {
-                                    // Update content
-                                    updateContent(response.data.requests, -1);
-                                }
-                            });
-                        swal("Documento eliminado", "El documento selecionada ha sido eliminado exitosamente.", "success");
-                    } else {
-                        swal("Oops!", "Ha ocurrido un error y su solicitud no ha podido ser procesada. Por favor intente más tarde.", "error");
-                    }
-                });
-        });
+    $scope.deleteRequest = function(ev) {
+        var confirm = $mdDialog.confirm()
+            .title('Confirmación de eliminación')
+            .textContent('Al eliminar la solicitud, también eliminará todos sus documentos.')
+            .ariaLabel('Request removal warning')
+            .targetEvent(ev)
+            .ok('Continuar')
+            .cancel('Cancelar');
+            $mdDialog.show(confirm).then(function() {
+                $http.get('index.php/home/HomeController/deleteRequest',{params:$scope.requests[$scope.selectedReq]})
+                    .then(function(response) {
+                        console.log(response)
+                        if (response.data.message == "success") {
+                            // Update the view.
+                            $scope.docs = [];
+                            $http.get('index.php/home/HomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
+                                .then(function (response) {
+                                    if (response.data.message === "success") {
+                                        // Update content
+                                        updateContent(response.data.requests, -1);
+                                    }
+                                });
+                                $mdDialog.show(
+                                    $mdDialog.alert()
+                                        .parent(angular.element(document.body))
+                                        .clickOutsideToClose(true)
+                                        .title('Solicitud eliminada')
+                                        .textContent('La solicitud fue eliminada exitosamente.')
+                                        .ariaLabel('Successful request removal dialog')
+                                        .ok('Ok')
+                                        .targetEvent(ev)
+                                );
+                        } else {
+                            $mdDialog.show(
+                                $mdDialog.alert()
+                                    .parent(angular.element(document.body))
+                                    .clickOutsideToClose(true)
+                                    .title('Oops!')
+                                    .textContent('Ha ocurrido un error en el sistema. Por favor intente más tarde.')
+                                    .ariaLabel('Failed request removal dialog')
+                                    .ok('Ok')
+                                    .targetEvent(ev)
+                            );
+                        }
+                    });
+            });
     };
 
+    /*
+    * Mini custom dialog to edit a document's description
+    */
     $scope.editDescription = function($event, doc) {
         var parentEl = angular.element(document.body);
         $mdDialog.show({
