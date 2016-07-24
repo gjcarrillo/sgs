@@ -35,9 +35,11 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
 
     $scope.selectRequest = function(req) {
         console.log(req);
-        $scope.selectedReq = req
-        $scope.docs = $scope.requests[req].docs;
-    }
+        $scope.selectedReq = req;
+        if (req != -1) {
+            $scope.docs = $scope.requests[req].docs;
+        }
+    };
 
     $scope.fetchRequests = function(searchInput) {
         $scope.fetchId = searchInput;
@@ -150,7 +152,7 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
                                     $http.get('index.php/home/HomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
                                         .then(function (response) {
                                             if (response.data.message === "success") {
-                                                updateContent(response.data.requests, response.data.requests.length);
+                                                updateContent(response.data.requests, response.data.requests.length-1);
                                                 console.log(response.data.requests);
                                                 // Close dialog and alert user that operation was successful
                                                 $mdDialog.hide();
@@ -260,32 +262,24 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
             showLoaderOnConfirm: true,
 
         }, function() {
-
-
-            // $http.get('index.php/configuration/TicketsConfigController/delete',{params:{id:$scope.ticketTypes[index].id}})
-            // .then(function(response) {
-            //     console.log(response)
-            //     if (response.data.message == "success") {
-            //     $http.get('index.php/configuration/TicketsConfigController/getTicketTypes')
-            //     .then(function(response){
-            //     if(response.data.message === "success") {
-            //     $scope.ticketTypes = response.data.data;
-            //     $scope.edit = false;
-            //     initializeChipsContainers();
-            //     // Look for active one.
-            //     for (var i = 0; i < $scope.ticketTypes.length; i++) {
-            //     if ($scope.ticketTypes[i].active) {
-            //         $scope.active = i;
-            //     }
-            //     }
-            //     }
-            //     })
-            //     swal("Solicitud eliminada", "La solicitud selecionada ha sido eliminada exitosamente.", "success");
-            //     } else {
-            //     swal("Oops!", "Ha ocurrido un error y su solicitud no ha podido ser procesada. Por favor intente más tarde.", "error");
-            //     }
-            // })
-
+            $http.get('index.php/home/HomeController/deleteRequest',{params:$scope.requests[$scope.selectedReq]})
+                .then(function(response) {
+                    console.log(response)
+                    if (response.data.message == "success") {
+                        // Update the view.
+                        $scope.docs = [];
+                        $http.get('index.php/home/HomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
+                            .then(function (response) {
+                                if (response.data.message === "success") {
+                                    // Update content
+                                    updateContent(response.data.requests, -1);
+                                }
+                            });
+                        swal("Documento eliminado", "El documento selecionada ha sido eliminado exitosamente.", "success");
+                    } else {
+                        swal("Oops!", "Ha ocurrido un error y su solicitud no ha podido ser procesada. Por favor intente más tarde.", "error");
+                    }
+                });
         });
     };
 

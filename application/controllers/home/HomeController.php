@@ -56,7 +56,27 @@ class HomeController extends CI_Controller {
 			// Delete the document.
 			$em->remove($doc);
 			// Persist the changes in database.
-			$em->persist($request);
+			$em->flush();
+			$result['message'] = "success";
+		} catch (Exception $e) {
+			$result['message'] = "error";
+			\ChromePhp::log($e);
+		}
+		echo json_encode($result);
+	}
+
+	public function deleteRequest() {
+		try {
+			$em = $this->doctrine->em;
+			// Must delete all documents belonging to this request first
+			$request = $em->find('\Entity\Request', $_GET['id']);
+			$docs = $request->getDocuments();
+			foreach($docs as $doc) {
+				unlink(DropPath . $doc->getLpath());
+			}
+			// Now we can remove the current request (and docs on cascade)
+			$em->remove($request);
+			// Persist the changes in database.
 			$em->flush();
 			$result['message'] = "success";
 		} catch (Exception $e) {
