@@ -1,5 +1,5 @@
 <!-- Header -->
-<md-toolbar layout-padding>
+<md-toolbar layout-padding ng-controller="MainController">
     <div class="md-toolbar-tools">
         <h2 flex="10" class="md-headline">
             <span>SGDP</span>
@@ -101,7 +101,12 @@
                                    <p>{{doc.description}}</p>
                                  </div>
                                  <div layout>
-                                     <md-icon ng-click="null" aria-label="Delete doc" class="md-secondary">delete</md-icon>
+                                     <md-icon
+                                        ng-click="deleteDoc(dKey)" 
+                                        aria-label="Delete doc"
+                                        class="md-secondary">
+                                        delete
+                                    </md-icon>
                                  </div>
                             </md-list-item>
                             <md-divider ng-if="!$last" md-inset></md-divider>

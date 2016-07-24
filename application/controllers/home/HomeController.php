@@ -42,69 +42,27 @@ class HomeController extends CI_Controller {
 		echo json_encode($result);
 	}
 
-	public function upload() {
-		$uploaddir = 'C:/Users/Kristopher/Dropbox/' . $_POST['userId'] . '/' . $_POST['requestId'] . '/';
-		$uploadfile = $uploaddir . basename($_FILES['file']['name']);
-		if (!file_exists($uploaddir)) {
-			mkdir($uploaddir, 0777, true);
-		}
-		move_uploaded_file($_FILES['file']['tmp_name'], $uploadfile);
-
-		$result['lpath'] = $_POST['userId'] . '/' . $_POST['requestId'] . '/' . basename($_FILES['file']['name']);
-
-		echo json_encode($result);
-	}
-
-	public function createRequest() {
+	public function deleteDocument() {
 		try {
 			$em = $this->doctrine->em;
-			// New request
-			$request = new \Entity\Request();
-			// 1 = Waiting
-			$request->setStatus(1);
-			// TODO: Configure TIMEZONE
-			$request->setCreationDate(new \DateTime('now'));
-			$user = $em->getRepository('\Entity\User')->findOneBy(array("id"=>$_GET['userId']));
-			$request->setUserOwner($user);
-			$user->addRequest($request);
-			$em->persist($request);
-			$em->merge($user);
-			$em->persist($user);
-			$em->flush();
-			$result['requestId'] = $request->getId();
-			$result['message'] = "success";
-		} catch (Exception $e) {
-			\ChromePhp::log($e);
-            $result['message'] = "error";
-		}
-
-		echo json_encode($result);
-	}
-
-	public function createDocument() {
-		try {
-			$em = $this->doctrine->em;
-			// New document
-			$doc = new \Entity\Document();
-			$doc->setName($_GET['docName']);
-			if (isset($_GET['description'])) {
-				$doc->setDescription($_GET['description']);
-			}
-			$doc->setLpath($_GET['lpath']);
-			$request = $em->getRepository('\Entity\Request')->findOneBy(array("id"=>$_GET['requestId']));
-			$doc->setBelongingRequest($request);
-			$request->addDocument($doc);
-
-			$em->persist($doc);
-			$em->merge($request);
+			// Delete the document from the server.
+			unlink($_GET['fullPath']);
+			// Get the specified doc entity
+			$doc = $em->find('\Entity\Document', $_GET['id']);
+			// Get it's request.
+			$request = $doc->getBelongingRequest();
+			// Remove this doc from it's request entity
+			$request->removeDocument($doc);
+			// Delete the document.
+			$em->remove($doc);
+			// Persist the changes in database.
 			$em->persist($request);
 			$em->flush();
 			$result['message'] = "success";
 		} catch (Exception $e) {
-			\ChromePhp::log($e);
 			$result['message'] = "error";
+			\ChromePhp::log($e);
 		}
-
 		echo json_encode($result);
 	}
 }

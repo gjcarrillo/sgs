@@ -73,7 +73,7 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
         $mdDialog.show({
             parent: parentEl,
             targetEvent: $event,
-            templateUrl: 'templates/dialogs/newRequest.html',
+            templateUrl: 'index.php/documents/NewRequest',
             clickOutsideToClose: false,
             escapeToClose: false,
             locals:{
@@ -115,7 +115,7 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
                 $scope.uploading = true;
                 console.log($scope.files);
                 var userId = $cookies.getObject("session").id;
-                $http.get('index.php/home/HomeController/createRequest', {params:{userId:userId}})
+                $http.get('index.php/documents/NewRequest/createRequest', {params:{userId:userId}})
                     .then(function (response) {
                         if (response.data.message== "success") {
                             $scope.requestId = response.data.requestId;
@@ -131,7 +131,7 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
                 var uploadedFiles = 0;
                 angular.forEach($scope.files, function(file) {
                     file.upload = Upload.upload({
-                        url: 'index.php/home/HomeController/upload',
+                        url: 'index.php/documents/NewRequest/upload',
                         data: {file: file, userId: userId, requestId: requestId},
                     });
                     file.upload.then(function (response) {
@@ -143,14 +143,14 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
                         // Doc successfully uploaded. Now create it on database.
                         console.log(file);
                         console.log(file.name);
-                        $http.get('index.php/home/HomeController/createDocument', {params:file})
+                        $http.get('index.php/documents/NewRequest/createDocument', {params:file})
                             .then(function (response) {
                                 if (response.data.message== "success") {
                                     // Update interface
                                     $http.get('index.php/home/HomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
                                         .then(function (response) {
                                             if (response.data.message === "success") {
-                                                updateContent(response.data.requests);
+                                                updateContent(response.data.requests, response.data.requests.length);
                                                 console.log(response.data.requests);
                                                 // Close dialog and alert user that operation was successful
                                                 $mdDialog.hide();
@@ -175,10 +175,10 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
     };
 
     // Helper function that updates content with new request
-    function updateContent(requests) {
+    function updateContent(requests, selection) {
         $scope.requests = requests;
         // Automatically select created request
-        $scope.selectRequest($scope.requests.length-1);
+        $scope.selectRequest(selection);
     }
 
     $scope.openEditRequestDialog = function($event) {
@@ -186,8 +186,9 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
         $mdDialog.show({
             parent: parentEl,
             targetEvent: $event,
-            templateUrl: 'templates/dialogs/editRequest.html',
-            clickOutsideToClose: true,
+            templateUrl: 'index.php/documents/EditRequest',
+            clickOutsideToClose: false,
+            escapeToClose: false,
             locals: {
                 request: $scope.request,
                 states: $scope.states
@@ -213,6 +214,37 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
                 // TODO: Send files to server & update database
             }
         }
+    };
+
+    $scope.deleteDoc = function(dKey) {
+        swal({
+         title: "Confirmación",
+         text: "El documento " + $scope.requests[$scope.selectedReq].docs[dKey].name + " será eliminado. ¿Desea proceder?",
+         type: "warning",
+         confirmButtonText: "Sí",
+         cancelButtonText: "No",
+         showCancelButton: true,
+         closeOnConfirm: false,
+         animation: "slide-from-top",
+         showLoaderOnConfirm: true
+     }, function() {
+         $http.get('index.php/home/HomeController/deleteDocument',{params:$scope.requests[$scope.selectedReq].docs[dKey]})
+             .then(function(response) {
+                 console.log(response)
+                 if (response.data.message == "success") {
+                     // Update the view
+                     $http.get('index.php/home/HomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
+                         .then(function (response) {
+                             if (response.data.message === "success") {
+                                 updateContent(response.data.requests, $scope.selectedReq);
+                             }
+                         });
+                     swal("Documento eliminado", "El documento selecionada ha sido eliminado exitosamente.", "success");
+                 } else {
+                     swal("Oops!", "Ha ocurrido un error y su solicitud no ha podido ser procesada. Por favor intente más tarde.", "error");
+                 }
+             });
+        });
     };
 
     $scope.deleteRequest = function(index) {
