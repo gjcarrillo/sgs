@@ -2,9 +2,9 @@ angular
     .module('sgdp')
     .controller('HomeController', home);
 
-home.$inject = ['$scope', '$rootScope', '$timeout', '$mdDialog', 'Upload', '$cookies', '$http'];
+home.$inject = ['$scope', '$rootScope', '$mdDialog', 'Upload', '$cookies', '$http'];
 
-function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) {
+function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http) {
     'use strict';
 
     $scope.isOpen = false;
@@ -71,7 +71,7 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
         $mdDialog.show({
             parent: parentEl,
             targetEvent: $event,
-            templateUrl: 'index.php/documents/NewRequest',
+            templateUrl: 'index.php/documents/NewRequestController',
             clickOutsideToClose: false,
             escapeToClose: false,
             locals:{
@@ -112,7 +112,7 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
             $scope.createNewRequest = function() {
                 $scope.uploading = true;
                 console.log($scope.files);
-                $http.get('index.php/documents/NewRequest/createRequest', {params:{userId:$scope.fetchId}})
+                $http.get('index.php/documents/NewRequestController/createRequest', {params:{userId:$scope.fetchId}})
                     .then(function (response) {
                         if (response.data.message== "success") {
                             $scope.requestId = response.data.requestId;
@@ -127,7 +127,7 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
                 var uploadedFiles = 0;
                 angular.forEach($scope.files, function(file) {
                     file.upload = Upload.upload({
-                        url: 'index.php/documents/NewRequest/upload',
+                        url: 'index.php/documents/NewRequestController/upload',
                         data: {file: file, userId: userId, requestId: requestId},
                     });
                     file.upload.then(function (response) {
@@ -136,7 +136,7 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
                         // file.name is not passed through GET. Gotta create new property
                         file.docName = file.name;
                         // Doc successfully uploaded. Now create it on database.
-                        $http.get('index.php/documents/NewRequest/createDocument', {params:file})
+                        $http.get('index.php/documents/NewRequestController/createDocument', {params:file})
                             .then(function (response) {
                                 if (response.data.message== "success") {
                                     uploadedFiles++;
@@ -193,7 +193,7 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
         $mdDialog.show({
             parent: parentEl,
             targetEvent: $event,
-            templateUrl: 'index.php/documents/EditRequest',
+            templateUrl: 'index.php/documents/EditRequestController',
             clickOutsideToClose: false,
             escapeToClose: false,
             locals: {
@@ -211,7 +211,7 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
             $scope.uploading = false;
             $scope.request = request;
             $scope.enabledDescription = -1;
-            $scope.statuses = ["Recibido", "Aprobado", "Rechazado"];
+            $scope.statuses = ["Recibida", "Aprobada", "Rechazada"];
 
             $scope.closeDialog = function() {
                 $mdDialog.hide();
@@ -240,7 +240,7 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
                 $scope.uploading = true;
                 console.log($scope.files);
                 console.log($scope.request.id);
-                $http.get('index.php/documents/EditRequest/updateRequest', {params:$scope.request})
+                $http.get('index.php/documents/EditRequestController/updateRequest', {params:$scope.request})
                     .then(function (response) {
                         if (response.data.message== "success") {
                             if ($scope.files.length === 0) {
@@ -268,7 +268,7 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
                 var uploadedFiles = 0;
                 angular.forEach($scope.files, function(file) {
                     file.upload = Upload.upload({
-                        url: 'index.php/documents/NewRequest/upload',
+                        url: 'index.php/documents/NewRequestController/upload',
                         data: {file: file, userId: userId, requestId: requestId},
                     });
                     file.upload.then(function (response) {
@@ -279,7 +279,7 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
                         // Doc successfully uploaded. Now create it on database.
                         console.log(file);
                         console.log(file.name);
-                        $http.get('index.php/documents/NewRequest/createDocument', {params:file})
+                        $http.get('index.php/documents/NewRequestController/createDocument', {params:file})
                             .then(function (response) {
                                 if (response.data.message== "success") {
                                     uploadedFiles++;
@@ -425,7 +425,7 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
             targetEvent: $event,
             clickOutsideToClose: true,
             escapeToClose: true,
-            templateUrl: 'index.php/documents/EditRequest/editionDialog',
+            templateUrl: 'index.php/documents/EditRequestController/editionDialog',
             locals: {
                 doc: doc
             },
@@ -436,7 +436,7 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
             $scope.doc = doc;
 
             $scope.saveEdition = function() {
-                $http.get('index.php/documents/EditRequest/updateDocDescription', {params:doc});
+                $http.get('index.php/documents/EditRequestController/updateDocDescription', {params:doc});
                 $mdDialog.hide();
             }
         }

@@ -64,11 +64,11 @@
         </div>
     </md-dialog-content>
     <md-dialog-actions ng-show="!uploading">
-        <md-button ng-click="createNewRequest()" ng-disabled="files.length < 1" class="md-primary">
-            Crear
-        </md-button>
         <md-button ng-click="closeDialog()" class="md-primary">
             Cancelar
+        </md-button>
+        <md-button ng-click="createNewRequest()" ng-disabled="files.length < 1" class="md-primary">
+            Crear
         </md-button>
     </md-dialog-actions>
 </md-dialog>

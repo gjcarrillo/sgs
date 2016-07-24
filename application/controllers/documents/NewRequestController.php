@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 include (APPPATH. '/libraries/ChromePhp.php');
 
-class NewRequest extends CI_Controller {
+class NewRequestController extends CI_Controller {
 
 	public function index() {
 		$this->load->view('documents/newRequest');

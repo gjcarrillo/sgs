@@ -3,7 +3,7 @@ main {
   background-color: #F5F5F5;
 }
 
-main {
+.main-w-footer {
     /*129 = aprox. toolbar + footer height */
   min-height: calc(100vh - 129px);
 }
@@ -17,6 +17,20 @@ main {
     width: 85%;
     margin-top: 30px;
 }
+
+.history-card {
+    width: 60%;
+    background: white;
+    position: relative;
+    top: -112px;
+    z-index: 2;
+}
+
+.u-overflow-fix {
+  overflow:visible;
+}
+
+
 /*md-list .md-button {
     text-align: left;
 }*/

@@ -153,7 +153,7 @@ class Request
     public function getStatusByText()
     {
         $status = $this->status;
-        return ($status == 1 ? "Recibido" : ($status == 2 ? "Aprobado" : "Rechazado"));
+        return ($status == 1 ? "Recibida" : ($status == 2 ? "Aprobada" : "Rechazada"));
     }
 
     /**
@@ -163,7 +163,7 @@ class Request
     */
     public function setStatusByText($status)
     {
-        $this->status = ($status == "Recibido" ? 1 : ($status == "Aprobado" ? 2 : 3));
+        $this->status = ($status == "Recibida" ? 1 : ($status == "Aprobada" ? 2 : 3));
         return $this;
     }
 

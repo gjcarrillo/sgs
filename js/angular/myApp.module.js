@@ -29,6 +29,11 @@ sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $lo
         templateUrl: 'index.php/home/HomeController',
         controller: 'HomeController'
     })
+    .state('history', {
+        url: '/history',
+        templateUrl: 'index.php/history/HistoryController',
+        controller: 'HistoryController'
+    })
     .state('forbidden', {
         url: '/forbidden',
         templateUrl: 'index.php/ForbiddenAccessController'

@@ -3,12 +3,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class MainController extends CI_Controller {
 
 	/**
-	 * Load Header and Footer
+	 * Load Headers
 	 */
 	public function index()
 	{
 		$this->load->view('templates/header');
-
-		$this->load->view('templates/footer');
 	}
 }
