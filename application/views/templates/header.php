@@ -41,38 +41,9 @@
         <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>sweetalert/dist/sweetalert.css">
         <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>sweetalert/themes/google/google.css">
         <!--Let browser know website is optimized for mobile-->
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"/> -->
         <meta charset="utf-8">
         <title>SGDP</title>
 </head>
 <body>
-    <md-toolbar ng-controller="MainController" layout-padding>
-        <div layout layout-align="center center" ng-if="!isLoggedIn()" class="md-toolbar-tools">
-            <h1 class="md-headline">
-                <span>Sistema de Gestión de Documentos de Préstamo</span>
-            </h1>
-        </div>
-        <div ng-show="isLoggedIn()" class="md-toolbar-tools">
-            <md-button class="md-icon-button" ng-click="logout()" aria-label="Back">
-                <md-icon>arrow_back</md-icon>
-            </md-button>
-            <h2 flex="10" class="md-headline">
-                <span>SGDP</span>
-            </h2>
-            <md-input-container md-no-float class="md-accent" flex="30" flex-offset="20" style="padding-bottom:0px;margin-right:25px">
-               <md-icon style="color:white" class="material-icons">&#xE8B6;</md-icon>
-               <input
-               placeholder="Busque solicitudes de préstamo"
-               aria-label="Search"
-               ng-model="searchInput"
-               style="color:white; padding-left:25px; margin-right:5px; font-size:16px">
-               <md-tooltip md-direction="right">Ingrese una cédula. Ej: 11111111</md-tooltip>
-            </md-input-container>
-            <span flex></span>
-            <md-button class="md-fab md-mini md-raised" ng-click="logout()" aria-label="Back">
-                <md-icon>exit_to_app</md-icon>
-                <md-tooltip md-direction="left">Cerrar sesión</md-tooltip>
-            </md-button>
-        </div>
-    </md-toolbar>
-    <main ui-view autoscroll="false"></main>
+    <ui-view autoscroll="false"></ui-view>

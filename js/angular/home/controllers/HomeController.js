@@ -8,12 +8,15 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
     'use strict';
 
     $scope.isOpen = false;
-    $scope.states = ["Recibido", "Aprobado", "Rechazado"]
+    $scope.states = ["Recibido", "Aprobado", "Rechazado"];
+    $scope.loading = false;
+    $scope.selectedReq = -1;
+    $scope.requests = [];
+    $scope.docs = [];
     $scope.request = {};
     // EXAMPLE DATA
     $scope.request.createdDate = '19/04/2014';
     $scope.request.state = $scope.states[1];
-    $scope.request.docs = {};
     // END OF EXAMPLE DATA
 
     $scope.getSidenavHeight = function() {
@@ -30,17 +33,37 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
         };
     }
 
-    // On opening, add a delayed property which shows tooltips after the speed dial has opened
-    // so that they have the proper position; if closing, immediately hide the tooltips
-    $scope.$watch('fab.isOpen', function(isOpen) {
-        if (isOpen) {
-            $timeout(function() {
-                $scope.tooltipVisible = true;
-            }, 600);
-        } else {
-            $scope.tooltipVisible = false;
-        }
-    });
+    $scope.selectRequest = function(req) {
+        console.log(req);
+        $scope.selectedReq = req
+        $scope.docs = $scope.requests[req].docs;
+    }
+
+    $scope.fetchRequests = function(searchInput) {
+        $scope.fetchId = searchInput;
+        $scope.requests = [];
+        $scope.selectedReq = -1;
+        $scope.loading = true;
+        $scope.docs = [];
+        $scope.fetchError = "";
+        $http.get('index.php/home/HomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
+            .then(function (response) {
+                if (response.data.message === "success") {
+                    $scope.requests = response.data.requests;
+                    console.log($scope.requests);
+                } else {
+                    $scope.fetchError = response.data.error;
+                }
+                $scope.loading = false;
+            });
+    };
+
+    // Helper function for formatting numbers with leading zeros
+    $scope.pad = function(n, width, z) {
+        z = z || '0';
+        n = n + '';
+        return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+    }
 
     /**
     * Custom dialog for creating a new request
@@ -53,11 +76,15 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
             templateUrl: 'templates/dialogs/newRequest.html',
             clickOutsideToClose: false,
             escapeToClose: false,
+            locals:{
+                fetchId:$scope.fetchId
+            },
             controller: DialogController
         });
         // Isolated dialog controller
-        function DialogController($scope, $mdDialog) {
+        function DialogController($scope, $mdDialog, fetchId) {
             $scope.files = [];
+            $scope.fetchId = fetchId;
             $scope.uploading = false;
             $scope.enabledDescription = -1;
 
@@ -76,7 +103,14 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
                     return "El archivo es muy grande. Tamaño máximo es: " + param;
                 }
             };
+            // Gathers the files whenever the file input's content is updated
+            $scope.gatherFiles = function(files, errFiles) {
+                $scope.files = files;
+                console.log($scope.files);
+                $scope.errFiles = errFiles;
+            };
 
+            // Creates new request in database and uploads documents
             $scope.createNewRequest = function() {
                 $scope.uploading = true;
                 console.log($scope.files);
@@ -91,12 +125,8 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
                     });
             };
 
-            $scope.gatherFiles = function(files, errFiles) {
-                $scope.files = files;
-                console.log($scope.files);
-                $scope.errFiles = errFiles;
-            };
-
+            // Uploads each of selected documents to the server
+            // and updates database
             function uploadFiles(userId, requestId) {
                 var uploadedFiles = 0;
                 angular.forEach($scope.files, function(file) {
@@ -116,18 +146,26 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
                         $http.get('index.php/home/HomeController/createDocument', {params:file})
                             .then(function (response) {
                                 if (response.data.message== "success") {
-                                    if (uploadedFiles == $scope.files.length) {
-                                        // Close dialog and alert user once everything is completed
-                                        $mdDialog.hide();
-                                        swal("Solicitud creada", "La solicitud ha sido creada exitosamente.", "success");
-                                    }
+                                    // Update interface
+                                    $http.get('index.php/home/HomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
+                                        .then(function (response) {
+                                            if (response.data.message === "success") {
+                                                updateContent(response.data.requests);
+                                                console.log(response.data.requests);
+                                                // Close dialog and alert user that operation was successful
+                                                $mdDialog.hide();
+                                                swal("Solicitud creada", "La solicitud ha sido creada exitosamente.", "success");
+                                            }
+                                        });
                                 }
                             });
                     }, function (response) {
-                        if (response.status > 0)
+                        if (response.status > 0) {
+                            // Show file error message
                             $scope.errorMsg = response.status + ': ' + response.data;
-                            console.log($scope.errorMsg);
+                        }
                     }, function (evt) {
+                        // Fetch file updating progress
                         file.progress = Math.min(100, parseInt(100.0 *
                                                  evt.loaded / evt.total));
                     });
@@ -135,6 +173,13 @@ function home($scope, $rootScope, $timeout, $mdDialog, Upload, $cookies, $http) 
             }
         }
     };
+
+    // Helper function that updates content with new request
+    function updateContent(requests) {
+        $scope.requests = requests;
+        // Automatically select created request
+        $scope.selectRequest($scope.requests.length-1);
+    }
 
     $scope.openEditRequestDialog = function($event) {
         var parentEl = angular.element(document.body);

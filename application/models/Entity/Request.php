@@ -66,11 +66,11 @@ class Request
     {
         $this->documents = new \Doctrine\Common\Collections\ArrayCollection();
     }
-    
+
     /**
      * Get id
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -86,14 +86,14 @@ class Request
     public function setCreationDate($creationDate)
     {
         $this->creationDate = $creationDate;
-    
+
         return $this;
     }
 
     /**
      * Get creationDate
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreationDate()
     {
@@ -109,14 +109,14 @@ class Request
     public function setComment($comment)
     {
         $this->comment = $comment;
-    
+
         return $this;
     }
 
     /**
      * Get comment
      *
-     * @return string 
+     * @return string
      */
     public function getComment()
     {
@@ -132,18 +132,28 @@ class Request
     public function setStatus($status)
     {
         $this->status = $status;
-    
+
         return $this;
     }
 
     /**
      * Get status
      *
-     * @return integer 
+     * @return integer
      */
     public function getStatus()
     {
         return $this->status;
+    }
+
+    /**
+    * Get status converted into text
+    * @return string
+    */
+    public function getStatusByText()
+    {
+        $status = $this->status;
+        return ($status == 1 ? "Recibido" : ($status == 2 ? "Aprobado" : "Rechazado"));
     }
 
     /**
@@ -155,7 +165,7 @@ class Request
     public function addDocument(\Entity\Document $documents)
     {
         $this->documents[] = $documents;
-    
+
         return $this;
     }
 
@@ -172,7 +182,7 @@ class Request
     /**
      * Get documents
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getDocuments()
     {
@@ -188,14 +198,14 @@ class Request
     public function setUserOwner(\Entity\User $userOwner)
     {
         $this->userOwner = $userOwner;
-    
+
         return $this;
     }
 
     /**
      * Get userOwner
      *
-     * @return \Entity\User 
+     * @return \Entity\User
      */
     public function getUserOwner()
     {
