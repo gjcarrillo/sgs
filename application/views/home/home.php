@@ -1,5 +1,5 @@
 <!-- Header -->
-<md-toolbar layout-padding ng-controller="MainController">
+<md-toolbar layout-padding>
     <div class="md-toolbar-tools">
         <h2 flex="10" class="md-headline">
             <span>SGDP</span>

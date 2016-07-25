@@ -24,7 +24,7 @@ class Request
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="creation_date", type="date", precision=0, scale=0, nullable=false, unique=false)
+     * @ORM\Column(name="creation_date", type="datetime", precision=0, scale=0, nullable=false, unique=false)
      */
     private $creationDate;
 
@@ -239,7 +239,7 @@ class Request
     public function addHistoryList(\Entity\History $historyList)
     {
         $this->historyList[] = $historyList;
-    
+
         return $this;
     }
 
@@ -256,7 +256,7 @@ class Request
     /**
      * Get historyList
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getHistoryList()
     {

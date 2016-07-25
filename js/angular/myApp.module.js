@@ -1,22 +1,6 @@
 var sgdp = angular.module("sgdp", ["sgdp.login", "ui.router", "ngMaterial", "ngFileUpload"]);
 
 
-sgdp.controller('MainController',
-    ['$rootScope','$scope', 'auth',
-        function($rootScope,$scope, auth) {
-            $rootScope.model = {};
-            $rootScope.model.errorLogin = "";
-            $scope.logout = function () {
-                $http.get('index.php/login/LoginController/logout');
-                auth.logout();
-            };
-            $scope.isLoggedIn = function() {
-              return(auth.isLoggedIn());
-            };
-        }
-    ]
-);
-
 sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $locationProvider) {
   $urlRouterProvider.otherwise('login');
   $stateProvider
@@ -49,7 +33,13 @@ sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $lo
 });
 
 
-sgdp.run(['$rootScope', '$location','$state','auth', '$cookies', function ($rootScope, $location, $state, auth, $cookies) {
+sgdp.run(['$rootScope', '$location','$state','auth', '$cookies', '$http',
+    function ($rootScope, $location, $state, auth, $cookies, $http) {
+
+        $rootScope.logout = function() {
+            $http.get('index.php/login/LoginController/logout');
+            auth.logout();
+        };
         $rootScope.$on("$locationChangeStart", function(e, toState, toParams, fromState, fromParams) {
 
         if (!auth.isLoggedIn() && $location.url() != "/login") {

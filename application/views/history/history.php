@@ -1,4 +1,4 @@
-<md-toolbar layout-padding ng-controller="MainController">
+<md-toolbar layout-padding>
     <div class="md-toolbar-tools">
         <md-button href="#/home" class="md-icon-button">
             <md-icon>
@@ -14,8 +14,7 @@
            <input
            placeholder="Filtre su búsqueda"
            aria-label="Search"
-           ng-model="searchInput"
-           ng-keyup="$event.keyCode == 13 && fetchRequests(searchInput)"
+           ng-model="filterInput"
            style="color:white; padding-left:25px; margin-right:5px; font-size:16px">
            <md-tooltip md-direction="right">Puede buscar por nombre, acción o fecha</md-tooltip>
         </md-input-container>
@@ -37,67 +36,26 @@
                 </div>
             </md-card-title>
             <md-divider></md-divider>
+            <md-progress-linear md-mode="query" ng-if="loading"></md-progress-linear>
             <md-card-content>
                 <md-list>
-                    <md-list-item
-                        class="md-3-line"
-                        ng-click="showListBottomSheet()"
-                        class="noright">
-                        <md-icon  ng-style="{'color':'#2196F3', 'font-size':'36px'}">account_circle</md-icon>
-                        <div class="md-list-item-text" layout="column">
-                           <h3>User admin</h3>
-                           <h4>Action</h4>
-                           <p>Date</p>
-                         </div>
-                         <md-button class="md-icon-button">
-                             <md-icon ng-click="null" class="md-secondary">remove_red_eye</md-icon>
-                         </md-button>
-                    </md-list-item>
-                    <md-divider class="md-inset"></md-divider>
-                    <md-list-item
-                        class="md-3-line"
-                        ng-click="showListBottomSheet()"
-                        class="noright">
-                        <md-icon  ng-style="{'color':'#2196F3', 'font-size':'36px'}">account_circle</md-icon>
-                        <div class="md-list-item-text" layout="column">
-                           <h3>User admin</h3>
-                           <h4>Action</h4>
-                           <p>Date</p>
-                         </div>
-                         <md-button class="md-icon-button">
-                             <md-icon ng-click="null" class="md-secondary">remove_red_eye</md-icon>
-                         </md-button>
-                    </md-list-item>
-                    <md-divider class="md-inset"></md-divider>
-                    <md-list-item
-                        class="md-3-line"
-                        ng-click="showListBottomSheet()"
-                        class="noright">
-                        <md-icon  ng-style="{'color':'#2196F3', 'font-size':'36px'}">account_circle</md-icon>
-                        <div class="md-list-item-text" layout="column">
-                           <h3>User admin</h3>
-                           <h4>Action</h4>
-                           <p>Date</p>
-                         </div>
-                         <md-button class="md-icon-button">
-                             <md-icon ng-click="null" class="md-secondary">remove_red_eye</md-icon>
-                         </md-button>
-                    </md-list-item>
-                    <md-divider class="md-inset"></md-divider>
-                    <md-list-item
-                        class="md-3-line"
-                        ng-click="showListBottomSheet()"
-                        class="noright">
-                        <md-icon  ng-style="{'color':'#2196F3', 'font-size':'36px'}">account_circle</md-icon>
-                        <div class="md-list-item-text" layout="column">
-                           <h3>User admin</h3>
-                           <h4>Action</h4>
-                           <p>Date</p>
-                         </div>
-                         <md-button class="md-icon-button">
-                             <md-icon ng-click="null" class="md-secondary">remove_red_eye</md-icon>
-                         </md-button>
-                    </md-list-item>
+                    <div ng-repeat="(hKey, history) in historyList | filter:filterInput">
+                        <md-list-item
+                            class="md-3-line"
+                            ng-click="showListBottomSheet()"
+                            class="noright">
+                            <md-icon  ng-style="{'color':'#2196F3', 'font-size':'36px'}">account_circle</md-icon>
+                            <div class="md-list-item-text" layout="column">
+                               <h3>{{history.userResponsable}}</h3>
+                               <h4>{{history.title}}</h4>
+                               <p>{{history.date}}</p>
+                             </div>
+                             <md-button aria-label="See details" class="md-icon-button">
+                                 <md-icon aria-label="Eye icon" ng-click="null" class="md-secondary">remove_red_eye</md-icon>
+                             </md-button>
+                        </md-list-item>
+                        <md-divider ng-if="!$last" class="md-inset"></md-divider>
+                    </div>
                 </md-list>
             </md-card-content>
         </md-card>

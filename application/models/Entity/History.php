@@ -24,7 +24,7 @@ class History
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="date", type="date", precision=0, scale=0, nullable=false, unique=false)
+     * @ORM\Column(name="date", type="datetime", precision=0, scale=0, nullable=false, unique=false)
      */
     private $date;
 

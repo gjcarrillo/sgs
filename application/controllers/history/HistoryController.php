@@ -8,8 +8,29 @@ class HistoryController extends CI_Controller {
         parent::__construct();
         $this->load->library('session');
     }
-	
+
 	public function index() {
 		$this->load->view('history/history');
+	}
+
+	public function fetchRequestHistory() {
+		try {
+			$em = $this->doctrine->em;
+			// Get all current request's history
+			$request = $em->find('\Entity\Request', $_GET['id']);
+			$historyList = $request->getHistoryList();
+			foreach ($historyList as $hKey => $history) {
+				$result['historyList'][$hKey]['userResponsable'] = $history->getUserResponsable();
+				$result['historyList'][$hKey]['date'] = $history->getDate()->format('d/m/y - h:i:sa');
+				$result['historyList'][$hKey]['title'] = $history->getTitleByText();
+			}
+			$result['message'] = "success";
+
+		} catch(Exception $e) {
+			\ChromePhp::log($e);
+			$result['message'] = "Error";
+		}
+
+		echo json_encode($result);
 	}
 }
