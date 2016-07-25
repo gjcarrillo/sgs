@@ -54,7 +54,7 @@ class History
     /**
      * @var \Entity\Request
      *
-     * @ORM\ManyToOne(targetEntity="Entity\Request", inversedBy="historyList")
+     * @ORM\ManyToOne(targetEntity="Entity\Request", inversedBy="history")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="request_id", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })

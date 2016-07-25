@@ -58,8 +58,6 @@ class HomeController extends CI_Controller {
 			$request = $doc->getBelongingRequest();
 			// Remove this doc from it's request entity
 			$request->removeDocument($doc);
-			// Delete the document.
-			$em->remove($doc);
 			// Register History
 			$history = new \Entity\History();
 			$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
@@ -67,10 +65,17 @@ class HomeController extends CI_Controller {
 			// 3 = Elimination
 			$history->setTitle(3);
 			$history->setOrigin($request);
-			$request->addHistoryList($history);
+			$request->addHistory($history);
 			$em->merge($request);
-			// TODO: Set ACTION
+			// Register it's corresponding action
+			$action = new \Entity\HistoryAction();
+			$action->setSummary("Eliminación del documento '" . $doc->getName() . "'.");
+			$action->setBelongingHistory($history);
+			$history->addAction($action);
+			$em->persist($action);
 			$em->persist($history);
+			// Delete the document.
+			$em->remove($doc);
 			// Persist the changes in database.
 			$em->flush();
 			$result['message'] = "success";

@@ -126,14 +126,14 @@ function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $state) {
                     .then(function (response) {
                         if (response.data.message== "success") {
                             $scope.requestId = response.data.requestId;
-                            uploadFiles($scope.fetchId, $scope.requestId);
+                            uploadFiles($scope.fetchId, $scope.requestId, response.data.historyId);
                         }
                     });
             };
 
             // Uploads each of selected documents to the server
             // and updates database
-            function uploadFiles(userId, requestId) {
+            function uploadFiles(userId, requestId, historyId) {
                 var uploadedFiles = 0;
                 angular.forEach($scope.files, function(file) {
                     file.upload = Upload.upload({
@@ -144,6 +144,7 @@ function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $state) {
                         console.log("Document uploadad!");
                         file.lpath = response.data.lpath;
                         file.requestId = $scope.requestId;
+                        file.historyId = historyId;
                         // file.name is not passed through GET. Gotta create new property
                         file.docName = file.name;
                         // Doc successfully uploaded. Now create it on database.
@@ -253,12 +254,14 @@ function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $state) {
             // Creates new request in database and uploads documents
             $scope.updateRequest = function() {
                 $scope.uploading = true;
-                console.log($scope.files);
-                console.log($scope.request.id);
+                $scope.request.docsAdded = $scope.files.length > 0;
                 $http.get('index.php/documents/EditRequestController/updateRequest', {params:$scope.request})
                     .then(function (response) {
-                        if (response.data.message== "success") {
+                        console.log(response.data);
+                        if (response.data.message === "success") {
+                            console.log("Request update succeded...");
                             if ($scope.files.length === 0) {
+                                console.log("No documents to upload....");
                                 // Close dialog and alert user that operation was successful
                                 $mdDialog.hide();
                                 $mdDialog.show(
@@ -271,15 +274,18 @@ function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $state) {
                                         .ok('Ok')
                                 );
                             } else {
-                                uploadFiles($scope.fetchId, $scope.request.id);
+                                console.log("Uploading documents....");
+                                uploadFiles($scope.fetchId, $scope.request.id, response.data.historyId);
                             }
+                        } else {
+                            console.log("FAILED!");
                         }
                     });
             };
 
             // Uploads each of selected documents to the server
             // and updates database
-            function uploadFiles(userId, requestId) {
+            function uploadFiles(userId, requestId, historyId) {
                 var uploadedFiles = 0;
                 angular.forEach($scope.files, function(file) {
                     file.upload = Upload.upload({
@@ -289,6 +295,7 @@ function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $state) {
                     file.upload.then(function (response) {
                         file.lpath = response.data.lpath;
                         file.requestId = requestId;
+                        file.historyId = historyId;
                         // file.name is not passed through GET. Gotta create new property
                         file.docName = file.name;
                         // Doc successfully uploaded. Now create it on database.

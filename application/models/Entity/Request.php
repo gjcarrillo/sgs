@@ -54,7 +54,7 @@ class Request
      *
      * @ORM\OneToMany(targetEntity="Entity\History", mappedBy="origin")
      */
-    private $historyList;
+    private $history;
 
     /**
      * @var \Entity\User
@@ -231,35 +231,35 @@ class Request
     }
 
     /**
-     * Add historyList
+     * Add history
      *
-     * @param \Entity\History $historyList
+     * @param \Entity\History $history
      * @return Request
      */
-    public function addHistoryList(\Entity\History $historyList)
+    public function addHistory(\Entity\History $history)
     {
-        $this->historyList[] = $historyList;
+        $this->history[] = $history;
 
         return $this;
     }
 
     /**
-     * Remove historyList
+     * Remove history
      *
-     * @param \Entity\History $historyList
+     * @param \Entity\History $history
      */
-    public function removeHistoryList(\Entity\History $historyList)
+    public function removeHistory(\Entity\History $history)
     {
-        $this->historyList->removeElement($historyList);
+        $this->history->removeElement($history);
     }
 
     /**
-     * Get historyList
+     * Get history
      *
      * @return \Doctrine\Common\Collections\Collection
      */
-    public function getHistoryList()
+    public function getHistory()
     {
-        return $this->historyList;
+        return $this->history;
     }
 }

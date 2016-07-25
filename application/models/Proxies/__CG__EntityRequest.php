@@ -129,28 +129,28 @@ class Request extends \Entity\Request implements \Doctrine\ORM\Proxy\Proxy
         return parent::getUserOwner();
     }
 
-    public function addHistoryList(\Entity\History $historyList)
+    public function addHistory(\Entity\History $history)
     {
         $this->__load();
-        return parent::addHistoryList($historyList);
+        return parent::addHistory($history);
     }
 
-    public function removeHistoryList(\Entity\History $historyList)
+    public function removeHistory(\Entity\History $history)
     {
         $this->__load();
-        return parent::removeHistoryList($historyList);
+        return parent::removeHistory($history);
     }
 
-    public function getHistoryList()
+    public function getHistory()
     {
         $this->__load();
-        return parent::getHistoryList();
+        return parent::getHistory();
     }
 
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'creationDate', 'comment', 'status', 'documents', 'historyList', 'userOwner');
+        return array('__isInitialized__', 'id', 'creationDate', 'comment', 'status', 'documents', 'history', 'userOwner');
     }
 
     public function __clone()

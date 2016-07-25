@@ -14,17 +14,23 @@ function history($scope, $rootScope, $http, $mdBottomSheet) {
     $http.get('index.php/history/HistoryController/fetchRequestHistory', {params:requests[selectedReq]})
         .then(function (response) {
             if (response.data.message === "success") {
-                $scope.historyList = response.data.historyList;
-                console.log($scope.historyList);
+                $scope.history = response.data.history;
+                console.log($scope.history);
             }
             $scope.loading = false;
         });
 
-    $scope.showListBottomSheet = function() {
-      $mdBottomSheet.show({
-        templateUrl: 'index.php/history/DetailsBottomSheetController',
-        //controller: 'ListBottomSheetCtrl'
-      }).then(function(clickedItem) {
-      });
+    $scope.showListBottomSheet = function(selectedHistory) {
+        $mdBottomSheet.show({
+            templateUrl: 'index.php/history/DetailsBottomSheetController',
+            locals:{
+                actions:$scope.history[selectedHistory].actions
+            },
+            controller: ListBottomSheetCtrl
+        });
+
+        function ListBottomSheetCtrl($mdBottomSheet, $scope, actions) {
+            $scope.actions = actions;
+        }
     };
 }

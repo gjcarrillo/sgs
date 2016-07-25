@@ -39,8 +39,14 @@ class NewRequestController extends CI_Controller {
 			// 1 = Creation
 			$history->setTitle(1);
 			$history->setOrigin($request);
-			$request->addHistoryList($history);
-			// TODO: Set ACTION
+			$request->addHistory($history);
+			// Register it's corresponding actions
+			$action = new \Entity\HistoryAction();
+			$action->setSummary("Solicitud recibida.");
+			$action->setDetail("Creación de la solicitud en estado Recibida");
+			$action->setBelongingHistory($history);
+			$history->addAction($action);
+			$em->persist($action);
 			$em->persist($history);
             // 1 = Waiting
             $request->setStatus(1);
@@ -53,6 +59,7 @@ class NewRequestController extends CI_Controller {
             $em->merge($user);
             $em->flush();
             $result['requestId'] = $request->getId();
+			$result['historyId'] = $history->getId();
             $result['message'] = "success";
         } catch (Exception $e) {
             \ChromePhp::log($e);
@@ -68,15 +75,13 @@ class NewRequestController extends CI_Controller {
 			$doc = $em->getRepository('\Entity\Document')->findOneBy(array(
 				"lpath"=>$_GET['lpath']
 			));
-
 			if ($doc !== null) {
-				// doc already exists, so just merge
+				// doc already exists, so just merge. Otherwise we'll have
+				// 'duplicates' in database, because document name is not unique
 				if (isset($_GET['description'])) {
 					$doc->setDescription($_GET['description']);
 					$em->merge($doc);
-					$em->flush();
 				}
-				$result['message'] = "success";
 			} else {
 	            // New document
 	            $doc = new \Entity\Document();
@@ -85,16 +90,26 @@ class NewRequestController extends CI_Controller {
 	                $doc->setDescription($_GET['description']);
 	            }
 	            $doc->setLpath($_GET['lpath']);
-	            $request = $em->find('\Entity\Request', $_GET['requestId']);
+				$request = $em->find('\Entity\Request', $_GET['requestId']);
 	            $doc->setBelongingRequest($request);
 	            $request->addDocument($doc);
 
 	            $em->persist($doc);
 	            $em->merge($request);
-	            $em->flush();
-				$result['message'] = "success";
 			}
-			// TODO: Set History ACTION for the request belonging to this document
+			// Set History action for this request's corresponding history
+			$history =  $em->find('\Entity\History', $_GET['historyId']);
+			$action = new \Entity\HistoryAction();
+			$action->setSummary("Adición del documento '" . $_GET['docName'] . "'.");
+			if (isset($_GET['description']) && $_GET['description'] !== "") {
+				$action->setDetail("Descripción: " . $_GET['description']);
+			}
+			$action->setBelongingHistory($history);
+			$history->addAction($action);
+			$em->persist($action);
+			$em->merge($history);
+			$em->flush();
+			$result['message'] = "success";
         } catch (Exception $e) {
             \ChromePhp::log($e);
             $result['message'] = "error";

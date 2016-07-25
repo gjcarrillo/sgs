@@ -1,23 +1,16 @@
 <md-bottom-sheet style="position: fixed"class="md-list md-has-header" ng-cloak>
-  <md-subheader>Comment Actions</md-subheader>
+    <h2 class="md-headline">Acciones realizadas</h2>
   <md-list>
-    <md-list-item>
-      <md-button
-          ng-click="listItemClick($index)"
-          md-autofocus="$index == 2"
-          class="md-list-item-content" >
-        <md-icon>add</md-icon>
-        <span class="md-inline-list-icon-label">Hola</span>
-      </md-button>
-    </md-list-item>
-    <md-list-item>
-      <md-button
-          ng-click="listItemClick($index)"
-          md-autofocus="$index == 2"
-          class="md-list-item-content" >
-        <md-icon>add</md-icon>
-        <span class="md-inline-list-icon-label">Hola</span>
-      </md-button>
-    </md-list-item>
+      <div ng-repeat="(aKey, action) in actions">
+          <md-list-item
+              class="md-2-line"
+              class="noright">
+              <div class="md-list-item-text" layout="column">
+                 <h3>{{aKey+1}} - {{action.summary}}</h3>
+                 <p>{{action.detail}}</p>
+               </div>
+          </md-list-item>
+          <md-divider ng-if="!$last" class="md-inset"></md-divider>
+      </div>
   </md-list>
 </md-bottom-sheet>

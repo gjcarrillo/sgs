@@ -30,7 +30,7 @@ class HistoryAction
     /**
      * @var string
      *
-     * @ORM\Column(name="detail", type="string", length=255, precision=0, scale=0, nullable=false, unique=false)
+     * @ORM\Column(name="detail", type="string", length=255, precision=0, scale=0, nullable=true, unique=false)
      */
     private $detail;
 
@@ -48,7 +48,7 @@ class HistoryAction
     /**
      * Get id
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -64,14 +64,14 @@ class HistoryAction
     public function setSummary($summary)
     {
         $this->summary = $summary;
-    
+
         return $this;
     }
 
     /**
      * Get summary
      *
-     * @return string 
+     * @return string
      */
     public function getSummary()
     {
@@ -87,14 +87,14 @@ class HistoryAction
     public function setDetail($detail)
     {
         $this->detail = $detail;
-    
+
         return $this;
     }
 
     /**
      * Get detail
      *
-     * @return string 
+     * @return string
      */
     public function getDetail()
     {
@@ -110,14 +110,14 @@ class HistoryAction
     public function setBelongingHistory(\Entity\History $belongingHistory)
     {
         $this->belongingHistory = $belongingHistory;
-    
+
         return $this;
     }
 
     /**
      * Get belongingHistory
      *
-     * @return \Entity\History 
+     * @return \Entity\History
      */
     public function getBelongingHistory()
     {

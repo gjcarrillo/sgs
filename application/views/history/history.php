@@ -39,16 +39,16 @@
             <md-progress-linear md-mode="query" ng-if="loading"></md-progress-linear>
             <md-card-content>
                 <md-list>
-                    <div ng-repeat="(hKey, history) in historyList | filter:filterInput">
+                    <div ng-repeat="(hKey, hist) in history | filter:filterInput">
                         <md-list-item
                             class="md-3-line"
-                            ng-click="showListBottomSheet()"
+                            ng-click="showListBottomSheet(hKey)"
                             class="noright">
                             <md-icon  ng-style="{'color':'#2196F3', 'font-size':'36px'}">account_circle</md-icon>
                             <div class="md-list-item-text" layout="column">
-                               <h3>{{history.userResponsable}}</h3>
-                               <h4>{{history.title}}</h4>
-                               <p>{{history.date}}</p>
+                               <h3>{{hist.userResponsable}}</h3>
+                               <h4>{{hist.title}}</h4>
+                               <p>{{hist.date}}</p>
                              </div>
                              <md-button aria-label="See details" class="md-icon-button">
                                  <md-icon aria-label="Eye icon" ng-click="null" class="md-secondary">remove_red_eye</md-icon>

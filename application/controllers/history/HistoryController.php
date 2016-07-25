@@ -18,11 +18,16 @@ class HistoryController extends CI_Controller {
 			$em = $this->doctrine->em;
 			// Get all current request's history
 			$request = $em->find('\Entity\Request', $_GET['id']);
-			$historyList = $request->getHistoryList();
-			foreach ($historyList as $hKey => $history) {
-				$result['historyList'][$hKey]['userResponsable'] = $history->getUserResponsable();
-				$result['historyList'][$hKey]['date'] = $history->getDate()->format('d/m/y - h:i:sa');
-				$result['historyList'][$hKey]['title'] = $history->getTitleByText();
+			$history = $request->getHistory();
+			foreach ($history as $hKey => $history) {
+				$result['history'][$hKey]['userResponsable'] = $history->getUserResponsable();
+				$result['history'][$hKey]['date'] = $history->getDate()->format('d/m/y - h:i:sa');
+				$result['history'][$hKey]['title'] = $history->getTitleByText();
+				$actions = $history->getActions();
+				foreach ($actions as $aKey => $action) {
+					$result['history'][$hKey]['actions'][$aKey]['summary'] = $action->getSummary();
+					$result['history'][$hKey]['actions'][$aKey]['detail'] = $action->getDetail();
+				}
 			}
 			$result['message'] = "success";
 
