@@ -37,7 +37,6 @@ class NewRequestController extends CI_Controller {
             $user->addRequest($request);
             $em->persist($request);
             $em->merge($user);
-            $em->persist($user);
             $em->flush();
             $result['requestId'] = $request->getId();
             $result['message'] = "success";
@@ -61,9 +60,9 @@ class NewRequestController extends CI_Controller {
 				if (isset($_GET['description'])) {
 					$doc->setDescription($_GET['description']);
 					$em->merge($doc);
-					$em->persist($doc);
 					$em->flush();
 				}
+				$result['message'] = "success";
 			} else {
 	            // New document
 	            $doc = new \Entity\Document();
@@ -78,10 +77,9 @@ class NewRequestController extends CI_Controller {
 
 	            $em->persist($doc);
 	            $em->merge($request);
-	            $em->persist($request);
 	            $em->flush();
+				$result['message'] = "success";
 			}
-            $result['message'] = "success";
         } catch (Exception $e) {
             \ChromePhp::log($e);
             $result['message'] = "error";

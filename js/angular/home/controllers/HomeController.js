@@ -12,22 +12,23 @@ function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $state) {
     $scope.docs = [];
     $scope.fetchError = "";
 
-    // Check if there is stored data (if supported by browser)!
-    if (typeof(Storage) !== "undefined") {
-        var requests = JSON.parse(sessionStorage.getItem("requests"));
-        if (requests != null) {
-            $scope.requests = requests;
-            $scope.fetchId = sessionStorage.getItem("fetchId");
-            // fetchId is used for several database queries.
-            // that is why we don't use searchInput value, which is bind to search input.
-            $scope.searchInput = $scope.fetchId;
-            var selectedReq = sessionStorage.getItem("selectedReq");
-            if (selectedReq != null) {
-                $scope.selectedReq = parseInt(selectedReq);
+    // Check if there is stored data
+    var requests = JSON.parse(sessionStorage.getItem("requests"));
+    if (requests != null) {
+        $scope.requests = requests;
+        $scope.fetchId = sessionStorage.getItem("fetchId");
+        // fetchId is used for several database queries.
+        // that is why we don't use searchInput value, which is bind to search input.
+        $scope.searchInput = $scope.fetchId;
+        var selectedReq = sessionStorage.getItem("selectedReq");
+        if (selectedReq != null) {
+            $scope.selectedReq = parseInt(selectedReq);
+            if ($scope.selectedReq != -1) {
                 $scope.docs = $scope.requests[$scope.selectedReq].docs;
             }
         }
     }
+
 
     $scope.getSidenavHeight = function() {
         return {
@@ -468,17 +469,16 @@ function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $state) {
     }
     window.onbeforeunload = function () {
         // Save data before page unloaded in case user is reloading.
-        if (typeof(Storage) !== "undefined") {
-            if (typeof($scope.requests) !== "undefined") {
-                sessionStorage.setItem("requests", JSON.stringify($scope.requests));
-                sessionStorage.setItem("fetchId", $scope.fetchId);
-                sessionStorage.setItem("selectedReq", $scope.selectedReq);
-            } else {
-                sessionStorage.removeItem("requests");
-                sessionStorage.removeItem("fetchId");
-                sessionStorage.removeItem("selectedReq");
-            }
+        if (typeof($scope.requests) !== "undefined") {
+            sessionStorage.setItem("requests", JSON.stringify($scope.requests));
+            sessionStorage.setItem("fetchId", $scope.fetchId);
+            sessionStorage.setItem("selectedReq", $scope.selectedReq);
+        } else {
+            sessionStorage.removeItem("requests");
+            sessionStorage.removeItem("fetchId");
+            sessionStorage.removeItem("selectedReq");
         }
+
     };
 
 }

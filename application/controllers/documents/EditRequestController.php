@@ -22,7 +22,6 @@ class EditRequestController extends CI_Controller {
 				$request->setComment($_GET['comment']);
 			}
 			$em->merge($request);
-			$em->persist($request);
 			$em->flush();
 			$result['message'] = "success";
 		} catch (Exception $e) {
@@ -40,7 +39,6 @@ class EditRequestController extends CI_Controller {
 			$document = $em->find('\Entity\Document', $_GET['id']);
 			$document->setDescription($_GET['description']);
 			$em->merge($document);
-			$em->persist($document);
 			$em->flush();
 			$result['message'] = "success";
 		} catch (Exception $e) {
