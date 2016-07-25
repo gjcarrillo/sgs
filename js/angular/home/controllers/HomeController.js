@@ -6,13 +6,32 @@ home.$inject = ['$scope', '$rootScope', '$mdDialog', 'Upload', '$cookies', '$htt
 
 function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http) {
     'use strict';
-
-    $scope.isOpen = false;
+    $scope.searchInput;
     $scope.loading = false;
     $scope.selectedReq = -1;
     $scope.requests = [];
     $scope.docs = [];
-    $scope.request = {};
+    $scope.fetchError = "";
+
+    // Check if there is stored data (if supported by browser)!
+    if (typeof(Storage) !== "undefined") {
+        var requests = JSON.parse(sessionStorage.getItem("requests"));
+        console.log(requests);
+        if (requests != null) {
+            $scope.requests = requests;
+            $scope.fetchId = sessionStorage.getItem("fetchId");
+            // fetchId is used for several database queries.
+            // that is why we don't use searchInput value, which is bind to search input.
+            $scope.searchInput = $scope.fetchId;
+            console.log($scope.fetchId);
+            var selectedReq = sessionStorage.getItem("selectedReq");
+            if (selectedReq != null) {
+                $scope.selectedReq = selectedReq;
+                $scope.docs = $scope.requests[selectedReq].docs;
+                console.log($scope.docs);
+            }
+        }
+    }
 
     $scope.getSidenavHeight = function() {
         return {
@@ -31,14 +50,16 @@ function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http) {
     $scope.selectRequest = function(req) {
         $scope.selectedReq = req;
         if (req != -1) {
-            console.log(req);
-            console.log($scope.requests[req]);
             $scope.docs = $scope.requests[req].docs;
+            // Save data to sessionStorage
+            if (typeof(Storage) !== "undefined") {
+                sessionStorage.setItem("selectedReq", req);
+            }
         }
     };
 
-    $scope.fetchRequests = function(searchInput) {
-        $scope.fetchId = searchInput;
+    $scope.fetchRequests = function() {
+        $scope.fetchId = $scope.searchInput;
         $scope.requests = [];
         $scope.selectedReq = -1;
         $scope.loading = true;
@@ -49,6 +70,11 @@ function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http) {
                 if (response.data.message === "success") {
                     $scope.requests = response.data.requests;
                     console.log($scope.requests);
+                    // Save data to sessionStorage
+                    if (typeof(Storage) !== "undefined") {
+                        sessionStorage.setItem("requests", JSON.stringify($scope.requests));
+                        sessionStorage.setItem("fetchId", $scope.fetchId);
+                    }
                 } else {
                     $scope.fetchError = response.data.error;
                 }
@@ -158,6 +184,8 @@ function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http) {
                                                             .ariaLabel('Successful request creation dialog')
                                                             .ok('Ok')
                                                     );
+                                                } else {
+                                                    console.log("REFRESHING ERROR!");
                                                 }
                                             });
                                     }

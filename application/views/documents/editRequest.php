@@ -82,11 +82,11 @@
         </div>
     </md-dialog-content>
     <md-dialog-actions ng-show="!uploading">
-        <md-button ng-click="closeDialog()" class="md-primary">
-            Cancelar
-        </md-button>
         <md-button ng-click="updateRequest()" class="md-primary">
             Actualizar
+        </md-button>
+        <md-button ng-click="closeDialog()" class="md-primary">
+            Cancelar
         </md-button>
     </md-dialog-actions>
 </md-dialog>

@@ -11,7 +11,7 @@
            placeholder="Busque solicitudes de préstamo"
            aria-label="Search"
            ng-model="searchInput"
-           ng-keyup="$event.keyCode == 13 && fetchRequests(searchInput)"
+           ng-keyup="$event.keyCode == 13 && fetchRequests()"
            style="color:white; padding-left:25px; margin-right:5px; font-size:16px">
            <md-tooltip md-direction="right">Ingrese una cédula. Ej: 11111111</md-tooltip>
         </md-input-container>
