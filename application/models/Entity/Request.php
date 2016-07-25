@@ -50,6 +50,13 @@ class Request
     private $documents;
 
     /**
+     * @var \Doctrine\Common\Collections\Collection
+     *
+     * @ORM\OneToMany(targetEntity="Entity\History", mappedBy="origin")
+     */
+    private $historyList;
+
+    /**
      * @var \Entity\User
      *
      * @ORM\ManyToOne(targetEntity="Entity\User", inversedBy="requests")
@@ -221,5 +228,38 @@ class Request
     public function getUserOwner()
     {
         return $this->userOwner;
+    }
+
+    /**
+     * Add historyList
+     *
+     * @param \Entity\History $historyList
+     * @return Request
+     */
+    public function addHistoryList(\Entity\History $historyList)
+    {
+        $this->historyList[] = $historyList;
+    
+        return $this;
+    }
+
+    /**
+     * Remove historyList
+     *
+     * @param \Entity\History $historyList
+     */
+    public function removeHistoryList(\Entity\History $historyList)
+    {
+        $this->historyList->removeElement($historyList);
+    }
+
+    /**
+     * Get historyList
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getHistoryList()
+    {
+        return $this->historyList;
     }
 }

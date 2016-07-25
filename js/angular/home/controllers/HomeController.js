@@ -12,7 +12,7 @@ function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $state) {
     $scope.docs = [];
     $scope.fetchError = "";
 
-    // Check if there is stored data
+    // Check if there is stored data before we went to History
     var requests = JSON.parse(sessionStorage.getItem("requests"));
     if (requests != null) {
         $scope.requests = requests;
@@ -20,13 +20,12 @@ function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $state) {
         // fetchId is used for several database queries.
         // that is why we don't use searchInput value, which is bind to search input.
         $scope.searchInput = $scope.fetchId;
-        var selectedReq = sessionStorage.getItem("selectedReq");
-        if (selectedReq != null) {
-            $scope.selectedReq = parseInt(selectedReq);
-            if ($scope.selectedReq != -1) {
-                $scope.docs = $scope.requests[$scope.selectedReq].docs;
-            }
-        }
+        $scope.selectedReq = parseInt(sessionStorage.getItem("selectedReq"));
+        $scope.docs = $scope.requests[$scope.selectedReq].docs;
+        // Got back what we wanted -- erase them from storage
+        sessionStorage.removeItem("requests");
+        sessionStorage.removeItem("fetchId");
+        sessionStorage.removeItem("selectedReq");
     }
 
 
@@ -474,21 +473,12 @@ function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $state) {
     //         sessionStorage.setItem("fetchId", $scope.fetchId);
     //         sessionStorage.setItem("selectedReq", $scope.selectedReq);
     //     } else {
-    //         // User has removed all requests -- update date
+    //         // User has removed all requests -- update data
     //         sessionStorage.removeItem("requests");
     //         sessionStorage.removeItem("fetchId");
     //         sessionStorage.removeItem("selectedReq");
     //     }
     //
     // };
-    // Going to History saves data -- remove it in case user is reloading
-    window.onbeforeunload = function () {
-        var requests = JSON.parse(sessionStorage.getItem("requests"));
-        if (requests != null) {
-            sessionStorage.removeItem("requests");
-            sessionStorage.removeItem("fetchId");
-            sessionStorage.removeItem("selectedReq");
-        }
-    };
 
 }
