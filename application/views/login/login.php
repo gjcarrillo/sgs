@@ -21,8 +21,8 @@
             <md-card class="login-card">
                 <md-card-title layout layout-align="center center">
                     <md-card-title-media>
-                        <div class="md-media-lg card-media" style="background:#fff">
-                        <img ng-src="{{loginImagePath}}" class="md-card-image" alt="Login Image">
+                        <div class="md-media-lg card-media">
+                            <img ng-src="{{loginImagePath}}" class="md-avatar" alt="Login Image">
                         </div>
                     </md-card-title-media>
                 </md-card-title>

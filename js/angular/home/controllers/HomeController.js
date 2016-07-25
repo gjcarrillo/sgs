@@ -467,18 +467,28 @@ function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $state) {
         $state.go('history');
 
     }
+    // window.onbeforeunload = function () {
+    //     // Save data before page unloaded in case user is reloading.
+    //     if (typeof($scope.requests) !== "undefined") {
+    //         sessionStorage.setItem("requests", JSON.stringify($scope.requests));
+    //         sessionStorage.setItem("fetchId", $scope.fetchId);
+    //         sessionStorage.setItem("selectedReq", $scope.selectedReq);
+    //     } else {
+    //         // User has removed all requests -- update date
+    //         sessionStorage.removeItem("requests");
+    //         sessionStorage.removeItem("fetchId");
+    //         sessionStorage.removeItem("selectedReq");
+    //     }
+    //
+    // };
+    // Going to History saves data -- remove it in case user is reloading
     window.onbeforeunload = function () {
-        // Save data before page unloaded in case user is reloading.
-        if (typeof($scope.requests) !== "undefined") {
-            sessionStorage.setItem("requests", JSON.stringify($scope.requests));
-            sessionStorage.setItem("fetchId", $scope.fetchId);
-            sessionStorage.setItem("selectedReq", $scope.selectedReq);
-        } else {
+        var requests = JSON.parse(sessionStorage.getItem("requests"));
+        if (requests != null) {
             sessionStorage.removeItem("requests");
             sessionStorage.removeItem("fetchId");
             sessionStorage.removeItem("selectedReq");
         }
-
     };
 
 }

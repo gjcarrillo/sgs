@@ -6,17 +6,19 @@ login.$inject = ['$scope', '$rootScope', 'auth', '$http'];
 
 function login($scope, $rootScope, auth, $http) {
     'use strict';
-    $rootScope.loading = false;
-    $scope.loginImagePath = "images/icon-profile.png";
+    $scope.loading = false;
+    $scope.model = {};
+    $scope.loginImagePath = "images/avatar_circle_grey.png";
     $scope.login = function() {
         if (typeof $scope.model.login === "undefined" || $scope.model.login == "" ||
             typeof $scope.model.password === "undefined" || $scope.model.password == "") {
-                $rootScope.model.loginError = "Debe ingresar todos los campos"
-            } else {
-            $rootScope.loading = true;
+            console.log("true");
+            $scope.model.loginError = "Debe llenar todos los campos";
+        } else {
+            $scope.loading = true;
             auth.login($scope.model.login, $scope.model.password);
-            $rootScope.model = {};
-            $rootScope.model.loginError = "";
+            $scope.model = {};
+            $scope.model.loginError = "";
         }
     };
 }
