@@ -1,6 +1,13 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
+include (APPPATH. '/libraries/ChromePhp.php');
+
 class LoginController extends CI_Controller {
+
+    public function __construct() {
+        parent::__construct();
+        $this->load->library('session');
+    }
 
     public function index() {
         $this->load->view('login/login');
@@ -13,9 +20,21 @@ class LoginController extends CI_Controller {
            $user = $em->find('\Entity\User', $_GET['id']);
            if($user != null) {
                if($user->getPassword() == $_GET['password']) {
+                   $result['type'] = $user->getType();
+                   $result['name'] = $user->getName();
+                   $result['lastName'] = $user->getLastName();
+
+                   $dataSession = array(
+                        "id" => $_GET['id'],
+                        "name" => $user->getName(),
+                        "lastName" =>  $user->getLastName(),
+                        "type" => $user->getType(),
+                        "logged" => true,
+                    );
+                    \ChromePhp::log($dataSession);
+                    $this->session->set_userdata($dataSession);
+
                    $result['message'] ="success";
-                   $result['type'] =$user->getType();
-                   // TODO: Create session variable used to authenticate user
                }
                else {
                    $result['message'] = "Contraseña incorrecta";
@@ -30,5 +49,9 @@ class LoginController extends CI_Controller {
        }
 
        echo json_encode($result);
+    }
+
+    public function logout() {
+        session_unset();
     }
 }

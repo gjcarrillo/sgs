@@ -4,6 +4,11 @@ include (APPPATH. '/libraries/ChromePhp.php');
 
 class HomeController extends CI_Controller {
 
+	public function __construct() {
+		parent::__construct();
+		$this->load->library('session');
+	}
+
 	public function index() {
 		$this->load->view('home/home');
 	}
@@ -55,6 +60,18 @@ class HomeController extends CI_Controller {
 			$request->removeDocument($doc);
 			// Delete the document.
 			$em->remove($doc);
+			// Register History
+			$history = new \Entity\History();
+			// TODO: Configure timezone
+			$history->setDate(new DateTime('now'));
+			$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
+			// 3 = Elimination
+			$history->setTitle(3);
+			$history->setOrigin($request);
+			$request->addHistoryList($history);
+			$em->merge($request);
+			// TODO: Set ACTION
+			$em->persist($history);
 			// Persist the changes in database.
 			$em->flush();
 			$result['message'] = "success";

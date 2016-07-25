@@ -7,6 +7,7 @@ sgdp.controller('MainController',
             $rootScope.model = {};
             $rootScope.model.errorLogin = "";
             $scope.logout = function () {
+                $http.get('index.php/login/LoginController/logout');
                 auth.logout();
             };
             $scope.isLoggedIn = function() {

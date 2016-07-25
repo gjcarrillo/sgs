@@ -37,9 +37,9 @@ class History
     private $userResponsable;
 
     /**
-     * @var string
+     * @var integer
      *
-     * @ORM\Column(name="title", type="string", length=255, precision=0, scale=0, nullable=false, unique=false)
+     * @ORM\Column(name="title", type="smallint", precision=2, scale=0, nullable=false, unique=false)
      */
     private $title;
 
@@ -202,5 +202,26 @@ class History
     public function getTitle()
     {
         return $this->title;
+    }
+
+    /**
+    * Get title converted into text
+    * @return string
+    */
+    public function getTitleByText()
+    {
+        $title = $this->title;
+        return ($title == 1 ? "Creación" : ($title == 2 ? "Modificación" : "Eliminación"));
+    }
+
+    /**
+    * Set title converted into text
+    * @param string $title
+    * @return Request
+    */
+    public function setTitleByText($title)
+    {
+        $this->title = ($title == "Creación" ? 1 : ($title == "Modificación" ? 2 : 3));
+        return $this;
     }
 }

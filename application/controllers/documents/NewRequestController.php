@@ -4,6 +4,11 @@ include (APPPATH. '/libraries/ChromePhp.php');
 
 class NewRequestController extends CI_Controller {
 
+	public function __construct() {
+        parent::__construct();
+        $this->load->library('session');
+    }
+
 	public function index() {
 		$this->load->view('documents/newRequest');
 	}
@@ -27,6 +32,17 @@ class NewRequestController extends CI_Controller {
             $em = $this->doctrine->em;
             // New request
             $request = new \Entity\Request();
+			// Register History first
+			$history = new \Entity\History();
+			// TODO: Configure timezone
+			$history->setDate(new DateTime('now'));
+			$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
+			// 1 = Creation
+			$history->setTitle(1);
+			$history->setOrigin($request);
+			$request->addHistoryList($history);
+			// TODO: Set ACTION
+			$em->persist($history);
             // 1 = Waiting
             $request->setStatus(1);
             // TODO: Configure TIMEZONE
@@ -80,6 +96,7 @@ class NewRequestController extends CI_Controller {
 	            $em->flush();
 				$result['message'] = "success";
 			}
+			// TODO: Set History ACTION for the request belonging to this document
         } catch (Exception $e) {
             \ChromePhp::log($e);
             $result['message'] = "error";
