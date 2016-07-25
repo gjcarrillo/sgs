@@ -76,7 +76,7 @@
                     <div class="md-toolbar-tools">
                         <h2 class="md-headline">Préstamo solicitado el {{requests[selectedReq].creationDate}}</h2>
                         <span flex></span>
-                        <md-button href="#/history" class="md-icon-button">
+                        <md-button ng-click="loadHistory()" class="md-icon-button">
                             <md-tooltip>Historial</md-tooltip>
                             <md-icon>history</md-icon>
                         </md-button>

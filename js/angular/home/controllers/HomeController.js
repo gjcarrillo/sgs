@@ -2,9 +2,9 @@ angular
     .module('sgdp')
     .controller('HomeController', home);
 
-home.$inject = ['$scope', '$rootScope', '$mdDialog', 'Upload', '$cookies', '$http'];
+home.$inject = ['$scope', '$rootScope', '$mdDialog', 'Upload', '$cookies', '$http', '$state'];
 
-function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http) {
+function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $state) {
     'use strict';
     $scope.loading = false;
     $scope.selectedReq = -1;
@@ -23,8 +23,8 @@ function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http) {
             $scope.searchInput = $scope.fetchId;
             var selectedReq = sessionStorage.getItem("selectedReq");
             if (selectedReq != null) {
-                $scope.selectedReq = selectedReq;
-                $scope.docs = $scope.requests[selectedReq].docs;
+                $scope.selectedReq = parseInt(selectedReq);
+                $scope.docs = $scope.requests[$scope.selectedReq].docs;
             }
         }
     }
@@ -47,16 +47,11 @@ function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http) {
         $scope.selectedReq = req;
         if (req != -1) {
             $scope.docs = $scope.requests[req].docs;
-            // Save data to sessionStorage
-            if (typeof(Storage) !== "undefined") {
-                sessionStorage.setItem("selectedReq", req);
-            }
         }
     };
 
     $scope.fetchRequests = function(searchInput) {
         $scope.fetchId = searchInput;
-        console.log($scope.searchInput);
         $scope.requests = [];
         $scope.selectedReq = -1;
         $scope.loading = true;
@@ -66,12 +61,6 @@ function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http) {
             .then(function (response) {
                 if (response.data.message === "success") {
                     $scope.requests = response.data.requests;
-                    console.log($scope.requests);
-                    // Save data to sessionStorage
-                    if (typeof(Storage) !== "undefined") {
-                        sessionStorage.setItem("requests", JSON.stringify($scope.requests));
-                        sessionStorage.setItem("fetchId", $scope.fetchId);
-                    }
                 } else {
                     $scope.fetchError = response.data.error;
                 }
@@ -127,14 +116,12 @@ function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http) {
             // Gathers the files whenever the file input's content is updated
             $scope.gatherFiles = function(files, errFiles) {
                 $scope.files = files;
-                console.log($scope.files);
                 $scope.errFiles = errFiles;
             };
 
             // Creates new request in database and uploads documents
             $scope.createNewRequest = function() {
                 $scope.uploading = true;
-                console.log($scope.files);
                 $http.get('index.php/documents/NewRequestController/createRequest', {params:{userId:$scope.fetchId}})
                     .then(function (response) {
                         if (response.data.message== "success") {
@@ -154,6 +141,7 @@ function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http) {
                         data: {file: file, userId: userId, requestId: requestId},
                     });
                     file.upload.then(function (response) {
+                        console.log("Document uploadad!");
                         file.lpath = response.data.lpath;
                         file.requestId = $scope.requestId;
                         // file.name is not passed through GET. Gotta create new property
@@ -163,13 +151,13 @@ function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http) {
                             .then(function (response) {
                                 if (response.data.message== "success") {
                                     uploadedFiles++;
+                                    console.log(uploadedFiles);
                                     if (uploadedFiles === $scope.files.length) {
                                         // Update interface
                                         $http.get('index.php/home/HomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
                                             .then(function (response) {
                                                 if (response.data.message === "success") {
                                                     updateContent(response.data.requests, response.data.requests.length-1);
-                                                    console.log(response.data.requests);
                                                     // Close dialog and alert user that operation was successful
                                                     $mdDialog.hide();
                                                     $mdDialog.show(
@@ -186,6 +174,8 @@ function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http) {
                                                 }
                                             });
                                     }
+                                } else {
+                                    console.log("Document creation in databae had an error");
                                 }
                             });
                     }, function (response) {
@@ -208,9 +198,6 @@ function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http) {
         $scope.requests = requests;
         // Automatically select created request
         $scope.selectRequest(selection);
-        if (typeof(Storage) !== "undefined") {
-            sessionStorage.setItem("requests", JSON.stringify($scope.requests));
-        }
     }
 
     /**
@@ -283,9 +270,6 @@ function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http) {
                                         .ariaLabel('Successful request update dialog')
                                         .ok('Ok')
                                 );
-                                if (typeof(Storage) !== "undefined") {
-                                    sessionStorage.setItem("requests", JSON.stringify($scope.requests));
-                                }
                             } else {
                                 uploadFiles($scope.fetchId, $scope.request.id);
                             }
@@ -469,6 +453,30 @@ function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http) {
             $scope.saveEdition = function() {
                 $http.get('index.php/documents/EditRequestController/updateDocDescription', {params:doc});
                 $mdDialog.hide();
+            }
+        }
+    };
+
+    $scope.loadHistory = function() {
+        // Save data before going to history page
+        sessionStorage.setItem("requests", JSON.stringify($scope.requests));
+        sessionStorage.setItem("fetchId", $scope.fetchId);
+        sessionStorage.setItem("selectedReq", $scope.selectedReq);
+
+        $state.go('history');
+
+    }
+    window.onbeforeunload = function () {
+        // Save data before page unloaded in case user is reloading.
+        if (typeof(Storage) !== "undefined") {
+            if (typeof($scope.requests) !== "undefined") {
+                sessionStorage.setItem("requests", JSON.stringify($scope.requests));
+                sessionStorage.setItem("fetchId", $scope.fetchId);
+                sessionStorage.setItem("selectedReq", $scope.selectedReq);
+            } else {
+                sessionStorage.removeItem("requests");
+                sessionStorage.removeItem("fetchId");
+                sessionStorage.removeItem("selectedReq");
             }
         }
     };
