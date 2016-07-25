@@ -5,15 +5,19 @@
             <span>SGDP</span>
         </h2>
         <!-- Search bar -->
-        <md-input-container md-no-float class="md-accent" flex="30" flex-offset="25" style="padding-bottom:0px;margin-right:25px">
+        <md-input-container
+            md-no-float class="md-accent"
+            flex="30"
+            flex-offset="25"
+            style="padding-bottom:0px;margin-right:25px">
            <md-icon style="color:white" class="material-icons">&#xE8B6;</md-icon>
            <input
-           placeholder="Busque solicitudes de préstamo"
-           aria-label="Search"
-           ng-model="searchInput"
-           ng-keyup="$event.keyCode == 13 && fetchRequests()"
-           style="color:white; padding-left:25px; margin-right:5px; font-size:16px">
-           <md-tooltip md-direction="right">Ingrese una cédula. Ej: 11111111</md-tooltip>
+               placeholder="Busque solicitudes de préstamo"
+               aria-label="Search"
+               ng-model="searchInput"
+               ng-keyup="$event.keyCode == 13 && fetchRequests(searchInput)"
+               style="color:white; padding-left:25px; margin-right:5px; font-size:16px">
+               <md-tooltip md-direction="right">Ingrese una cédula. Ej: 11111111</md-tooltip>
         </md-input-container>
         <span flex></span>
         <md-button class="md-fab md-mini md-raised" ng-click="logout()" aria-label="Back">

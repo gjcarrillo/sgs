@@ -6,7 +6,6 @@ home.$inject = ['$scope', '$rootScope', '$mdDialog', 'Upload', '$cookies', '$htt
 
 function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http) {
     'use strict';
-    $scope.searchInput;
     $scope.loading = false;
     $scope.selectedReq = -1;
     $scope.requests = [];
@@ -16,19 +15,16 @@ function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http) {
     // Check if there is stored data (if supported by browser)!
     if (typeof(Storage) !== "undefined") {
         var requests = JSON.parse(sessionStorage.getItem("requests"));
-        console.log(requests);
         if (requests != null) {
             $scope.requests = requests;
             $scope.fetchId = sessionStorage.getItem("fetchId");
             // fetchId is used for several database queries.
             // that is why we don't use searchInput value, which is bind to search input.
             $scope.searchInput = $scope.fetchId;
-            console.log($scope.fetchId);
             var selectedReq = sessionStorage.getItem("selectedReq");
             if (selectedReq != null) {
                 $scope.selectedReq = selectedReq;
                 $scope.docs = $scope.requests[selectedReq].docs;
-                console.log($scope.docs);
             }
         }
     }
@@ -58,8 +54,9 @@ function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http) {
         }
     };
 
-    $scope.fetchRequests = function() {
-        $scope.fetchId = $scope.searchInput;
+    $scope.fetchRequests = function(searchInput) {
+        $scope.fetchId = searchInput;
+        console.log($scope.searchInput);
         $scope.requests = [];
         $scope.selectedReq = -1;
         $scope.loading = true;
@@ -211,6 +208,9 @@ function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http) {
         $scope.requests = requests;
         // Automatically select created request
         $scope.selectRequest(selection);
+        if (typeof(Storage) !== "undefined") {
+            sessionStorage.setItem("requests", JSON.stringify($scope.requests));
+        }
     }
 
     /**
@@ -283,6 +283,9 @@ function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http) {
                                         .ariaLabel('Successful request update dialog')
                                         .ok('Ok')
                                 );
+                                if (typeof(Storage) !== "undefined") {
+                                    sessionStorage.setItem("requests", JSON.stringify($scope.requests));
+                                }
                             } else {
                                 uploadFiles($scope.fetchId, $scope.request.id);
                             }
