@@ -9,7 +9,6 @@ angular.module('sgdp.login').factory("auth", function($cookies,$location, $http 
                 .then(function(response) {
                     console.log(response);
                     if(response.data.message === "success") {
-                        $rootScope.loading = false;
                         var timeToExpire =  new Date();
                         timeToExpire.setDate(timeToExpire.getDate() + 7 );
                          // create the session cookie
@@ -26,7 +25,6 @@ angular.module('sgdp.login').factory("auth", function($cookies,$location, $http 
                         $location.path("/");
 
                     } else {
-                        $rootScope.loading = false;
                         $rootScope.model.loginError =  response.data.message;
                    }
                 }, function (response){

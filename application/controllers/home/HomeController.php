@@ -62,8 +62,7 @@ class HomeController extends CI_Controller {
 			$em->remove($doc);
 			// Register History
 			$history = new \Entity\History();
-			// TODO: Configure timezone
-			$history->setDate(new DateTime('now'));
+			$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
 			$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
 			// 3 = Elimination
 			$history->setTitle(3);

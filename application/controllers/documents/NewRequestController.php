@@ -34,7 +34,6 @@ class NewRequestController extends CI_Controller {
             $request = new \Entity\Request();
 			// Register History first
 			$history = new \Entity\History();
-			// TODO: Configure timezone
 			$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
 			$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
 			// 1 = Creation
@@ -45,7 +44,6 @@ class NewRequestController extends CI_Controller {
 			$em->persist($history);
             // 1 = Waiting
             $request->setStatus(1);
-            // TODO: Configure TIMEZONE
             $request->setCreationDate(new DateTime('now', new DateTimeZone('America/Barbados')));
             $user = $em->find('\Entity\User', $_GET['userId']);
 

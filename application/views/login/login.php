@@ -44,11 +44,8 @@
                     <div layout layout-align="center center">
                         <span style="color:red">{{model.loginError}}</span>
                     </div>
-                    <div ng-hide="loading" layout layout-align="center center">
+                    <div layout layout-align="center center">
                         <md-button ng-click="login()" class="md-raised md-primary">Iniciar sesión</md-button>
-                    </div>
-                    <div ng-show="loading" layout layout-align="center center">
-                        <md-progress-circular md-mode="indeterminate"></md-progress-circular>
                     </div>
                     <br/>
                 </md-card-content>

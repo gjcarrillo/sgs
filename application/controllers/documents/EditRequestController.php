@@ -7,7 +7,7 @@ class EditRequestController extends CI_Controller {
         parent::__construct();
         $this->load->library('session');
     }
-	
+
 	public function index() {
 		$this->load->view('documents/editRequest');
 	}
@@ -23,8 +23,7 @@ class EditRequestController extends CI_Controller {
 			$request = $em->find('\Entity\Request', $_GET['id']);
 			// Register History first
 			$history = new \Entity\History();
-			// TODO: Configure timezone
-			$history->setDate(new DateTime('now'));
+			$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
 			$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
 			// 2 = Modification
 			$history->setTitle(2);
@@ -55,8 +54,7 @@ class EditRequestController extends CI_Controller {
 			$document = $em->find('\Entity\Document', $_GET['id']);
 			// Register History first
 			$history = new \Entity\History();
-			// TODO: Configure timezone
-			$history->setDate(new DateTime('now'));
+			$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
 			$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
 			// 2 = Modification
 			$history->setTitle(2);
