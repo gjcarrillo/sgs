@@ -37,6 +37,14 @@ class History
     private $userResponsable;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="title", type="string", length=255, precision=0, scale=0, nullable=false, unique=false)
+     */
+    private $title;
+
+
+    /**
      * @var \Doctrine\Common\Collections\Collection
      *
      * @ORM\OneToMany(targetEntity="Entity\HistoryAction", mappedBy="belongingHistory")
@@ -60,11 +68,11 @@ class History
     {
         $this->actions = new \Doctrine\Common\Collections\ArrayCollection();
     }
-    
+
     /**
      * Get id
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -80,14 +88,14 @@ class History
     public function setDate($date)
     {
         $this->date = $date;
-    
+
         return $this;
     }
 
     /**
      * Get date
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getDate()
     {
@@ -103,14 +111,14 @@ class History
     public function setUserResponsable($userResponsable)
     {
         $this->userResponsable = $userResponsable;
-    
+
         return $this;
     }
 
     /**
      * Get userResponsable
      *
-     * @return string 
+     * @return string
      */
     public function getUserResponsable()
     {
@@ -126,7 +134,7 @@ class History
     public function addAction(\Entity\HistoryAction $actions)
     {
         $this->actions[] = $actions;
-    
+
         return $this;
     }
 
@@ -143,7 +151,7 @@ class History
     /**
      * Get actions
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getActions()
     {
@@ -159,17 +167,40 @@ class History
     public function setOrigin(\Entity\Request $origin)
     {
         $this->origin = $origin;
-    
+
         return $this;
     }
 
     /**
      * Get origin
      *
-     * @return \Entity\Request 
+     * @return \Entity\Request
      */
     public function getOrigin()
     {
         return $this->origin;
+    }
+
+    /**
+     * Set title
+     *
+     * @param string $title
+     * @return History
+     */
+    public function setTitle($title)
+    {
+        $this->title = $title;
+
+        return $this;
+    }
+
+    /**
+     * Get title
+     *
+     * @return string
+     */
+    public function getTitle()
+    {
+        return $this->title;
     }
 }
