@@ -28,8 +28,6 @@ sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $lo
     $mdThemingProvider.theme('default')
         .primaryPalette('teal')
         .accentPalette('blue');
-    $mdThemingProvider.theme('input')
-        .primaryPalette('grey');
 });
 
 

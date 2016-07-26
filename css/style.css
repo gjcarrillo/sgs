@@ -34,3 +34,10 @@ main {
 /*md-list .md-button {
     text-align: left;
 }*/
+
+@media screen and (max-width: 480px) {
+    .login-card {
+        width: 80%;
+        margin-bottom: 20px;
+    }
+}

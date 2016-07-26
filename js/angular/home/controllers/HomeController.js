@@ -473,19 +473,11 @@ function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $state) {
         $state.go('history');
 
     }
-    // window.onbeforeunload = function () {
-    //     // Save data before page unloaded in case user is reloading.
-    //     if (typeof($scope.requests) !== "undefined") {
-    //         sessionStorage.setItem("requests", JSON.stringify($scope.requests));
-    //         sessionStorage.setItem("fetchId", $scope.fetchId);
-    //         sessionStorage.setItem("selectedReq", $scope.selectedReq);
-    //     } else {
-    //         // User has removed all requests -- update data
-    //         sessionStorage.removeItem("requests");
-    //         sessionStorage.removeItem("fetchId");
-    //         sessionStorage.removeItem("selectedReq");
-    //     }
-    //
-    // };
 
+    $scope.downloadDoc = function(doc) {
+        console.log(doc);
+        location.href = doc.fullPath;
+        // var win = window.open(url, '_blank');
+        // win.focus();
+    }
 }

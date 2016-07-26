@@ -6,6 +6,10 @@ history.$inject = ['$scope', '$rootScope', '$http', '$mdBottomSheet'];
 
 function history($scope, $rootScope, $http, $mdBottomSheet) {
     'use strict';
+
+    // If no data has been sent, show nothing.
+    if (sessionStorage.getItem("requests") === null) { return; }
+    
     $scope.loading = true;
     // Take the stored data of interest
     var requests = JSON.parse(sessionStorage.getItem("requests"));

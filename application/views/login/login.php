@@ -8,20 +8,16 @@
 </md-toolbar>
 <!-- Content -->
 <main class="main-w-footer">
-    <div ng-hide="recovery.recoveryView" layout="column" layout-align="center center">
+    <div ng-hide="recovery.recoveryView" layout="column" layout-align="center center" layout-padding>
         <h1 class="md-title" style="font-weight:300">Todos tus documentos. Un solo lugar.</h1>
         <h2 class="md-subhead">Inicie sesión para ingresar al sistema</h2>
-    </div>
-    <div ng-show="recovery.recoveryView" layout="column" layout-align="center center">
-    	<h5 style="font-weight:300">Sistema de recuperación de contraseña</h5>
-        <h5>Para cambiar tu contraseña, ingresa tu login y contesta la pregunta de seguridad</h6>
     </div>
     <md-content>
         <div layout="column" layout-align="center center" style="background:#F5F5F5">
             <md-card class="login-card">
                 <md-card-title layout layout-align="center center">
                     <md-card-title-media>
-                        <div class="md-media-lg card-media">
+                        <div class="md-media-md card-media">
                             <img ng-src="{{loginImagePath}}" class="md-avatar" alt="Login Image">
                         </div>
                     </md-card-title-media>

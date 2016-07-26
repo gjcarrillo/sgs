@@ -101,7 +101,7 @@
                         <div ng-repeat="(dKey, doc) in docs">
                             <md-list-item
                                 class="md-2-line"
-                                ng-click="null"
+                                ng-click="downloadDoc(doc)"
                                 class="noright">
                                 <md-icon  ng-style="{'color':'#2196F3', 'font-size':'36px'}">insert_drive_file</md-icon>
                                 <div class="md-list-item-text" layout="column">
