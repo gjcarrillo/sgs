@@ -22,7 +22,11 @@ angular.module('sgdp.login').factory("auth", function($cookies,$location, $http 
                             expires : timeToExpire
                         });
                         // redirect to home
-                        $location.path("/");
+                        if (response.data.type == 1) {
+                            $location.path("adminHome");
+                        } else {
+                            $location.path("userHome");
+                        }
 
                     } else {
                         $rootScope.model.loginError =  response.data.message;
@@ -38,6 +42,9 @@ angular.module('sgdp.login').factory("auth", function($cookies,$location, $http 
             $cookies.remove('session');
             // redirect to login page
             $location.path("/login");
+        },
+        permission : function() {
+            return $cookies.getObject('session').type;
         },
         isLoggedIn : function()
         {

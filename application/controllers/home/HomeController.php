@@ -9,8 +9,12 @@ class HomeController extends CI_Controller {
 		$this->load->library('session');
 	}
 
-	public function index() {
-		$this->load->view('home/home');
+	public function user() {
+		$this->load->view('home/userHome');
+	}
+
+	public function admin() {
+		$this->load->view('home/adminHome');
 	}
 	// Obtain all requests with with all their documents.
 	// NOTICE: sensitive information

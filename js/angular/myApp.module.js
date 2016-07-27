@@ -9,10 +9,15 @@ sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $lo
         templateUrl: 'index.php/login/LoginController',
         controller: 'LoginController'
     })
-    .state('home', {
-        url: '/',
-        templateUrl: 'index.php/home/HomeController',
-        controller: 'HomeController'
+    .state('userHome', {
+        url: 'userHome',
+        templateUrl: 'index.php/home/HomeController/user',
+        controller: 'UserHomeController'
+    })
+    .state('adminHome', {
+        url: 'adminHome',
+        templateUrl: 'index.php/home/HomeController/admin',
+        controller: 'AdminHomeController'
     })
     .state('history', {
         url: '/history',
@@ -50,7 +55,11 @@ sgdp.run(['$rootScope', '$location','$state','auth', '$cookies', '$http',
             // if user Is logged in and is trying to access login page
             // send to home page (tickets)
             e.preventDefault();
-            $state.go('home');
+            if (auth.permission() == 1) {
+                $state.go('adminHome');
+            } else {
+                $state.go('userHome');
+            }
         }
         // else if (auth.isLoggedIn() && !userHasPermission(auth.profile(), $location.url())) {
         //     // check if user actually has access permission to intended url
