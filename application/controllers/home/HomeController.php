@@ -23,7 +23,9 @@ class HomeController extends CI_Controller {
 	// Obtain all requests with with all their documents.
 	// NOTICE: sensitive information
 	public function getUserRequests() {
-		if ($_SESSION['type'] != 1) {
+		if ($_GET['fetchId'] != $_SESSION['id'] && $_SESSION['type'] != 1) {
+			// if fetch id is not the same as logged in user, must be an admin
+			// to be able to execute query!
 			$this->load->view('errors/index.html');
 		} else {
 			try {
@@ -43,7 +45,7 @@ class HomeController extends CI_Controller {
 							$result['requests'][$rKey]['docs'][$dKey]['id'] = $doc->getId();
 							$result['requests'][$rKey]['docs'][$dKey]['name'] = $doc->getName();
 							$result['requests'][$rKey]['docs'][$dKey]['description'] = $doc->getDescription();
-							$result['requests'][$rKey]['docs'][$dKey]['fullPath'] = DropPath . $doc->getLpath();
+							$result['requests'][$rKey]['docs'][$dKey]['lpath'] = $doc->getLpath();
 						}
 					}
 					$result['message'] = "success";
@@ -64,7 +66,7 @@ class HomeController extends CI_Controller {
 			try {
 				$em = $this->doctrine->em;
 				// Delete the document from the server.
-				unlink($_GET['fullPath']);
+				unlink(DropPath . $_GET['lpath']);
 				// Get the specified doc entity
 				$doc = $em->find('\Entity\Document', $_GET['id']);
 				// Get it's request.
@@ -123,5 +125,22 @@ class HomeController extends CI_Controller {
 			}
 			echo json_encode($result);
 		}
+	}
+
+	public function download() {
+		// [0] = userId, [1] = requestId, [2] = filename, [3] = file extension
+		$parsed = explode('.', $_GET['lpath']);
+		// Get the Id of the document's owner.
+		$userOwner = $parsed[0];
+		if ($userOwner != $_SESSION['id'] && $_SESSION['type'] != 1) {
+			// Only admins can download documents that are not their own.
+			$this->load->view('errors/index.html');
+		} else {
+			// header information for sending the file
+			header('Content-Disposition: attachment; filename=' . $parsed[2] . '.' . $parsed[3]);
+			// The document source
+			readfile(DropPath . $_GET['lpath']);
+		}
+
 	}
 }

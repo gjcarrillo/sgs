@@ -31,7 +31,6 @@ class LoginController extends CI_Controller {
                         "type" => $user->getType(),
                         "logged" => true,
                     );
-                    \ChromePhp::log($dataSession);
                     $this->session->set_userdata($dataSession);
 
                    $result['message'] ="success";
@@ -52,6 +51,6 @@ class LoginController extends CI_Controller {
     }
 
     public function logout() {
-        session_unset();
+        $this->session->sess_destroy();
     }
 }

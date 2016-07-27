@@ -16,6 +16,8 @@ function userHome($scope, $rootScope, $http, $cookies) {
         .then(function (response) {
             if (response.data.message === "success") {
                 $scope.requests = response.data.requests;
+            } else {
+                console.log("ERROR");
             }
             $scope.loading = false;
         });
@@ -49,5 +51,7 @@ function userHome($scope, $rootScope, $http, $cookies) {
         return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
     };
 
-
+    $scope.downloadDoc = function(doc) {
+        location.href = 'index.php/home/HomeController/download?lpath=' + doc.lpath;
+    }
 }

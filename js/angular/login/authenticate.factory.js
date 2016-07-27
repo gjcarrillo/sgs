@@ -9,9 +9,10 @@ angular.module('sgdp.login').factory("auth", function($cookies,$location, $http 
                 .then(function(response) {
                     console.log(response);
                     if(response.data.message === "success") {
-                        var timeToExpire =  new Date();
-                        timeToExpire.setDate(timeToExpire.getDate() + 7 );
-                         // create the session cookie
+                        var now = new Date();
+                        // 1 year exp date
+                        var timeToExpire =  new Date(now.getFullYear()+1, now.getMonth(), now.getDate());
+                        // create the session cookie
                         $cookies.putObject('session', {
                             id: username,
                             password: password,
@@ -21,6 +22,13 @@ angular.module('sgdp.login').factory("auth", function($cookies,$location, $http 
                         }, {
                             expires : timeToExpire
                         });
+                        // $cookies.putObject('session', {
+                        //     id: username,
+                        //     password: password,
+                        //     type: response.data.type,
+                        //     name: response.data.name,
+                        //     lastName: response.data.lastName
+                        // });
                         // redirect to home
                         if (response.data.type == 1) {
                             $location.path("adminHome");

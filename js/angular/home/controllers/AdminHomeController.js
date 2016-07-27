@@ -475,8 +475,7 @@ function adminHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
     }
 
     $scope.downloadDoc = function(doc) {
-        console.log(doc);
-        location.href = doc.fullPath;
+        location.href = 'index.php/home/HomeController/download?lpath=' + doc.lpath;
         // var win = window.open(url, '_blank');
         // win.focus();
     }
