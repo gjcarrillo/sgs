@@ -10,12 +10,12 @@ sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $lo
         controller: 'LoginController'
     })
     .state('userHome', {
-        url: 'userHome',
+        url: '/userHome',
         templateUrl: 'index.php/home/HomeController/user',
         controller: 'UserHomeController'
     })
     .state('adminHome', {
-        url: 'adminHome',
+        url: '/adminHome',
         templateUrl: 'index.php/home/HomeController/admin',
         controller: 'AdminHomeController'
     })
@@ -23,10 +23,6 @@ sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $lo
         url: '/history',
         templateUrl: 'index.php/history/HistoryController',
         controller: 'HistoryController'
-    })
-    .state('forbidden', {
-        url: '/forbidden',
-        templateUrl: 'index.php/ForbiddenAccessController'
     });
     // $locationProvider.html5Mode(true);
     // Application theme
@@ -53,31 +49,29 @@ sgdp.run(['$rootScope', '$location','$state','auth', '$cookies', '$http',
         }
         else if(auth.isLoggedIn() && $location.url() == "/login") {
             // if user Is logged in and is trying to access login page
-            // send to home page (tickets)
+            // send to home page
             e.preventDefault();
-            if (auth.permission() == 1) {
-                $state.go('adminHome');
-            } else {
-                $state.go('userHome');
-            }
+            auth.sendHome();
+        } else if (auth.isLoggedIn() && !userHasPermission(auth.permission(), $location.url())) {
+            // check if user actually has access permission to intended url
+
+            e.preventDefault();
+            // if user does not have the propper permission, send home
+            // or maybe send to error page.
+            auth.sendHome();
         }
-        // else if (auth.isLoggedIn() && !userHasPermission(auth.profile(), $location.url())) {
-        //     // check if user actually has access permission to intended url
-        //
-        //     e.preventDefault();
-        //     // if user does not have the propper permission, send home
-        //     // or maybe send to error page.
-        //     $state.go('forbidden');
-        // }
   });
 
   function userHasPermission(userType, url) {
       switch (url) {
-        case '/':
-            // Anyone can access home page
+        case '/userHome':
+            // Anyone can access user home page
             return true;
+        case '/adminHome':
+            // Check for admin rights
+            return userType == 1;
         case '/history':
-            // check for manager rights
+            // check for admin rights
             return userType == 1;
       }
       // maybe going to login (.otherwise('login'))? if so, keep going!

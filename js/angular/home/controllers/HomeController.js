@@ -34,14 +34,14 @@ function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $state) {
             // 129 = header and footer height, approx
             'height':($(window).height() - 129)
         };
-    }
+    };
 
     $scope.getDocumentContainerStyle = function() {
         return {
             'background-color': '#F5F5F5',
             'max-height':($(window).height() - 129)
         };
-    }
+    };
 
     $scope.selectRequest = function(req) {
         $scope.selectedReq = req;
@@ -73,7 +73,7 @@ function home($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $state) {
         z = z || '0';
         n = n + '';
         return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
-    }
+    };
 
     /**
     * Custom dialog for creating a new request

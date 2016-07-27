@@ -25,14 +25,14 @@ function userHome($scope, $rootScope, $http, $cookies) {
             // 129 = header and footer height, approx
             'height':($(window).height() - 129)
         };
-    }
+    };
 
     $scope.getDocumentContainerStyle = function() {
         return {
             'background-color': '#F5F5F5',
             'max-height':($(window).height() - 129)
         };
-    }
+    };
 
 
     $scope.selectRequest = function(req) {
@@ -41,5 +41,13 @@ function userHome($scope, $rootScope, $http, $cookies) {
             $scope.docs = $scope.requests[req].docs;
         }
     };
+
+    // Helper function for formatting numbers with leading zeros
+    $scope.pad = function(n, width, z) {
+        z = z || '0';
+        n = n + '';
+        return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+    };
+
 
 }

@@ -46,6 +46,13 @@ angular.module('sgdp.login').factory("auth", function($cookies,$location, $http 
         permission : function() {
             return $cookies.getObject('session').type;
         },
+        sendHome : function() {
+            if ($cookies.getObject('session').type == 1) {
+                $location.path("/adminHome");
+            } else {
+                $location.path("/userHome");
+            }
+        },
         isLoggedIn : function()
         {
             return typeof $cookies.get('session') !== "undefined" ;
