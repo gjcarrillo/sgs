@@ -4,7 +4,16 @@ include (APPPATH. '/libraries/ChromePhp.php');
 
 class DetailsBottomSheetController extends CI_Controller {
 
+	public function __construct() {
+        parent::__construct();
+        $this->load->library('session');
+    }
+	
 	public function index() {
-		$this->load->view('history/detailsBottomSheet');
+		if ($_SESSION['type'] != 1) {
+			$this->load->view('errors/index.html');
+		} else {
+			$this->load->view('history/detailsBottomSheet');
+		}
 	}
 }

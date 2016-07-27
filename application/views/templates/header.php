@@ -25,7 +25,6 @@
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/login/login.module.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/login/authenticate.factory.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/login/controllers/LoginController.js"></script>
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/home/controllers/HomeController.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/home/controllers/UserHomeController.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/home/controllers/AdminHomeController.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/history/controllers/HistoryController.js"></script>

@@ -10,32 +10,40 @@ class HistoryController extends CI_Controller {
     }
 
 	public function index() {
-		$this->load->view('history/history');
+		if ($_SESSION['type'] != 1) {
+			$this->load->view('errors/index.html');
+		} else {
+			$this->load->view('history/history');
+		}
 	}
 
 	public function fetchRequestHistory() {
-		try {
-			$em = $this->doctrine->em;
-			// Get all current request's history
-			$request = $em->find('\Entity\Request', $_GET['id']);
-			$history = $request->getHistory();
-			foreach ($history as $hKey => $history) {
-				$result['history'][$hKey]['userResponsable'] = $history->getUserResponsable();
-				$result['history'][$hKey]['date'] = $history->getDate()->format('d/m/y - h:i:sa');
-				$result['history'][$hKey]['title'] = $history->getTitleByText();
-				$actions = $history->getActions();
-				foreach ($actions as $aKey => $action) {
-					$result['history'][$hKey]['actions'][$aKey]['summary'] = $action->getSummary();
-					$result['history'][$hKey]['actions'][$aKey]['detail'] = $action->getDetail();
+		if ($_SESSION['type'] != 1) {
+			$this->load->view('errors/index.html');
+		} else {
+			try {
+				$em = $this->doctrine->em;
+				// Get all current request's history
+				$request = $em->find('\Entity\Request', $_GET['id']);
+				$history = $request->getHistory();
+				foreach ($history as $hKey => $history) {
+					$result['history'][$hKey]['userResponsable'] = $history->getUserResponsable();
+					$result['history'][$hKey]['date'] = $history->getDate()->format('d/m/y - h:i:sa');
+					$result['history'][$hKey]['title'] = $history->getTitleByText();
+					$actions = $history->getActions();
+					foreach ($actions as $aKey => $action) {
+						$result['history'][$hKey]['actions'][$aKey]['summary'] = $action->getSummary();
+						$result['history'][$hKey]['actions'][$aKey]['detail'] = $action->getDetail();
+					}
 				}
+				$result['message'] = "success";
+
+			} catch(Exception $e) {
+				\ChromePhp::log($e);
+				$result['message'] = "Error";
 			}
-			$result['message'] = "success";
 
-		} catch(Exception $e) {
-			\ChromePhp::log($e);
-			$result['message'] = "Error";
+			echo json_encode($result);
 		}
-
-		echo json_encode($result);
 	}
 }
