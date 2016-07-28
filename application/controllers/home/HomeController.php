@@ -37,7 +37,7 @@ class HomeController extends CI_Controller {
 					$requests = $user->getRequests();
 					foreach ($requests as $rKey => $request) {
 						$result['requests'][$rKey]['id'] = $request->getId();
-						$result['requests'][$rKey]['creationDate'] = $request->getCreationDate()->format('d-m-y');
+						$result['requests'][$rKey]['creationDate'] = $request->getCreationDate()->format('d/m/y');
 						$result['requests'][$rKey]['comment'] = $request->getComment();
 						$result['requests'][$rKey]['status'] = $request->getStatusByText();
 						$docs = $request->getDocuments();

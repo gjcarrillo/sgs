@@ -2,9 +2,9 @@ angular
     .module('sgdp')
     .controller('AdminHomeController', adminHome);
 
-adminHome.$inject = ['$scope', '$rootScope', '$mdDialog', 'Upload', '$cookies', '$http', '$state'];
+adminHome.$inject = ['$scope', '$rootScope', '$mdDialog', 'Upload', '$cookies', '$http', '$state', '$timeout'];
 
-function adminHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $state) {
+function adminHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $state, $timeout) {
     'use strict';
     $scope.loading = false;
     $scope.selectedReq = -1;
@@ -104,6 +104,17 @@ function adminHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
 
             $scope.removeDoc = function(index) {
                 $scope.files.splice(index, 1);
+            };
+            
+            $scope.isDescriptionEnabled = function(dKey) {
+                return $scope.enabledDescription == dKey;
+            };
+
+            $scope.enableDescription = function(dKey) {
+                $scope.enabledDescription = dKey;
+                $timeout(function(){
+                    $("#"+dKey).focus();
+                }, 300);
             };
 
             $scope.showError = function(error, param) {
@@ -235,6 +246,17 @@ function adminHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
 
             $scope.removeDoc = function(index) {
                 $scope.files.splice(index, 1);
+            };
+
+            $scope.isDescriptionEnabled = function(dKey) {
+                return $scope.enabledDescription == dKey;
+            };
+
+            $scope.enableDescription = function(dKey) {
+                $scope.enabledDescription = dKey;
+                $timeout(function(){
+                    $("#"+dKey).focus();
+                }, 300);
             };
 
             $scope.showError = function(error, param) {
@@ -476,7 +498,5 @@ function adminHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
 
     $scope.downloadDoc = function(doc) {
         location.href = 'index.php/home/HomeController/download?lpath=' + doc.lpath;
-        // var win = window.open(url, '_blank');
-        // win.focus();
     }
 }

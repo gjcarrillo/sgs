@@ -9,7 +9,7 @@ function history($scope, $rootScope, $http, $mdBottomSheet) {
 
     // If no data has been sent, show nothing.
     if (sessionStorage.getItem("requests") === null) { return; }
-    
+
     $scope.loading = true;
     // Take the stored data of interest
     var requests = JSON.parse(sessionStorage.getItem("requests"));
@@ -28,7 +28,7 @@ function history($scope, $rootScope, $http, $mdBottomSheet) {
         $mdBottomSheet.show({
             templateUrl: 'index.php/history/DetailsBottomSheetController',
             locals:{
-                actions:$scope.history[selectedHistory].actions
+                actions:selectedHistory.actions
             },
             controller: ListBottomSheetCtrl
         });

@@ -42,7 +42,7 @@
                     <div ng-repeat="(hKey, hist) in history | filter:filterInput">
                         <md-list-item
                             class="md-3-line"
-                            ng-click="showListBottomSheet(hKey)"
+                            ng-click="showListBottomSheet(hist)"
                             class="noright">
                             <md-icon  ng-style="{'color':'#2196F3', 'font-size':'36px'}">account_circle</md-icon>
                             <div class="md-list-item-text" layout="column">

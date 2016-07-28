@@ -52,21 +52,22 @@
                     </md-card-title-text>
                     </md-card-title>
                     <!-- Add description / Delete doc actions -->
-                    <md-card-actions ng-hide="enabledDescription == dKey || uploading" layout="row" layout-align="end center">
-                        <md-button class="md-icon-button" ng-click="enabledDescription = dKey"><md-icon>message</md-icon></md-button>
+                    <md-card-actions ng-hide="isDescriptionEnabled(dKey) || uploading" layout="row" layout-align="end center">
+                        <md-button class="md-icon-button" ng-click="enableDescription(dKey)"><md-icon>message</md-icon></md-button>
                         <md-button class="md-icon-button" ng-click="removeDoc(dKey)"><md-icon>delete</md-icon></md-button>
                     </md-card-actions>
                     <!-- Add description input -->
-                    <md-card-actions ng-show="enabledDescription == dKey && !uploading" layout="row" layout-align="center center">
+                    <md-card-actions ng-show="isDescriptionEnabled(dKey) && !uploading" layout="row" layout-align="center center">
                         <md-input-container md-no-float>
                             <input
+                                id="{{dKey}}"
                                 type="text"
                                 ng-model="doc.description"
                                 placeholder="Descripción"
-                                ng-keyup="$event.keyCode == 13 && (enabledDescription = -1)">
+                                ng-keyup="$event.keyCode == 13 && enableDescription(-1)">
                             </input>
                         </md-input-container>
-                        <md-button class="md-icon-button" ng-click="enabledDescription = -1"><md-icon>send</md-icon></md-button>
+                        <md-button class="md-icon-button" ng-click="enableDescription(-1)"><md-icon>send</md-icon></md-button>
                     </md-card-actions>
                     <!-- Uploading progress -->
                     <md-card-actions ng-show="uploading">
