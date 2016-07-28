@@ -20,8 +20,8 @@
                <md-tooltip md-direction="right">Ingrese una cédula. Ej: 11111111</md-tooltip>
         </md-input-container>
         <span flex></span>
-        <md-button class="md-fab md-mini md-raised" ng-click="generatePdfDoc()" aria-label="Generate contract">
-            <md-icon>insert_drive_file</md-icon>
+        <md-button class="md-fab md-mini md-raised" href="#/generator" aria-label="Generate contract">
+            <md-icon style="color:#2196F3">insert_drive_file</md-icon>
             <md-tooltip md-direction="left">Generar PDF</md-tooltip>
         </md-button>
         <md-button class="md-fab md-mini md-raised" ng-click="logout()" aria-label="Back">

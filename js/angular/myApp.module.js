@@ -19,6 +19,11 @@ sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $lo
         templateUrl: 'index.php/home/HomeController/admin',
         controller: 'AdminHomeController'
     })
+    .state('docGenerator', {
+        url: '/generator',
+        templateUrl: 'index.php/documents/DocumentGenerator',
+        controller: 'DocumentGenerator'
+    })
     .state('history', {
         url: '/history',
         templateUrl: 'index.php/history/HistoryController',

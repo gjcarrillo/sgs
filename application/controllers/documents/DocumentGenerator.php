@@ -8,28 +8,32 @@ class DocumentGenerator extends CI_Controller {
         $this->load->library('session');
     }
 
+    public function index() {
+        $this->load->view('generator/DocumentGenerator');
+    }
+
     public function generatePdf() {
         // As PDF creation takes a bit of memory, we're saving the created file in /downloads/reports/
         $pdfFilePath = DropPath . "contract.pdf";
-        \ChromePhp::log($pdfFilePath);
-        $data['page_title'] = 'Hello world'; // pass data to the view
+        \ChromePhp::log("Genrating pdf...");
+        // ini_set('memory_limit','32M'); // boost the memory limit if it's low <img class="emoji" draggable="false" alt="" src="https://s.w.org/images/core/emoji/72x72/1f609.png">
+        // $stylesheet = file_get_contents('css/materialize.min.css');
+        $html = $this->load->view('templates/pdfTemplate', $_GET, true); // render the view into HTML
+        $this->load->library('pdf');
+        $pdf = $this->pdf->load();
+        // $pdf->WriteHTML($stylesheet, 1);
+        $pdf->WriteHTML($html); // write the HTML into the PDF
+        $pdf->Output($pdfFilePath, 'F'); // save to file
+        \ChromePhp::log("PDF generation success!");
 
-        if (file_exists($pdfFilePath) == FALSE)
-        {
-            \ChromePhp::log("File doesn't exist. Genrating pdf...");
-            // ini_set('memory_limit','32M'); // boost the memory limit if it's low <img class="emoji" draggable="false" alt="" src="https://s.w.org/images/core/emoji/72x72/1f609.png">
-            $html = $this->load->view('templates/pdfTemplate', $data, true); // render the view into HTML
-            \ChromePhp::log("View loaded");
-            $this->load->library('pdf');
-            \ChromePhp::log("PDF library init");
-            $pdf = $this->pdf->load();
-            \ChromePhp::log("PDF library loaded");
-            // $pdf->SetFooter($_SERVER['HTTP_HOST'].'|{PAGENO}|'.date(DATE_RFC822)); // Add a footer for good measure <img class="emoji" draggable="false" alt="" src="https://s.w.org/images/core/emoji/72x72/1f609.png">
-            $pdf->WriteHTML($html); // write the HTML into the PDF
-            $pdf->Output($pdfFilePath, 'F'); // save to file because we can
-            \ChromePhp::log("PDF generation success!");
-        }
-
-        // redirect("/downloads/reports/$filename.pdf");
+		$result['docName'] = "contract.pdf";
+		$result['message'] = "success";
+		echo json_encode($result);
     }
+
+	public function download() {
+		header('Content-Disposition: attachment; filename=' . $_GET['docName']);
+		// The document source
+		readfile(DropPath . $_GET['docName']);
+	}
 }

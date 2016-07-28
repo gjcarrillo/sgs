@@ -28,6 +28,7 @@
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/home/controllers/UserHomeController.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/home/controllers/AdminHomeController.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/history/controllers/HistoryController.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/generator/controllers/DocumentGenerator.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/angular-ui-router.min.js"></script>
         <!-- Import Angular File Upload -->
         <script type="text/javascript" src="<?php echo base_url(); ?>ng-file-upload/ng-file-upload.min.js"></script>
