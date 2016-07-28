@@ -28,20 +28,26 @@ function adminHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
         sessionStorage.removeItem("selectedReq");
     }
 
+    $scope.generatePdfDoc = function() {
+        $http.get('index.php/documents/DocumentGenerator/generatePdf')
+            .then(function (response) {
+                console.log(response);
+            });
+    };
 
     $scope.getSidenavHeight = function() {
         return {
             // 129 = header and footer height, approx
             'height':($(window).height() - 129)
         };
-    }
+    };
 
     $scope.getDocumentContainerStyle = function() {
         return {
             'background-color': '#F5F5F5',
             'max-height':($(window).height() - 129)
         };
-    }
+    };
 
     $scope.selectRequest = function(req) {
         $scope.selectedReq = req;
@@ -73,7 +79,7 @@ function adminHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
         z = z || '0';
         n = n + '';
         return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
-    }
+    };
 
     /**
     * Custom dialog for creating a new request
@@ -105,7 +111,7 @@ function adminHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
             $scope.removeDoc = function(index) {
                 $scope.files.splice(index, 1);
             };
-            
+
             $scope.isDescriptionEnabled = function(dKey) {
                 return $scope.enabledDescription == dKey;
             };
@@ -494,9 +500,9 @@ function adminHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
 
         $state.go('history');
 
-    }
+    };
 
     $scope.downloadDoc = function(doc) {
         location.href = 'index.php/home/HomeController/download?lpath=' + doc.lpath;
-    }
+    };
 }
