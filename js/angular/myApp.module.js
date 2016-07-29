@@ -1,4 +1,4 @@
-var sgdp = angular.module("sgdp", ["sgdp.login", "ui.router", "ngMaterial", "ngFileUpload"]);
+var sgdp = angular.module("sgdp", ["sgdp.login", "ui.router", "ngMaterial", "ngFileUpload", "webcam"]);
 
 
 sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $locationProvider) {

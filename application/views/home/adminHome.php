@@ -112,7 +112,7 @@
                                    <h3>{{doc.name}}</h3>
                                    <p>{{doc.description}}</p>
                                  </div>
-                                <md-menu class="md-secondary">
+                                 <md-menu class="md-secondary">
                                     <md-button ng-click="$mdOpenMenu($event)" class="md-icon-button" aria-label="More">
                                         <md-icon>more_vert</md-icon>
                                     </md-button>
@@ -121,6 +121,12 @@
                                             <md-button ng-click="editDescription($event, doc)">
                                                 <md-icon>edit</md-icon>
                                                 Descripción
+                                            </md-button>
+                                        </md-menu-item>
+                                        <md-menu-item>
+                                            <md-button ng-click="downloadDoc(doc)">
+                                                <md-icon>file_download</md-icon>
+                                                Descargar
                                             </md-button>
                                         </md-menu-item>
                                         <md-menu-item>

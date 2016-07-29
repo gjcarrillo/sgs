@@ -76,6 +76,9 @@
                                    <h3>{{doc.name}}</h3>
                                    <p>{{doc.description}}</p>
                                  </div>
+                                 <md-button class="md-secondary md-icon-button" ng-click="downloadDoc(doc)">
+                                     <md-icon>file_download</md-icon>
+                                 </md-button>
                             </md-list-item>
                             <md-divider ng-if="!$last" md-inset></md-divider>
                         </div>

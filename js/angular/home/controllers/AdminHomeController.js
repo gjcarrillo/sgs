@@ -175,7 +175,7 @@ function adminHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                                         $http.get('index.php/home/HomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
                                             .then(function (response) {
                                                 if (response.data.message === "success") {
-                                                    updateContent(response.data.requests, response.data.requests.length-1);
+                                                    updateContent(response.data.requests, 0);
                                                     // Close dialog and alert user that operation was successful
                                                     $mdDialog.hide();
                                                     $mdDialog.show(
@@ -503,6 +503,6 @@ function adminHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
     };
 
     $scope.downloadDoc = function(doc) {
-        location.href = 'index.php/home/HomeController/download?lpath=' + doc.lpath;
+        window.open('index.php/home/HomeController/download?lpath=' + doc.lpath, '_blank');
     };
 }

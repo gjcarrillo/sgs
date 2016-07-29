@@ -19,7 +19,7 @@
         <!-- Angular Material Library -->
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/angular-material.min.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/angular-ui-router.min.js"></script>
-        <!-- App module, controllers nad utilities -->
+        <!-- App module, controllers & utilities -->
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/myApp.module.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/cookies.min.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/login/login.module.js"></script>
@@ -30,6 +30,7 @@
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/history/controllers/HistoryController.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/generator/controllers/DocumentGenerator.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/angular-ui-router.min.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>js/webcam.min.js"></script>
         <!-- Import Angular File Upload -->
         <script type="text/javascript" src="<?php echo base_url(); ?>ng-file-upload/ng-file-upload.min.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>ng-file-upload-shim/ng-file-upload-shim.min.js"></script>

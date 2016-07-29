@@ -29,98 +29,85 @@
             <md-card-content>
                 <div layout>
                     <div flex="30">
-                        <md-input-container class="md-block">
-                            <label>Primer apellido</label>
-                            <input type="text" ng-model="model.lastname"/>
+                        <md-input-container md-no-float class="md-block">
+                            <input type="text" placeholder="Primer apellido" ng-model="model.lastname"/>
                         </md-input-container>
                     </div>
                     <div flex="30" flex-offset="5">
-                        <md-input-container class="md-block">
-                            <label>Segundo apellido</label>
-                            <input type="text" ng-model="model.surname"/>
+                        <md-input-container md-no-float class="md-block">
+                            <input type="text" placeholder="Segundo apellido" ng-model="model.surname"/>
                         </md-input-container>
                     </div>
                     <div flex="30" flex-offset="5">
-                        <md-input-container class="md-block">
-                            <label>Apellido de casada</label>
-                            <input type="text" ng-model="model.marriedName"/>
+                        <md-input-container md-no-float class="md-block">
+                            <input type="text" placeholder="Apellido de casada" ng-model="model.marriedName"/>
                         </md-input-container>
                     </div>
                 </div>
                 <div layout>
                     <div flex="45">
-                        <md-input-container class="md-block">
-                            <label>Primer nombre</label>
-                            <input type="text" ng-model="model.firstname"/>
+                        <md-input-container md-no-float class="md-block">
+                            <input type="text" placeholder="Primer nombre" ng-model="model.firstname"/>
                         </md-input-container>
                     </div>
                     <div flex="45" flex-offset="10">
-                        <md-input-container class="md-block">
-                            <label>Segundo nombre</label>
-                            <input type="text" ng-model="model.middlename"/>
+                        <md-input-container md-no-float class="md-block">
+                            <input type="text" placeholder="Segundo nombre" ng-model="model.middlename"/>
                         </md-input-container>
                     </div>
                 </div>
                 <div layout>
                     <div flex="30">
-                        <md-input-container class="md-block">
-                            <label>CI</label>
-                            <input type="text" ng-model="id"/>
+                        <md-input-container md-no-float class="md-block">
+                            <input type="text" placeholder="C.I."ng-model="id"/>
                         </md-input-container>
                     </div>
                     <div flex="30" flex-offset="5">
-                        <md-input-container class="md-block">
-                            <label>Fecha</label>
-                            <input type="text" ng-model="model.date"/>
+                        <md-input-container md-no-float class="md-block">
+                            <input type="text" placeholder="Fecha"ng-model="model.date"/>
                         </md-input-container>
                     </div>
                     <div flex="30" flex-offset="5">
-                        <md-input-container class="md-block">
-                            <label>Sueldo Básico</label>
-                            <input type="text" ng-model="model.basicSalary"/>
+                        <md-input-container md-no-float class="md-block">
+                            <input type="text" placeholder="Sueldo Básico" ng-model="model.basicSalary"/>
                         </md-input-container>
                     </div>
                 </div>
                 <div layout>
                     <div flex>
-                        <md-input-container class="md-block">
-                            <label>Dependencia</label>
-                            <input type="text" ng-model="model.dependancy"/>
+                        <md-input-container md-no-float class="md-block">
+                            <input type="text" placeholder="Dependencia" ng-model="model.dependancy"/>
                         </md-input-container>
                     </div>
                 </div>
                 <div layout>
                     <div flex>
-                        <md-input-container class="md-block">
-                            <label>Dirección particular</label>
-                            <input type="text" ng-model="model.address"/>
+                        <md-input-container md-no-float class="md-block">
+                            <input type="text" placeholder="Dirección particular" ng-model="model.address"/>
                         </md-input-container>
                     </div>
                 </div>
                 <div layout>
                     <div flex="30">
-                        <md-input-container class="md-block">
-                            <label>Teléfono</label>
-                            <input type="text" ng-model="model.phone"/>
+                        <md-input-container md-no-float class="md-block">
+                            <input type="text" placeholder="Teléfono" ng-model="model.phone"/>
                         </md-input-container>
                     </div>
                     <div flex="30" flex-offset="5">
-                        <md-input-container class="md-block">
-                            <label>Cantidad Solicitada</label>
-                            <input type="text" ng-model="model.requestedAmount"/>
+                        <md-input-container md-no-float class="md-block">
+                            <input type="text" placeholder="Cantidad Solicitada" ng-model="model.requestedAmount"/>
                         </md-input-container>
                     </div>
                     <div flex="30" flex-offset="5">
-                        <md-input-container class="md-block">
-                            <label>Forma de Pago</label>
-                            <input type="text" ng-model="model.paymentMode"/>
+                        <md-input-container md-no-float class="md-block">
+                            <input type="text" placeholder="Forma de Pago" ng-model="model.paymentMode"/>
                         </md-input-container>
                     </div>
                 </div>
             </md-card-content>
             <md-card-actions ng-hide="loading" layout layout-align="end center">
                 <md-button ng-click="generatePdfDoc()" class="md-primary">
-                    Generar documento
+                    Generar
                 </md-button>
             </md-card-actions>
             <md-card-actions ng-show="loading" layout layout-align="end center">

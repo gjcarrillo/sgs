@@ -35,6 +35,7 @@ class HomeController extends CI_Controller {
 					$result['error'] = "La cédula ingresada no se encuentra en la base de datos";
 				} else {
 					$requests = $user->getRequests();
+					$requests = array_reverse($requests->getValues());
 					foreach ($requests as $rKey => $request) {
 						$result['requests'][$rKey]['id'] = $request->getId();
 						$result['requests'][$rKey]['creationDate'] = $request->getCreationDate()->format('d/m/y');
@@ -136,8 +137,21 @@ class HomeController extends CI_Controller {
 			// Only admins can download documents that are not their own.
 			$this->load->view('errors/index.html');
 		} else {
-			// header information for sending the file
-			header('Content-Disposition: attachment; filename=' . $parsed[2] . '.' . $parsed[3]);
+			// file informatino
+			if ($parsed[3] === "pdf") {
+				header('Content-type: application/pdf');
+				header('Content-Disposition: inline; filename="' . $parsed[2] . '.' . $parsed[3] . '"');
+			} else if ($parsed[3] === "png"
+				|| $parsed[3] === "jpg"
+				|| $parsed[3] === "jpeg"
+				|| $parsed[3] === "gif"
+				|| $parsed[3] === "tif") {
+				header('Content-type: image/' . $parsed[3]);
+				header('Content-Disposition: inline; filename="' . $parsed[2] . '.' . $parsed[3] . '"');
+			} else {
+				header('Content-Disposition: attachment; filename="' . $parsed[2] . '.' . $parsed[3] . '"');
+			}
+
 			// The document source
 			readfile(DropPath . $_GET['lpath']);
 		}

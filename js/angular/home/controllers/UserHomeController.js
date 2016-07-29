@@ -52,6 +52,6 @@ function userHome($scope, $rootScope, $http, $cookies) {
     };
 
     $scope.downloadDoc = function(doc) {
-        location.href = 'index.php/home/HomeController/download?lpath=' + doc.lpath;
+        window.open('index.php/home/HomeController/download?lpath=' + doc.lpath, '_blank');
     }
 }

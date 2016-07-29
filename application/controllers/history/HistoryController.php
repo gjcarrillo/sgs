@@ -26,6 +26,7 @@ class HistoryController extends CI_Controller {
 				// Get all current request's history
 				$request = $em->find('\Entity\Request', $_GET['id']);
 				$history = $request->getHistory();
+				$history = array_reverse($history->getValues());
 				foreach ($history as $hKey => $history) {
 					$result['history'][$hKey]['userResponsable'] = $history->getUserResponsable();
 					$result['history'][$hKey]['date'] = $history->getDate()->format('d/m/y - h:i:sa');
