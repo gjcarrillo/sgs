@@ -11,6 +11,12 @@
     </md-toolbar>
     <md-dialog-content layout-padding>
         <div layout layout-align="center center">
+            <md-input-container>
+                <label>Monto solicitado (Bs)</label>
+                <input ng-model="reqAmount" type="number" min="100" step="100" required placeholder="Ej: 300000.25"/>
+            </md-input-container>
+        </div>
+        <div layout layout-align="center center">
             <div ng-hide="idPicTaken">
                 <md-button ng-click="openIdentityCamera($event)">
                     <md-icon>photo_camera</md-icon>
@@ -58,7 +64,7 @@
         </div>
     </md-dialog-content>
     <md-dialog-actions>
-        <md-button ng-hide="uploading" ng-click="createNewRequest($event)" ng-disabled="!idPicTaken || !docPicTaken" class="md-primary">
+        <md-button ng-hide="uploading" ng-click="createNewRequest($event)" ng-disabled="missingField()" class="md-primary">
             Crear
         </md-button>
         <md-progress-circular ng-show="uploading" md-mode="indeterminate" md-diameter="60"></md-progress-circular>

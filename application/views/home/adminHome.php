@@ -94,13 +94,21 @@
                         </md-icon-button>
                     </div>
                     <md-list>
-                        <md-list-item class="md-2-line"class="noright">
+                        <md-list-item class="md-3-line"class="noright">
                             <md-icon  ng-style="{'font-size':'36px'}">info_outline</md-icon>
                             <div class="md-list-item-text" layout="column">
                                <h3>Estado de la solicitud: {{requests[selectedReq].status}}</h3>
-                               <p>{{requests[selectedReq].comment}}</p>
+                               <h4 ng-if="requests[selectedReq].reunion">Reunión &#8470; {{requests[selectedReq].reunion}}</h4>
+                               <p ng-if="!requests[selectedReq].approvedAmount">
+                                   Monto solicitado: Bs {{requests[selectedReq].reqAmount | number:2}}
+                               </p>
+                               <p ng-if="requests[selectedReq].approvedAmount">
+                                   Monto solicitado: Bs {{requests[selectedReq].reqAmount | number:2}} /
+                                   Monto aprobado: Bs {{requests[selectedReq].approvedAmount | number:2}}
+                               </p>
                              </div>
                         </md-list-item>
+
                         <md-divider></md-divider>
                         <div ng-repeat="(dKey, doc) in docs">
                             <md-list-item

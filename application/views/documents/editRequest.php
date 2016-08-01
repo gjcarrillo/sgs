@@ -10,27 +10,9 @@
         </div>
     </md-toolbar>
     <md-dialog-content class="md-padding">
-        <div layout>
-            <!-- Optional comment input -->
-            <div flex="45">
-                <md-input-container class="md-block" md-no-float>
-                    <label>Comentario</label>
-                    <textarea type="text" ng-model="request.comment" placeholder="Sin comentario"></textarea>
-                </md-input-container>
-            </div>
-            <!-- State selection -->
-            <div flex="45" flex-offset="10">
-                <md-input-container class="md-block">
-                    <label>Estado</label>
-                    <md-select ng-model="request.status">
-                        <md-option ng-value="status" ng-repeat="status in statuses">{{status}}</md-option>
-                    </md-select>
-                </md-input-container>
-            </div>
-        </div>
         <!-- File(s) input -->
         <div layout layout-align="center">
-             <span>Haga click en el botón para opcionalmente agregar más documentos</span>
+             <span>Haga click en el botón para agregar más documentos</span>
              <md-button
                 ngf-select="gatherFiles($files, $invalidFiles)"
                 multiple
@@ -83,7 +65,7 @@
         </div>
     </md-dialog-content>
     <md-dialog-actions ng-show="!uploading">
-        <md-button ng-click="updateRequest()" class="md-primary">
+        <md-button ng-disabled="files.length < 1" ng-click="updateRequest()" class="md-primary">
             Actualizar
         </md-button>
         <md-button ng-click="closeDialog()" class="md-primary">

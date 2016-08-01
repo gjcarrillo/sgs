@@ -108,6 +108,10 @@ function adminHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                 $mdDialog.hide();
             };
 
+            $scope.missingField = function() {
+                return !$scope.idPicTaken || !$scope.docPicTaken || typeof $scope.reqAmount === "undefined";
+            };
+
             function updateIdPic(dataURL) {
                 $("#idThumbnail").attr("src", dataURL);
                 $scope.idPicTaken = true;
@@ -131,7 +135,8 @@ function adminHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
             // Creates new request in database and uploads documents
             $scope.createNewRequest = function() {
                 $scope.uploading = true;
-                $http.get('index.php/documents/NewRequestController/createRequest', {params:{userId:fetchId}})
+                $http.get('index.php/documents/NewRequestController/createRequest',
+                    {params:{userId:fetchId, reqAmount:$scope.reqAmount}})
                     .then(function (response) {
                         if (response.data.message== "success") {
                             uploadData(1, response.data.requestId, response.data.historyId);
@@ -383,7 +388,7 @@ function adminHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
             // Creates new request in database and uploads documents
             $scope.updateRequest = function() {
                 $scope.uploading = true;
-                $scope.request.docsAdded = $scope.files.length > 0;
+                // $scope.request.docsAdded = $scope.files.length > 0;
                 $http.get('index.php/documents/EditRequestController/updateRequest', {params:$scope.request})
                     .then(function (response) {
                         console.log(response.data);

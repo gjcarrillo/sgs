@@ -29,11 +29,25 @@ class Request
     private $creationDate;
 
     /**
-     * @var string
+     * @var integer
      *
-     * @ORM\Column(name="comment", type="string", length=255, precision=0, scale=0, nullable=true, unique=false)
+     * @ORM\Column(name="reunion", type="integer", precision=0, scale=0, nullable=true, unique=false)
      */
-    private $comment;
+    private $reunion;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="requested_amount", type="float", precision=0, scale=0, nullable=false, unique=false)
+     */
+    private $requestedAmount;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="approved_amount", type="float", precision=0, scale=0, nullable=true, unique=false)
+     */
+    private $approvedAmount;
 
     /**
      * @var integer
@@ -72,6 +86,7 @@ class Request
     public function __construct()
     {
         $this->documents = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->history = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     /**
@@ -108,26 +123,72 @@ class Request
     }
 
     /**
-     * Set comment
+     * Set reunion
      *
-     * @param string $comment
+     * @param integer $reunion
      * @return Request
      */
-    public function setComment($comment)
+    public function setReunion($reunion)
     {
-        $this->comment = $comment;
+        $this->reunion = $reunion;
 
         return $this;
     }
 
     /**
-     * Get comment
+     * Get reunion
      *
-     * @return string
+     * @return integer
      */
-    public function getComment()
+    public function getReunion()
     {
-        return $this->comment;
+        return $this->reunion;
+    }
+
+    /**
+     * Set requestedAmount
+     *
+     * @param integer $requestedAmount
+     * @return Request
+     */
+    public function setRequestedAmount($requestedAmount)
+    {
+        $this->requestedAmount = $requestedAmount;
+
+        return $this;
+    }
+
+    /**
+     * Get requestedAmount
+     *
+     * @return integer
+     */
+    public function getRequestedAmount()
+    {
+        return $this->requestedAmount;
+    }
+
+    /**
+     * Set approvedAmount
+     *
+     * @param integer $approvedAmount
+     * @return Request
+     */
+    public function setApprovedAmount($approvedAmount)
+    {
+        $this->approvedAmount = $approvedAmount;
+
+        return $this;
+    }
+
+    /**
+     * Get approvedAmount
+     *
+     * @return integer
+     */
+    public function getApprovedAmount()
+    {
+        return $this->approvedAmount;
     }
 
     /**
@@ -162,7 +223,6 @@ class Request
         $status = $this->status;
         return ($status == 1 ? "Recibida" : ($status == 2 ? "Aprobada" : "Rechazada"));
     }
-
     /**
     * Set status converted into text
     * @param string $status
@@ -208,29 +268,6 @@ class Request
     }
 
     /**
-     * Set userOwner
-     *
-     * @param \Entity\User $userOwner
-     * @return Request
-     */
-    public function setUserOwner(\Entity\User $userOwner)
-    {
-        $this->userOwner = $userOwner;
-
-        return $this;
-    }
-
-    /**
-     * Get userOwner
-     *
-     * @return \Entity\User
-     */
-    public function getUserOwner()
-    {
-        return $this->userOwner;
-    }
-
-    /**
      * Add history
      *
      * @param \Entity\History $history
@@ -261,5 +298,28 @@ class Request
     public function getHistory()
     {
         return $this->history;
+    }
+
+    /**
+     * Set userOwner
+     *
+     * @param \Entity\User $userOwner
+     * @return Request
+     */
+    public function setUserOwner(\Entity\User $userOwner)
+    {
+        $this->userOwner = $userOwner;
+
+        return $this;
+    }
+
+    /**
+     * Get userOwner
+     *
+     * @return \Entity\User
+     */
+    public function getUserOwner()
+    {
+        return $this->userOwner;
     }
 }

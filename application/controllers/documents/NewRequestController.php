@@ -54,7 +54,7 @@ class NewRequestController extends CI_Controller {
 				// Register it's corresponding actions
 				$action = new \Entity\HistoryAction();
 				$action->setSummary("Solicitud creada.");
-				$action->setDetail("Estado de la solicitud: Recibida");
+				$action->setDetail("Estado de la solicitud: Recibida. Monto solicitado: Bs " . number_format($_GET['reqAmount'], 2));
 				$action->setBelongingHistory($history);
 				$history->addAction($action);
 				$em->persist($action);
@@ -62,10 +62,11 @@ class NewRequestController extends CI_Controller {
 	            // 1 = Waiting
 	            $request->setStatus(1);
 	            $request->setCreationDate(new DateTime('now', new DateTimeZone('America/Barbados')));
+				$request->setRequestedAmount($_GET['reqAmount']);
 	            $user = $em->find('\Entity\User', $_GET['userId']);
-
 	            $request->setUserOwner($user);
 	            $user->addRequest($request);
+
 	            $em->persist($request);
 	            $em->merge($user);
 	            $em->flush();
