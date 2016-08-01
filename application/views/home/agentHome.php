@@ -60,11 +60,11 @@
                     md-disable-backdrop>
                     <md-list>
                         <div class="md-toolbar-tools">
-                            <md-button flex>Datos del afiliado</md-button>
+                            <md-button class="md-primary" ng-click="loadUserData()" flex>Datos del afiliado</md-button>
                         </div>
                         <md-divider></md-divider>
                         <div class="md-toolbar-tools">
-                            <md-button flex ng-click="toggleList()">
+                            <md-button class="md-primary" flex ng-click="toggleList()">
                                 Lista de solicitudes
                             </md-button>
                             <md-button ng-click="toggleList()" class="md-icon-button">
@@ -73,7 +73,7 @@
                             </md-button>
                         </div>
                         <md-divider></md-divider>
-                        <div ng-show="showList">
+                        <div class="slide-toggle" ng-show="showList">
                             <md-list-item
                                 ng-repeat="(rKey, request) in requests">
                                 <md-button

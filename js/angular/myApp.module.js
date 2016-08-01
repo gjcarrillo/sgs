@@ -1,4 +1,4 @@
-var sgdp = angular.module("sgdp", ["sgdp.login", "ui.router", "ngMaterial", "ngFileUpload", "webcam"]);
+var sgdp = angular.module("sgdp", ["sgdp.login", "ui.router", "ngMaterial", "ngFileUpload", "ngAnimate", "webcam"]);
 
 
 sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $locationProvider) {
@@ -108,4 +108,37 @@ sgdp.run(['$rootScope', '$location','$state','auth', '$cookies', '$http',
       //  Going to login (.otherwise('login')), so keep going!
       return true;
   }
-}])
+}]);
+
+// Slide up/down animation for ng-hide
+sgdp.animation('.slide-toggle', ['$animateCss', function($animateCss) {
+    return {
+        addClass: function(element, className, doneFn) {
+            if (className == 'ng-hide') {
+                var animator = $animateCss(element, {
+                    to: {height: '0px'}
+                });
+                if (animator) {
+                    return animator.start().finally(function() {
+                        element[0].style.height = '';
+                        doneFn();
+                    });
+                }
+            }
+            doneFn();
+        },
+        removeClass: function(element, className, doneFn) {
+            if (className == 'ng-hide') {
+                var height = element[0].offsetHeight;
+                var animator = $animateCss(element, {
+                    from: {height: '0px'},
+                    to: {height: height + 'px'}
+                });
+                if (animator) {
+                 return animator.start().finally(doneFn);
+                }
+            }
+            doneFn();
+        }
+    };
+}]);

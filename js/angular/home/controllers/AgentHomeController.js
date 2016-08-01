@@ -619,4 +619,8 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
     $scope.downloadDoc = function(doc) {
         window.open('index.php/home/HomeController/download?lpath=' + doc.lpath, '_blank');
     };
+
+    $scope.loadUserData = function() {
+        window.open('', '_blank');
+    };
 }
