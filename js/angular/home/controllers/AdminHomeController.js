@@ -81,9 +81,7 @@ function adminHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
         return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
     };
 
-    /**
-    * Custom dialog for creating a new request
-    */
+
     $scope.openNewRequestDialog = function($event) {
         var parentEl = angular.element(document.body);
         $mdDialog.show({
@@ -92,87 +90,95 @@ function adminHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
             templateUrl: 'index.php/documents/NewRequestController',
             clickOutsideToClose: false,
             escapeToClose: false,
+            autoWrap: false,
             locals:{
                 fetchId:$scope.fetchId
             },
             controller: DialogController
         });
-        // Isolated dialog controller
+        // Isolated dialog controller for the new request dialog
         function DialogController($scope, $mdDialog, fetchId) {
-            $scope.files = [];
-            $scope.fetchId = fetchId;
+            $scope.idPicTaken = false;
+            $scope.docPicTaken = false;
             $scope.uploading = false;
-            $scope.enabledDescription = -1;
+            $scope.uploadErr = '';
+            var uploadedFiles = 0;
 
             $scope.closeDialog = function() {
                 $mdDialog.hide();
             };
 
-            $scope.removeDoc = function(index) {
-                $scope.files.splice(index, 1);
+            function updateIdPic(dataURL) {
+                $("#idThumbnail").attr("src", dataURL);
+                $scope.idPicTaken = true;
+                $scope.idData = dataURL;
+            }
+
+            function updateDocPic(dataURL){
+                $("#docThumbnail").attr("src", dataURL);
+                $scope.docPicTaken = true;
+                $scope.docData = dataURL;
+            }
+
+            $scope.deleteIdPic = function() {
+                $scope.idPicTaken = false;
             };
 
-            $scope.isDescriptionEnabled = function(dKey) {
-                return $scope.enabledDescription == dKey;
-            };
-
-            $scope.enableDescription = function(dKey) {
-                $scope.enabledDescription = dKey;
-                $timeout(function(){
-                    $("#"+dKey).focus();
-                }, 300);
-            };
-
-            $scope.showError = function(error, param) {
-                if (error === "pattern") {
-                    return "Archivo no aceptado. Por favor seleccione sólo documentos.";
-                } else if (error === "maxSize") {
-                    return "El archivo es muy grande. Tamaño máximo es: " + param;
-                }
-            };
-            // Gathers the files whenever the file input's content is updated
-            $scope.gatherFiles = function(files, errFiles) {
-                $scope.files = files;
-                $scope.errFiles = errFiles;
+            $scope.deleteDocPic = function() {
+                $scope.docPicTaken = false;
             };
 
             // Creates new request in database and uploads documents
             $scope.createNewRequest = function() {
                 $scope.uploading = true;
-                $http.get('index.php/documents/NewRequestController/createRequest', {params:{userId:$scope.fetchId}})
+                $http.get('index.php/documents/NewRequestController/createRequest', {params:{userId:fetchId}})
                     .then(function (response) {
                         if (response.data.message== "success") {
-                            $scope.requestId = response.data.requestId;
-                            uploadFiles($scope.fetchId, $scope.requestId, response.data.historyId);
+                            uploadData(1, response.data.requestId, response.data.historyId);
+                            uploadData(2, response.data.requestId, response.data.historyId);
                         }
                     });
             };
 
-            // Uploads each of selected documents to the server
-            // and updates database
-            function uploadFiles(userId, requestId, historyId) {
-                var uploadedFiles = 0;
-                angular.forEach($scope.files, function(file) {
-                    file.upload = Upload.upload({
-                        url: 'index.php/documents/NewRequestController/upload',
-                        data: {file: file, userId: userId, requestId: requestId},
-                    });
-                    file.upload.then(function (response) {
-                        console.log("Document uploadad!");
-                        file.lpath = response.data.lpath;
-                        file.requestId = $scope.requestId;
+            function uploadData(data, requestId, historyId) {
+                var imageData = "";
+                var docName = "";
+                var description = "";
+                if (data == 1) {
+                    imageData = $scope.idData;
+                    docName = "Identidad";
+                    description = "Prueba de presencia"
+                } else {
+                    imageData = $scope.docData;
+                    docName = "Solicitud";
+                    description = "Documento con datos de solicitud"
+                }
+                $.ajax({
+                    type: "POST",
+                    url: 'index.php/documents/NewRequestController/uploadBase64Images',
+                    dataType: 'text',
+                    data: {
+                         imageData:imageData,
+                         userId:fetchId,
+                         requestId:requestId,
+                         docName:docName
+                    },
+                    success: function (response) {
+                        var file = {};
+                        file.lpath = JSON.parse(response).lpath;
+                        file.requestId = requestId;
                         file.historyId = historyId;
-                        // file.name is not passed through GET. Gotta create new property
-                        file.docName = file.name;
+                        file.docName = docName;
+                        file.description = description;
                         // Doc successfully uploaded. Now create it on database.
                         $http.get('index.php/documents/NewRequestController/createDocument', {params:file})
                             .then(function (response) {
                                 if (response.data.message== "success") {
                                     uploadedFiles++;
                                     console.log(uploadedFiles);
-                                    if (uploadedFiles === $scope.files.length) {
+                                    if (uploadedFiles === 2) {
                                         // Update interface
-                                        $http.get('index.php/home/HomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
+                                        $http.get('index.php/home/HomeController/getUserRequests', {params:{fetchId:fetchId}})
                                             .then(function (response) {
                                                 if (response.data.message === "success") {
                                                     updateContent(response.data.requests, 0);
@@ -193,20 +199,115 @@ function adminHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                                             });
                                     }
                                 } else {
-                                    console.log("Document creation in databae had an error");
+                                    console.log("Document creation in database had an error");
                                 }
                             });
-                    }, function (response) {
-                        if (response.status > 0) {
-                            // Show file error message
-                            $scope.errorMsg = response.status + ': ' + response.data;
-                        }
-                    }, function (evt) {
-                        // Fetch file updating progress
-                        file.progress = Math.min(100, parseInt(100.0 *
-                                                 evt.loaded / evt.total));
-                    });
+                    }
                 });
+            };
+
+            $scope.openIdentityCamera = function(ev) {
+                var parentEl = angular.element(document.body);
+                $mdDialog.show({
+                    parent: parentEl,
+                    targetEvent: $event,
+                    templateUrl: 'index.php/documents/NewRequestController/camera',
+                    clickOutsideToClose: true,
+                    escapeToClose: true,
+                    preserveScope: true,
+                    autoWrap: true,
+                    skipHide: true,
+                    locals: {
+                        sendTo: 1 // 1 = camera result will be sent to id's variables
+                    },
+                    controller: CameraController
+                });
+            };
+
+            $scope.openDocCamera = function(ev) {
+                var parentEl = angular.element(document.body);
+                $mdDialog.show({
+                    parent: parentEl,
+                    targetEvent: $event,
+                    templateUrl: 'index.php/documents/NewRequestController/camera',
+                    clickOutsideToClose: true,
+                    escapeToClose: true,
+                    preserveScope: true,
+                    autoWrap: true,
+                    skipHide: true,
+                    locals: {
+                        sendTo: 2 // 2 = camera result will be sent to doc's variables
+                    },
+                    controller: CameraController
+                });
+
+            };
+
+            //Controller for camera dialog
+            function CameraController($scope, $mdDialog, sendTo) {
+                // Setup a channel to receive a video property
+                // with a reference to the video element
+                $scope.channel = {
+                    videoHeight: 320,
+                    videoWidth: 480
+                };
+                var _video = null;
+
+                $scope.webcamError = false;
+
+                $scope.picTaken = false;
+
+                $scope.onError = function (err) {
+                    $scope.webcamError = err;
+                };
+
+                $scope.onSuccess = function () {
+                    // The video element contains the captured camera data
+                    _video = $scope.channel.video;
+                };
+                $scope.closeDialog = function() {
+                    $mdDialog.hide();
+                };
+
+                $scope.deletePic = function() {
+                    $scope.picTaken = false;
+                };
+
+                $scope.savePic = function() {
+                    if (sendTo == 1) {
+                        updateIdPic(document.querySelector('#snapshot').toDataURL());
+                    } else {
+                        updateDocPic(document.querySelector('#snapshot').toDataURL());
+                    }
+                    $mdDialog.hide();
+                };
+
+                $scope.takePicture = function() {
+                    if (_video) {
+                        var patCanvas = document.querySelector('#snapshot');
+                        if (!patCanvas) return;
+                        patCanvas.width = _video.width;
+                        patCanvas.height = _video.height;
+                        var ctxPat = patCanvas.getContext('2d');
+
+                        var idata = getVideoData(0, 0, _video.width, _video.height);
+                        ctxPat.putImageData(idata, 0, 0);
+
+                        // sendSnapshotToServer(patCanvas.toDataURL());
+
+                        // window.open(patCanvas.toDataURL(), '_blank');
+                        $scope.picTaken = true;
+                    }
+                };
+
+                function getVideoData(x, y, w, h) {
+                    var hiddenCanvas = document.createElement('canvas');
+                    hiddenCanvas.width = _video.width;
+                    hiddenCanvas.height = _video.height;
+                    var ctx = hiddenCanvas.getContext('2d');
+                    ctx.drawImage(_video, 0, 0, _video.width, _video.height);
+                    return ctx.getImageData(x, y, w, h);
+                }
             }
         }
     };

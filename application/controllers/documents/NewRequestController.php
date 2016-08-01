@@ -53,8 +53,8 @@ class NewRequestController extends CI_Controller {
 				$request->addHistory($history);
 				// Register it's corresponding actions
 				$action = new \Entity\HistoryAction();
-				$action->setSummary("Solicitud recibida.");
-				$action->setDetail("Creación de la solicitud en estado Recibida");
+				$action->setSummary("Solicitud creada.");
+				$action->setDetail("Estado de la solicitud: Recibida");
 				$action->setBelongingHistory($history);
 				$history->addAction($action);
 				$em->persist($action);
@@ -133,4 +133,28 @@ class NewRequestController extends CI_Controller {
 	        echo json_encode($result);
 		}
     }
+
+	public function camera() {
+		if ($_SESSION['type'] != 1) {
+			$this->load->view('errors/index.html');
+		} else {
+			$this->load->view('camera/camera');
+		}
+	}
+
+	public function uploadBase64Images() {
+		if ($_SESSION['type'] != 1) {
+			$this->load->view('errors/index.html');
+		} else {
+			$data = $_POST['imageData'];
+			$data = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $data));
+
+			$filepath = DropPath . $_POST['userId'] . "." . $_POST['requestId'] . "." . $_POST['docName'] . ".png";
+			file_put_contents($filepath, $data);
+
+			$result['message'] = "success";
+			$result['lpath'] = $_POST['userId'] . "." . $_POST['requestId'] . "." . $_POST['docName'] . ".png";
+			echo json_encode($result);
+		}
+	}
 }

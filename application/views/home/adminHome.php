@@ -107,12 +107,16 @@
                                 class="md-2-line"
                                 ng-click="downloadDoc(doc)"
                                 class="noright">
-                                <md-icon  ng-style="{'color':'#2196F3', 'font-size':'36px'}">insert_drive_file</md-icon>
+                                <md-icon ng-if="!$first" ng-style="{'color':'#2196F3', 'font-size':'36px'}">insert_drive_file</md-icon>
+                                <md-icon ng-if="$first" ng-style="{'color':'#2196F3', 'font-size':'36px'}">perm_identity</md-icon>
                                 <div class="md-list-item-text" layout="column">
                                    <h3>{{doc.name}}</h3>
                                    <p>{{doc.description}}</p>
                                  </div>
-                                 <md-menu class="md-secondary">
+                                 <md-button ng-if="dKey <= 1" ng-click="downloadDoc(doc)" class="md-icon-button">
+                                     <md-icon>file_download</md-icon>
+                                 </md-button>
+                                 <md-menu ng-if="dKey > 1" class="md-secondary">
                                     <md-button ng-click="$mdOpenMenu($event)" class="md-icon-button" aria-label="More">
                                         <md-icon>more_vert</md-icon>
                                     </md-button>
