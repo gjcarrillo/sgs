@@ -20,10 +20,10 @@
                <md-tooltip md-direction="right">Ingrese una cédula. Ej: 11111111</md-tooltip>
         </md-input-container>
         <span flex></span>
-        <md-button class="md-fab md-mini md-raised" href="#/generator" aria-label="Generate contract">
+        <!-- <md-button class="md-fab md-mini md-raised" href="#/generator" aria-label="Generate contract">
             <md-icon style="color:#2196F3">insert_drive_file</md-icon>
             <md-tooltip md-direction="left">Generar PDF</md-tooltip>
-        </md-button>
+        </md-button> -->
         <md-button class="md-fab md-mini md-raised" ng-click="logout()" aria-label="Back">
             <md-icon>exit_to_app</md-icon>
             <md-tooltip md-direction="left">Cerrar sesión</md-tooltip>
@@ -40,6 +40,12 @@
     <div ng-if="fetchError != ''" layout layout-align="center center" class="md-padding">
         <span style="color:red">{{fetchError}}</span>
     </div>
+    <!-- Watermark -->
+    <div class="watermark" ng-if="requests.length == 0 && !loading">
+        <div layout layout-align="center center">
+            <img src="images/ipapedi.png" alt="Ipapedi logo"/>
+        </div>
+    </div>
      <!-- Actual content -->
     <div ng-hide="requests.length == 0" layout="row">
         <!-- Requests list -->
@@ -54,7 +60,7 @@
                     md-disable-backdrop>
                     <md-list>
                         <div layout layout-align="center">
-                            <md-subheader style="color:teal">Lista de solicitudes</md-subheader>
+                            <md-subheader style="color:#0D47A1">Lista de solicitudes</md-subheader>
                         </div>
                         <md-divider><md-divider>
                         <md-list-item
@@ -71,6 +77,10 @@
             </div>
         </md-content>
         <!-- Documents container -->
+        <md-content class="watermark2" ng-if="docs.length == 0" flex>
+            <!-- Watermark -->
+            <img src="images/ipapedi.png" alt="Ipapedi logo"/>
+        </md-content>
         <md-content
             flex
             ng-hide="docs.length == 0"
@@ -84,7 +94,10 @@
                             <md-tooltip>Historial</md-tooltip>
                             <md-icon>history</md-icon>
                         </md-button>
-                        <md-button ng-if="requests[selectedReq].status == 'Recibida'" ng-click="openEditRequestDialog($event)" class="md-icon-button">
+                        <md-button
+                            ng-if="requests[selectedReq].status == 'Recibida'"
+                            ng-click="openEditRequestDialog($event)"
+                            class="md-icon-button">
                             <md-tooltip>Editar solicitud</md-tooltip>
                             <md-icon>edit</md-icon>
                         </md-button>
@@ -175,8 +188,7 @@
 <md-divider></md-divider>
 <footer>
     <div layout layout-align="space-around center">
-        <md-button class="md-accent" href="https://github.com/kperdomo1/sgdp" target="_blank">GitHub</md-button>
-        <p class="md-body-1">Creado por Kristopher Perdomo</p>
+        <span>Desarrollado por <a class="md-accent" href="mailto:kperdomo@gmail.com" target="_blank">Kristopher Perdomo</a></span>
         <md-button class="md-accent" href="http://www.ipapedi.com" target="_blank">IPAPEDI</md-button>
     </div>
 </footer>

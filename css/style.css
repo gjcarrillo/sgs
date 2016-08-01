@@ -1,6 +1,10 @@
 
-main {
+main, body {
   background-color: #F5F5F5;
+}
+
+footer {
+  background-color:white;
 }
 
 .main-w-footer {
@@ -30,10 +34,28 @@ main {
   overflow:visible;
 }
 
+.watermark {
+    padding-top: calc(20vh);
+    opacity:0.3;
+    z-index:99;
+}
 
-/*md-list .md-button {
-    text-align: left;
-}*/
+.watermark2 {
+    padding-top: calc(20vh);
+    padding-left: calc(22vw);
+    background-color: #F5F5F5;
+    opacity:0.3;
+}
+
+a {
+  text-decoration: none;
+  color: #8F731F;
+}
+
+a:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
 
 @media screen and (max-width: 480px) {
     .login-card {

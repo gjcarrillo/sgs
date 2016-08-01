@@ -31,9 +31,35 @@ sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $lo
     });
     // $locationProvider.html5Mode(true);
     // Application theme
+    $mdThemingProvider.definePalette('golden', {
+        '50': '8F731F',
+        '100': '8F731F',
+        '200': '8F731F',
+        '300': '8F731F',
+        '400': '8F731F',
+        '500': '8F731F',
+        '600': '8F731F',
+        '700': '8F731F',
+        '800': '8F731F',
+        '900': '8F731F',
+        'A100': '8F731F',
+        'A200': '8F731F',
+        'A400': '8F731F',
+        'A700': '8F731F',
+        'contrastDefaultColor': 'light',    // whether, by default, text (contrast)
+                                      // on this palette should be dark or light
+        'contrastDarkColors': ['50', '100', //hues which contrast should be 'dark' by default
+        '200', '300', '400', 'A100'],
+        'contrastLightColors': undefined    // could also specify this if default was 'dark'
+    });
+    var darkBlue = $mdThemingProvider.extendPalette('blue', {
+        '500' : '0D47A1'
+    });
+    $mdThemingProvider.definePalette('darkBlue', darkBlue);
+
     $mdThemingProvider.theme('default')
-        .primaryPalette('teal')
-        .accentPalette('blue');
+        .primaryPalette('darkBlue')
+        .accentPalette('golden');
 });
 
 

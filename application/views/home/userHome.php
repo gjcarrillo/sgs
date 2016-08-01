@@ -31,7 +31,7 @@
                     md-disable-backdrop>
                     <md-list>
                         <div layout layout-align="center">
-                            <md-subheader style="color:teal">Lista de solicitudes</md-subheader>
+                            <md-subheader style="color:#0D47A1">Lista de solicitudes</md-subheader>
                         </div>
                         <md-divider><md-divider>
                         <md-list-item
@@ -46,6 +46,11 @@
                     </md-list>
                 </md-sidenav>
             </div>
+        </md-content>
+        <!-- Documents container -->
+        <md-content class="watermark2" ng-if="docs.length == 0" flex>
+            <!-- Watermark -->
+            <img src="images/ipapedi.png" alt="Ipapedi logo"/>
         </md-content>
         <!-- Documents container -->
         <md-content
@@ -99,8 +104,7 @@
 <md-divider></md-divider>
 <footer>
     <div layout layout-align="space-around center">
-        <md-button class="md-accent" href="https://github.com/kperdomo1/sgdp" target="_blank">GitHub</md-button>
-        <p class="md-body-1">Creado por Kristopher Perdomo</p>
+        <span>Desarrollado por <a class="md-accent" href="mailto:kperdomo@gmail.com" target="_blank">Kristopher Perdomo</a></span>
         <md-button class="md-accent" href="http://www.ipapedi.com" target="_blank">IPAPEDI</md-button>
     </div>
 </footer>
