@@ -15,7 +15,6 @@ function login($scope, $rootScope, auth, $http) {
             $rootScope.model.loginError = "Debe llenar todos los campos";
         } else {
             auth.login($scope.model.login, $scope.model.password);
-            $rootScope.model = {};
             $rootScope.model.loginError = "";
         }
     };

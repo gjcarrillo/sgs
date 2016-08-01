@@ -104,6 +104,7 @@
 <md-divider></md-divider>
 <footer>
     <div layout layout-align="space-around center">
+        <p>&copy; IPAPEDI 2016</p>
         <span>Desarrollado por <a class="md-accent" href="mailto:kperdomo@gmail.com" target="_blank">Kristopher Perdomo</a></span>
         <md-button class="md-accent" href="http://www.ipapedi.com" target="_blank">IPAPEDI</md-button>
     </div>
