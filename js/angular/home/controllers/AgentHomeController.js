@@ -1,10 +1,10 @@
 angular
     .module('sgdp')
-    .controller('AdminHomeController', adminHome);
+    .controller('AgentHomeController', agentHome);
 
-adminHome.$inject = ['$scope', '$rootScope', '$mdDialog', 'Upload', '$cookies', '$http', '$state', '$timeout'];
+agentHome.$inject = ['$scope', '$rootScope', '$mdDialog', 'Upload', '$cookies', '$http', '$state', '$timeout'];
 
-function adminHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $state, $timeout) {
+function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $state, $timeout) {
     'use strict';
     $scope.loading = false;
     $scope.selectedReq = -1;

@@ -11,7 +11,7 @@
     </md-toolbar>
     <md-dialog-content class="md-padding">
         <!-- File(s) input -->
-        <div layout layout-align="center">
+        <div layout layout-align="center" layout-padding>
              <span>Haga click en el botón para agregar más documentos</span>
              <md-button
                 ngf-select="gatherFiles($files, $invalidFiles)"

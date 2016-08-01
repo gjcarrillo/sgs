@@ -31,7 +31,7 @@ angular.module('sgdp.login').factory("auth", function($cookies,$location, $http 
                         // });
                         // redirect to home
                         if (response.data.type == 1) {
-                            $location.path("adminHome");
+                            $location.path("agentHome");
                         } else {
                             $location.path("userHome");
                         }
@@ -56,7 +56,7 @@ angular.module('sgdp.login').factory("auth", function($cookies,$location, $http 
         },
         sendHome : function() {
             if ($cookies.getObject('session').type == 1) {
-                $location.path("/adminHome");
+                $location.path("/agentHome");
             } else {
                 $location.path("/userHome");
             }

@@ -13,18 +13,18 @@ class HomeController extends CI_Controller {
 		$this->load->view('home/userHome');
 	}
 
-	public function admin() {
+	public function agent() {
 		if ($_SESSION['type'] != 1) {
 			$this->load->view('errors/index.html');
 		} else {
-			$this->load->view('home/adminHome');
+			$this->load->view('home/agentHome');
 		}
 	}
 	// Obtain all requests with with all their documents.
 	// NOTICE: sensitive information
 	public function getUserRequests() {
 		if ($_GET['fetchId'] != $_SESSION['id'] && $_SESSION['type'] != 1) {
-			// if fetch id is not the same as logged in user, must be an admin
+			// if fetch id is not the same as logged in user, must be an agent
 			// to be able to execute query!
 			$this->load->view('errors/index.html');
 		} else {
@@ -136,7 +136,7 @@ class HomeController extends CI_Controller {
 		// Get the Id of the document's owner.
 		$userOwner = $parsed[0];
 		if ($userOwner != $_SESSION['id'] && $_SESSION['type'] != 1) {
-			// Only admins can download documents that are not their own.
+			// Only agents can download documents that are not their own.
 			$this->load->view('errors/index.html');
 		} else {
 			// file informatino

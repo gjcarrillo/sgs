@@ -14,10 +14,10 @@ sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $lo
         templateUrl: 'index.php/home/HomeController/user',
         controller: 'UserHomeController'
     })
-    .state('adminHome', {
-        url: '/adminHome',
-        templateUrl: 'index.php/home/HomeController/admin',
-        controller: 'AdminHomeController'
+    .state('agentHome', {
+        url: '/agentHome',
+        templateUrl: 'index.php/home/HomeController/agent',
+        controller: 'AgentHomeController'
     })
     .state('docGenerator', {
         url: '/generator',
@@ -72,14 +72,14 @@ sgdp.run(['$rootScope', '$location','$state','auth', '$cookies', '$http',
         case '/userHome':
             // Anyone can access user home page
             return true;
-        case '/adminHome':
-            // Check for admin rights
+        case '/agentHome':
+            // Check for agent rights
             return userType == 1;
         case '/history':
-            // check for admin rights
+            // check for agent rights
             return userType == 1;
       }
-      // maybe going to login (.otherwise('login'))? if so, keep going!
+      //  Going to login (.otherwise('login')), so keep going!
       return true;
   }
 }])
