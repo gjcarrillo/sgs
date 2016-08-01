@@ -11,6 +11,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
     $scope.requests = [];
     $scope.docs = [];
     $scope.fetchError = "";
+    $scope.showList = false;
 
     // Check if there is stored data before we went to History
     var requests = JSON.parse(sessionStorage.getItem("requests"));
@@ -22,10 +23,12 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
         $scope.searchInput = $scope.fetchId;
         $scope.selectedReq = parseInt(sessionStorage.getItem("selectedReq"));
         $scope.docs = $scope.requests[$scope.selectedReq].docs;
+        $scope.showList = parseInt(sessionStorage.getItem("showList")) ? true : false;
         // Got back what we wanted -- erase them from storage
         sessionStorage.removeItem("requests");
         sessionStorage.removeItem("fetchId");
         sessionStorage.removeItem("selectedReq");
+        sessionStorage.removeItem("showList");
     }
 
     $scope.generatePdfDoc = function() {
@@ -47,6 +50,10 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
             'background-color': '#F5F5F5',
             'max-height':($(window).height() - 129)
         };
+    };
+
+    $scope.toggleList = function() {
+        $scope.showList = !$scope.showList;
     };
 
     $scope.selectRequest = function(req) {
@@ -603,6 +610,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
         sessionStorage.setItem("requests", JSON.stringify($scope.requests));
         sessionStorage.setItem("fetchId", $scope.fetchId);
         sessionStorage.setItem("selectedReq", $scope.selectedReq);
+        sessionStorage.setItem("showList", $scope.showList ? 1 : 0);
 
         $state.go('history');
 

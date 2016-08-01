@@ -57,6 +57,14 @@ a:hover {
   cursor: pointer;
 }
 
+md-list .md-button {
+    text-align: left;
+}
+
+.requestItems {
+    padding-left:25px;
+}
+
 @media screen and (max-width: 480px) {
     .login-card {
         width: 80%;

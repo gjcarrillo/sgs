@@ -59,19 +59,32 @@
                     ng-style="getSidenavHeight()"
                     md-disable-backdrop>
                     <md-list>
-                        <div layout layout-align="center">
-                            <md-subheader style="color:#0D47A1">Lista de solicitudes</md-subheader>
+                        <div class="md-toolbar-tools">
+                            <md-button flex>Datos del afiliado</md-button>
                         </div>
-                        <md-divider><md-divider>
-                        <md-list-item
-                            ng-repeat="(rKey, request) in requests">
-                            <md-button
-                                flex
-                                ng-click="selectRequest(rKey)"
-                                ng-class="{'md-primary md-raised' : selectedReq === rKey }">
-                                #{{pad(rKey+1, 2)}} - {{request.creationDate}}
+                        <md-divider></md-divider>
+                        <div class="md-toolbar-tools">
+                            <md-button flex ng-click="toggleList()">
+                                Lista de solicitudes
                             </md-button>
-                        </md-list-item>
+                            <md-button ng-click="toggleList()" class="md-icon-button">
+                                <md-icon ng-if="!showList">keyboard_arrow_down</md-icon>
+                                <md-icon ng-if="showList">keyboard_arrow_up</md-icon>
+                            </md-button>
+                        </div>
+                        <md-divider></md-divider>
+                        <div ng-show="showList">
+                            <md-list-item
+                                ng-repeat="(rKey, request) in requests">
+                                <md-button
+                                    flex
+                                    ng-click="selectRequest(rKey)"
+                                    class="requestItems"
+                                    ng-class="{'md-primary md-raised' : selectedReq === rKey }">
+                                    Solicitud ID &#8470; {{pad(request.id, 6)}}
+                                </md-button>
+                            </md-list-item>
+                        </div>
                     </md-list>
                 </md-sidenav>
             </div>
