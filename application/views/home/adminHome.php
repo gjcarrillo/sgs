@@ -84,7 +84,7 @@
                             <md-tooltip>Historial</md-tooltip>
                             <md-icon>history</md-icon>
                         </md-button>
-                        <md-button ng-click="openEditRequestDialog($event)" class="md-icon-button">
+                        <md-button ng-if="requests[selectedReq].status == 'Recibida'" ng-click="openEditRequestDialog($event)" class="md-icon-button">
                             <md-tooltip>Editar solicitud</md-tooltip>
                             <md-icon>edit</md-icon>
                         </md-button>

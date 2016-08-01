@@ -63,16 +63,40 @@ class Request extends \Entity\Request implements \Doctrine\ORM\Proxy\Proxy
         return parent::getCreationDate();
     }
 
-    public function setComment($comment)
+    public function setReunion($reunion)
     {
         $this->__load();
-        return parent::setComment($comment);
+        return parent::setReunion($reunion);
     }
 
-    public function getComment()
+    public function getReunion()
     {
         $this->__load();
-        return parent::getComment();
+        return parent::getReunion();
+    }
+
+    public function setRequestedAmount($requestedAmount)
+    {
+        $this->__load();
+        return parent::setRequestedAmount($requestedAmount);
+    }
+
+    public function getRequestedAmount()
+    {
+        $this->__load();
+        return parent::getRequestedAmount();
+    }
+
+    public function setApprovedAmount($approvedAmount)
+    {
+        $this->__load();
+        return parent::setApprovedAmount($approvedAmount);
+    }
+
+    public function getApprovedAmount()
+    {
+        $this->__load();
+        return parent::getApprovedAmount();
     }
 
     public function setStatus($status)
@@ -117,18 +141,6 @@ class Request extends \Entity\Request implements \Doctrine\ORM\Proxy\Proxy
         return parent::getDocuments();
     }
 
-    public function setUserOwner(\Entity\User $userOwner)
-    {
-        $this->__load();
-        return parent::setUserOwner($userOwner);
-    }
-
-    public function getUserOwner()
-    {
-        $this->__load();
-        return parent::getUserOwner();
-    }
-
     public function addHistory(\Entity\History $history)
     {
         $this->__load();
@@ -147,10 +159,22 @@ class Request extends \Entity\Request implements \Doctrine\ORM\Proxy\Proxy
         return parent::getHistory();
     }
 
+    public function setUserOwner(\Entity\User $userOwner)
+    {
+        $this->__load();
+        return parent::setUserOwner($userOwner);
+    }
+
+    public function getUserOwner()
+    {
+        $this->__load();
+        return parent::getUserOwner();
+    }
+
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'creationDate', 'comment', 'status', 'documents', 'history', 'userOwner');
+        return array('__isInitialized__', 'id', 'creationDate', 'reunion', 'requestedAmount', 'approvedAmount', 'status', 'documents', 'history', 'userOwner');
     }
 
     public function __clone()

@@ -80,8 +80,8 @@ class HomeController extends CI_Controller {
 				$history = new \Entity\History();
 				$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
 				$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
-				// 3 = Elimination
-				$history->setTitle(3);
+				// 4 = Elimination
+				$history->setTitle(4);
 				$history->setOrigin($request);
 				$request->addHistory($history);
 				$em->merge($request);
