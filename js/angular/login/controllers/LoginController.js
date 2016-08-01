@@ -6,6 +6,7 @@ login.$inject = ['$scope', '$rootScope', 'auth', '$http'];
 
 function login($scope, $rootScope, auth, $http) {
     'use strict';
+    $scope.idPrefix = "V";
     $rootScope.model = {};
     $scope.loginImagePath = "images/avatar_circle.png";
 
@@ -14,7 +15,7 @@ function login($scope, $rootScope, auth, $http) {
             typeof $scope.model.password === "undefined" || $scope.model.password == "") {
             $rootScope.model.loginError = "Debe llenar todos los campos";
         } else {
-            auth.login($scope.model.login, $scope.model.password);
+            auth.login($scope.idPrefix + $scope.model.login, $scope.model.password);
             $rootScope.model.loginError = "";
         }
     };

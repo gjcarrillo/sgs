@@ -51,7 +51,7 @@ class User extends \Entity\User implements \Doctrine\ORM\Proxy\Proxy
     public function getId()
     {
         if ($this->__isInitialized__ === false) {
-            return (int) $this->_identifier["id"];
+            return $this->_identifier["id"];
         }
         $this->__load();
         return parent::getId();

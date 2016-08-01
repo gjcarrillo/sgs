@@ -17,7 +17,7 @@
                ng-model="searchInput"
                ng-keyup="$event.keyCode == 13 && fetchRequests(searchInput)"
                style="color:white; padding-left:25px; margin-right:5px; font-size:16px">
-               <md-tooltip md-direction="right">Ingrese una cédula. Ej: 11111111</md-tooltip>
+               <md-tooltip md-direction="right">Ingrese una cédula. Ej: E12345</md-tooltip>
         </md-input-container>
         <span flex></span>
         <!-- <md-button class="md-fab md-mini md-raised" href="#/generator" aria-label="Generate contract">

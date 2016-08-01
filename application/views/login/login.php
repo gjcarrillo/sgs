@@ -10,7 +10,7 @@
 <main class="main-w-footer">
     <div ng-hide="recovery.recoveryView" layout="column" layout-align="center center" layout-padding>
         <h1 class="md-title" style="font-weight:300">Todos tus documentos. Un solo lugar.</h1>
-        <h2 class="md-subhead">Inicie sesión para ingresar al sistema</h2>
+        <span class="md-subhead">Inicie sesión para ingresar al sistema</span>
     </div>
     <md-content>
         <div layout="column" layout-align="center center" style="background:#F5F5F5">
@@ -22,19 +22,50 @@
                         </div>
                     </md-card-title-media>
                 </md-card-title>
+                <br/>
                 <md-card-content>
                     <div layout>
-                        <md-input-container class="md-block" flex="60" flex-offset="20">
-                            <label>Cédula</label>
-                            <md-icon>account_circle</md-icon>
-                            <input type="text" ng-model="model.login" ng-keyup="$event.keyCode == 13 && login()">
-                        </md-input-container>
+                        <span style="color:grey" flex flex-offset="20">
+                            Cédula de identidad
+                        </span>
                     </div>
                     <div layout>
-                        <md-input-container class="md-block" flex="60" flex-offset="20">
-                            <label>Contraseña</label>
-                            <md-icon>lock</md-icon>
-                            <input type="password" ng-model="model.password" ng-keyup="$event.keyCode == 13 && login()">
+                        <div flex="5" flex-offset="20">
+                            <md-input-container class="md-block">
+                                <!-- <md-icon>account_circle</md-icon> -->
+                                <md-select ng-model="idPrefix">
+                                    <md-option value="V">
+                                        V
+                                    </md-option>
+                                    <md-option value="E">
+                                        E
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                        </div>
+                        <div flex="40" flex-offset="15">
+                            <md-input-container md-no-float class="md-block">
+                                <input
+                                    type="text"
+                                    placeholder="Ej: 123456789"
+                                    ng-model="model.login"
+                                    ng-keyup="$event.keyCode == 13 && login()">
+                            </md-input-container>
+                        </div>
+                    </div>
+                    <div layout>
+                        <span style="color:grey" flex flex-offset="20">
+                            Contraseña
+                        </span>
+                    </div>
+                    <div layout>
+                        <md-input-container md-no-float class="md-block" flex="60" flex-offset="20">
+                            <!-- <md-icon>lock</md-icon> -->
+                            <input
+                                type="password"
+                                placeholder="************"
+                                ng-model="model.password"
+                                ng-keyup="$event.keyCode == 13 && login()">
                         </md-input-container>
                     </div>
                     <div layout layout-align="center center">
