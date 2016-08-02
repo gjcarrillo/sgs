@@ -53,5 +53,14 @@ function userHome($scope, $rootScope, $http, $cookies) {
 
     $scope.downloadDoc = function(doc) {
         window.open('index.php/home/HomeController/download?lpath=' + doc.lpath, '_blank');
-    }
+    };
+
+    $scope.downloadAll = function() {
+        // Bits of parsing before passing objects to URL
+        var paths = new Array();
+        angular.forEach($scope.docs, function(doc) {
+            paths.push(doc.lpath);
+        });
+        location.href = 'index.php/home/HomeController/downloadAll?docs=' + JSON.stringify(paths);
+    };
 }

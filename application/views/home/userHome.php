@@ -5,9 +5,13 @@
             <span>SGDP</span>
         </h2>
         <span flex></span>
-        <md-button class="md-fab md-mini md-raised" ng-click="logout()" aria-label="Back">
+        <md-button class="md-icon-button" ng-click="null" aria-label="Help">
+            <md-icon>help_outline</md-icon>
+            <md-tooltip md-direction="down">Ayuda</md-tooltip>
+        </md-button>
+        <md-button class="md-icon-button" ng-click="logout()" aria-label="Logout">
             <md-icon>exit_to_app</md-icon>
-            <md-tooltip md-direction="left">Cerrar sesión</md-tooltip>
+            <md-tooltip md-direction="down">Cerrar sesión</md-tooltip>
         </md-button>
     </div>
 </md-toolbar>
@@ -31,7 +35,7 @@
                     md-disable-backdrop>
                     <md-list>
                         <div layout layout-align="center">
-                            <md-subheader style="color:#0D47A1">Lista de solicitudes</md-subheader>
+                            <md-subheader style="color:#0D47A1">LISTA DE SOLICITUDES</md-subheader>
                         </div>
                         <md-divider><md-divider>
                         <md-list-item
@@ -40,7 +44,7 @@
                                 flex
                                 ng-click="selectRequest(rKey)"
                                 ng-class="{'md-primary md-raised' : selectedReq === rKey }">
-                                #{{pad(rKey+1, 2)}} - {{request.creationDate}}
+                                Solicitud ID &#8470; {{pad(request.id, 6)}}
                             </md-button>
                         </md-list-item>
                     </md-list>
@@ -61,6 +65,13 @@
                 <md-card-content>
                     <div class="md-toolbar-tools">
                         <h2 class="md-headline">Préstamo solicitado el {{requests[selectedReq].creationDate}}</h2>
+                        <span flex></span>
+                        <md-button
+                            class="md-icon-button"
+                            ng-click="downloadAll()">
+                            <md-icon>cloud_download</md-icon>
+                            <md-tooltip>Descargar todos los archivos</md-tooltip>
+                        </md-button>
                     </div>
                     <md-list>
                         <md-list-item class="md-3-line"class="noright">

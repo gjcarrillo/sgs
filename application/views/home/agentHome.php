@@ -32,7 +32,7 @@
                     style="padding-bottom:0px"
                     class="md-accent">
                    <input
-                       placeholder="Ingrese cédula"
+                       placeholder="Ingrese una cédula"
                        aria-label="Search"
                        ng-model="searchInput"
                        ng-keyup="$event.keyCode == 13 && fetchRequests(searchInput)"
@@ -173,7 +173,7 @@
                         </md-button>
                         <md-button
                             class="md-icon-button"
-                            ng-click="null">
+                            ng-click="downloadAll()">
                             <md-icon>cloud_download</md-icon>
                             <md-tooltip>Descargar todos los archivos</md-tooltip>
                         </md-button>

@@ -139,7 +139,7 @@ class HomeController extends CI_Controller {
 			// Only agents can download documents that are not their own.
 			$this->load->view('errors/index.html');
 		} else {
-			// file informatino
+			// file information
 			if ($parsed[3] === "pdf") {
 				header('Content-type: application/pdf');
 				header('Content-Disposition: inline; filename="' . $parsed[2] . '.' . $parsed[3] . '"');
@@ -157,6 +157,33 @@ class HomeController extends CI_Controller {
 			// The document source
 			readfile(DropPath . $_GET['lpath']);
 		}
+	}
+
+	public function downloadAll() {
+		// At least 2 documents will always be available for download.
+		$docs = json_decode($_GET['docs']);
+		// [0] = userId, [1] = requestId, [2] = filename, [3] = file extension
+		$parsed = explode('.', $docs[0]);
+		// Get the Id of the document's owner.
+		$userOwner = $parsed[0];
+		// Create the ZIP
+		$zipname = time() . ".zip";
+		$zip = new ZipArchive;
+		$zip->open($zipname, ZipArchive::CREATE);
+		foreach ($docs as $doc) {
+			if ($userOwner == $_SESSION['id'] || $_SESSION['type'] == 1) {
+				// Only agents can download documents that are not their own.
+				$tmp = explode('.', $doc);
+				$filename = $tmp[2] . "." . $tmp[3];
+				$zip->addFromString(basename($filename),  file_get_contents(DropPath . $doc));
+			}
+		}
+		$zip->close();
+
+		header('Content-Type: application/zip');
+		header('Content-disposition: attachment; filename='.$zipname);
+		header('Content-Length: ' . filesize($zipname));
+		readfile($zipname);
 
 	}
 }
