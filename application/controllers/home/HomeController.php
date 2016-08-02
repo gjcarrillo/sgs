@@ -184,6 +184,7 @@ class HomeController extends CI_Controller {
 		header('Content-disposition: attachment; filename='.$zipname);
 		header('Content-Length: ' . filesize($zipname));
 		readfile($zipname);
-
+		// TODO: Test in a non-local hosting to see if download is not interrupted
+		unlink($zipname);
 	}
 }

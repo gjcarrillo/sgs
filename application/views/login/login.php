@@ -33,7 +33,7 @@
                     <div hide show-gt-xs layout>
                         <div flex="5" flex-offset="20">
                             <md-input-container class="md-block">
-                                <md-select ng-model="idPrefix">
+                                <md-select ng-model="idPrefix" aria-label="V or E ID">
                                     <md-option value="V">
                                         V
                                     </md-option>
@@ -58,7 +58,7 @@
                         <div flex="60" flex-offset="20">
                             <div>
                                 <md-input-container class="md-block">
-                                    <md-select ng-model="idPrefix">
+                                    <md-select ng-model="idPrefix" aria-label="V or E ID">
                                         <md-option value="V">
                                             V
                                         </md-option>

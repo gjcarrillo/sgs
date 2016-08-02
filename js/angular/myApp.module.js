@@ -28,6 +28,11 @@ sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $lo
         url: '/history',
         templateUrl: 'index.php/history/HistoryController',
         controller: 'HistoryController'
+    })
+    .state('userInfo', {
+        url: '/userInfo',
+        templateUrl: 'index.php/userInfo/UserInfoController',
+        controller: 'UserInfoController'
     });
     // $locationProvider.html5Mode(true);
     // Application theme
@@ -52,6 +57,27 @@ sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $lo
         '200', '300', '400', 'A100'],
         'contrastLightColors': undefined    // could also specify this if default was 'dark'
     });
+    $mdThemingProvider.definePalette('white', {
+        '50': 'fff',
+        '100': 'fff',
+        '200': 'fff',
+        '300': 'fff',
+        '400': 'fff',
+        '500': 'fff',
+        '600': 'fff',
+        '700': 'fff',
+        '800': 'fff',
+        '900': 'fff',
+        'A100': 'fff',
+        'A200': 'fff',
+        'A400': 'fff',
+        'A700': 'fff',
+        'contrastDefaultColor': 'dark',    // whether, by default, text (contrast)
+                                      // on this palette should be dark or light
+        'contrastDarkColors': ['50', '100', //hues which contrast should be 'dark' by default
+        '200', '300', '400', 'A100'],
+        'contrastLightColors': undefined    // could also specify this if default was 'dark'
+    });
     var darkBlue = $mdThemingProvider.extendPalette('blue', {
         '500' : '0D47A1'
     });
@@ -60,6 +86,9 @@ sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $lo
     $mdThemingProvider.theme('default')
         .primaryPalette('darkBlue')
         .accentPalette('golden');
+    $mdThemingProvider.theme('whiteInput')
+        .primaryPalette('white')
+        .accentPalette('blue');
 });
 
 

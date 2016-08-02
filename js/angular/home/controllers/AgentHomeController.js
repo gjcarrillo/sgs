@@ -18,7 +18,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
     var requests = JSON.parse(sessionStorage.getItem("requests"));
     if (requests != null) {
         $scope.requests = requests;
-        $scope.fetchId = sessionStorage.getItem("fetchId");
+        $scope.fetchId = sessionStorage.getItem("fetchId").replace('V', '');
         // fetchId is used for several database queries.
         // that is why we don't use searchInput value, which is bind to search input.
         $scope.searchInput = $scope.fetchId;
@@ -327,9 +327,15 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
 
     // Helper function that updates content with new request
     function updateContent(requests, selection) {
+        // Toggle list
+        $scope.showList = false;
         $scope.requests = requests;
         // Automatically select created request
         $scope.selectRequest(selection);
+        $timeout(function() {
+            // Toggle list
+            $scope.showList = true;
+        }, 1000);
     }
 
     /**
@@ -631,6 +637,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
     };
 
     $scope.loadUserData = function() {
-        window.open('', '_blank');
+        sessionStorage.setItem("fetchId", $scope.fetchId);
+        window.open('http://localhost:8080/sgdp/#/userInfo', '_blank');
     };
 }

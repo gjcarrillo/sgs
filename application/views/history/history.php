@@ -15,8 +15,9 @@
         <!-- Show only on width >= 600px screen -->
         <md-input-container
             hide show-gt-xs
-            md-no-float class="md-accent"
+            md-no-float
             flex-offset="25"
+            md-theme="whiteInput"
             style="padding-bottom:0px">
             <md-icon style="color:white" class="material-icons">&#xE8B6;</md-icon>
             <input
@@ -29,7 +30,8 @@
         <!-- Hide on width >= 600px screen -->
         <md-input-container
             hide-gt-xs
-            md-no-float class="md-accent"
+            md-no-float
+            md-theme="whiteInput"
             style="padding-bottom:0px; margin-top:25px; margin-left:25px;">
             <md-icon style="color:white" class="material-icons">&#xE8B6;</md-icon>
             <input

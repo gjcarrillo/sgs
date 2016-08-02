@@ -29,6 +29,13 @@ footer {
     z-index: 2;
 }
 
+.user-info-card {
+    width: 60%;
+    position: relative;
+    top: -80px;
+    z-index: 2;
+}
+
 .u-overflow-fix {
   overflow:visible;
 }

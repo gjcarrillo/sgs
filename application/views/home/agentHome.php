@@ -9,13 +9,17 @@
         </h2>
         <!-- Search bar -->
         <!-- Show only on width >= 600px screen -->
-        <div hide show-gt-xs layout flex-offset="30" style="margin-top:25px;">
+        <div
+            hide show-gt-xs
+            layout
+            flex-offset="30"
+            style="margin-top:25px;">
             <div>
                 <md-input-container
                     md-no-float
-                    style="padding-bottom:0px"
-                    class="md-accent">
+                    style="padding-bottom:0px">
                     <md-select
+                        aria-label="V or E ID"
                         ng-model="idPrefix">
                         <md-option value="V">
                             V
@@ -30,7 +34,7 @@
                 <md-input-container
                     md-no-float
                     style="padding-bottom:0px"
-                    class="md-accent">
+                    md-theme="whiteInput">
                    <input
                        placeholder="Ingrese una cédula"
                        aria-label="Search"
@@ -45,9 +49,9 @@
         <div hide-gt-xs layout style="margin-top:25px; padding-left:10px;">
             <div>
                 <md-input-container
-                    md-no-float
-                    class="md-accent">
+                    md-no-float>
                     <md-select
+                        aria-label="V or E ID"
                         ng-model="idPrefix">
                         <md-option value="V">
                             V
@@ -61,7 +65,7 @@
             <div>
                 <md-input-container
                     md-no-float
-                    class="md-accent">
+                    md-theme="whiteInput">
                    <input
                        placeholder="Cédula"
                        aria-label="Search"
@@ -124,7 +128,7 @@
                             <md-button class="md-primary" flex ng-click="toggleList()">
                                 Lista de solicitudes
                             </md-button>
-                            <md-button ng-click="toggleList()" class="md-icon-button">
+                            <md-button aria-label="Request list" ng-click="toggleList()" class="md-icon-button">
                                 <md-icon ng-if="!showList">keyboard_arrow_down</md-icon>
                                 <md-icon ng-if="showList">keyboard_arrow_up</md-icon>
                             </md-button>
