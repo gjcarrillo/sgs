@@ -19,9 +19,13 @@
            <md-tooltip md-direction="right">Puede buscar por nombre, acción o fecha</md-tooltip>
         </md-input-container>
         <span flex></span>
-        <md-button class="md-fab md-mini md-raised" ng-click="logout()" aria-label="Back">
+        <md-button class="md-icon-button" ng-click="null" aria-label="Help">
+            <md-icon>help_outline</md-icon>
+            <md-tooltip md-direction="down">Ayuda</md-tooltip>
+        </md-button>
+        <md-button class="md-icon-button" ng-click="logout()" aria-label="Logout">
             <md-icon>exit_to_app</md-icon>
-            <md-tooltip md-direction="left">Cerrar sesión</md-tooltip>
+            <md-tooltip md-direction="down">Cerrar sesión</md-tooltip>
         </md-button>
     </div>
 </md-toolbar>

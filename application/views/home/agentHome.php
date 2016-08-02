@@ -1,32 +1,87 @@
 <!-- Header -->
 <md-toolbar layout-padding>
     <div class="md-toolbar-tools">
-        <h2 flex="10" class="md-headline">
+        <h2 hide show-gt-xs flex="10" class="md-headline">
+            <span>SGDP</span>
+        </h2>
+        <h2 hide-gt-xs class="md-headline">
             <span>SGDP</span>
         </h2>
         <!-- Search bar -->
-        <md-input-container
-            md-no-float class="md-accent"
-            flex="30"
-            flex-offset="25"
-            style="padding-bottom:0px;margin-right:25px">
-           <md-icon style="color:white" class="material-icons">&#xE8B6;</md-icon>
-           <input
-               placeholder="Busque solicitudes de préstamo"
-               aria-label="Search"
-               ng-model="searchInput"
-               ng-keyup="$event.keyCode == 13 && fetchRequests(searchInput)"
-               style="color:white; padding-left:25px; margin-right:5px; font-size:16px">
-               <md-tooltip md-direction="right">Ingrese una cédula. Ej: E12345</md-tooltip>
-        </md-input-container>
+        <!-- Show only on width >= 600px screen -->
+        <div hide show-gt-xs layout flex-offset="30" style="margin-top:25px;">
+            <div>
+                <md-input-container
+                    md-no-float
+                    class="md-accent">
+                    <md-select
+                        ng-model="idPrefix">
+                        <md-option value="V">
+                            V
+                        </md-option>
+                        <md-option value="E">
+                            E
+                        </md-option>
+                    </md-select>
+                </md-input-container>
+            </div>
+            <div>
+                <md-input-container
+                    md-no-float
+                    class="md-accent">
+                   <input
+                       placeholder="Ingrese cédula"
+                       aria-label="Search"
+                       ng-model="searchInput"
+                       ng-keyup="$event.keyCode == 13 && fetchRequests(searchInput)"
+                       style="color:white; font-size:16px">
+                       <md-tooltip md-direction="right">Ej: 123456789</md-tooltip>
+                </md-input-container>
+            </div>
+        </div>
+        <!-- Hide on width >= 600px screen -->
+        <div hide-gt-xs layout style="margin-top:25px;padding-left:10px;">
+            <div>
+                <md-input-container
+                    md-no-float
+                    class="md-accent">
+                    <md-select
+                        ng-model="idPrefix">
+                        <md-option value="V">
+                            V
+                        </md-option>
+                        <md-option value="E">
+                            E
+                        </md-option>
+                    </md-select>
+                </md-input-container>
+            </div>
+            <div>
+                <md-input-container
+                    md-no-float
+                    class="md-accent">
+                   <input
+                       placeholder="Cédula"
+                       aria-label="Search"
+                       ng-model="searchInput"
+                       ng-keyup="$event.keyCode == 13 && fetchRequests(searchInput)"
+                       style="color:white; font-size:16px">
+                       <md-tooltip md-direction="right">Ej: 123456789</md-tooltip>
+                </md-input-container>
+            </div>
+        </div>
         <span flex></span>
         <!-- <md-button class="md-fab md-mini md-raised" href="#/generator" aria-label="Generate contract">
             <md-icon style="color:#2196F3">insert_drive_file</md-icon>
             <md-tooltip md-direction="left">Generar PDF</md-tooltip>
         </md-button> -->
-        <md-button class="md-fab md-mini md-raised" ng-click="logout()" aria-label="Back">
+        <md-button class="md-icon-button" ng-click="null" aria-label="Help">
+            <md-icon>help_outline</md-icon>
+            <md-tooltip md-direction="down">Ayuda</md-tooltip>
+        </md-button>
+        <md-button class="md-icon-button" ng-click="logout()" aria-label="Logout">
             <md-icon>exit_to_app</md-icon>
-            <md-tooltip md-direction="left">Cerrar sesión</md-tooltip>
+            <md-tooltip md-direction="down">Cerrar sesión</md-tooltip>
         </md-button>
     </div>
 </md-toolbar>
@@ -113,6 +168,12 @@
                             class="md-icon-button">
                             <md-tooltip>Editar solicitud</md-tooltip>
                             <md-icon>edit</md-icon>
+                        </md-button>
+                        <md-button
+                            class="md-icon-button"
+                            ng-click="null">
+                            <md-icon>cloud_download</md-icon>
+                            <md-tooltip>Descargar todos los archivos</md-tooltip>
                         </md-button>
                         <md-button ng-click="deleteRequest($event)" class="md-icon-button">
                             <md-tooltip>Eliminar solicitud</md-tooltip>
@@ -201,7 +262,7 @@
 <md-divider></md-divider>
 <footer>
     <div layout layout-align="space-around center">
-        <p>&copy; IPAPEDI 2016</p>
+        <span>&copy; IPAPEDI 2016</span>
         <span>Desarrollado por <a class="md-accent" href="mailto:kperdomo@gmail.com" target="_blank">Kristopher Perdomo</a></span>
         <md-button class="md-accent" href="http://www.ipapedi.com" target="_blank">IPAPEDI</md-button>
     </div>

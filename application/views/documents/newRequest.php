@@ -16,7 +16,7 @@
                 <input ng-model="reqAmount" type="number" min="100" step="100" required placeholder="Ej: 300000.25"/>
             </md-input-container>
         </div>
-        <div layout layout-align="center center">
+        <div ng-hide="idPicTaken && docPicTaken" layout layout-align="center center">
             <div ng-hide="idPicTaken">
                 <md-button ng-click="openIdentityCamera($event)">
                     <md-icon>photo_camera</md-icon>

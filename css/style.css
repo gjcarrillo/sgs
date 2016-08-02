@@ -24,7 +24,6 @@ footer {
 
 .history-card {
     width: 60%;
-    background: white;
     position: relative;
     top: -112px;
     z-index: 2;
@@ -70,7 +69,14 @@ md-list .md-button {
   transition: all 300ms;
 }
 
-@media screen and (max-width: 480px) {
+@media screen and (max-width: 960px) {
+    .login-card {
+        width: 60%;
+        margin-bottom: 20px;
+    }
+}
+
+@media screen and (max-width: 600px) {
     .login-card {
         width: 80%;
         margin-bottom: 20px;

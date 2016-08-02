@@ -29,10 +29,10 @@
                             Cédula de identidad
                         </span>
                     </div>
-                    <div layout>
+                    <!-- Show only on width >= 600px screen -->
+                    <div hide show-gt-xs layout>
                         <div flex="5" flex-offset="20">
                             <md-input-container class="md-block">
-                                <!-- <md-icon>account_circle</md-icon> -->
                                 <md-select ng-model="idPrefix">
                                     <md-option value="V">
                                         V
@@ -51,6 +51,32 @@
                                     ng-model="model.login"
                                     ng-keyup="$event.keyCode == 13 && login()">
                             </md-input-container>
+                        </div>
+                    </div>
+                    <!-- Show only on width < 600px screen -->
+                    <div hide show-xs layout>
+                        <div flex="60" flex-offset="20">
+                            <div>
+                                <md-input-container class="md-block">
+                                    <md-select ng-model="idPrefix">
+                                        <md-option value="V">
+                                            V
+                                        </md-option>
+                                        <md-option value="E">
+                                            E
+                                        </md-option>
+                                    </md-select>
+                                </md-input-container>
+                            </div>
+                            <div>
+                                <md-input-container md-no-float class="md-block">
+                                    <input
+                                        type="text"
+                                        placeholder="Ej: 123456789"
+                                        ng-model="model.login"
+                                        ng-keyup="$event.keyCode == 13 && login()">
+                                </md-input-container>
+                            </div>
                         </div>
                     </div>
                     <div layout>
@@ -84,7 +110,7 @@
 <md-divider></md-divider>
 <footer>
     <div layout layout-align="space-around center">
-        <p>&copy; IPAPEDI 2016</p>
+        <span>&copy; IPAPEDI 2016</span>
         <span>Desarrollado por <a class="md-accent" href="mailto:kperdomo@gmail.com" target="_blank">Kristopher Perdomo</a></span>
         <md-button class="md-accent" href="http://www.ipapedi.com" target="_blank">IPAPEDI</md-button>
     </div>

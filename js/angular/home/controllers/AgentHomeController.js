@@ -12,6 +12,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
     $scope.docs = [];
     $scope.fetchError = "";
     $scope.showList = false;
+    $scope.idPrefix = "V";
 
     // Check if there is stored data before we went to History
     var requests = JSON.parse(sessionStorage.getItem("requests"));
@@ -64,7 +65,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
     };
 
     $scope.fetchRequests = function(searchInput) {
-        $scope.fetchId = searchInput;
+        $scope.fetchId = $scope.idPrefix + searchInput;
         $scope.requests = [];
         $scope.selectedReq = -1;
         $scope.loading = true;
