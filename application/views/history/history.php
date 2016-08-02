@@ -5,18 +5,39 @@
                 arrow_back
             </md-icon>
         </md-button>
-        <h2 flex="10" class="md-headline">
+        <h2 flex="10" hide show-gt-xs class="md-headline">
+            <span>SGDP</span>
+        </h2>
+        <h2 hide-gt-xs class="md-headline">
             <span>SGDP</span>
         </h2>
         <!-- Search bar -->
-        <md-input-container md-no-float class="md-accent" flex="30" flex-offset="20" style="padding-bottom:0px;margin-right:25px">
-           <md-icon style="color:white" class="material-icons">&#xE8B6;</md-icon>
-           <input
-           placeholder="Filtre su búsqueda"
-           aria-label="Search"
-           ng-model="filterInput"
-           style="color:white; padding-left:25px; margin-right:5px; font-size:16px">
-           <md-tooltip md-direction="right">Puede buscar por nombre, acción o fecha</md-tooltip>
+        <!-- Show only on width >= 600px screen -->
+        <md-input-container
+            hide show-gt-xs
+            md-no-float class="md-accent"
+            flex-offset="25"
+            style="padding-bottom:0px">
+            <md-icon style="color:white" class="material-icons">&#xE8B6;</md-icon>
+            <input
+                placeholder="Filtre su búsqueda"
+                aria-label="Search"
+                ng-model="filterInput"
+                style="color:white; padding-left:25px; margin-right:5px; font-size:16px"/>
+                <md-tooltip md-direction="right">Puede buscar por nombre, acción o fecha</md-tooltip>
+        </md-input-container>
+        <!-- Hide on width >= 600px screen -->
+        <md-input-container
+            hide-gt-xs
+            md-no-float class="md-accent"
+            style="padding-bottom:0px; margin-top:25px; margin-left:25px;">
+            <md-icon style="color:white" class="material-icons">&#xE8B6;</md-icon>
+            <input
+                aria-label="Search"
+                placeholder="Filtre su búsqueda"
+                ng-model="filterInput"
+                style="color:white; padding-left:25px; margin-right:5px; font-size:16px"/>
+                <md-tooltip md-direction="right">Puede buscar por nombre, acción o fecha</md-tooltip>
         </md-input-container>
         <span flex></span>
         <md-button class="md-icon-button" ng-click="null" aria-label="Help">

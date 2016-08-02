@@ -13,6 +13,7 @@
             <div>
                 <md-input-container
                     md-no-float
+                    style="padding-bottom:0px"
                     class="md-accent">
                     <md-select
                         ng-model="idPrefix">
@@ -28,6 +29,7 @@
             <div>
                 <md-input-container
                     md-no-float
+                    style="padding-bottom:0px"
                     class="md-accent">
                    <input
                        placeholder="Ingrese cédula"
@@ -40,7 +42,7 @@
             </div>
         </div>
         <!-- Hide on width >= 600px screen -->
-        <div hide-gt-xs layout style="margin-top:25px;padding-left:10px;">
+        <div hide-gt-xs layout style="margin-top:25px; padding-left:10px;">
             <div>
                 <md-input-container
                     md-no-float
