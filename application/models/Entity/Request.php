@@ -29,6 +29,13 @@ class Request
     private $creationDate;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="comment", type="string", length=255, precision=0, scale=0, nullable=true, unique=false)
+     */
+    private $comment;
+
+    /**
      * @var integer
      *
      * @ORM\Column(name="reunion", type="integer", precision=0, scale=0, nullable=true, unique=false)
@@ -122,6 +129,28 @@ class Request
         return $this->creationDate;
     }
 
+    /**
+     * Set comment
+     *
+     * @param string $comment
+     * @return Request
+     */
+    public function setComment($comment)
+    {
+        $this->comment = $comment;
+
+        return $this;
+    }
+
+    /**
+     * Get comment
+     *
+     * @return string
+     */
+    public function getComment()
+    {
+        return $this->comment;
+    }
     /**
      * Set reunion
      *

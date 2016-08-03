@@ -119,7 +119,7 @@
                     md-whiteframe="4"
                     ng-style="getSidenavHeight()"
                     md-disable-backdrop>
-                    <md-list>
+                    <md-list class="sidenavList">
                         <md-list-item ng-click="loadUserData()">
                             <p class="sidenavTitle">
                                 Datos del afiliado
@@ -161,63 +161,112 @@
             ng-style="getDocumentContainerStyle()">
             <md-card class="documents-card">
                 <md-card-content>
-                    <div class="md-toolbar-tools">
-                        <h2 class="md-headline">Préstamo solicitado el {{requests[selectedReq].creationDate}}</h2>
-                        <span flex></span>
-                        <md-button ng-click="loadHistory()" class="md-icon-button">
-                            <md-tooltip>Historial</md-tooltip>
-                            <md-icon>history</md-icon>
-                        </md-button>
-                        <md-button
-                            ng-if="requests[selectedReq].status == 'Recibida'"
-                            ng-click="openEditRequestDialog($event)"
-                            class="md-icon-button">
-                            <md-tooltip>Editar solicitud</md-tooltip>
-                            <md-icon>edit</md-icon>
-                        </md-button>
-                        <md-button
-                            class="md-icon-button"
-                            ng-click="downloadAll()">
-                            <md-icon>cloud_download</md-icon>
-                            <md-tooltip>Descargar todos los archivos</md-tooltip>
-                        </md-button>
-                        <md-button ng-click="deleteRequest($event)" class="md-icon-button">
-                            <md-tooltip>Eliminar solicitud</md-tooltip>
-                            <md-icon>delete</md-icon>
-                        </md-icon-button>
-                    </div>
                     <md-list>
-                        <md-list-item class="md-3-line"class="noright">
+                        <md-list-item class="md-3-line" class="noright">
+                            <div class="md-list-item-text request-details-wrapper" layout="column">
+                                <h3 class="request-details-title">
+                                    Préstamo solicitado el {{requests[selectedReq].creationDate}}
+                                </h3>
+                                <h4 ng-if="!requests[selectedReq].approvedAmount">
+                                    Monto solicitado: Bs {{requests[selectedReq].reqAmount | number:2}}
+                                </h4>
+                                <p ng-if="requests[selectedReq].approvedAmount">
+                                    Monto aprobado: Bs {{requests[selectedReq].approvedAmount | number:2}}
+                                </p>
+                            </div>
+                            <!-- Show only when screen width >= 960px -->
+                            <div hide show-gt-sm class="md-secondary">
+                                <md-button ng-click="loadHistory()" class="md-icon-button">
+                                    <md-icon>history</md-icon>
+                                    <md-tooltip>Historial</md-tooltip>
+                                </md-button>
+                                <md-button
+                                    class="md-icon-button"
+                                    ng-if="requests[selectedReq].status == 'Recibida'"
+                                    ng-click="openEditRequestDialog($event)">
+                                    <md-icon>edit</md-icon>
+                                    <md-tooltip>Editar solicitud</md-tooltip>
+                                </md-button>
+                                <md-button ng-click="downloadAll()" class="md-icon-button">
+                                    <md-icon>cloud_download</md-icon>
+                                    <md-tooltip>Descargar todo</md-tooltip>
+                                </md-button>
+                                <md-button ng-click="deleteRequest($event)" class="md-icon-button">
+                                    <md-icon>delete</md-icon>
+                                    <md-tooltip>Eliminar solicitud</md-tooltip>
+                                </md-button>
+                            </div>
+                            <!-- Show when screen width < 960px -->
+                            <md-menu hide-gt-sm class="md-secondary">
+                               <md-button ng-click="$mdOpenMenu($event)" class="md-icon-button" aria-label="More">
+                                   <md-icon>more_vert</md-icon>
+                               </md-button>
+                               <md-menu-content>
+                                   <md-menu-item>
+                                       <md-button ng-click="loadHistory()">
+                                           <md-icon>history</md-icon>
+                                           Historial
+                                       </md-button>
+                                   </md-menu-item>
+                                   <md-menu-item>
+                                       <md-button
+                                           ng-if="requests[selectedReq].status == 'Recibida'"
+                                           ng-click="openEditRequestDialog($event)">
+                                           <md-icon>edit</md-icon>
+                                           Editar
+                                       </md-button>
+                                   </md-menu-item>
+                                   <md-menu-item>
+                                       <md-button ng-click="downloadAll()">
+                                           <md-icon>cloud_download</md-icon>
+                                           Descargar todo
+                                       </md-button>
+                                   </md-menu-item>
+                                   <md-menu-item>
+                                       <md-button ng-click="deleteRequest($event)">
+                                           <md-icon>delete</md-icon>
+                                           Eliminar
+                                       </md-icon-button>
+                                   </md-menu-item>
+                               </md-menu-content>
+                           </md-menu>
+                       </md-list-item>
+                        <md-list-item class="md-2-line" class="noright">
                             <md-icon  ng-style="{'font-size':'36px'}">info_outline</md-icon>
                             <div class="md-list-item-text" layout="column">
                                <h3>Estado de la solicitud: {{requests[selectedReq].status}}</h3>
                                <h4 ng-if="requests[selectedReq].reunion">Reunión &#8470; {{requests[selectedReq].reunion}}</h4>
-                               <p ng-if="!requests[selectedReq].approvedAmount">
-                                   Monto solicitado: Bs {{requests[selectedReq].reqAmount | number:2}}
-                               </p>
-                               <p ng-if="requests[selectedReq].approvedAmount">
-                                   Monto solicitado: Bs {{requests[selectedReq].reqAmount | number:2}} /
-                                   Monto aprobado: Bs {{requests[selectedReq].approvedAmount | number:2}}
+                               <p>
+                                   {{requests[selectedReq].comment}}
                                </p>
                              </div>
                         </md-list-item>
-
                         <md-divider></md-divider>
                         <div ng-repeat="(dKey, doc) in docs">
                             <md-list-item
                                 class="md-2-line"
                                 ng-click="downloadDoc(doc)"
                                 class="noright">
-                                <md-icon ng-if="!$first" ng-style="{'color':'#2196F3', 'font-size':'36px'}">insert_drive_file</md-icon>
-                                <md-icon ng-if="$first" ng-style="{'color':'#2196F3', 'font-size':'36px'}">perm_identity</md-icon>
+                                <md-icon
+                                    ng-if="doc.name !='Identidad'"
+                                    ng-style="{'color':'#2196F3', 'font-size':'36px'}">
+                                    insert_drive_file
+                                </md-icon>
+                                <md-icon
+                                    ng-if="doc.name=='Identidad'"
+                                    ng-style="{'color':'#2196F3', 'font-size':'36px'}">
+                                    perm_identity
+                                </md-icon>
                                 <div class="md-list-item-text" layout="column">
                                    <h3>{{doc.name}}</h3>
                                    <p>{{doc.description}}</p>
                                  </div>
-                                 <md-button ng-if="dKey <= 1" ng-click="downloadDoc(doc)" class="md-icon-button">
-                                     <md-icon>file_download</md-icon>
+                                 <md-button
+                                    ng-if="doc.name =='Identidad' || doc.name == 'Solicitud'"
+                                    class="md-secondary md-icon-button">
+                                    <md-icon>file_download</md-icon>
                                  </md-button>
-                                 <md-menu ng-if="dKey > 1" class="md-secondary">
+                                 <md-menu ng-if="doc.name !='Identidad' && doc.name != 'Solicitud'" class="md-secondary">
                                     <md-button ng-click="$mdOpenMenu($event)" class="md-icon-button" aria-label="More">
                                         <md-icon>more_vert</md-icon>
                                     </md-button>
@@ -269,7 +318,9 @@
 <footer>
     <div layout layout-align="space-around center">
         <span>&copy; IPAPEDI 2016</span>
-        <span>Desarrollado por <a class="md-accent" href="https://ve.linkedin.com/in/kristopherch" target="_blank">Kristopher Perdomo</a></span>
+        <span>
+            Desarrollado por <a class="md-accent" href="https://ve.linkedin.com/in/kristopherch" target="_blank">Kristopher Perdomo</a>
+        </span>
         <md-button class="md-accent" href="http://www.ipapedi.com" target="_blank">IPAPEDI</md-button>
     </div>
 </footer>

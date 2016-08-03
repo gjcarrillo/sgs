@@ -33,7 +33,7 @@
                     md-whiteframe="4"
                     ng-style="getSidenavHeight()"
                     md-disable-backdrop>
-                    <md-list>
+                    <md-list class="sidenavList">
                         <md-list-item ng-click="toggleList()">
                             <p class="sidenavTitle">
                                 Préstamos Personales
@@ -70,28 +70,31 @@
             ng-style="getDocumentContainerStyle()">
             <md-card class="documents-card">
                 <md-card-content>
-                    <div class="md-toolbar-tools">
-                        <h2 class="md-headline">Préstamo solicitado el {{requests[selectedReq].creationDate}}</h2>
-                        <span flex></span>
-                        <md-button
-                            class="md-icon-button"
-                            ng-click="downloadAll()">
-                            <md-icon>cloud_download</md-icon>
-                            <md-tooltip>Descargar todos los archivos</md-tooltip>
-                        </md-button>
-                    </div>
                     <md-list>
-                        <md-list-item class="md-3-line"class="noright">
+                        <md-list-item class="md-3-line" class="noright">
+                            <div class="md-list-item-text request-details-wrapper" layout="column">
+                                <h3 class="request-details-title">
+                                    Préstamo solicitado el {{requests[selectedReq].creationDate}}
+                                </h3>
+                                <h4 ng-if="!requests[selectedReq].approvedAmount">
+                                    Monto solicitado: Bs {{requests[selectedReq].reqAmount | number:2}}
+                                </h4>
+                                <p ng-if="requests[selectedReq].approvedAmount">
+                                    Monto aprobado: Bs {{requests[selectedReq].approvedAmount | number:2}}
+                                </p>
+                            </div>
+                            <md-button ng-click="downloadAll()" class="md-icon-button md-secondary">
+                                <md-icon>cloud_download</md-icon>
+                                <md-tooltip>Descargar todo</md-tooltip>
+                            </md-button>
+                       </md-list-item>
+                        <md-list-item class="md-2-line" class="noright">
                             <md-icon  ng-style="{'font-size':'36px'}">info_outline</md-icon>
                             <div class="md-list-item-text" layout="column">
                                <h3>Estado de la solicitud: {{requests[selectedReq].status}}</h3>
                                <h4 ng-if="requests[selectedReq].reunion">Reunión &#8470; {{requests[selectedReq].reunion}}</h4>
-                               <p ng-if="!requests[selectedReq].approvedAmount">
-                                   Monto solicitado: Bs {{requests[selectedReq].reqAmount | number:2}}
-                               </p>
-                               <p ng-if="requests[selectedReq].approvedAmount">
-                                   Monto solicitado: Bs {{requests[selectedReq].reqAmount | number:2}} /
-                                   Monto aprobado: Bs {{requests[selectedReq].approvedAmount | number:2}}
+                               <p>
+                                   {{requests[selectedReq].comment}}
                                </p>
                              </div>
                         </md-list-item>
@@ -101,13 +104,23 @@
                                 class="md-2-line"
                                 ng-click="downloadDoc(doc)"
                                 class="noright">
-                                <md-icon ng-if="!$first" ng-style="{'color':'#2196F3', 'font-size':'36px'}">insert_drive_file</md-icon>
-                                <md-icon ng-if="$first" ng-style="{'color':'#2196F3', 'font-size':'36px'}">perm_identity</md-icon>                                <div class="md-list-item-text" layout="column">
+                                <md-icon
+                                    ng-if="doc.name !='Identidad'"
+                                    ng-style="{'color':'#2196F3', 'font-size':'36px'}">
+                                    insert_drive_file
+                                </md-icon>
+                                <md-icon
+                                    ng-if="doc.name=='Identidad'"
+                                    ng-style="{'color':'#2196F3', 'font-size':'36px'}">
+                                    perm_identity
+                                </md-icon>                              <div class="md-list-item-text" layout="column">
                                    <h3>{{doc.name}}</h3>
                                    <p>{{doc.description}}</p>
                                  </div>
-                                 <md-icon>file_download</md-icon>
-                            </md-list-item>
+                                 <md-button
+                                    class="md-secondary md-icon-button">
+                                    <md-icon>file_download</md-icon>
+                                 </md-button>                            </md-list-item>
                             <md-divider ng-if="!$last" md-inset></md-divider>
                         </div>
                     </md-list>

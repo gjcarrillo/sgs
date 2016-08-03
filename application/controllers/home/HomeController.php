@@ -39,6 +39,7 @@ class HomeController extends CI_Controller {
 					foreach ($requests as $rKey => $request) {
 						$result['requests'][$rKey]['id'] = $request->getId();
 						$result['requests'][$rKey]['creationDate'] = $request->getCreationDate()->format('d/m/y');
+						$result['requests'][$rKey]['comment'] = $request->getComment();
 						$result['requests'][$rKey]['reqAmount'] = $request->getRequestedAmount();
 						$result['requests'][$rKey]['approvedAmount'] = $request->getApprovedAmount();
 						$result['requests'][$rKey]['reunion'] = $request->getReunion();

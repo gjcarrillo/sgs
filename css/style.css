@@ -58,6 +58,16 @@ footer {
     opacity:0.3;
 }
 
+.request-details-title {
+    font-weight: 400 !important;
+    font-size: 20px !important;
+    letter-spacing: .005em !important;
+}
+
+.request-details-wrapper {
+    padding-left: 16px !important;
+}
+
 a {
   text-decoration: none;
   color: #8F731F;
@@ -74,6 +84,10 @@ md-list .md-button {
 
 .requestItems {
     padding-left:25px;
+}
+
+.sidenavList {
+    padding-top:0px;
 }
 
 .sidenavTitle {

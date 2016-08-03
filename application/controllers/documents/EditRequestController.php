@@ -24,66 +24,6 @@ class EditRequestController extends CI_Controller {
 		}
 	}
 
-	// public function updateRequest() {
-	// 	if ($_SESSION['type'] != 1) {
-	// 		$this->load->view('errors/index.html');
-	// 	} else {
-	// 		try {
-	// 			$em = $this->doctrine->em;
-	// 			// Update request
-	// 			$request = $em->find('\Entity\Request', $_GET['id']);
-	// 			if ($request->getStatusByText() !== $_GET['status'] ||
-	// 				(isset($_GET['comment']) && $request->getComment() !== $_GET['comment']) ||
-	// 				$_GET['docsAdded'] === "true") {
-	// 				// Register History
-	// 				$history = new \Entity\History();
-	// 				$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
-	// 				$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
-	// 				// 3 = Modification
-	// 				$history->setTitle(3);
-	// 				$history->setOrigin($request);
-	// 				$request->addHistory($history);
-	// 				// Register it's corresponding actions
-	// 				if ($request->getStatusByText() !== $_GET['status']) {
-	// 					$action = new \Entity\HistoryAction();
-	// 					$action->setSummary("Cambio en el estado de la solicitud.");
-	// 					$action->setDetail("Nuevo estado: " . $_GET['status']);
-	// 					$action->setBelongingHistory($history);
-	// 					$history->addAction($action);
-	// 					$em->persist($action);
-	// 				}
-	// 				if (isset($_GET['comment']) && $request->getComment() !== $_GET['comment']) {
-	// 					$action = new \Entity\HistoryAction();
-	// 					$action->setSummary("Comentario acerca de la solicitud.");
-	// 					$action->setDetail("Comentario realizado: " . $_GET['comment']);
-	// 					$action->setBelongingHistory($history);
-	// 					$history->addAction($action);
-	// 					$em->persist($action);
-	// 				}
-	// 				$em->persist($history);
-	// 			}
-	//
-	// 			$request->setStatusByText($_GET['status']);
-	// 			if (isset($_GET['comment'])) {
-	// 				$request->setComment($_GET['comment']);
-	// 			}
-	// 			$em->merge($request);
-	// 			$em->flush();
-	// 			if (isset($history)) {
-	// 				// Must do it after flushing, so we can get
-	// 				// the database-generated id
-	// 				$result['historyId'] = $history->getId();
-	// 			}
-	// 			$result['message'] = "success";
-	// 		} catch (Exception $e) {
-	// 			\ChromePhp::log($e);
-	// 			$result['message'] = "error";
-	// 		}
-	//
-	// 		echo json_encode($result);
-	// 	}
-	// }
-
 	public function updateRequest() {
 		if ($_SESSION['type'] != 1) {
 			$this->load->view('errors/index.html');
@@ -92,22 +32,53 @@ class EditRequestController extends CI_Controller {
 				$em = $this->doctrine->em;
 				// Update request
 				$request = $em->find('\Entity\Request', $_GET['id']);
-				// Register History
-				$history = new \Entity\History();
-				$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
-				$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
-				// 2 = Addition
-				$history->setTitle(2);
-				$history->setOrigin($request);
-				$request->addHistory($history);
-				// No actions for now -- documents will be added later
-				$em->persist($history);
+				// // Register History
+				if (isset($_GET['status']) && $request->getStatusByText() !== $_GET['status'] ||
+					(isset($_GET['comment']) && $request->getComment() !== $_GET['comment']) ||
+					$_GET['docsAdded'] === "true") {
+					// Register History
+					$history = new \Entity\History();
+					$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
+					$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
+					// 2 = Addition (in case edition was only documents addition)
+					$history->setTitle(2);
+					$history->setOrigin($request);
+					$request->addHistory($history);
+					// Register it's corresponding actions
+					if (isset($_GET['status']) && $request->getStatusByText() !== $_GET['status']) {
+						// 3 = Modification
+						$history->setTitle(3);
+						$action = new \Entity\HistoryAction();
+						$action->setSummary("Cambio en el estado de la solicitud.");
+						$action->setDetail("Nuevo estado: " . $_GET['status']);
+						$action->setBelongingHistory($history);
+						$history->addAction($action);
+						$em->persist($action);
+					}
+					if (isset($_GET['comment']) && $request->getComment() !== $_GET['comment']) {
+						// 3 = Modification
+						$history->setTitle(3);
+						$action = new \Entity\HistoryAction();
+						$action->setSummary("Comentario acerca de la solicitud.");
+						$action->setDetail("Comentario realizado: " . $_GET['comment']);
+						$action->setBelongingHistory($history);
+						$history->addAction($action);
+						$em->persist($action);
+					}
+					$em->persist($history);
+				}
 
+				$request->setStatusByText($_GET['status']);
+				if (isset($_GET['comment'])) {
+					$request->setComment($_GET['comment']);
+				}
 				$em->merge($request);
 				$em->flush();
-				// Must do it after flushing, so we can get
-				// the database-generated id
-				$result['historyId'] = $history->getId();
+				if (isset($history)) {
+					// Must do it after flushing, so we can get
+					// the database-generated id
+					$result['historyId'] = $history->getId();
+				}
 				$result['message'] = "success";
 			} catch (Exception $e) {
 				\ChromePhp::log($e);

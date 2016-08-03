@@ -63,6 +63,18 @@ class Request extends \Entity\Request implements \Doctrine\ORM\Proxy\Proxy
         return parent::getCreationDate();
     }
 
+    public function setComment($comment)
+    {
+        $this->__load();
+        return parent::setComment($comment);
+    }
+
+    public function getComment()
+    {
+        $this->__load();
+        return parent::getComment();
+    }
+
     public function setReunion($reunion)
     {
         $this->__load();
@@ -174,7 +186,7 @@ class Request extends \Entity\Request implements \Doctrine\ORM\Proxy\Proxy
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'creationDate', 'reunion', 'requestedAmount', 'approvedAmount', 'status', 'documents', 'history', 'userOwner');
+        return array('__isInitialized__', 'id', 'creationDate', 'comment', 'reunion', 'requestedAmount', 'approvedAmount', 'status', 'documents', 'history', 'userOwner');
     }
 
     public function __clone()

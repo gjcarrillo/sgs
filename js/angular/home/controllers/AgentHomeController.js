@@ -195,6 +195,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                                             .then(function (response) {
                                                 if (response.data.message === "success") {
                                                     updateContent(response.data.requests, 0);
+                                                    toggleReqList();
                                                     // Close dialog and alert user that operation was successful
                                                     $mdDialog.hide();
                                                     $mdDialog.show(
@@ -327,15 +328,19 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
 
     // Helper function that updates content with new request
     function updateContent(requests, selection) {
-        // Toggle list
-        $scope.showList = false;
         $scope.requests = requests;
         // Automatically select created request
         $scope.selectRequest(selection);
+    }
+
+    function toggleReqList() {
+        // Toggle list
+        $scope.showList = false;
         $timeout(function() {
             // Toggle list
             $scope.showList = true;
         }, 1000);
+
     }
 
     /**
@@ -385,6 +390,11 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                 }, 300);
             };
 
+            $scope.allFieldsMissing = function() {
+                return $scope.files.length == 0 &&
+                    (typeof $scope.request.comment == "undefined" || $scope.request.comment == "");
+            };
+
             $scope.showError = function(error, param) {
                 if (error === "pattern") {
                     return "Archivo no aceptado. Por favor seleccione sólo documentos.";
@@ -402,7 +412,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
             // Creates new request in database and uploads documents
             $scope.updateRequest = function() {
                 $scope.uploading = true;
-                // $scope.request.docsAdded = $scope.files.length > 0;
+                $scope.request.docsAdded = $scope.files.length > 0;
                 $http.get('index.php/documents/EditRequestController/updateRequest', {params:$scope.request})
                     .then(function (response) {
                         console.log(response.data);
@@ -557,6 +567,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                                     if (response.data.message === "success") {
                                         // Update content
                                         updateContent(response.data.requests, -1);
+                                        toggleReqList();
                                     }
                                 });
                                 $mdDialog.show(
