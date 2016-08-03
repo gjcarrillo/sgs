@@ -154,57 +154,63 @@
                 <div layout layout-padding>
                     <div flex="30">
                         <span class="md-title" style="font-size:16px">Sueldo</span>
-                        <p>{{userData.sueldo}}</p>
+                        <p>Bs {{userData.sueldo | number:2}}</p>
                     </div>
                     <div flex="30" flex-offset="5">
                         <span class="md-title" style="font-size:16px">Dependencia</span>
-                        <p>{{userData.dependencia}}</p>
+                        <p>Bs {{userData.dependencia | number:2}}</p>
                     </div>
                     <div flex="30" flex-offset="5">
                         <span class="md-title" style="font-size:16px">Fianzas</span>
-                        <p>{{userData.fianzas}}</p>
+                        <p>Bs {{userData.fianzas | number:2}}</p>
                     </div>
                 </div>
                 <div layout layout-padding>
                     <div flex="30">
                         <span class="md-title" style="font-size:16px">Aporte</span>
-                        <p>{{userData.pcj_aporte}}</p>
+                        <p>{{userData.pcj_aporte}}%</p>
                     </div>
                     <div flex="30" flex-offset="5">
                         <span class="md-title" style="font-size:16px">Concurrencia</span>
-                        <p>{{userData.concurrencia}}</p>
+                        <p ng-if="userData.concurrencia <= 15" style="color:green"><b>{{userData.concurrencia}}%</b></p>
+                        <p
+                            ng-if="userData.concurrencia > 15 && userData.concurrencia <= 35"
+                            style="color:orange">
+                            <b>{{userData.concurrencia}}%</b>
+                        </p>
+                        <p ng-if="userData.concurrencia > 35" style="color:red"><b>{{userData.concurrencia}}%</b></p>
                     </div>
                     <div flex="30" flex-offset="5">
                         <span class="md-title" style="font-size:16px">Carga EGS</span>
-                        <p>{{userData.carga_egs}}</p>
+                        <p>{{userData.carga_egs}}%</p>
                     </div>
                 </div>
                 <div layout layout-padding>
                     <div flex="30">
                         <span class="md-title" style="font-size:16px">Carga EMI</span>
-                        <p>{{userData.carga_emi}}</p>
+                        <p>{{userData.carga_emi}}%</p>
                     </div>
                     <div flex="30" flex-offset="5">
                         <span class="md-title" style="font-size:16px">Carga GMM</span>
-                        <p>{{userData.carga_gmm}}</p>
+                        <p>{{userData.carga_gmm}}%</p>
                     </div>
                     <div flex="30" flex-offset="5">
                         <span class="md-title" style="font-size:16px">Carga GMS</span>
-                        <p>{{userData.carga_gms}}</p>
+                        <p>{{userData.carga_gms}}%</p>
                     </div>
                 </div>
                 <div layout layout-padding>
                     <div flex="30">
                         <span class="md-title" style="font-size:16px">Carga HCM</span>
-                        <p>{{userData.carga_hcm}}</p>
+                        <p>{{userData.carga_hcm}}%</p>
                     </div>
                     <div flex="30" flex-offset="5">
                         <span class="md-title" style="font-size:16px">Carga SEM</span>
-                        <p>{{userData.carga_sem}}</p>
+                        <p>{{userData.carga_sem}}%</p>
                     </div>
                     <div flex="30" flex-offset="5">
                         <span class="md-title" style="font-size:16px">Carga SF</span>
-                        <p>{{userData.carga_sf}}</p>
+                        <p>{{userData.carga_sf}}%</p>
                     </div>
                 </div>
             </md-card-content>

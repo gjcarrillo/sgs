@@ -133,6 +133,9 @@ sgdp.run(['$rootScope', '$location','$state','auth', '$cookies', '$http',
         case '/history':
             // check for agent rights
             return userType == 1;
+        case '/userInfo':
+            // check for agent rights
+            return userType == 1;
       }
       //  Going to login (.otherwise('login')), so keep going!
       return true;
