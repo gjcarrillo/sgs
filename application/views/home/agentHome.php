@@ -111,7 +111,7 @@
     <div ng-hide="requests.length == 0" layout="row">
         <!-- Requests list -->
         <md-content style="background-color: #F5F5F5" ng-style="getSidenavHeight()" flex="30">
-            <div layout="column" layout-fill flex>
+            <div layout="column">
                 <md-sidenav
                     class="md-sidenav-left"
                     md-component-id="left"
@@ -120,19 +120,19 @@
                     ng-style="getSidenavHeight()"
                     md-disable-backdrop>
                     <md-list>
-                        <div class="md-toolbar-tools">
-                            <md-button class="md-primary" ng-click="loadUserData()" flex>Datos del afiliado</md-button>
-                        </div>
+                        <md-list-item ng-click="loadUserData()">
+                            <p class="sidenavTitle">
+                                Datos del afiliado
+                            </p>
+                        </md-list-item>
                         <md-divider></md-divider>
-                        <div class="md-toolbar-tools">
-                            <md-button class="md-primary" flex ng-click="toggleList()">
-                                Lista de solicitudes
-                            </md-button>
-                            <md-button aria-label="Request list" ng-click="toggleList()" class="md-icon-button">
-                                <md-icon ng-if="!showList">keyboard_arrow_down</md-icon>
-                                <md-icon ng-if="showList">keyboard_arrow_up</md-icon>
-                            </md-button>
-                        </div>
+                        <md-list-item ng-click="toggleList()">
+                            <p class="sidenavTitle">
+                                Préstamos Personales
+                            </p>
+                            <md-icon ng-class="md-secondary" ng-if="!showList">keyboard_arrow_down</md-icon>
+                            <md-icon ng-class="md-secondary" ng-if="showList">keyboard_arrow_up</md-icon>
+                        </md-list-item>
                         <md-divider></md-divider>
                         <div class="slide-toggle" ng-show="showList">
                             <md-list-item

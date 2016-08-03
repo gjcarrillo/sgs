@@ -36,6 +36,11 @@ footer {
     z-index: 2;
 }
 
+.user-info-title {
+    font-size: 16px;
+    line-height: 200%;
+}
+
 .u-overflow-fix {
   overflow:visible;
 }
@@ -69,6 +74,13 @@ md-list .md-button {
 
 .requestItems {
     padding-left:25px;
+}
+
+.sidenavTitle {
+    font-size: 14px;
+    color:#0D47A1;
+    font-weight: 500;
+    text-transform: uppercase;
 }
 
 .slide-toggle {

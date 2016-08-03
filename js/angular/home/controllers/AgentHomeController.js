@@ -18,10 +18,10 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
     var requests = JSON.parse(sessionStorage.getItem("requests"));
     if (requests != null) {
         $scope.requests = requests;
-        $scope.fetchId = sessionStorage.getItem("fetchId").replace('V', '');
+        $scope.fetchId = sessionStorage.getItem("fetchId");
         // fetchId is used for several database queries.
         // that is why we don't use searchInput value, which is bind to search input.
-        $scope.searchInput = $scope.fetchId;
+        $scope.searchInput = $scope.fetchId.replace('V', '');
         $scope.selectedReq = parseInt(sessionStorage.getItem("selectedReq"));
         $scope.docs = $scope.requests[$scope.selectedReq].docs;
         $scope.showList = parseInt(sessionStorage.getItem("showList")) ? true : false;

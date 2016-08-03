@@ -25,7 +25,7 @@
     <div ng-hide="requests.length == 0" layout="row">
         <!-- Requests list -->
         <md-content style="background-color: #F5F5F5" ng-style="getSidenavHeight()" flex="30">
-            <div layout="column" layout-fill flex>
+            <div layout="column">
                 <md-sidenav
                     class="md-sidenav-left"
                     md-component-id="left"
@@ -34,19 +34,26 @@
                     ng-style="getSidenavHeight()"
                     md-disable-backdrop>
                     <md-list>
-                        <div layout layout-align="center">
-                            <md-subheader style="color:#0D47A1">LISTA DE SOLICITUDES</md-subheader>
-                        </div>
-                        <md-divider><md-divider>
-                        <md-list-item
-                            ng-repeat="(rKey, request) in requests">
-                            <md-button
-                                flex
-                                ng-click="selectRequest(rKey)"
-                                ng-class="{'md-primary md-raised' : selectedReq === rKey }">
-                                Solicitud ID &#8470; {{pad(request.id, 6)}}
-                            </md-button>
+                        <md-list-item ng-click="toggleList()">
+                            <p class="sidenavTitle">
+                                Préstamos Personales
+                            </p>
+                            <md-icon ng-class="md-secondary" ng-if="!showList">keyboard_arrow_down</md-icon>
+                            <md-icon ng-class="md-secondary" ng-if="showList">keyboard_arrow_up</md-icon>
                         </md-list-item>
+                        <md-divider></md-divider>
+                        <div class="slide-toggle" ng-show="showList">
+                            <md-list-item
+                                ng-repeat="(rKey, request) in requests">
+                                <md-button
+                                    flex
+                                    ng-click="selectRequest(rKey)"
+                                    class="requestItems"
+                                    ng-class="{'md-primary md-raised' : selectedReq === rKey }">
+                                    Solicitud ID &#8470; {{pad(request.id, 6)}}
+                                </md-button>
+                            </md-list-item>
+                        </div>
                     </md-list>
                 </md-sidenav>
             </div>
@@ -99,9 +106,7 @@
                                    <h3>{{doc.name}}</h3>
                                    <p>{{doc.description}}</p>
                                  </div>
-                                 <md-button class="md-secondary md-icon-button" ng-click="downloadDoc(doc)">
-                                     <md-icon>file_download</md-icon>
-                                 </md-button>
+                                 <md-icon>file_download</md-icon>
                             </md-list-item>
                             <md-divider ng-if="!$last" md-inset></md-divider>
                         </div>

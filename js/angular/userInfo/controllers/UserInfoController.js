@@ -22,4 +22,14 @@ function info($scope, $rootScope, $http) {
             }
             $scope.loading = false;
         });
+
+    $scope.getConcurranceWarn = function() {
+        if ($scope.userData.concurrencia < 15) {
+            return {'color':'green'};
+        } else if ($scope.userData.concurrencia >= 15 && $scope.userData.concurrencia < 35) {
+            return {'color':'orange'};
+        } else {
+            return {'color':'red'};
+        }
+    }
 }

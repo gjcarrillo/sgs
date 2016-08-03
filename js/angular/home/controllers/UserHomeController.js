@@ -10,6 +10,7 @@ function userHome($scope, $rootScope, $http, $cookies) {
     $scope.selectedReq = -1;
     $scope.requests = [];
     $scope.docs = [];
+    $scope.showList = false;
 
     var fetchId = $cookies.getObject('session').id;
     $http.get('index.php/home/HomeController/getUserRequests', {params:{fetchId:fetchId}})
@@ -21,6 +22,10 @@ function userHome($scope, $rootScope, $http, $cookies) {
             }
             $scope.loading = false;
         });
+
+    $scope.toggleList = function() {
+        $scope.showList = !$scope.showList;
+    };
 
     $scope.getSidenavHeight = function() {
         return {

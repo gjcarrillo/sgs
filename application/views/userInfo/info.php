@@ -34,183 +34,248 @@
             </md-card-header>
             <md-divider></md-divider>
             <md-progress-linear md-mode="query" ng-if="loading"></md-progress-linear>
-            <!-- <md-card-content>
-                <div layout>
-                    <div flex="30">
-                        <md-input-container class="md-block">
-                            <label>Cédula</label>
-                            <input type="text" ng-model="userData.cedula" readonly />
-                        </md-input-container>
-                    </div>
-                    <div flex="30" flex-offset="5">
-                        <md-input-container class="md-block">
-                            <label>Ingreso</label>
-                            <input type="text" ng-model="userData.ingreso" readonly />
-                        </md-input-container>
-                    </div>
-                    <div flex="30" flex-offset="5">
-                        <md-input-container class="md-block">
-                            <label>Estado</label>
-                            <input type="text" ng-model="userData.status" readonly />
-                        </md-input-container>
-                    </div>
-                </div>
-                <div layout>
-                    <div flex="30">
-                        <md-input-container class="md-block">
-                            <label>Sueldo</label>
-                            <input type="text" ng-model="userData.sueldo" readonly />
-                        </md-input-container>
-                    </div>
-                    <div flex="30" flex-offset="5">
-                        <md-input-container class="md-block">
-                            <label>Dependencia</label>
-                            <input type="text" ng-model="userData.dependencia" readonly />
-                        </md-input-container>
-                    </div>
-                    <div flex="30" flex-offset="5">
-                        <md-input-container class="md-block">
-                            <label>Fianzas</label>
-                            <input type="text" ng-model="userData.fianzas" readonly />
-                        </md-input-container>
-                    </div>
-                </div>
-                <div layout>
-                    <div flex="30">
-                        <md-input-container class="md-block">
-                            <label>Aporte</label>
-                            <input type="text" ng-model="userData.pcj_aporte" readonly />
-                        </md-input-container>
-                    </div>
-                    <div flex="30" flex-offset="5">
-                        <md-input-container class="md-block">
-                            <label>Concurrencia</label>
-                            <input type="text" ng-model="userData.concurrencia" readonly />
-                        </md-input-container>
-                    </div>
-                    <div flex="30" flex-offset="5">
-                        <md-input-container class="md-block">
-                            <label>Carga EGS</label>
-                            <input type="text" ng-model="userData.carga_egs" readonly />
-                        </md-input-container>
-                    </div>
-                </div>
-                <div layout>
-                    <div flex="30">
-                        <md-input-container class="md-block">
-                            <label>Carga EMI</label>
-                            <input type="text" ng-model="userData.carga_emi" readonly />
-                        </md-input-container>
-                    </div>
-                    <div flex="30" flex-offset="5">
-                        <md-input-container class="md-block">
-                            <label>Carga GMM</label>
-                            <input type="text" ng-model="userData.carga_gmm" readonly />
-                        </md-input-container>
-                    </div>
-                    <div flex="30" flex-offset="5">
-                        <md-input-container class="md-block">
-                            <label>Carga GMS</label>
-                            <input type="text" ng-model="userData.carga_gms" readonly />
-                        </md-input-container>
-                    </div>
-                </div>
-                <div layout>
-                    <div flex="30">
-                        <md-input-container class="md-block">
-                            <label>Carga HCM</label>
-                            <input type="text" ng-model="userData.carga_hcm" readonly />
-                        </md-input-container>
-                    </div>
-                    <div flex="30" flex-offset="5">
-                        <md-input-container class="md-block">
-                            <label>Carga SEM</label>
-                            <input type="text" ng-model="userData.carga_sem" readonly />
-                        </md-input-container>
-                    </div>
-                    <div flex="30" flex-offset="5">
-                        <md-input-container class="md-block">
-                            <label>Carga SF</label>
-                            <input type="text" ng-model="userData.carga_sf" readonly />
-                        </md-input-container>
-                    </div>
-                </div>
-            </md-card-content> -->
-            <md-card-content ng-if="!loading">
+            <!-- Show only on width >= 960 screen  -->
+            <md-card-content hide show-gt-sm ng-if="!loading">
                 <div layout layout-padding>
                     <div flex="30">
-                        <span class="md-title" style="font-size:16px">Cédula</span>
-                        <p>{{userData.cedula}}</p>
+                        <span class="md-title user-info-title">Cédula</span>
+                        <br/><span>{{userData.cedula}}</span>
                     </div>
                     <div flex="30" flex-offset="5">
-                        <span class="md-title" style="font-size:16px">Ingreso</span>
-                        <p>{{userData.ingreso}}</p>
+                        <span class="md-title user-info-title">Ingreso</span>
+                        <br/><span>{{userData.ingreso}}</span>
                     </div>
                     <div flex="30" flex-offset="5">
-                        <span class="md-title" style="font-size:16px">Estado</span>
-                        <p>{{userData.status}}</p>
+                        <span class="md-title user-info-title">Estado</span>
+                        <br/><span>{{userData.status}}</span>
                     </div>
                 </div>
                 <div layout layout-padding>
                     <div flex="30">
-                        <span class="md-title" style="font-size:16px">Sueldo</span>
-                        <p>Bs {{userData.sueldo | number:2}}</p>
+                        <span class="md-title user-info-title">Sueldo</span>
+                        <br/><span>Bs {{userData.sueldo | number:2}}</span>
                     </div>
                     <div flex="30" flex-offset="5">
-                        <span class="md-title" style="font-size:16px">Dependencia</span>
-                        <p>Bs {{userData.dependencia | number:2}}</p>
+                        <span class="md-title user-info-title">Dependencia</span>
+                        <br/><span>Bs {{userData.dependencia | number:2}}</span>
                     </div>
                     <div flex="30" flex-offset="5">
-                        <span class="md-title" style="font-size:16px">Fianzas</span>
-                        <p>Bs {{userData.fianzas | number:2}}</p>
+                        <span class="md-title user-info-title">Fianzas</span>
+                        <br/><span>Bs {{userData.fianzas | number:2}}</span>
                     </div>
                 </div>
                 <div layout layout-padding>
                     <div flex="30">
-                        <span class="md-title" style="font-size:16px">Aporte</span>
-                        <p>{{userData.pcj_aporte}}%</p>
+                        <span class="md-title user-info-title">Aporte</span>
+                        <br/><span>{{userData.pcj_aporte}}%</span>
                     </div>
                     <div flex="30" flex-offset="5">
-                        <span class="md-title" style="font-size:16px">Concurrencia</span>
-                        <p ng-if="userData.concurrencia <= 15" style="color:green"><b>{{userData.concurrencia}}%</b></p>
-                        <p
-                            ng-if="userData.concurrencia > 15 && userData.concurrencia <= 35"
-                            style="color:orange">
-                            <b>{{userData.concurrencia}}%</b>
-                        </p>
-                        <p ng-if="userData.concurrencia > 35" style="color:red"><b>{{userData.concurrencia}}%</b></p>
+                        <span class="md-title user-info-title">Concurrencia</span>
+                        <br/><span ng-style="getConcurranceWarn()"><b>{{userData.concurrencia}}%</b></span>
                     </div>
                     <div flex="30" flex-offset="5">
-                        <span class="md-title" style="font-size:16px">Carga EGS</span>
-                        <p>{{userData.carga_egs}}%</p>
+                        <span class="md-title user-info-title">Carga EGS</span>
+                        <br/><span>{{userData.carga_egs}}%</span>
                     </div>
                 </div>
                 <div layout layout-padding>
                     <div flex="30">
-                        <span class="md-title" style="font-size:16px">Carga EMI</span>
-                        <p>{{userData.carga_emi}}%</p>
+                        <span class="md-title user-info-title">Carga EMI</span>
+                        <br/><span>{{userData.carga_emi}}%</span>
                     </div>
                     <div flex="30" flex-offset="5">
-                        <span class="md-title" style="font-size:16px">Carga GMM</span>
-                        <p>{{userData.carga_gmm}}%</p>
+                        <span class="md-title user-info-title">Carga GMM</span>
+                        <br/><span>{{userData.carga_gmm}}%</span>
                     </div>
                     <div flex="30" flex-offset="5">
-                        <span class="md-title" style="font-size:16px">Carga GMS</span>
-                        <p>{{userData.carga_gms}}%</p>
+                        <span class="md-title user-info-title">Carga GMS</span>
+                        <br/><span>{{userData.carga_gms}}%</span>
                     </div>
                 </div>
                 <div layout layout-padding>
                     <div flex="30">
-                        <span class="md-title" style="font-size:16px">Carga HCM</span>
-                        <p>{{userData.carga_hcm}}%</p>
+                        <span class="md-title user-info-title">Carga HCM</span>
+                        <br/><span>{{userData.carga_hcm}}%</span>
                     </div>
                     <div flex="30" flex-offset="5">
-                        <span class="md-title" style="font-size:16px">Carga SEM</span>
-                        <p>{{userData.carga_sem}}%</p>
+                        <span class="md-title user-info-title">Carga SEM</span>
+                        <br/><span>{{userData.carga_sem}}%</span>
                     </div>
                     <div flex="30" flex-offset="5">
-                        <span class="md-title" style="font-size:16px">Carga SF</span>
-                        <p>{{userData.carga_sf}}%</p>
+                        <span class="md-title user-info-title">Carga SF</span>
+                        <br/><span>{{userData.carga_sf}}%</span>
+                    </div>
+                </div>
+            </md-card-content>
+            <!-- Show only on 600px <= width < 960px screen  -->
+            <md-card-content hide show-sm ng-if="!loading">
+                <div layout layout-padding>
+                    <div flex="45">
+                        <span class="md-title user-info-title">Cédula</span>
+                        <br/><span>{{userData.cedula}}</span>
+                    </div>
+                    <div flex="45" flex-offset="10">
+                        <span class="md-title user-info-title">Ingreso</span>
+                        <br/><span>{{userData.ingreso}}</span>
+                    </div>
+                </div>
+                <div layout layout-padding>
+                    <div flex="45">
+                        <span class="md-title user-info-title">Estado</span>
+                        <br/><span>{{userData.status}}</span>
+                    </div>
+                    <div flex="45"  flex-offset="10">
+                        <span class="md-title user-info-title">Sueldo</span>
+                        <br/><span>Bs {{userData.sueldo | number:2}}</span>
+                    </div>
+                </div>
+                <div layout layout-padding>
+                    <div flex="45">
+                        <span class="md-title user-info-title">Dependencia</span>
+                        <br/><span>Bs {{userData.dependencia | number:2}}</span>
+                    </div>
+                    <div flex="45" flex-offset="10">
+                        <span class="md-title user-info-title">Fianzas</span>
+                        <br/><span>Bs {{userData.fianzas | number:2}}</span>
+                    </div>
+                </div>
+                <div layout layout-padding>
+                    <div flex="45">
+                        <span class="md-title user-info-title">Aporte</span>
+                        <br/><span>{{userData.pcj_aporte}}%</span>
+                    </div>
+                    <div flex="45" flex-offset="10">
+                        <span class="md-title user-info-title">Concurrencia</span>
+                        <br/><span ng-style="getConcurranceWarn()"><b>{{userData.concurrencia}}%</b></span>
+                    </div>
+                </div>
+                <div layout layout-padding>
+                    <div flex="45">
+                        <span class="md-title user-info-title">Carga EGS</span>
+                        <br/><span>{{userData.carga_egs}}%</span>
+                    </div>
+                    <div flex="45" flex-offset="10">
+                        <span class="md-title user-info-title">Carga EMI</span>
+                        <br/><span>{{userData.carga_emi}}%</span>
+                    </div>
+                </div>
+                <div layout layout-padding>
+                    <div flex="45">
+                        <span class="md-title user-info-title">Carga GMM</span>
+                        <br/><span>{{userData.carga_gmm}}%</span>
+                    </div>
+                    <div flex="45" flex-offset="10">
+                        <span class="md-title user-info-title">Carga GMS</span>
+                        <br/><span>{{userData.carga_gms}}%</span>
+                    </div>
+                </div>
+                <div layout layout-padding>
+                    <div flex="45">
+                        <span class="md-title user-info-title">Carga HCM</span>
+                        <br/><span>{{userData.carga_hcm}}%</span>
+                    </div>
+                    <div flex="45" flex-offset="10">
+                        <span class="md-title user-info-title">Carga SEM</span>
+                        <br/><span>{{userData.carga_sem}}%</span>
+                    </div>
+                </div>
+                <div layout layout-padding>
+                    <div flex>
+                        <span class="md-title user-info-title">Carga SF</span>
+                        <br/><span>{{userData.carga_sf}}%</span>
+                    </div>
+                </div>
+            </md-card-content>
+            <!-- Show only on width < 600px screen  -->
+            <md-card-content hide show-xs ng-if="!loading">
+                <div layout layout-padding>
+                    <div flex="70">
+                        <span class="md-title user-info-title">Cédula</span>
+                        <br/><span>{{userData.cedula}}</span>
+                    </div>
+                </div>
+                <div layout layout-padding>
+                    <div flex>
+                        <span class="md-title user-info-title">Ingreso</span>
+                        <br/><span>{{userData.ingreso}}</span>
+                    </div>
+                </div>
+                <div layout layout-padding>
+                    <div flex>
+                        <span class="md-title user-info-title">Estado</span>
+                        <br/><span>{{userData.status}}</span>
+                    </div>
+                </div>
+                <div layout layout-padding>
+                    <div flex>
+                        <span class="md-title user-info-title">Sueldo</span>
+                        <br/><span>Bs {{userData.sueldo | number:2}}</span>
+                    </div>
+                </div>
+                <div layout layout-padding>
+                    <div flex>
+                        <span class="md-title user-info-title">Dependencia</span>
+                        <br/><span>Bs {{userData.dependencia | number:2}}</span>
+                    </div>
+                </div>
+                <div layout layout-padding>
+                    <div flex>
+                        <span class="md-title user-info-title">Fianzas</span>
+                        <br/><span>Bs {{userData.fianzas | number:2}}</span>
+                    </div>
+                </div>
+                <div layout layout-padding>
+                    <div flex>
+                        <span class="md-title user-info-title">Aporte</span>
+                        <br/><span>{{userData.pcj_aporte}}%</span>
+                    </div>
+                </div>
+                <div layout layout-padding>
+                    <div flex>
+                        <span class="md-title user-info-title">Concurrencia</span>
+                        <br/><span ng-style="getConcurranceWarn()"><b>{{userData.concurrencia}}%</b></span>
+                    </div>
+                </div>
+                <div layout layout-padding>
+                    <div flex>
+                        <span class="md-title user-info-title">Carga EGS</span>
+                        <br/><span>{{userData.carga_egs}}%</span>
+                    </div>
+                </div>
+                <div layout layout-padding>
+                    <div flex>
+                        <span class="md-title user-info-title">Carga EMI</span>
+                        <br/><span>{{userData.carga_emi}}%</span>
+                    </div>
+                </div>
+                <div layout layout-padding>
+                    <div flex>
+                        <span class="md-title user-info-title">Carga GMM</span>
+                        <br/><span>{{userData.carga_gmm}}%</span>
+                    </div>
+                </div>
+                <div layout layout-padding>
+                    <div flex>
+                        <span class="md-title user-info-title">Carga GMS</span>
+                        <br/><span>{{userData.carga_gms}}%</span>
+                    </div>
+                </div>
+                <div layout layout-padding>
+                    <div flex>
+                        <span class="md-title user-info-title">Carga HCM</span>
+                        <br/><span>{{userData.carga_hcm}}%</span>
+                    </div>
+                </div>
+                <div layout layout-padding>
+                    <div flex>
+                        <span class="md-title user-info-title">Carga SEM</span>
+                        <br/><span>{{userData.carga_sem}}%</span>
+                    </div>
+                </div>
+                <div layout layout-padding>
+                    <div flex>
+                        <span class="md-title user-info-title">Carga SF</span>
+                        <br/><span>{{userData.carga_sf}}%</span>
                     </div>
                 </div>
             </md-card-content>
