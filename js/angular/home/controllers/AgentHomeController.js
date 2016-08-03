@@ -140,6 +140,26 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                 $scope.docPicTaken = false;
             };
 
+            $scope.gatherFile = function(file, errFiles) {
+                $scope.file = file;
+                $scope.file.description = "Documento con datos de solicitud";
+                $scope.docPicTaken = true;
+                $scope.errFiles = errFiles;
+            };
+
+            $scope.removeScannedDoc = function() {
+                $scope.docPicTaken = false;
+                $scope.file = null;
+            };
+
+            $scope.showError = function(error, param) {
+                if (error === "pattern") {
+                    return "Archivo no aceptado. Por favor seleccione sólo documentos.";
+                } else if (error === "maxSize") {
+                    return "El archivo es muy grande. Tamaño máximo es: " + param;
+                }
+            };
+
             // Creates new request in database and uploads documents
             $scope.createNewRequest = function() {
                 $scope.uploading = true;
@@ -148,7 +168,11 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                     .then(function (response) {
                         if (response.data.message== "success") {
                             uploadData(1, response.data.requestId, response.data.historyId);
-                            uploadData(2, response.data.requestId, response.data.historyId);
+                            if (!$scope.file) {
+                                uploadData(2, response.data.requestId, response.data.historyId);
+                            } else {
+                                uploadFile($scope.file, response.data.requestId, response.data.historyId);
+                            }
                         }
                     });
             };
@@ -219,6 +243,56 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                     }
                 });
             };
+            // Uploads each of selected documents to the server
+            // and updates database
+            function uploadFile(file, requestId, historyId) {
+                file.upload = Upload.upload({
+                    url: 'index.php/documents/NewRequestController/upload',
+                    data: {file: file, userId: fetchId, requestId: requestId},
+                });
+
+                file.upload.then(function (response) {
+                    file.lpath = response.data.lpath;
+                    file.requestId = requestId;
+                    file.historyId = historyId;
+                    // file.name is not passed through GET. Gotta create new property
+                    file.docName = "Solicitud";
+                    // Doc successfully uploaded. Now create it on database.
+                    console.log(file);
+                    $http.get('index.php/documents/NewRequestController/createDocument', {params:file})
+                        .then(function (response) {
+                            if (response.data.message== "success") {
+                                uploadedFiles++;
+                                if (uploadedFiles == 2) {
+                                    // Update interface
+                                    $http.get('index.php/home/HomeController/getUserRequests', {params:{fetchId:fetchId}})
+                                        .then(function (response) {
+                                            if (response.data.message === "success") {
+                                                updateContent(response.data.requests, 0);
+                                                // Close dialog and alert user that operation was successful
+                                                $mdDialog.hide();
+                                                $mdDialog.show(
+                                                    $mdDialog.alert()
+                                                        .parent(angular.element(document.body))
+                                                        .clickOutsideToClose(true)
+                                                        .title('Solicitud creada')
+                                                        .textContent('La solicitud ha sido creada exitosamente.')
+                                                        .ariaLabel('Successful request creation dialog')
+                                                        .ok('Ok')
+                                                );
+                                            }
+                                        });
+                                }
+                            }
+                        });
+                }, function (response) {
+                    if (response.status > 0)
+                        $scope.errorMsg = response.status + ': ' + response.data;
+                }, function (evt) {
+                    file.progress = Math.min(100, parseInt(100.0 *
+                                       evt.loaded / evt.total));
+                });
+            }
 
             $scope.openIdentityCamera = function(ev) {
                 var parentEl = angular.element(document.body);

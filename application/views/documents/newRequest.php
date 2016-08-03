@@ -24,10 +24,29 @@
                 </md-button>
             </div>
             <div ng-hide="docPicTaken">
-                <md-button ng-click="openDocCamera($event)">
-                    <md-icon>photo_camera</md-icon>
-                    Foto de la solicitud
-                </md-button>
+                <md-menu>
+                   <md-button ng-click="$mdOpenMenu($event)" aria-label="Request doc">
+                       <md-icon>insert_drive_file</md-icon>
+                       Documento de solicitud
+                   </md-button>
+                   <md-menu-content>
+                       <md-menu-item>
+                           <md-button ng-click="openDocCamera($event)">
+                               <md-icon>photo_camera</md-icon>
+                               Tomar foto
+                           </md-button>
+                       </md-menu-item>
+                       <md-menu-item>
+                           <md-button
+                               ngf-select="gatherFile($file, $invalidFiles)"
+                               ngf-pattern="'image/*,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheetapplication/vnd.openxmlformats-officedocument.spreadsheetml.template,,application/pdf,application/msword'"
+                               ngf-max-size="4MB">
+                               <md-icon>file_upload</md-icon>
+                               Subir escaneado
+                           </md-button>
+                       </md-menu-item>
+                   </md-menu-content>
+               </md-menu>
             </div>
         </div>
         <div layout layout-align="center center">
@@ -46,7 +65,7 @@
                     </div>
                 </md-card-content>
             </md-card>
-            <md-card ng-show="docPicTaken">
+            <md-card ng-show="docPicTaken && !file">
                 <md-card-title>
                     <md-card-title-text>
                         <span class="md-headline">Foto de la solicitud</span>
@@ -61,6 +80,27 @@
                     </div>
                 </md-card-content>
             </md-card>
+            <md-card ng-show="docPicTaken && file">
+                <md-card-title>
+                <md-card-title-text>
+                    <span class="md-headline">{{file.name}}</span>
+                    <span class="md-subhead">{{file.description}}</span>
+                </md-card-title-text>
+                </md-card-title>
+                <!-- Add description / Delete doc actions -->
+                <md-card-actions ng-hide="uploading" layout layout-align="end center">
+                    <md-button class="md-icon-button" ng-click="removeScannedDoc()"><md-icon>delete</md-icon></md-button>
+                </md-card-actions>
+                <!-- Uploading progress -->
+                <md-card-actions ng-show="uploading">
+                    <div class="md-padding">
+                        <md-progress-linear md-mode="determinate" value="{{file.progress}}"></md-progress-linear>
+                    </div>
+                </md-card-actions>
+            </md-card>
+        </div>
+        <div ng-repeat="f in errFiles" style="color:red">
+            Error en archivo {{f.name}}: {{showError(f.$error, f.$errorParam)}}
         </div>
     </md-dialog-content>
     <md-dialog-actions>

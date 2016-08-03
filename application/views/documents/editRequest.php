@@ -41,14 +41,14 @@
                    multiple
                    ngf-pattern="'image/*,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheetapplication/vnd.openxmlformats-officedocument.spreadsheetml.template,,application/pdf,application/msword'"
                    ngf-max-size="4MB">
-                   Documentos
+                   Documentos adicionales
                    <md-icon>file_upload</md-icon>
                </md-button>
             </div>
         </div>
         <div layout>
             <!-- Files cards. One card for each file. Allows adding a description or individual removal for each one -->
-            <div layout-align="center center" ng-repeat="(dKey, doc) in files">
+            <div  ng-repeat="(dKey, doc) in files">
                 <md-card>
                     <md-card-title>
                     <md-card-title-text>
@@ -87,11 +87,12 @@
             Error en archivo {{f.name}}: {{showError(f.$error, f.$errorParam)}}
         </div>
     </md-dialog-content>
-    <md-dialog-actions ng-show="!uploading">
-        <md-button ng-disabled="allFieldsMissing()" ng-click="updateRequest()" class="md-primary">
+    <md-dialog-actions>
+        <md-button ng-hide="uploading" ng-disabled="allFieldsMissing()" ng-click="updateRequest()" class="md-primary">
             Actualizar
         </md-button>
-        <md-button ng-click="closeDialog()" class="md-primary">
+        <md-progress-circular ng-show="uploading" md-mode="indeterminate" md-diameter="60"></md-progress-circular>
+        <md-button ng-disabled="uploading" ng-click="closeDialog()" class="md-primary">
             Cancelar
         </md-button>
     </md-dialog-actions>
