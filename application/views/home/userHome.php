@@ -113,7 +113,8 @@
                                     ng-if="doc.name=='Identidad'"
                                     ng-style="{'color':'#2196F3', 'font-size':'36px'}">
                                     perm_identity
-                                </md-icon>                              <div class="md-list-item-text" layout="column">
+                                </md-icon>
+                                <div class="md-list-item-text" layout="column">
                                    <h3>{{doc.name}}</h3>
                                    <p>{{doc.description}}</p>
                                  </div>

@@ -10,7 +10,7 @@ class UserInfoController extends CI_Controller {
     }
 
 	public function index() {
-		if ($_SESSION['type'] != 1) {
+		if ($_SESSION['type'] > 2) {
 			$this->load->view('errors/index.html');
 		} else {
 			$this->load->view('userInfo/info');
@@ -20,7 +20,7 @@ class UserInfoController extends CI_Controller {
 	public function getUserInfo() {
 		$result['message'] = "error";
 
-		if ($_SESSION['type'] != 1) {
+		if ($_SESSION['type'] > 2) {
 			$this->load->view('errors/index.html');
 		} else {
 			$this->db->select('*');

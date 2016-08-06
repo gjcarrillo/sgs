@@ -20,10 +20,19 @@ class HomeController extends CI_Controller {
 			$this->load->view('home/agentHome');
 		}
 	}
+
+	public function manager() {
+		if ($_SESSION['type'] != 2) {
+			$this->load->view('errors/index.html');
+		} else {
+			$this->load->view('home/managerHome');
+		}
+	}
+
 	// Obtain all requests with with all their documents.
 	// NOTICE: sensitive information
 	public function getUserRequests() {
-		if ($_GET['fetchId'] != $_SESSION['id'] && $_SESSION['type'] != 1) {
+		if ($_GET['fetchId'] != $_SESSION['id'] && $_SESSION['type'] > 2) {
 			// if fetch id is not the same as logged in user, must be an agent
 			// to be able to execute query!
 			$this->load->view('errors/index.html');
@@ -107,7 +116,7 @@ class HomeController extends CI_Controller {
 	}
 
 	public function deleteRequest() {
-		if ($_SESSION['type'] != 1) {
+		if ($_SESSION['type'] > 2) {
 			$this->load->view('errors/index.html');
 		} else {
 			try {
@@ -136,7 +145,7 @@ class HomeController extends CI_Controller {
 		$parsed = explode('.', $_GET['lpath']);
 		// Get the Id of the document's owner.
 		$userOwner = $parsed[0];
-		if ($userOwner != $_SESSION['id'] && $_SESSION['type'] != 1) {
+		if ($userOwner != $_SESSION['id'] && $_SESSION['type'] > 2) {
 			// Only agents can download documents that are not their own.
 			$this->load->view('errors/index.html');
 		} else {
@@ -172,8 +181,8 @@ class HomeController extends CI_Controller {
 		$zip = new ZipArchive;
 		$zip->open($zipname, ZipArchive::CREATE);
 		foreach ($docs as $doc) {
-			if ($userOwner == $_SESSION['id'] || $_SESSION['type'] == 1) {
-				// Only agents can download documents that are not their own.
+			if ($userOwner == $_SESSION['id'] || $_SESSION['type'] <= 2) {
+				// Only agents & managers can download documents that are not their own.
 				$tmp = explode('.', $doc);
 				$filename = $tmp[2] . "." . $tmp[3];
 				$zip->addFromString(basename($filename),  file_get_contents(DropPath . $doc));

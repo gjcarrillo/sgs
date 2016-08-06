@@ -19,6 +19,8 @@
                     md-no-float
                     style="padding-bottom:0px">
                     <md-select
+                        md-on-open="onIdOpen()"
+                        md-on-close="onIdClose()"
                         aria-label="V or E ID"
                         ng-model="idPrefix">
                         <md-option value="V">
@@ -51,6 +53,8 @@
                 <md-input-container
                     md-no-float>
                     <md-select
+                        md-on-open="onIdOpen()"
+                        md-on-close="onIdClose()"
                         aria-label="V or E ID"
                         ng-model="idPrefix">
                         <md-option value="V">

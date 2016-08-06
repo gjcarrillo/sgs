@@ -8,9 +8,9 @@ class DetailsBottomSheetController extends CI_Controller {
         parent::__construct();
         $this->load->library('session');
     }
-	
+
 	public function index() {
-		if ($_SESSION['type'] != 1) {
+		if ($_SESSION['type'] < 2) {
 			$this->load->view('errors/index.html');
 		} else {
 			$this->load->view('history/detailsBottomSheet');

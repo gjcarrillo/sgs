@@ -1,7 +1,7 @@
 var sgdp = angular.module("sgdp", ["sgdp.login", "ui.router", "ngMaterial", "ngFileUpload", "webcam"]);
 
 
-sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $locationProvider) {
+sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $mdDateLocaleProvider, $locationProvider) {
   $urlRouterProvider.otherwise('login');
   $stateProvider
     .state('login', {
@@ -18,6 +18,11 @@ sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $lo
         url: '/agentHome',
         templateUrl: 'index.php/home/HomeController/agent',
         controller: 'AgentHomeController'
+    })
+    .state('managerHome', {
+        url: '/managerHome',
+        templateUrl: 'index.php/home/HomeController/manager',
+        controller: 'ManagerHomeController'
     })
     .state('docGenerator', {
         url: '/generator',
@@ -86,9 +91,38 @@ sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $lo
     $mdThemingProvider.theme('default')
         .primaryPalette('darkBlue')
         .accentPalette('golden');
+    $mdThemingProvider.theme('sidenav')
+        .primaryPalette('darkBlue').dark()
+        .accentPalette('golden');
     $mdThemingProvider.theme('whiteInput')
         .primaryPalette('white')
         .accentPalette('blue');
+
+    // Translation of calendar to Venezuelan localization
+    $mdDateLocaleProvider.months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    $mdDateLocaleProvider.shortMonths = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    $mdDateLocaleProvider.days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    $mdDateLocaleProvider.shortDays = ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'];
+    // Can change week display to start on Monday.
+    $mdDateLocaleProvider.firstDayOfWeek = 1;
+
+    $mdDateLocaleProvider.formatDate = function(date) {
+        return date ? moment(date).format('DD/MM/YYYY') : '';
+    };
+    $mdDateLocaleProvider.parseDate = function(dateString) {
+        var m = moment(dateString, 'DD/MM/YYYY', true);
+        return m.isValid() ? m.toDate() : new Date(NaN);
+    };
+    $mdDateLocaleProvider.monthHeaderFormatter = function(date) {
+        return $mdDateLocaleProvider.shortMonths[date.getMonth()] + ' ' + date.getFullYear();
+    };
+    // In addition to date display, date components also need localized messages
+    // for aria-labels for screen-reader users.
+    $mdDateLocaleProvider.weekNumberFormatter = function(weekNumber) {
+        return 'Semana ' + weekNumber;
+    };
+    $mdDateLocaleProvider.msgCalendar = 'Calendario';
+    $mdDateLocaleProvider.msgOpenCalendar = 'Abra el calendario';
 });
 
 
@@ -130,12 +164,15 @@ sgdp.run(['$rootScope', '$location','$state','auth', '$cookies', '$http',
         case '/agentHome':
             // Check for agent rights
             return userType == 1;
+        case '/managerHome':
+            // Check for manager rights
+            return userType == 2;
         case '/history':
             // check for agent rights
-            return userType == 1;
+            return userType <= 2;
         case '/userInfo':
             // check for agent rights
-            return userType == 1;
+            return userType <= 2;
       }
       //  Going to login (.otherwise('login')), so keep going!
       return true;

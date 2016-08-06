@@ -725,4 +725,15 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
         sessionStorage.setItem("fetchId", $scope.fetchId);
         window.open('http://localhost:8080/sgdp/#/userInfo', '_blank');
     };
+
+    $scope.onIdOpen = function() {
+        $scope.backup = $scope.idPrefix;
+        $scope.idPrefix = null;
+    };
+
+    $scope.onIdClose = function() {
+        if ($scope.idPrefix === null) {
+            $scope.idPrefix = $scope.backup;
+        }
+    };
 }

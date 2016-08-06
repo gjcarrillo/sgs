@@ -19,4 +19,15 @@ function login($scope, $rootScope, auth, $http) {
             $rootScope.model.loginError = "";
         }
     };
+
+    $scope.onIdOpen = function() {
+        $scope.backup = $scope.idPrefix;
+        $scope.idPrefix = null;
+    };
+
+    $scope.onIdClose = function() {
+        if ($scope.idPrefix === null) {
+            $scope.idPrefix = $scope.backup;
+        }
+    };
 }

@@ -25,11 +25,14 @@
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/login/controllers/LoginController.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/home/controllers/UserHomeController.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/home/controllers/AgentHomeController.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/home/controllers/ManagerHomeController.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/history/controllers/HistoryController.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/userInfo/controllers/UserInfoController.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/generator/controllers/DocumentGenerator.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/angular-ui-router.min.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/webcam.min.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>js/moment/moment.js"></script>
+
         <!-- Import Angular File Upload -->
         <script type="text/javascript" src="<?php echo base_url(); ?>ng-file-upload/ng-file-upload.min.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>ng-file-upload-shim/ng-file-upload-shim.min.js"></script>

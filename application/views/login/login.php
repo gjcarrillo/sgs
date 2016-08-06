@@ -33,7 +33,11 @@
                     <div hide show-gt-xs layout>
                         <div flex="5" flex-offset="20">
                             <md-input-container class="md-block">
-                                <md-select ng-model="idPrefix" aria-label="V or E ID">
+                                <md-select
+                                    md-on-open="onIdOpen()"
+                                    md-on-close="onIdClose()"
+                                    ng-model="idPrefix"
+                                    aria-label="V or E ID">
                                     <md-option value="V">
                                         V
                                     </md-option>
