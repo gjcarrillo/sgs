@@ -2,9 +2,9 @@ angular
     .module('sgdp')
     .controller('ManagerHomeController', managerHome);
 
-managerHome.$inject = ['$scope', '$rootScope', '$mdDialog', '$cookies', '$http', '$state', '$timeout'];
+managerHome.$inject = ['$scope', '$rootScope', '$mdDialog', '$cookies', '$http', '$state', '$timeout', '$mdSidenav'];
 
-function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $timeout) {
+function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $timeout, $mdSidenav) {
     'use strict';
     $scope.model = {};
     $scope.model.query = -1;
@@ -48,13 +48,13 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
     if (requests != null) {
         $scope.requests = requests;
         recoverResult(parseInt(sessionStorage.getItem("showResult")));
-        $scope.showOptions = false;
         $scope.selectedReq = parseInt(sessionStorage.getItem("selectedReq"));
         $scope.docs = $scope.requests[$scope.selectedReq].docs;
         $scope.showList = parseInt(sessionStorage.getItem("showList")) ? true : false;
         $scope.showAdvSearch = true;
-        $scope.selectedQuery = $scope.showResult;
-        $scope.model.query = $scope.showResult;
+        $scope.selectedQuery = parseInt(sessionStorage.getItem("selectedQuery"));
+        $scope.model.query = parseInt(sessionStorage.getItem("model.query"));
+        $scope.showOptions = $scope.showResult == -1 ? true : false;
         // Got back what we wanted -- erase them from storage
         sessionStorage.removeItem("requests");
         sessionStorage.removeItem("fetchId");
@@ -66,6 +66,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
     if (pendingRequests != null) {
         $scope.pendingRequests = pendingRequests;
         $scope.selectedPendingReq = parseInt(sessionStorage.getItem("selectedPendingReq"));
+        $scope.showPendingReq = parseInt(sessionStorage.getItem("showPendingReq")) ? true : false;
         if ($scope.selectedPendingReq != -1) {
             $scope.docs = $scope.pendingRequests[$scope.selectedPendingReq].docs;
             $scope.pendingRequests[$scope.selectedPendingReq].showList = (
@@ -104,26 +105,24 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
 
     // Retrieval and clean up of stored values
     function recoverResult(index) {
-        switch (index) {
-            case 0:
-                $scope.fetchId = sessionStorage.getItem("fetchId");
-                $scope.model.perform[0].id = parseInt($scope.fetchId.replace('V', ''));
-                sessionStorage.removeItem("fetchId");
-                break;
-            case 1:
-                $scope.model.perform[1].status = sessionStorage.getItem("status");
-                sessionStorage.removeItem("status");
-                break;
-            case 2:
-                $scope.model.perform[2].from = moment(sessionStorage.getItem("from"), 'DD/MM/YYYY', true).toDate();
-                $scope.model.perform[2].to = moment(sessionStorage.getItem("to"), 'DD/MM/YYYY', true).toDate();
-                sessionStorage.removeItem("from");
-                sessionStorage.removeItem("to");
-                break;
-            case 3:
-                $scope.model.perform[3].date = moment(sessionStorage.getItem("date"), 'DD/MM/YYYY', true).toDate();
-                sessionStorage.removeItem("date");
-                break;
+        if (sessionStorage.getItem("fetchId")) {
+            $scope.fetchId = sessionStorage.getItem("fetchId");
+            $scope.model.perform[0].id = parseInt($scope.fetchId.replace('V', ''));
+            sessionStorage.removeItem("fetchId");
+        }
+        if (sessionStorage.getItem("status")) {
+            $scope.model.perform[1].status = sessionStorage.getItem("status");
+            sessionStorage.removeItem("status");
+        }
+        if (sessionStorage.getItem("from")) {
+            $scope.model.perform[2].from = moment(sessionStorage.getItem("from"), 'DD/MM/YYYY', true).toDate();
+            $scope.model.perform[2].to = moment(sessionStorage.getItem("to"), 'DD/MM/YYYY', true).toDate();
+            sessionStorage.removeItem("from");
+            sessionStorage.removeItem("to");
+        }
+        if (sessionStorage.getItem("date")) {
+            $scope.model.perform[3].date = moment(sessionStorage.getItem("date"), 'DD/MM/YYYY', true).toDate();
+            sessionStorage.removeItem("date");
         }
         $scope.showResult = index;
     }
@@ -220,6 +219,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
     };
 
     $scope.getApprovedAmountByDateInterval = function(from, to) {
+        $mdSidenav('left').toggle();
         $scope.requests = [];
         $scope.selectedReq = -1;
         $scope.docs = [];
@@ -244,6 +244,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
     };
 
     $scope.getApprovedAmountById = function(index) {
+        $mdSidenav('left').toggle();
         $scope.requests = [];
         $scope.selectedReq = -1;
         $scope.docs = [];
@@ -302,6 +303,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
         if (req != -1) {
             $scope.docs = $scope.requests[req].docs;
         }
+        $mdSidenav('left').toggle();
     };
 
     $scope.selectPendingReq = function(req) {
@@ -311,6 +313,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
         if (req != -1) {
             $scope.docs = $scope.pendingRequests[req].docs;
         }
+        $mdSidenav('left').toggle();
     };
 
     // Helper function for formatting numbers with leading zeros
@@ -326,10 +329,13 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
             sessionStorage.setItem("requests", JSON.stringify($scope.requests));
             sessionStorage.setItem("selectedReq", $scope.selectedReq);
             sessionStorage.setItem("showResult", $scope.showResult);
+            sessionStorage.setItem("selectedQuery", $scope.selectedQuery);
+            sessionStorage.setItem("model.query", $scope.model.query);
             storeResult();
         }
         sessionStorage.setItem("pendingRequests", JSON.stringify($scope.pendingRequests));
         sessionStorage.setItem("selectedPendingReq", $scope.selectedPendingReq);
+        sessionStorage.setItem("showPendingReq", $scope.showPendingReq ? 1 : 0);
         if ($scope.selectedPendingReq != -1) {
             sessionStorage.setItem("showReq", $scope.pendingRequests[$scope.selectedPendingReq].showList ? 1 : 0);
         }
@@ -339,26 +345,26 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
     };
 
     function storeResult() {
-        switch ($scope.showResult) {
-            case 0:
-                sessionStorage.setItem("fetchId", $scope.fetchId);
-                sessionStorage.setItem("showList", $scope.showList ? 1 : 0);
-                break;
-            case 1:
-                sessionStorage.setItem("status", $scope.model.perform[1].status);
-                sessionStorage.setItem("showList", $scope.requests[$scope.selectedReq].showList ? 1: 0);
-                break;
-            case 2:
-                sessionStorage.setItem("from", moment($scope.model.perform[2].from).format('DD/MM/YYYY'));
-                sessionStorage.setItem("to", moment($scope.model.perform[2].to).format('DD/MM/YYYY'));
-                sessionStorage.setItem("showList", $scope.requests[$scope.selectedReq].showList ? 1: 0);
-                break;
-            case 3:
-                sessionStorage.setItem("date", moment($scope.model.perform[3].date).format('DD/MM/YYYY'));
-                sessionStorage.setItem("showList", $scope.requests[$scope.selectedReq].showList ? 1: 0);
-                break;
+        if ($scope.fetchId) {
+            sessionStorage.setItem("fetchId", $scope.fetchId);
+            sessionStorage.setItem("showList", $scope.showList ? 1 : 0);
         }
 
+        if ($scope.model.perform[1].status) {
+            sessionStorage.setItem("status", $scope.model.perform[1].status);
+            sessionStorage.setItem("showList", $scope.requests[$scope.selectedReq].showList ? 1: 0);
+        }
+
+        if ($scope.model.perform[2].from) {
+            sessionStorage.setItem("from", moment($scope.model.perform[2].from).format('DD/MM/YYYY'));
+            sessionStorage.setItem("to", moment($scope.model.perform[2].to).format('DD/MM/YYYY'));
+            sessionStorage.setItem("showList", $scope.requests[$scope.selectedReq].showList ? 1: 0);
+        }
+
+        if ($scope.model.perform[3].date) {
+            sessionStorage.setItem("date", moment($scope.model.perform[3].date).format('DD/MM/YYYY'));
+            sessionStorage.setItem("showList", $scope.requests[$scope.selectedReq].showList ? 1: 0);
+        }
     }
 
     $scope.downloadDoc = function(doc) {
@@ -433,31 +439,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
                         if (response.data.message === "success") {
                             console.log("Request update succeded...");
                             if (updatePending) {
-                                updatePendingList()
-
-                                // If some status was changed, pending requests list must be updated
-                                // $http.get('index.php/documents/ManageRequestController/fetchRequestsByStatus', {params:{status:"Recibida"}})
-                                //     .then(function (response) {
-                                //         console.log(response);
-                                //         if (response.data.message === "success") {
-                                //             $scope.pendingRequests = response.data.requests;
-                                //             if ($scope.pendingRequests.length > 0) {
-                                //                 if ($scope.showPendingList) {
-                                //                     $scope.showPendingList = false;
-                                //                     $timeout(function() {
-                                //                         $scope.showPendingList = true;
-                                //                         $timeout(function() {
-                                //                             $scope.toggleReqList($scope.pendingRequests[0]);
-                                //                             $scope.selectPendingReq(0);
-                                //                         }, 500);
-                                //                     }, 500);
-                                //                 }
-                                //             }
-                                //         } else {
-                                //             $scope.fetchError = response.data.error;
-                                //         }
-                                //
-                                //     });
+                                updatePendingList();
                             }
                             // Close dialog and alert user that operation was successful
                             $mdDialog.hide();
@@ -608,8 +590,31 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
      * Goes back to query selection options
      */
     $scope.goBack = function() {
+        // $scope.requests = [];
+        // $scope.docs = [];
+        // $scope.selectedReq = -1;
         $scope.showResult = -1;
         $scope.showOptions = true;
     };
 
+    $scope.openMenu = function() {
+       $mdSidenav('left').toggle();
+    };
+
+    $scope.getBulbColor = function(status, index) {
+        // Requests by specific ID won't have coloured bulbs when selected ..
+        // .. looks ugly
+        if ($scope.showResult === 0 && $scope.selectedReq === index) {
+            return;
+        }
+        if (status === "Recibida") {
+            return {'color':'orange'};
+        }
+        if (status === "Aprobada") {
+            return {'color':'green'};
+        }
+        if (status === "Rechazada") {
+            return {'color':'red'};
+        }
+    };
 }

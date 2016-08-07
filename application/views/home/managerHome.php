@@ -1,6 +1,9 @@
 <!-- Toolbar -->
 <md-toolbar layout-padding>
     <div class="md-toolbar-tools">
+        <md-button hide-gt-sm class="md-icon-button" ng-click="openMenu()" aria-label="Open sidenav">
+            <md-icon>menu</md-icon>
+        </md-button>
         <h2 class="md-headline">
             <span>SGDP</span>
         </h2>
@@ -22,7 +25,7 @@
 <div layout>
     <!-- Sidenav -->
     <md-sidenav class="md-sidenav-left sidenav-frame" md-component-id="left" md-is-locked-open="$mdMedia('gt-sm') && test">
-        <md-content ng-style="getSidenavHeight()">
+        <md-content class="sidenav-height">
             <md-progress-linear md-mode="query" ng-if="loading"></md-progress-linear>
             <!-- Query selection -->
             <div ng-show="showOptions && !loading">
@@ -277,7 +280,9 @@
                                 ng-click="selectRequest(rKey)"
                                 class="requestItems"
                                 ng-class="{'md-primary md-raised' : selectedReq === rKey }">
-                                Solicitud ID &#8470; {{pad(request.id, 6)}}
+                                <md-icon ng-style="getBulbColor(request.status, rKey)">
+                                    lightbulb_outline
+                                </md-icon> Solicitud ID &#8470; {{pad(request.id, 6)}}
                             </md-button>
                         </md-list-item>
                     </div>
@@ -295,7 +300,9 @@
                     <div ng-repeat="(rKey, request) in requests">
                         <md-list-item ng-click="toggleReqList(request)">
                             <p class="sidenavTitle">
-                                Solicitud ID &#8470; {{pad(request.id, 6)}}
+                                <md-icon ng-if="showResult != 1" ng-style="getBulbColor(request.status, rKey)">
+                                    lightbulb_outline
+                                </md-icon> Solicitud ID &#8470; {{pad(request.id, 6)}}
                             </p>
                             <md-icon ng-class="md-secondary" ng-if="!request.showList">keyboard_arrow_down</md-icon>
                             <md-icon ng-class="md-secondary" ng-if="request.showList">keyboard_arrow_up</md-icon>
@@ -341,7 +348,10 @@
                 </div>
             </div>
             <div layout layout-align="center center" class="full-contet-height" ng-if="showApprovedAmount">
-                <div layout="column" layout-align="center center" layout-padding class="md-whiteframe-z3 approved-amount-card">
+                <div
+                    layout="column"
+                    layout-align="center center"
+                    layout-padding class="md-whiteframe-z3 approved-amount-card">
                     <span>{{approvedAmountTitle}}</span>
                     <h1 style="font-weight:300" class="md-display-1">Bs {{approvedAmount | number:2}}</h1>
                 </div>
@@ -382,7 +392,8 @@
                                             ng-if="(selectedPendingReq == -1
                                                  && requests[selectedReq].status == 'Recibida')
                                                  || (selectedPendingReq != -1 &&
-                                                     pendingRequests[selectedPendingReq].status == 'Recibida')"                                            ng-click="openEditRequestDialog($event)">
+                                                     pendingRequests[selectedPendingReq].status == 'Recibida')"
+                                            ng-click="openEditRequestDialog($event)">
                                             <md-icon>edit</md-icon>
                                             <md-tooltip>Editar solicitud</md-tooltip>
                                         </md-button>
@@ -403,12 +414,12 @@
                                                    Historial
                                                </md-button>
                                            </md-menu-item>
-                                           <md-menu-item>
+                                           <md-menu-item
+                                               ng-if="(selectedPendingReq == -1
+                                                    && requests[selectedReq].status == 'Recibida')
+                                                    || (selectedReq != -1 &&
+                                                        pendingRequests[selectedPendingReq].status == 'Recibida')">
                                                <md-button
-                                                   ng-if="(selectedPendingReq == -1
-                                                        && requests[selectedReq].status == 'Recibida')
-                                                        || (selectedReq != -1 &&
-                                                            pendingRequests[selectedPendingReq].status == 'Recibida')"
                                                    ng-click="openEditRequestDialog($event)">
                                                    <md-icon>edit</md-icon>
                                                    Editar

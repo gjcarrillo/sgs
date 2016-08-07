@@ -30,6 +30,7 @@ footer {
 .full-contet-height {
     height: calc(100vh - 129px);
 }
+
 .approved-amount-card {
     max-width: 50%;
     background-color: #fff;
@@ -124,10 +125,18 @@ md-list .md-button {
   transition: all 300ms;
 }
 
+.sidenav-height {
+    height: calc(100vh - 129px);
+}
+
 @media screen and (max-width: 960px) {
     .login-card {
         width: 60%;
         margin-bottom: 20px;
+    }
+
+    .sidenav-height {
+        height: calc(100vh - 5px);
     }
 }
 
