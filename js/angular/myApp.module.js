@@ -36,7 +36,7 @@ sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $md
     })
     .state('userInfo', {
         url: '/userInfo',
-        templateUrl: 'index.php/userInfo/UserInfoController',
+        templateUrl: 'index.php/users/UserInfoController',
         controller: 'UserInfoController'
     });
     // $locationProvider.html5Mode(true);
@@ -90,9 +90,6 @@ sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $md
 
     $mdThemingProvider.theme('default')
         .primaryPalette('darkBlue')
-        .accentPalette('golden');
-    $mdThemingProvider.theme('sidenav')
-        .primaryPalette('darkBlue').dark()
         .accentPalette('golden');
     $mdThemingProvider.theme('whiteInput')
         .primaryPalette('white')

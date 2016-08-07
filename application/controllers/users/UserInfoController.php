@@ -13,7 +13,7 @@ class UserInfoController extends CI_Controller {
 		if ($_SESSION['type'] > 2) {
 			$this->load->view('errors/index.html');
 		} else {
-			$this->load->view('userInfo/info');
+			$this->load->view('users/userInfo');
 		}
 	}
 

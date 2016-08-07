@@ -13,7 +13,7 @@ function info($scope, $rootScope, $http) {
     $scope.loading = true;
     // Take the stored data of interest
     var fetchId = sessionStorage.getItem("fetchId");
-    $http.get('index.php/userInfo/UserInfoController/getUserInfo', {params:{userId:fetchId}})
+    $http.get('index.php/users/UserInfoController/getUserInfo', {params:{userId:fetchId}})
         .then(function(response) {
             console.log(response);
             if (response.data.message = "success") {

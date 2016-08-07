@@ -87,11 +87,11 @@
         </md-button> -->
         <md-button class="md-icon-button" ng-click="null" aria-label="Help">
             <md-icon>help_outline</md-icon>
-            <md-tooltip md-direction="down">Ayuda</md-tooltip>
+            <md-tooltip md-direction="top">Ayuda</md-tooltip>
         </md-button>
         <md-button class="md-icon-button" ng-click="logout()" aria-label="Logout">
             <md-icon>exit_to_app</md-icon>
-            <md-tooltip md-direction="down">Cerrar sesión</md-tooltip>
+            <md-tooltip md-direction="top">Cerrar sesión</md-tooltip>
         </md-button>
     </div>
 </md-toolbar>

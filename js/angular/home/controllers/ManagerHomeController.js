@@ -2,9 +2,9 @@ angular
     .module('sgdp')
     .controller('ManagerHomeController', managerHome);
 
-managerHome.$inject = ['$scope', '$rootScope', '$mdDialog', '$cookies', '$http', '$state'];
+managerHome.$inject = ['$scope', '$rootScope', '$mdDialog', '$cookies', '$http', '$state', '$timeout'];
 
-function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state) {
+function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $timeout) {
     'use strict';
     $scope.model = {};
     $scope.model.query = -1;
@@ -14,6 +14,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state) {
     $scope.showApprovedAmount = false;
     $scope.loadingContent = false;
     $scope.showOptions = true;
+    $scope.showResult = -1;
     $scope.statuses = ["Recibida", "Aprobada", "Rechazada"];
     $scope.queries = [
         { category: 'req', name: 'Por cédula', id: 0},
@@ -29,34 +30,102 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state) {
         $scope.model.perform[i] = {};
     }
     $scope.selectedReq = -1;
+    $scope.selectedPendingReq = -1;
     $scope.requests = [];
+    $scope.pendingRequests = [];
     $scope.docs = [];
     $scope.fetchError = "";
     $scope.showList = false;
-
+    $scope.showPendingReq = false;
+    $scope.showAdvSearch = false;
     $scope.test = true;
     $scope.testMe = function() {
         $scope.test = !$scope.test;
     };
 
-    // Check if there is stored data before we went to History
+    // Check if there is stored data for requests before we went to History
     var requests = JSON.parse(sessionStorage.getItem("requests"));
     if (requests != null) {
         $scope.requests = requests;
-        $scope.fetchId = sessionStorage.getItem("fetchId");
-        // fetchId is used for several database queries.
-        // that is why we don't use model's value, which is bind to search input.
-        $scope.model.perform[0].id = $scope.fetchId.replace('V', '');
-        $scope.model.perform[0].showResult = true;
+        recoverResult(parseInt(sessionStorage.getItem("showResult")));
         $scope.showOptions = false;
         $scope.selectedReq = parseInt(sessionStorage.getItem("selectedReq"));
         $scope.docs = $scope.requests[$scope.selectedReq].docs;
         $scope.showList = parseInt(sessionStorage.getItem("showList")) ? true : false;
+        $scope.showAdvSearch = true;
+        $scope.selectedQuery = $scope.showResult;
+        $scope.model.query = $scope.showResult;
         // Got back what we wanted -- erase them from storage
         sessionStorage.removeItem("requests");
         sessionStorage.removeItem("fetchId");
         sessionStorage.removeItem("selectedReq");
         sessionStorage.removeItem("showList");
+    }
+    // Check if there is stored data for pendingRequests before we went to History
+    var pendingRequests = JSON.parse(sessionStorage.getItem("pendingRequests"));
+    if (pendingRequests != null) {
+        $scope.pendingRequests = pendingRequests;
+        $scope.selectedPendingReq = parseInt(sessionStorage.getItem("selectedPendingReq"));
+        if ($scope.selectedPendingReq != -1) {
+            $scope.docs = $scope.pendingRequests[$scope.selectedPendingReq].docs;
+            $scope.pendingRequests[$scope.selectedPendingReq].showList = (
+                parseInt(sessionStorage.getItem("showReq")) ? true : false
+            );
+        }
+        // Got back what we wanted -- erase them from storage
+        sessionStorage.removeItem("pendingRequests");
+        sessionStorage.removeItem("selectedPendingReq");
+        sessionStorage.removeItem("showReq");
+    }
+
+    // Fetch pending requests and automatically show first one to user (if any)
+    if ($scope.selectedReq == -1 && $scope.selectedPendingReq == -1) {
+        $scope.loadingContent = true;
+        $scope.fetchError = "";
+        $http.get('index.php/documents/ManageRequestController/fetchRequestsByStatus', {params:{status:"Recibida"}})
+            .then(function (response) {
+                console.log(response);
+                if (response.data.message === "success") {
+                    $scope.pendingRequests = response.data.requests;
+                    if ($scope.pendingRequests.length > 0) {
+                        $scope.showPendingReq = true;
+                        $timeout(function() {
+                            $scope.toggleReqList($scope.pendingRequests[0]);
+                            $scope.selectPendingReq(0);
+                        }, 500);
+                    }
+                } else {
+                    $scope.fetchError = response.data.error;
+                }
+                $scope.loadingContent = false;
+
+            });
+    }
+
+    // Retrieval and clean up of stored values
+    function recoverResult(index) {
+        switch (index) {
+            case 0:
+                $scope.fetchId = sessionStorage.getItem("fetchId");
+                $scope.model.perform[0].id = parseInt($scope.fetchId.replace('V', ''));
+                sessionStorage.removeItem("fetchId");
+                break;
+            case 1:
+                $scope.model.perform[1].status = sessionStorage.getItem("status");
+                sessionStorage.removeItem("status");
+                break;
+            case 2:
+                $scope.model.perform[2].from = moment(sessionStorage.getItem("from"), 'DD/MM/YYYY', true).toDate();
+                $scope.model.perform[2].to = moment(sessionStorage.getItem("to"), 'DD/MM/YYYY', true).toDate();
+                sessionStorage.removeItem("from");
+                sessionStorage.removeItem("to");
+                break;
+            case 3:
+                $scope.model.perform[3].date = moment(sessionStorage.getItem("date"), 'DD/MM/YYYY', true).toDate();
+                sessionStorage.removeItem("date");
+                break;
+        }
+        $scope.showResult = index;
     }
 
     $scope.fetchUserRequests = function(index) {
@@ -73,7 +142,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state) {
                 if (response.data.message === "success") {
                     $scope.requests = response.data.requests;
                     $scope.showOptions = false;
-                    $scope.model.perform[index].showResult = true;
+                    $scope.showResult = index;
                 } else {
                     $scope.fetchError = response.data.error;
                 }
@@ -95,7 +164,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state) {
                 if (response.data.message === "success") {
                     $scope.requests = response.data.requests;
                     $scope.showOptions = false;
-                    $scope.model.perform[index].showResult = true;
+                    $scope.showResult = index;
                 } else {
                     $scope.fetchError = response.data.error;
                 }
@@ -118,7 +187,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state) {
                 if (response.data.message === "success") {
                     $scope.requests = response.data.requests;
                     $scope.showOptions = false;
-                    $scope.model.perform[index].showResult = true;
+                    $scope.showResult = index;
                 } else {
                     $scope.fetchError = response.data.error;
                 }
@@ -141,7 +210,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state) {
                 if (response.data.message === "success") {
                     $scope.requests = response.data.requests;
                     $scope.showOptions = false;
-                    $scope.model.perform[index].showResult = true;
+                    $scope.showResult = index;
                 } else {
                     $scope.fetchError = response.data.error;
                 }
@@ -151,6 +220,10 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state) {
     };
 
     $scope.getApprovedAmountByDateInterval = function(from, to) {
+        $scope.requests = [];
+        $scope.selectedReq = -1;
+        $scope.docs = [];
+        $scope.showList = false;
         $scope.showApprovedAmount = false;
         $scope.fetchError = "";
         $scope.loadingContent = true;
@@ -171,6 +244,10 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state) {
     };
 
     $scope.getApprovedAmountById = function(index) {
+        $scope.requests = [];
+        $scope.selectedReq = -1;
+        $scope.docs = [];
+        $scope.showList = false;
         var userId = $scope.idPrefix + $scope.model.perform[index].id;
         $scope.showApprovedAmount = false;
         $scope.fetchError = "";
@@ -204,13 +281,14 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state) {
         };
     };
 
+
     $scope.toggleList = function() {
         $scope.showList = !$scope.showList;
     };
 
     $scope.toggleReqList = function(req) {
         req.showList = !req.showList;
-    }
+    };
 
     $scope.loadUserData = function(userId) {
         sessionStorage.setItem("fetchId", userId);
@@ -218,9 +296,20 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state) {
     };
 
     $scope.selectRequest = function(req) {
+        $scope.showApprovedAmount = false;
+        $scope.selectedPendingReq = -1;
         $scope.selectedReq = req;
         if (req != -1) {
             $scope.docs = $scope.requests[req].docs;
+        }
+    };
+
+    $scope.selectPendingReq = function(req) {
+        $scope.selectedReq = -1;
+        $scope.showApprovedAmount = false;
+        $scope.selectedPendingReq = req;
+        if (req != -1) {
+            $scope.docs = $scope.pendingRequests[req].docs;
         }
     };
 
@@ -233,14 +322,44 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state) {
 
     $scope.loadHistory = function() {
         // Save data before going to history page
-        sessionStorage.setItem("requests", JSON.stringify($scope.requests));
-        sessionStorage.setItem("fetchId", $scope.fetchId);
-        sessionStorage.setItem("selectedReq", $scope.selectedReq);
-        sessionStorage.setItem("showList", $scope.showList ? 1 : 0);
+        if ($scope.selectedReq != -1) {
+            sessionStorage.setItem("requests", JSON.stringify($scope.requests));
+            sessionStorage.setItem("selectedReq", $scope.selectedReq);
+            sessionStorage.setItem("showResult", $scope.showResult);
+            storeResult();
+        }
+        sessionStorage.setItem("pendingRequests", JSON.stringify($scope.pendingRequests));
+        sessionStorage.setItem("selectedPendingReq", $scope.selectedPendingReq);
+        if ($scope.selectedPendingReq != -1) {
+            sessionStorage.setItem("showReq", $scope.pendingRequests[$scope.selectedPendingReq].showList ? 1 : 0);
+        }
 
         $state.go('history');
 
     };
+
+    function storeResult() {
+        switch ($scope.showResult) {
+            case 0:
+                sessionStorage.setItem("fetchId", $scope.fetchId);
+                sessionStorage.setItem("showList", $scope.showList ? 1 : 0);
+                break;
+            case 1:
+                sessionStorage.setItem("status", $scope.model.perform[1].status);
+                sessionStorage.setItem("showList", $scope.requests[$scope.selectedReq].showList ? 1: 0);
+                break;
+            case 2:
+                sessionStorage.setItem("from", moment($scope.model.perform[2].from).format('DD/MM/YYYY'));
+                sessionStorage.setItem("to", moment($scope.model.perform[2].to).format('DD/MM/YYYY'));
+                sessionStorage.setItem("showList", $scope.requests[$scope.selectedReq].showList ? 1: 0);
+                break;
+            case 3:
+                sessionStorage.setItem("date", moment($scope.model.perform[3].date).format('DD/MM/YYYY'));
+                sessionStorage.setItem("showList", $scope.requests[$scope.selectedReq].showList ? 1: 0);
+                break;
+        }
+
+    }
 
     $scope.downloadDoc = function(doc) {
         window.open('index.php/home/HomeController/download?lpath=' + doc.lpath, '_blank');
@@ -260,6 +379,8 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state) {
     */
     $scope.openEditRequestDialog = function($event) {
         var parentEl = angular.element(document.body);
+        var req = ($scope.selectedPendingReq == -1 ? $scope.requests[$scope.selectedReq] :
+            $scope.pendingRequests[$scope.selectedPendingReq]);
         $mdDialog.show({
             parent: parentEl,
             targetEvent: $event,
@@ -268,7 +389,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state) {
             escapeToClose: false,
             locals: {
                 fetchId: $scope.fetchId,
-                request: $scope.requests[$scope.selectedReq],
+                request: req
             },
             controller: DialogController
         });
@@ -300,6 +421,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state) {
             // Creates new request in database and uploads documents
             $scope.updateRequest = function() {
                 $scope.uploading = true;
+                var updatePending = $scope.request.status !== $scope.model.status;
                 $scope.request.status = $scope.model.status;
                 $scope.request.comment = $scope.model.comment;
                 $scope.request.reunion = $scope.model.reunion;
@@ -310,6 +432,33 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state) {
                         console.log(response.data);
                         if (response.data.message === "success") {
                             console.log("Request update succeded...");
+                            if (updatePending) {
+                                updatePendingList()
+
+                                // If some status was changed, pending requests list must be updated
+                                // $http.get('index.php/documents/ManageRequestController/fetchRequestsByStatus', {params:{status:"Recibida"}})
+                                //     .then(function (response) {
+                                //         console.log(response);
+                                //         if (response.data.message === "success") {
+                                //             $scope.pendingRequests = response.data.requests;
+                                //             if ($scope.pendingRequests.length > 0) {
+                                //                 if ($scope.showPendingList) {
+                                //                     $scope.showPendingList = false;
+                                //                     $timeout(function() {
+                                //                         $scope.showPendingList = true;
+                                //                         $timeout(function() {
+                                //                             $scope.toggleReqList($scope.pendingRequests[0]);
+                                //                             $scope.selectPendingReq(0);
+                                //                         }, 500);
+                                //                     }, 500);
+                                //                 }
+                                //             }
+                                //         } else {
+                                //             $scope.fetchError = response.data.error;
+                                //         }
+                                //
+                                //     });
+                            }
                             // Close dialog and alert user that operation was successful
                             $mdDialog.hide();
                             $mdDialog.show(
@@ -328,10 +477,92 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state) {
         }
     };
 
+    function updatePendingList() {
+        if ($scope.selectedPendingReq !== -1) {
+            $scope.pendingRequests.splice($scope.selectedPendingReq, 1);
+            $scope.selectedPendingReq = -1;
+            $scope.docs = [];
+        }
+    }
+
+    /**
+     * Dialog that prompts for new agent user information
+     */
+    $scope.openNewAgentDialog = function($event) {
+        var parentEl = angular.element(document.body);
+        $mdDialog.show({
+            parent: parentEl,
+            targetEvent: $event,
+            templateUrl: 'index.php/users/NewAgentController',
+            clickOutsideToClose: false,
+            escapeToClose: false,
+            controller: DialogController
+        });
+
+        function DialogController($mdDialog, $scope) {
+            $scope.uploading = false;
+            $scope.operationError = '';
+            $scope.model = {};
+            $scope.idPrefix = "V";
+
+            $scope.closeDialog = function() {
+                $mdDialog.hide();
+            };
+
+            $scope.missingField = function() {
+                return (
+                    typeof $scope.userId === "undefined" ||
+                    typeof $scope.model.psw === "undefined" ||
+                    typeof $scope.model.name === "undefined" ||
+                    typeof $scope.model.lastname === "undefined"
+                );
+            };
+
+            $scope.onIdOpen = function() {
+                $scope.backup = $scope.idPrefix;
+                $scope.idPrefix = null;
+            };
+
+            $scope.onIdClose = function() {
+                if ($scope.idPrefix === null) {
+                    $scope.idPrefix = $scope.backup;
+                }
+            };
+
+            $scope.createNewAgent = function() {
+                $scope.errorMsg = '';
+                $scope.uploading = true;
+                $scope.model.id = $scope.idPrefix + $scope.userId;
+                $http.post('index.php/users/NewAgentController/createNewAgent', $scope.model)
+                    .then(function(response) {
+                        console.log(response);
+                        if (response.data.message == "success") {
+                            // Close dialog and alert user that operation was successful
+                            $mdDialog.hide();
+                            $mdDialog.show(
+                                $mdDialog.alert()
+                                    .parent(angular.element(document.body))
+                                    .clickOutsideToClose(true)
+                                    .title('Operación exitosa')
+                                    .textContent('El nuevo usuario Gestor ha sido registrado exitosamente')
+                                    .ariaLabel('Successful operation dialog')
+                                    .ok('Ok'));
+                        } else {
+                            $scope.errorMsg = response.data.message;
+                        }
+                        $scope.uploading = false;
+                    });
+            };
+        }
+    };
+
+    /**
+     *  Will show result pane if any of the following queries were executed
+     */
     $scope.fetchedRequests = function() {
-        return $scope.model.perform[1].showResult ||
-            $scope.model.perform[2].showResult ||
-            $scope.model.perform[3].showResult;
+        return $scope.showResult == 1||
+            $scope.showResult == 2 ||
+            $scope.showResult == 3;
     };
 
     /**
@@ -377,12 +608,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state) {
      * Goes back to query selection options
      */
     $scope.goBack = function() {
-        // $scope.requests = [];
-        // $scope.selectedReq = -1;
-        // $scope.docs = [];
-        for (var i=0; i<$scope.model.perform.length; i++) {
-            $scope.model.perform[i].showResult = false;
-        }
+        $scope.showResult = -1;
         $scope.showOptions = true;
     };
 

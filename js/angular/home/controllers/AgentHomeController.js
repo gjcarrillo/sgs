@@ -411,7 +411,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
         // Toggle list
         $scope.showList = false;
         $timeout(function() {
-            // Toggle list
+            // Toggle list again
             $scope.showList = true;
         }, 1000);
 

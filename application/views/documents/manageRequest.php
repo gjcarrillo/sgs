@@ -1,4 +1,4 @@
-<md-dialog aria-label="Edit Request">
+<md-dialog aria-label="Manage Request">
     <!-- Dialog title -->
     <md-toolbar>
         <div class="md-toolbar-tools">
