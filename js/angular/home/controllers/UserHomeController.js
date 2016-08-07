@@ -2,23 +2,36 @@ angular
     .module('sgdp')
     .controller('UserHomeController', userHome);
 
-userHome.$inject = ['$scope', '$rootScope', '$http', '$cookies'];
+userHome.$inject = ['$scope', '$rootScope', '$http', '$cookies', '$timeout', '$mdSidenav'];
 
-function userHome($scope, $rootScope, $http, $cookies) {
+function userHome($scope, $rootScope, $http, $cookies, $timeout, $mdSidenav) {
     'use strict';
     $scope.loading = true;
     $scope.selectedReq = -1;
     $scope.requests = [];
     $scope.docs = [];
     $scope.showList = false;
+    // contentAvailable will indicate whether sidenav can be visible
+    $scope.contentAvailable = false;
+    // contentLoaded will indicate whether sidenav can be locked open
+    $scope.contentLoaded = false;
 
     var fetchId = $cookies.getObject('session').id;
     $http.get('index.php/home/HomeController/getUserRequests', {params:{fetchId:fetchId}})
         .then(function (response) {
             if (response.data.message === "success") {
                 $scope.requests = response.data.requests;
-            } else {
-                console.log("ERROR");
+                $scope.contentAvailable = true;
+                $timeout(function() {
+                    $scope.contentLoaded = true;
+                    $mdSidenav('left').open();
+                    $timeout(function() {
+                        if ($scope.requests.length > 0) {
+                            $scope.showList = true;
+                            // $scope.selectRequest(0);
+                        }
+                    }, 600);
+                }, 600);
             }
             $scope.loading = false;
         });
@@ -47,6 +60,7 @@ function userHome($scope, $rootScope, $http, $cookies) {
         if (req != -1) {
             $scope.docs = $scope.requests[req].docs;
         }
+        $mdSidenav('left').toggle();
     };
 
     // Helper function for formatting numbers with leading zeros
@@ -67,5 +81,9 @@ function userHome($scope, $rootScope, $http, $cookies) {
             paths.push(doc.lpath);
         });
         location.href = 'index.php/home/HomeController/downloadAll?docs=' + JSON.stringify(paths);
+    };
+
+    $scope.openMenu = function() {
+       $mdSidenav('left').toggle();
     };
 }

@@ -2,9 +2,11 @@ angular
     .module('sgdp')
     .controller('AgentHomeController', agentHome);
 
-agentHome.$inject = ['$scope', '$rootScope', '$mdDialog', 'Upload', '$cookies', '$http', '$state', '$timeout'];
+agentHome.$inject = ['$scope', '$rootScope', '$mdDialog', 'Upload', '$cookies', '$http', '$state',
+    '$timeout', '$mdSidenav'];
 
-function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $state, $timeout) {
+function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $state,
+    $timeout, $mdSidenav) {
     'use strict';
     $scope.loading = false;
     $scope.selectedReq = -1;
@@ -13,6 +15,10 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
     $scope.fetchError = "";
     $scope.showList = false;
     $scope.idPrefix = "V";
+    // contentAvailable will indicate whether sidenav can be visible
+    $scope.contentAvailable = false;
+    // contentLoaded will indicate whether sidenav can be locked open
+    $scope.contentLoaded = false;
 
     // Check if there is stored data before we went to History
     var requests = JSON.parse(sessionStorage.getItem("requests"));
@@ -25,6 +31,8 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
         $scope.selectedReq = parseInt(sessionStorage.getItem("selectedReq"));
         $scope.docs = $scope.requests[$scope.selectedReq].docs;
         $scope.showList = parseInt(sessionStorage.getItem("showList")) ? true : false;
+        $scope.contentAvailable = true;
+        $scope.contentLoaded = true;
         // Got back what we wanted -- erase them from storage
         sessionStorage.removeItem("requests");
         sessionStorage.removeItem("fetchId");
@@ -62,9 +70,11 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
         if (req != -1) {
             $scope.docs = $scope.requests[req].docs;
         }
+        $mdSidenav('left').toggle();
     };
 
     $scope.fetchRequests = function(searchInput) {
+        $scope.contentAvailable = false;
         $scope.fetchId = $scope.idPrefix + searchInput;
         $scope.requests = [];
         $scope.selectedReq = -1;
@@ -75,6 +85,11 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
             .then(function (response) {
                 if (response.data.message === "success") {
                     $scope.requests = response.data.requests;
+                    $scope.contentAvailable = true;
+                    $timeout(function(){
+                        $scope.contentLoaded = true;
+                        $mdSidenav('left').open();
+                    }, 300);
                 } else {
                     $scope.fetchError = response.data.error;
                 }
@@ -735,5 +750,9 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
         if ($scope.idPrefix === null) {
             $scope.idPrefix = $scope.backup;
         }
+    };
+
+    $scope.openMenu = function() {
+       $mdSidenav('left').toggle();
     };
 }

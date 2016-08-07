@@ -25,6 +25,7 @@ footer {
 .documents-card {
     width: 85%;
     margin-top: 30px;
+    margin-bottom: 30px;
 }
 
 .full-contet-height {
@@ -60,9 +61,7 @@ footer {
 }
 
 .watermark {
-    padding-top: calc(20vh);
     opacity:0.3;
-    z-index:99;
 }
 
 .watermark2 {
@@ -127,6 +126,7 @@ md-list .md-button {
 
 .sidenav-height {
     height: calc(100vh - 129px);
+    background-color: white;
 }
 
 @media screen and (max-width: 960px) {

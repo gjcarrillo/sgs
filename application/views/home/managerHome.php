@@ -336,8 +336,8 @@
     <div layout="column" flex>
         <main class="main-w-footer">
             <!-- Watermark -->
-            <div class="watermark" ng-if="docs.length == 0 && !loadingContent && !showApprovedAmount">
-                <div layout layout-align="center center">
+            <div class="full-contet-height" layout layout-align="center center" ng-if="docs.length == 0 && !loadingContent && !showApprovedAmount">
+                <div class="watermark" layout="column" layout-align="center center">
                     <img src="images/ipapedi.png" alt="Ipapedi logo"/>
                 </div>
             </div>
@@ -489,10 +489,12 @@
         <md-divider></md-divider>
     </div>
 </div>
-<footer class="footer-frame">
+<footer>
     <div layout layout-align="space-around center">
         <span>&copy; IPAPEDI 2016</span>
-        <span>Desarrollado por <a class="md-accent" href="https://ve.linkedin.com/in/kristopherch" target="_blank">Kristopher Perdomo</a></span>
+        <span>
+            Desarrollado por <a class="md-accent" href="https://ve.linkedin.com/in/kristopherch" target="_blank">Kristopher Perdomo</a>
+        </span>
         <md-button class="md-accent" href="http://www.ipapedi.com" target="_blank">IPAPEDI</md-button>
     </div>
 </footer>
