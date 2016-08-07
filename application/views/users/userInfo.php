@@ -57,7 +57,7 @@
                     </div>
                     <div flex="30" flex-offset="5">
                         <span class="md-title user-info-title">Dependencia</span>
-                        <br/><span>Bs {{userData.dependencia | number:2}}</span>
+                        <br/><span>{{userData.dependencia}}</span>
                     </div>
                     <div flex="30" flex-offset="5">
                         <span class="md-title user-info-title">Fianzas</span>
