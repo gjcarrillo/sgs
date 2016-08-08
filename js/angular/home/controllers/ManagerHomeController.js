@@ -15,6 +15,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
     $scope.loadingContent = false;
     $scope.showOptions = true;
     $scope.showResult = -1;
+    $scope.chart = null;
     $scope.statuses = ["Recibida", "Aprobada", "Rechazada"];
     $scope.queries = [
         { category: 'req', name: 'Por cédula', id: 0},
@@ -90,10 +91,11 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
                     $scope.pendingRequests = response.data.requests;
                     if ($scope.pendingRequests.length > 0) {
                         $scope.showPendingReq = true;
-                        $timeout(function() {
-                            $scope.toggleReqList($scope.pendingRequests[0]);
-                            $scope.selectPendingReq(0);
-                        }, 500);
+                        $mdSidenav('left').open();
+                        // $timeout(function() {
+                        //     $scope.toggleReqList($scope.pendingRequests[0]);
+                        //     $scope.selectPendingReq(0);
+                        // }, 500);
                     }
                 } else {
                     $scope.fetchError = response.data.error;
@@ -130,18 +132,22 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
     $scope.fetchUserRequests = function(index) {
         $scope.fetchId = $scope.idPrefix + $scope.model.perform[index].id;
         $scope.requests = [];
+        $scope.showApprovedAmount = false;
+        $scope.pieloaded = false;
         $scope.selectedReq = -1;
         $scope.loading = true;
         $scope.docs = [];
         $scope.showList = false;
         $scope.fetchError = "";
-        $http.get('index.php/home/AgentHomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
+        $http.get('index.php/home/ManagerHomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
             .then(function (response) {
                 console.log(response);
                 if (response.data.message === "success") {
                     $scope.requests = response.data.requests;
                     $scope.showOptions = false;
                     $scope.showResult = index;
+                    $scope.pieloaded = true;
+                    drawPie(response.data.pie);
                 } else {
                     $scope.fetchError = response.data.error;
                 }
@@ -157,6 +163,8 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
         $scope.docs = [];
         $scope.showList = false;
         $scope.fetchError = "";
+        $scope.showApprovedAmount = false;
+        $scope.pieloaded = false;
         $http.get('index.php/home/ManagerHomeController/fetchRequestsByStatus', {params:{status:status}})
             .then(function (response) {
                 console.log(response);
@@ -164,6 +172,8 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
                     $scope.requests = response.data.requests;
                     $scope.showOptions = false;
                     $scope.showResult = index;
+                    $scope.pieloaded = true;
+                    drawPie(response.data.pie);
                 } else {
                     $scope.fetchError = response.data.error;
                 }
@@ -179,6 +189,8 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
         $scope.docs = [];
         $scope.showList = false;
         $scope.fetchError = "";
+        $scope.showApprovedAmount = false;
+        $scope.pieloaded = false;
         $http.get('index.php/home/ManagerHomeController/fetchRequestsByDateInterval',
             {params:{from:moment(from).format('DD/MM/YYYY'), to:moment(to).format('DD/MM/YYYY')}})
             .then(function (response) {
@@ -187,6 +199,8 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
                     $scope.requests = response.data.requests;
                     $scope.showOptions = false;
                     $scope.showResult = index;
+                    $scope.pieloaded = true;
+                    drawPie(response.data.pie);
                 } else {
                     $scope.fetchError = response.data.error;
                 }
@@ -202,7 +216,9 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
         $scope.docs = [];
         $scope.showList = false;
         $scope.fetchError = "";
-        $http.get('index.php/documents/ManageRequestController/fetchRequestsByDateInterval',
+        $scope.showApprovedAmount = false;
+        $scope.pieloaded = false;
+        $http.get('index.php/home/ManagerHomeController/fetchRequestsByDateInterval',
             {params:{from:moment(date).format('DD/MM/YYYY'), to:moment(date).format('DD/MM/YYYY')}})
             .then(function (response) {
                 console.log(response);
@@ -210,6 +226,8 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
                     $scope.requests = response.data.requests;
                     $scope.showOptions = false;
                     $scope.showResult = index;
+                    $scope.pieloaded = true;
+                    drawPie(response.data.pie);
                 } else {
                     $scope.fetchError = response.data.error;
                 }
@@ -226,8 +244,10 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
         $scope.showList = false;
         $scope.showApprovedAmount = false;
         $scope.fetchError = "";
+        $scope.showApprovedAmount = false;
+        $scope.pieloaded = false;
         $scope.loadingContent = true;
-        $http.get('index.php/documents/ManageRequestController/getApprovedAmountByDateInterval',
+        $http.get('index.php/home/ManagerHomeController/getApprovedAmountByDateInterval',
             {params:{from:moment(from).format('DD/MM/YYYY'), to:moment(to).format('DD/MM/YYYY')}})
             .then(function (response) {
                 console.log(response);
@@ -252,8 +272,10 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
         var userId = $scope.idPrefix + $scope.model.perform[index].id;
         $scope.showApprovedAmount = false;
         $scope.fetchError = "";
+        $scope.showApprovedAmount = false;
+        $scope.pieloaded = false;
         $scope.loadingContent = true;
-        $http.get('index.php/documents/ManageRequestController/getApprovedAmountById',
+        $http.get('index.php/home/ManagerHomeController/getApprovedAmountById',
             {params:{userId:userId}})
             .then(function (response) {
                 console.log(response);
@@ -290,7 +312,6 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
     };
 
     $scope.selectRequest = function(req) {
-        $scope.showApprovedAmount = false;
         $scope.selectedPendingReq = -1;
         $scope.selectedReq = req;
         if (req != -1) {
@@ -301,7 +322,6 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
 
     $scope.selectPendingReq = function(req) {
         $scope.selectedReq = -1;
-        $scope.showApprovedAmount = false;
         $scope.selectedPendingReq = req;
         if (req != -1) {
             $scope.docs = $scope.pendingRequests[req].docs;
@@ -601,13 +621,42 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
             return;
         }
         if (status === "Recibida") {
-            return {'color':'orange'};
+            return {'color':'#FFC107'}; // 500 amber
         }
         if (status === "Aprobada") {
-            return {'color':'green'};
+            return {'color':'#4CAF50'}; // 500 green
         }
         if (status === "Rechazada") {
-            return {'color':'red'};
+            return {'color':'#F44336'}; // 500 red
         }
     };
+
+    $scope.showPie = function() {
+        $scope.pieloaded = true;
+        $scope.docs = [];
+    };
+
+    function drawPie(pie) {
+        // Recycle the chart
+        $scope.statisticsTitle = pie.title;
+        $timeout(function() {
+            if ($scope.chart !== null) {
+                $scope.chart.destroy();
+            }
+            var ctx =  document.getElementById("piechart").getContext("2d");
+            var data = {
+                labels: pie.labels,
+                datasets: [
+                    {
+                        data: pie.data,
+                        backgroundColor: pie.backgroundColor,
+                        hoverBackgroundColor: pie.hoverBackgroundColor
+                    }]
+            };
+            $scope.chart = new Chart(ctx, {
+                type: 'pie',
+                data: data
+            });
+        }, 200);
+    }
 }

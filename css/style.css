@@ -32,8 +32,13 @@ footer {
     height: calc(100vh - 129px);
 }
 
-.approved-amount-card {
-    max-width: 50%;
+.information-card {
+    max-width: 75%;
+    background-color: #fff;
+}
+
+.statistics-card {
+    width: 30vw;
     background-color: #fff;
 }
 
@@ -137,6 +142,10 @@ md-list .md-button {
 
     .sidenav-height {
         height: calc(100vh - 5px);
+    }
+
+    .statistics-card {
+        width: 60vw;
     }
 }
 

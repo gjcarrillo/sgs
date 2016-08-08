@@ -264,6 +264,12 @@
                         </p>
                     </md-list-item>
                     <md-divider></md-divider>
+                    <md-list-item ng-click="showPie()">
+                        <p class="sidenavTitle">
+                            Estadísticas
+                        </p>
+                    </md-list-item>
+                    <md-divider></md-divider>
                     <md-list-item ng-click="toggleList()">
                         <p class="sidenavTitle">
                             Préstamos Personales
@@ -297,6 +303,12 @@
                     <span>Atrás</span>
                 </div>
                 <md-list class="sidenavList">
+                    <md-list-item ng-click="showPie()">
+                        <p class="sidenavTitle">
+                            Estadísticas
+                        </p>
+                    </md-list-item>
+                    <md-divider></md-divider>
                     <div ng-repeat="(rKey, request) in requests">
                         <md-list-item ng-click="toggleReqList(request)">
                             <p class="sidenavTitle">
@@ -336,7 +348,8 @@
     <div layout="column" flex>
         <main class="main-w-footer">
             <!-- Watermark -->
-            <div class="full-contet-height" layout layout-align="center center" ng-if="docs.length == 0 && !loadingContent && !showApprovedAmount">
+            <div class="full-contet-height" layout layout-align="center center"
+                ng-if="docs.length == 0 && !loadingContent && !showApprovedAmount && !pieloaded">
                 <div class="watermark" layout="column" layout-align="center center">
                     <img src="images/ipapedi.png" alt="Ipapedi logo"/>
                 </div>
@@ -347,11 +360,23 @@
                     <md-progress-circular md-mode="indeterminate" md-diameter="80"></md-progress-circular>
                 </div>
             </div>
+            <!-- Pie chart statistics result -->
+            <div layout layout-align="center center" class="full-contet-height"
+                ng-show="pieloaded && docs.length == 0">
+                <div
+                    layout="column"
+                    layout-align="center center"
+                    layout-padding class="md-whiteframe-z3 statistics-card">
+                    <span>{{statisticsTitle}}</span>
+                    <canvas id="piechart" width="300" height="300"></canvas>
+                </div>
+            </div>
+            <!-- Approved amount result -->
             <div layout layout-align="center center" class="full-contet-height" ng-if="showApprovedAmount">
                 <div
                     layout="column"
                     layout-align="center center"
-                    layout-padding class="md-whiteframe-z3 approved-amount-card">
+                    layout-padding class="md-whiteframe-z3 information-card">
                     <span>{{approvedAmountTitle}}</span>
                     <h1 style="font-weight:300" class="md-display-1">Bs {{approvedAmount | number:2}}</h1>
                 </div>
