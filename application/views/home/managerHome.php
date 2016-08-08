@@ -442,10 +442,18 @@
                                            {{selectedPendingReq == -1 ? requests[selectedReq].status :
                                                 pendingRequests[selectedPendingReq].status}}
                                        </h3>
-                                       <h4 ng-if="requests[selectedReq].reunion">
-                                           Reunión &#8470; {{requests[selectedReq].reunion}}
+                                       <h4 ng-if="(selectedPendingReq == -1 &&
+                                            requests[selectedReq].reunion)
+                                            || (selectedReq != -1 &&
+                                                pendingRequests[selectedPendingReq].reunion)">
+                                           Reunión &#8470;
+                                           {{selectedPendingReq == -1 ? requests[selectedReq].reunion :
+                                                pendingRequests[selectedPendingReq].reunion}}
                                        </h4>
-                                       <p ng-if="requests[selectedReq].approvedAmount">
+                                       <p ng-if="(selectedPendingReq == -1 &&
+                                            requests[selectedReq].approvedAmount)
+                                            || (selectedReq != -1 &&
+                                                pendingRequests[selectedPendingReq].approvedAmount)">
                                            Monto aprobado: Bs
                                            {{selectedPendingReq == -1 ? (requests[selectedReq].approvedAmount | number:2) :
                                                 (pendingRequests[selectedPendingReq].approvedAmount | number:2)}}

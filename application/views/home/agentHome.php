@@ -179,11 +179,11 @@
                                         <h3 class="request-details-title">
                                             Préstamo solicitado el {{requests[selectedReq].creationDate}}
                                         </h3>
-                                        <h4 ng-if="!requests[selectedReq].approvedAmount">
+                                        <h4>
                                             Monto solicitado: Bs {{requests[selectedReq].reqAmount | number:2}}
                                         </h4>
-                                        <p ng-if="requests[selectedReq].approvedAmount">
-                                            Monto aprobado: Bs {{requests[selectedReq].approvedAmount | number:2}}
+                                        <p>
+                                            {{requests[selectedReq].comment}}
                                         </p>
                                     </div>
                                     <!-- Show only when screen width >= 960px -->
@@ -220,7 +220,7 @@
                                                    Historial
                                                </md-button>
                                            </md-menu-item>
-                                           <md-menu-item>
+                                           <md-menu-item ng-if="requests[selectedReq].status == 'Recibida'">
                                                <md-button
                                                    ng-if="requests[selectedReq].status == 'Recibida'"
                                                    ng-click="openEditRequestDialog($event)">
@@ -247,9 +247,11 @@
                                     <md-icon  ng-style="{'font-size':'36px'}">info_outline</md-icon>
                                     <div class="md-list-item-text" layout="column">
                                        <h3>Estado de la solicitud: {{requests[selectedReq].status}}</h3>
-                                       <h4 ng-if="requests[selectedReq].reunion">Reunión &#8470; {{requests[selectedReq].reunion}}</h4>
-                                       <p>
-                                           {{requests[selectedReq].comment}}
+                                       <h4 ng-if="requests[selectedReq].reunion">
+                                           Reunión &#8470; {{requests[selectedReq].reunion}}
+                                       </h4>
+                                       <p ng-if="requests[selectedReq].approvedAmount">
+                                           Monto aprobado: Bs {{requests[selectedReq].approvedAmount | number:2}}
                                        </p>
                                      </div>
                                 </md-list-item>
