@@ -83,7 +83,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
     if ($scope.selectedReq == -1 && $scope.selectedPendingReq == -1) {
         $scope.loadingContent = true;
         $scope.fetchError = "";
-        $http.get('index.php/documents/ManageRequestController/fetchRequestsByStatus', {params:{status:"Recibida"}})
+        $http.get('index.php/home/ManagerHomeController/fetchRequestsByStatus', {params:{status:"Recibida"}})
             .then(function (response) {
                 console.log(response);
                 if (response.data.message === "success") {
@@ -135,7 +135,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
         $scope.docs = [];
         $scope.showList = false;
         $scope.fetchError = "";
-        $http.get('index.php/home/HomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
+        $http.get('index.php/home/AgentHomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
             .then(function (response) {
                 console.log(response);
                 if (response.data.message === "success") {
@@ -157,7 +157,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
         $scope.docs = [];
         $scope.showList = false;
         $scope.fetchError = "";
-        $http.get('index.php/documents/ManageRequestController/fetchRequestsByStatus', {params:{status:status}})
+        $http.get('index.php/home/ManagerHomeController/fetchRequestsByStatus', {params:{status:status}})
             .then(function (response) {
                 console.log(response);
                 if (response.data.message === "success") {
@@ -179,7 +179,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
         $scope.docs = [];
         $scope.showList = false;
         $scope.fetchError = "";
-        $http.get('index.php/documents/ManageRequestController/fetchRequestsByDateInterval',
+        $http.get('index.php/home/ManagerHomeController/fetchRequestsByDateInterval',
             {params:{from:moment(from).format('DD/MM/YYYY'), to:moment(to).format('DD/MM/YYYY')}})
             .then(function (response) {
                 console.log(response);
@@ -275,13 +275,6 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
         };
     };
 
-    $scope.getSidenavHeight = function() {
-        return {
-            // 129 = header and footer height, approx
-            'height':($(window).height() - 129)
-        };
-    };
-
 
     $scope.toggleList = function() {
         $scope.showList = !$scope.showList;
@@ -368,16 +361,16 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
     }
 
     $scope.downloadDoc = function(doc) {
-        window.open('index.php/home/HomeController/download?lpath=' + doc.lpath, '_blank');
+        window.open('index.php/home/UserHomeController/download?lpath=' + doc.lpath, '_blank');
     };
 
     $scope.downloadAll = function() {
-        // Bits of parsing before passing objects to URL
+        // Bits of pre-processing before passing objects to URL
         var paths = new Array();
         angular.forEach($scope.docs, function(doc) {
             paths.push(doc.lpath);
         });
-        location.href = 'index.php/home/HomeController/downloadAll?docs=' + JSON.stringify(paths);
+        location.href = 'index.php/home/UserHomeController/downloadAll?docs=' + JSON.stringify(paths);
     };
 
     /**

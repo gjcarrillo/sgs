@@ -11,17 +11,17 @@ sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $md
     })
     .state('userHome', {
         url: '/userHome',
-        templateUrl: 'index.php/home/HomeController/user',
+        templateUrl: 'index.php/home/UserHomeController',
         controller: 'UserHomeController'
     })
     .state('agentHome', {
         url: '/agentHome',
-        templateUrl: 'index.php/home/HomeController/agent',
+        templateUrl: 'index.php/home/AgentHomeController',
         controller: 'AgentHomeController'
     })
     .state('managerHome', {
         url: '/managerHome',
-        templateUrl: 'index.php/home/HomeController/manager',
+        templateUrl: 'index.php/home/ManagerHomeController',
         controller: 'ManagerHomeController'
     })
     .state('docGenerator', {

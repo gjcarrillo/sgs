@@ -62,11 +62,20 @@
     <div layout="column" flex>
         <main class="main-w-footer">
             <!-- Search error -->
-            <!-- <div ng-if="fetchError != ''" layout layout-align="center center" class="md-padding">
-                <span style="color:red">{{fetchError}}</span>
-            </div> -->
+            <div
+                class="full-contet-height"
+                ng-if="fetchError != ''"
+                layout layout-align="center center"
+                class="md-padding">
+                <div layout="column" layout-align="center center">
+                    <span style="color:red">{{fetchError}}</span>
+                </div>
+            </div>
             <!-- Watermark -->
-            <div class="full-contet-height" layout layout-align="center center" ng-if="docs.length == 0">
+            <div
+                ng-if="fetchError == '' && docs.length == 0"
+                class="full-contet-height"
+                layout layout-align="center center">
                 <div class="watermark" layout="column" layout-align="center center">
                     <img src="images/ipapedi.png" alt="Ipapedi logo"/>
                 </div>

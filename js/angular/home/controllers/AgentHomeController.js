@@ -74,6 +74,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
     };
 
     $scope.fetchRequests = function(searchInput) {
+        $scope.showList = false;
         $scope.contentAvailable = false;
         $scope.fetchId = $scope.idPrefix + searchInput;
         $scope.requests = [];
@@ -81,12 +82,12 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
         $scope.loading = true;
         $scope.docs = [];
         $scope.fetchError = "";
-        $http.get('index.php/home/HomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
+        $http.get('index.php/home/AgentHomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
             .then(function (response) {
                 if (response.data.message === "success") {
                     $scope.requests = response.data.requests;
                     $scope.contentAvailable = true;
-                    $timeout(function(){
+                    $timeout(function() {
                         $scope.contentLoaded = true;
                         $mdSidenav('left').open();
                     }, 300);
@@ -230,7 +231,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                                     console.log(uploadedFiles);
                                     if (uploadedFiles === 2) {
                                         // Update interface
-                                        $http.get('index.php/home/HomeController/getUserRequests', {params:{fetchId:fetchId}})
+                                        $http.get('index.php/home/AgentHomeController/getUserRequests', {params:{fetchId:fetchId}})
                                             .then(function (response) {
                                                 if (response.data.message === "success") {
                                                     updateContent(response.data.requests, 0);
@@ -280,7 +281,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                                 uploadedFiles++;
                                 if (uploadedFiles == 2) {
                                     // Update interface
-                                    $http.get('index.php/home/HomeController/getUserRequests', {params:{fetchId:fetchId}})
+                                    $http.get('index.php/home/AgentHomeController/getUserRequests', {params:{fetchId:fetchId}})
                                         .then(function (response) {
                                             if (response.data.message === "success") {
                                                 updateContent(response.data.requests, 0);
@@ -554,7 +555,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                                     uploadedFiles++;
                                     if (uploadedFiles == $scope.files.length) {
                                         // Update interface
-                                        $http.get('index.php/home/HomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
+                                        $http.get('index.php/home/AgentHomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
                                             .then(function (response) {
                                                 if (response.data.message === "success") {
                                                     updateContent(response.data.requests, $scope.selectedReq);
@@ -599,12 +600,12 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
              .ok('Continuar')
              .cancel('Cancelar');
              $mdDialog.show(confirm).then(function() {
-                 $http.get('index.php/home/HomeController/deleteDocument',{params:$scope.requests[$scope.selectedReq].docs[dKey]})
+                 $http.get('index.php/home/AgentHomeController/deleteDocument',{params:$scope.requests[$scope.selectedReq].docs[dKey]})
                      .then(function(response) {
                          console.log(response)
                          if (response.data.message == "success") {
                              // Update the view
-                             $http.get('index.php/home/HomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
+                             $http.get('index.php/home/AgentHomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
                                  .then(function (response) {
                                      if (response.data.message === "success") {
                                          updateContent(response.data.requests, $scope.selectedReq);
@@ -645,13 +646,13 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
             .ok('Continuar')
             .cancel('Cancelar');
             $mdDialog.show(confirm).then(function() {
-                $http.get('index.php/home/HomeController/deleteRequest',{params:$scope.requests[$scope.selectedReq]})
+                $http.get('index.php/home/AgentHomeController/deleteRequest',{params:$scope.requests[$scope.selectedReq]})
                     .then(function(response) {
                         console.log(response)
                         if (response.data.message == "success") {
                             // Update the view.
                             $scope.docs = [];
-                            $http.get('index.php/home/HomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
+                            $http.get('index.php/home/AgentHomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
                                 .then(function (response) {
                                     if (response.data.message === "success") {
                                         // Update content
@@ -724,16 +725,16 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
     };
 
     $scope.downloadDoc = function(doc) {
-        window.open('index.php/home/HomeController/download?lpath=' + doc.lpath, '_blank');
+        window.open('index.php/home/UserHomeController/download?lpath=' + doc.lpath, '_blank');
     };
 
     $scope.downloadAll = function() {
-        // Bits of parsing before passing objects to URL
+        // Bits of pre-processing before passing objects to URL
         var paths = new Array();
         angular.forEach($scope.docs, function(doc) {
             paths.push(doc.lpath);
         });
-        location.href = 'index.php/home/HomeController/downloadAll?docs=' + JSON.stringify(paths);
+        location.href = 'index.php/home/UserHomeController/downloadAll?docs=' + JSON.stringify(paths);
     };
 
     $scope.loadUserData = function() {

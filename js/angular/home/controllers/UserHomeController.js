@@ -11,13 +11,14 @@ function userHome($scope, $rootScope, $http, $cookies, $timeout, $mdSidenav) {
     $scope.requests = [];
     $scope.docs = [];
     $scope.showList = false;
+    $scope.fetchError = '';
     // contentAvailable will indicate whether sidenav can be visible
     $scope.contentAvailable = false;
     // contentLoaded will indicate whether sidenav can be locked open
     $scope.contentLoaded = false;
 
     var fetchId = $cookies.getObject('session').id;
-    $http.get('index.php/home/HomeController/getUserRequests', {params:{fetchId:fetchId}})
+    $http.get('index.php/home/UserHomeController/getUserRequests', {params:{fetchId:fetchId}})
         .then(function (response) {
             if (response.data.message === "success") {
                 $scope.requests = response.data.requests;
@@ -32,6 +33,8 @@ function userHome($scope, $rootScope, $http, $cookies, $timeout, $mdSidenav) {
                         }
                     }, 600);
                 }, 600);
+            } else {
+                $scope.fetchError = response.data.message;
             }
             $scope.loading = false;
         });
@@ -54,7 +57,6 @@ function userHome($scope, $rootScope, $http, $cookies, $timeout, $mdSidenav) {
         };
     };
 
-
     $scope.selectRequest = function(req) {
         $scope.selectedReq = req;
         if (req != -1) {
@@ -71,16 +73,16 @@ function userHome($scope, $rootScope, $http, $cookies, $timeout, $mdSidenav) {
     };
 
     $scope.downloadDoc = function(doc) {
-        window.open('index.php/home/HomeController/download?lpath=' + doc.lpath, '_blank');
+        window.open('index.php/home/UserHomeController/download?lpath=' + doc.lpath, '_blank');
     };
 
     $scope.downloadAll = function() {
-        // Bits of parsing before passing objects to URL
+        // Bits of pre-processing before passing objects to URL
         var paths = new Array();
         angular.forEach($scope.docs, function(doc) {
             paths.push(doc.lpath);
         });
-        location.href = 'index.php/home/HomeController/downloadAll?docs=' + JSON.stringify(paths);
+        location.href = 'index.php/home/UserHomeController/downloadAll?docs=' + JSON.stringify(paths);
     };
 
     $scope.openMenu = function() {
