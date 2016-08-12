@@ -88,7 +88,8 @@ footer {
 
 a {
   text-decoration: none;
-  color: #8F731F;
+  /* color: #8F731F; /* golden */
+  color: #F44336; /* A200 red */
 }
 
 a:hover {

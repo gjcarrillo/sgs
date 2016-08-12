@@ -13,7 +13,7 @@
             <span>SGDP</span>
         </h2>
         <span flex></span>
-        <md-button class="md-icon-button" ng-click="null" aria-label="Help">
+        <md-button class="md-icon-button" ng-click="showHelp()" aria-label="Help">
             <md-icon>help_outline</md-icon>
             <md-tooltip md-direction="top">Ayuda</md-tooltip>
         </md-button>
@@ -32,7 +32,7 @@
         class="md-sidenav-left sidenav-frame"
         md-component-id="left"
         md-is-locked-open="$mdMedia('gt-sm') && contentLoaded">
-        <md-content class="sidenav-height">
+        <md-content id="requests-list" class="sidenav-height">
             <!-- Requests list -->
             <md-list class="sidenavList">
                 <md-list-item ng-click="toggleList()">
@@ -88,7 +88,7 @@
                     <md-card class="documents-card">
                         <md-card-content>
                             <md-list>
-                                <md-list-item class="md-3-line" class="noright">
+                                <md-list-item id="request-summary" class="md-3-line" class="noright">
                                     <div class="md-list-item-text request-details-wrapper" layout="column">
                                         <h3 class="request-details-title">
                                             Préstamo solicitado el {{requests[selectedReq].creationDate}}
@@ -100,12 +100,15 @@
                                             {{requests[selectedReq].comment}}
                                         </p>
                                     </div>
-                                    <md-button ng-click="downloadAll()" class="md-icon-button md-secondary">
+                                    <md-button
+                                        id="request-summary-actions"
+                                        ng-click="downloadAll()"
+                                        class="md-icon-button md-secondary">
                                         <md-icon>cloud_download</md-icon>
                                         <md-tooltip>Descargar todo</md-tooltip>
                                     </md-button>
                                </md-list-item>
-                                <md-list-item class="md-2-line" class="noright">
+                                <md-list-item id="request-status-summary" class="md-2-line" class="noright">
                                     <md-icon  ng-style="{'font-size':'36px'}">info_outline</md-icon>
                                     <div class="md-list-item-text" layout="column">
                                        <h3>Estado de la solicitud: {{requests[selectedReq].status}}</h3>
@@ -120,6 +123,7 @@
                                 <md-divider></md-divider>
                                 <div ng-repeat="(dKey, doc) in docs">
                                     <md-list-item
+                                        id="request-docs"
                                         class="md-2-line"
                                         ng-click="downloadDoc(doc)"
                                         class="noright">
@@ -138,9 +142,11 @@
                                            <p>{{doc.description}}</p>
                                          </div>
                                          <md-button
+                                            id="request-docs-actions"
                                             class="md-secondary md-icon-button">
                                             <md-icon>file_download</md-icon>
-                                         </md-button>                            </md-list-item>
+                                         </md-button>
+                                     </md-list-item>
                                     <md-divider ng-if="!$last" md-inset></md-divider>
                                 </div>
                             </md-list>

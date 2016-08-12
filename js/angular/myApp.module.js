@@ -1,4 +1,5 @@
-var sgdp = angular.module("sgdp", ["sgdp.login", "ui.router", "ngMaterial", "ngFileUpload", "webcam"]);
+var sgdp = angular.module("sgdp", ["sgdp.login", "ui.router", "ngMaterial",
+    "ngFileUpload", "webcam", "ngSanitize", "ngCsv"]);
 
 
 sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $mdDateLocaleProvider, $locationProvider) {
@@ -90,7 +91,7 @@ sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $md
 
     $mdThemingProvider.theme('default')
         .primaryPalette('darkBlue')
-        .accentPalette('golden');
+        .accentPalette('red');
     $mdThemingProvider.theme('whiteInput')
         .primaryPalette('white')
         .accentPalette('blue');

@@ -50,12 +50,12 @@
                                     md-on-close="onQueryClose()"
                                     placeholder="Seleccione su consulta"
                                     ng-model="selectedQuery">
-                                    <md-optgroup label="Solcitudes">
+                                    <md-optgroup label="Solicitudes">
                                         <md-option ng-value="query.id" ng-repeat="query in queries | filter: {category: 'req' }">
                                             {{query.name}}
                                         </md-option>
                                     </md-optgroup>
-                                    <md-optgroup label="Solcitudes por fecha">
+                                    <md-optgroup label="Solicitudes por fecha">
                                         <md-option ng-value="query.id" ng-repeat="query in queries | filter: {category: 'date' }">
                                             {{query.name}}
                                         </md-option>
@@ -366,8 +366,20 @@
                 <div
                     layout="column"
                     layout-align="center center"
-                    layout-padding class="md-whiteframe-z3 statistics-card">
-                    <span>{{statisticsTitle}}</span>
+                    layout-padding class="md-whiteframe-z2 statistics-card">
+                    <div>
+                        <span>{{statisticsTitle}}</span>
+                        <md-button
+                            flex
+                            ng-csv="report"
+                            add-bom="true"
+                            filename="{{reportName()}}"
+                            class="md-icon-button"
+                            ng-click="null">
+                            <md-icon>assignment</md-icon>
+                            <md-tooltip md-direction="top">Generar reporte</md-tooltip>
+                        </md-button>
+                    </div>
                     <canvas id="piechart" width="300" height="300"></canvas>
                 </div>
             </div>

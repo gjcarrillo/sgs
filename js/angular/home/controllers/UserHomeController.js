@@ -88,4 +88,8 @@ function userHome($scope, $rootScope, $http, $cookies, $timeout, $mdSidenav) {
     $scope.openMenu = function() {
        $mdSidenav('left').toggle();
     };
+
+    $scope.showHelp = function() {
+        
+    };
 }

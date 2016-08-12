@@ -102,7 +102,9 @@
                         <span style="color:red">{{model.loginError}}</span>
                     </div>
                     <div layout layout-align="center center">
-                        <md-button ng-click="login()" class="md-raised md-primary">Iniciar sesión</md-button>
+                        <md-button ng-click="login()" class="md-raised md-primary">
+                            Iniciar sesión
+                        </md-button>
                     </div>
                     <br/>
                 </md-card-content>

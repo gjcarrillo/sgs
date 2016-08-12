@@ -2,7 +2,8 @@ angular
     .module('sgdp')
     .controller('ManagerHomeController', managerHome);
 
-managerHome.$inject = ['$scope', '$rootScope', '$mdDialog', '$cookies', '$http', '$state', '$timeout', '$mdSidenav'];
+managerHome.$inject = ['$scope', '$rootScope', '$mdDialog', '$cookies', '$http',
+    '$state', '$timeout', '$mdSidenav'];
 
 function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $timeout, $mdSidenav) {
     'use strict';
@@ -147,6 +148,8 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
                     $scope.showOptions = false;
                     $scope.showResult = index;
                     $scope.pieloaded = true;
+                    $scope.report = response.data.report;
+                    console.log($scope.report);
                     drawPie(response.data.pie);
                 } else {
                     $scope.fetchError = response.data.error;
@@ -174,6 +177,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
                     $scope.showResult = index;
                     $scope.pieloaded = true;
                     drawPie(response.data.pie);
+                    $scope.report = response.data.report;
                 } else {
                     $scope.fetchError = response.data.error;
                 }
@@ -201,6 +205,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
                     $scope.showResult = index;
                     $scope.pieloaded = true;
                     drawPie(response.data.pie);
+                    $scope.report = response.data.report;
                 } else {
                     $scope.fetchError = response.data.error;
                 }
@@ -228,6 +233,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
                     $scope.showResult = index;
                     $scope.pieloaded = true;
                     drawPie(response.data.pie);
+                    $scope.report = response.data.report;
                 } else {
                     $scope.fetchError = response.data.error;
                 }
@@ -253,7 +259,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
                 console.log(response);
                 if (response.data.message === "success") {
                     $scope.approvedAmount = response.data.approvedAmount;
-                    $scope.approvedAmountTitle = "Monto aprobado total entre la fecha especificada:";
+                    $scope.approvedAmountTitle = "Monto aprobado total para el intervalo de fecha especificado:";
                     $scope.showApprovedAmount = true;
                 } else {
                     $scope.fetchError = response.data.error;
@@ -653,10 +659,31 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
                         hoverBackgroundColor: pie.hoverBackgroundColor
                     }]
             };
+            var options = {
+                // String - Template string for single tooltips
+                // tooltipTemplate: "<%if (label){%><%=label %>: <%}%><%= value + ' %' %>",
+                tooltips: {
+                  callbacks: {
+                    label: function(tooltipItem, data) {
+                        return data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index] + '%';
+                    }
+                  }
+                },
+                responsive: true
+            };
             $scope.chart = new Chart(ctx, {
                 type: 'pie',
-                data: data
+                data: data,
+                options: options
             });
         }, 200);
     }
+
+    /**
+     * The following code is used to fill the ng-csv attributes
+     */
+
+     $scope.reportName = function() {
+         return Math.floor(Date.now() / 1000) + ".csv"; // timestamp in seconds
+     }
 }
