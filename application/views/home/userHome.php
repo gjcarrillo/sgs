@@ -144,7 +144,6 @@
                                            <p>{{doc.description}}</p>
                                          </div>
                                          <md-button
-                                            id="request-docs-actions"
                                             class="md-secondary md-icon-button">
                                             <md-icon>file_download</md-icon>
                                          </md-button>

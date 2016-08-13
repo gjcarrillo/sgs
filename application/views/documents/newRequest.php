@@ -4,6 +4,10 @@
         <div class="md-toolbar-tools">
             <h2>Nueva de solicitud de préstamo</h2>
             <span flex></span>
+            <md-button class="md-icon-button" ng-click="showHelp()" aria-label="Help">
+                <md-icon>help_outline</md-icon>
+                <md-tooltip md-direction="top">Ayuda</md-tooltip>
+            </md-button>
             <md-button ng-show="!uploading" class="md-icon-button" ng-click="closeDialog()">
                 <md-icon aria-label="Close dialog">close</md-icon>
             </md-button>
@@ -11,19 +15,19 @@
     </md-toolbar>
     <md-dialog-content layout-padding>
         <div layout layout-align="center center">
-            <md-input-container>
+            <md-input-container id="req-amount" >
                 <label>Monto solicitado (Bs)</label>
                 <input ng-model="reqAmount" type="number" min="100" step="100" required placeholder="Ej: 300000.25"/>
             </md-input-container>
         </div>
         <div ng-hide="idPicTaken && docPicTaken" layout layout-align="center center">
-            <div ng-hide="idPicTaken">
+            <div id="id-pic" ng-hide="idPicTaken">
                 <md-button ng-click="openIdentityCamera($event)">
                     <md-icon>photo_camera</md-icon>
                     Foto del afiliado
                 </md-button>
             </div>
-            <div ng-hide="docPicTaken">
+            <div id="doc-pic" ng-hide="docPicTaken">
                 <md-menu>
                    <md-button ng-click="$mdOpenMenu($event)" aria-label="Request doc">
                        <md-icon>insert_drive_file</md-icon>
@@ -50,7 +54,8 @@
             </div>
         </div>
         <div layout layout-align="center center">
-            <md-card ng-show="idPicTaken">
+            <!-- ID picture result -->
+            <md-card id="id-pic-result" ng-show="idPicTaken">
                 <md-card-title>
                     <md-card-title-text>
                         <span class="md-headline">Foto del afiliado</span>
@@ -65,7 +70,7 @@
                     </div>
                 </md-card-content>
             </md-card>
-            <md-card ng-show="docPicTaken && !file">
+            <md-card id="doc-pic-result" ng-show="docPicTaken && !file">
                 <md-card-title>
                     <md-card-title-text>
                         <span class="md-headline">Foto de la solicitud</span>
@@ -80,7 +85,7 @@
                     </div>
                 </md-card-content>
             </md-card>
-            <md-card ng-show="docPicTaken && file">
+            <md-card id="doc-pic-selection" ng-show="docPicTaken && file">
                 <md-card-title>
                 <md-card-title-text>
                     <span class="md-headline">{{file.name}}</span>
@@ -104,7 +109,12 @@
         </div>
     </md-dialog-content>
     <md-dialog-actions>
-        <md-button ng-hide="uploading" ng-click="createNewRequest($event)" ng-disabled="missingField()" class="md-primary">
+        <md-button
+            id="create-btn"
+            ng-hide="uploading"
+            ng-click="createNewRequest($event)"
+            ng-disabled="missingField()"
+            class="md-primary">
             Crear
         </md-button>
         <md-progress-circular ng-show="uploading" md-mode="indeterminate" md-diameter="60"></md-progress-circular>

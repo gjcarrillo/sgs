@@ -40,8 +40,8 @@
         <script type="text/javascript" src="<?php echo base_url(); ?>js/ng-file-upload/ng-file-upload.min.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/ng-file-upload-shim/ng-file-upload-shim.min.js"></script>
         <!-- Import trip.js for HELPS -->
-        <link type="text/css" rel="stylesheet" href="<?php echo base_url(); ?>css/trip.js/trip.min.css"/>
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/trip.js/trip.min.js"></script>
+        <link type="text/css" rel="stylesheet" href="<?php echo base_url(); ?>css/trip.js/trip.css"/>
+        <script type="text/javascript" src="<?php echo base_url(); ?>js/trip.js/trip.js"></script>
         <!--Import custom style.css -->
         <link type="text/css" rel="stylesheet" href="<?php echo base_url(); ?>css/style.css"/>
         <!--Let browser know website is optimized for mobile-->

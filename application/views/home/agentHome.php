@@ -2,6 +2,7 @@
 <md-toolbar layout-padding>
     <div class="md-toolbar-tools">
         <md-button
+            id="nav-panel"
             ng-show="contentAvailable"
             hide-gt-sm
             class="md-icon-button"
@@ -18,6 +19,7 @@
         <!-- Search bar -->
         <!-- Show only on width >= 600px screen -->
         <div
+            id="search"
             hide show-gt-xs
             layout
             flex-offset="30"
@@ -56,7 +58,7 @@
             </div>
         </div>
         <!-- Hide on width >= 600px screen -->
-        <div hide-gt-xs layout style="margin-top:25px; padding-left:10px;">
+        <div id="search" hide-gt-xs layout style="margin-top:25px; padding-left:10px;">
             <div>
                 <md-input-container
                     md-no-float>
@@ -93,7 +95,7 @@
             <md-icon style="color:#2196F3">insert_drive_file</md-icon>
             <md-tooltip md-direction="left">Generar PDF</md-tooltip>
         </md-button> -->
-        <md-button class="md-icon-button" ng-click="null" aria-label="Help">
+        <md-button class="md-icon-button" ng-click="showHelp()" aria-label="Help">
             <md-icon>help_outline</md-icon>
             <md-tooltip md-direction="top">Ayuda</md-tooltip>
         </md-button>
@@ -108,6 +110,7 @@
     <md-progress-linear md-mode="query" ng-if="loading"></md-progress-linear>
     <!-- Sidenav -->
     <md-sidenav
+        id="requests-list"
         ng-show="contentAvailable"
         class="md-sidenav-left sidenav-frame"
         md-component-id="left"
@@ -174,7 +177,7 @@
                     <md-card class="documents-card">
                         <md-card-content>
                             <md-list>
-                                <md-list-item class="md-3-line" class="noright">
+                                <md-list-item id="request-summary" class="md-3-line" class="noright">
                                     <div class="md-list-item-text request-details-wrapper" layout="column">
                                         <h3 class="request-details-title">
                                             Préstamo solicitado el {{requests[selectedReq].creationDate}}
@@ -187,7 +190,10 @@
                                         </p>
                                     </div>
                                     <!-- Show only when screen width >= 960px -->
-                                    <div hide show-gt-sm class="md-secondary">
+                                    <div
+                                        id="request-summary-actions"
+                                        hide show-gt-sm
+                                        class="md-secondary">
                                         <md-button ng-click="loadHistory()" class="md-icon-button">
                                             <md-icon>history</md-icon>
                                             <md-tooltip>Historial</md-tooltip>
@@ -203,14 +209,19 @@
                                             <md-icon>cloud_download</md-icon>
                                             <md-tooltip>Descargar todo</md-tooltip>
                                         </md-button>
-                                        <md-button ng-click="deleteRequest($event)" class="md-icon-button">
+                                        <!-- <md-button ng-click="deleteRequest($event)" class="md-icon-button">
                                             <md-icon>delete</md-icon>
                                             <md-tooltip>Eliminar solicitud</md-tooltip>
-                                        </md-button>
+                                        </md-button> -->
                                     </div>
                                     <!-- Show when screen width < 960px -->
-                                    <md-menu hide-gt-sm class="md-secondary">
-                                       <md-button ng-click="$mdOpenMenu($event)" class="md-icon-button" aria-label="More">
+                                    <md-menu
+                                        id="request-summary-actions-menu"
+                                        hide-gt-sm class="md-secondary">
+                                       <md-button
+                                            ng-click="$mdOpenMenu($event)"
+                                            class="md-icon-button"
+                                            aria-label="More">
                                            <md-icon>more_vert</md-icon>
                                        </md-button>
                                        <md-menu-content>
@@ -234,16 +245,16 @@
                                                    Descargar todo
                                                </md-button>
                                            </md-menu-item>
-                                           <md-menu-item>
+                                           <!-- <md-menu-item>
                                                <md-button ng-click="deleteRequest($event)">
                                                    <md-icon>delete</md-icon>
                                                    Eliminar
                                                </md-icon-button>
-                                           </md-menu-item>
+                                           </md-menu-item> -->
                                        </md-menu-content>
                                    </md-menu>
                                </md-list-item>
-                                <md-list-item class="md-2-line" class="noright">
+                                <md-list-item id="request-status-summary" class="md-2-line" class="noright">
                                     <md-icon  ng-style="{'font-size':'36px'}">info_outline</md-icon>
                                     <div class="md-list-item-text" layout="column">
                                        <h3>Estado de la solicitud: {{requests[selectedReq].status}}</h3>
@@ -258,6 +269,7 @@
                                 <md-divider></md-divider>
                                 <div ng-repeat="(dKey, doc) in docs">
                                     <md-list-item
+                                        id="request-docs"
                                         class="md-2-line"
                                         ng-click="downloadDoc(doc)"
                                         class="noright">
@@ -280,8 +292,14 @@
                                             class="md-secondary md-icon-button">
                                             <md-icon>file_download</md-icon>
                                          </md-button>
-                                         <md-menu ng-if="doc.name !='Identidad' && doc.name != 'Solicitud'" class="md-secondary">
-                                            <md-button ng-click="$mdOpenMenu($event)" class="md-icon-button" aria-label="More">
+                                         <md-menu
+                                            id="request-docs-actions"
+                                            ng-if="doc.name !='Identidad' && doc.name != 'Solicitud'"
+                                            class="md-secondary">
+                                            <md-button
+                                                ng-click="$mdOpenMenu($event)"
+                                                class="md-icon-button"
+                                                aria-label="More">
                                                 <md-icon>more_vert</md-icon>
                                             </md-button>
                                             <md-menu-content>

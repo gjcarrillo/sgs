@@ -413,6 +413,81 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                     return ctx.getImageData(x, y, w, h);
                 }
             }
+
+            $scope.showHelp = function() {
+                var options = {
+                    showNavigation : true,
+                    showCloseBox : true,
+                    delay : -1,
+                    tripTheme: "dark",
+                    prevLabel: "Anterior",
+                    nextLabel: "Siguiente",
+                    finishLabel: "Entendido"
+                };
+                showFormHelp(options);
+            };
+            /**
+             * Shows tour-based help of all input fields.
+             * @param options: Obj containing tour.js options
+             */
+            function showFormHelp(options) {
+                if (!$scope.missingField()) {
+                    var tripToShowNavigation = new Trip([
+                        // Tell user to hit the create button
+                        { sel : $("#create-btn"),
+                            content : "Haga click en CREAR para generar la solicitud.",
+                            position : "w", animation: 'fadeInLeft'}
+
+                    ], options);
+                    tripToShowNavigation.start();
+                } else {
+                    var tripToShowNavigation = new Trip([], options);
+                    showAllFieldsHelp(tripToShowNavigation);
+                }
+            }
+
+            function showFieldHelp(trip, id, content) {
+                trip.tripData.push(
+                    { sel : $(id), content: content, position: "s", animation: 'fadeInUp' }
+                );
+            }
+
+            function showAllFieldsHelp(tripToShowNavigation) {
+                if (!$scope.reqAmount) {
+                    // Requested amount field
+                    var content = "Ingrese la cantidad de Bs. solicitado por el afiliado.";
+                    showFieldHelp(tripToShowNavigation, "#req-amount", content);
+                }
+                if (!$scope.idPicTaken) {
+                    // Show id pic field help
+                    var content = "Haga click para tomar una foto al afiliado.";
+                    showFieldHelp(tripToShowNavigation, "#id-pic", content);
+                } else {
+                    // Show pic result help
+                    var content = "Resultado de la foto del afiliado. Si lo desea, " +
+                    "puede eliminarla y volver a tomarla.";
+                    showFieldHelp(tripToShowNavigation, "#id-pic-result", content);
+                }
+                if (!$scope.docPicTaken) {
+                    // Show doc pic field help
+                    var content = "Haga click para proveer el documento de la solicitud." +
+                    " Puede tomarle foto o elegir el documento desde la computadora.";
+                    showFieldHelp(tripToShowNavigation, "#doc-pic", content);
+                } else {
+                    if (!$scope.file) {
+                        // Picture was taken, show pic result help
+                        var content = "Resultado de la foto del documento de solicitud." +
+                        " Si lo desea, puede eliminarla y volver a tomarla.";
+                        showFieldHelp(tripToShowNavigation, "#doc-pic-result", content);
+                    } else {
+                        // doc was uploaded instead
+                        var content = "Documento de solicitud seleccionado." +
+                        " Si lo desea, puede eliminarlo y volver a seleccionarlo.";
+                        showFieldHelp(tripToShowNavigation, "#doc-pic-selection", content);
+                    }
+                }
+                tripToShowNavigation.start();
+            }
         }
     };
 
@@ -460,6 +535,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
             $scope.request = request;
             $scope.enabledDescription = -1;
             $scope.statuses = ["Recibida", "Aprobada", "Rechazada"];
+            $scope.comment = $scope.request.comment;
 
             $scope.closeDialog = function() {
                 $mdDialog.hide();
@@ -482,7 +558,9 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
 
             $scope.allFieldsMissing = function() {
                 return $scope.files.length == 0 &&
-                    (typeof $scope.request.comment == "undefined" || $scope.request.comment == "");
+                    (typeof $scope.comment === "undefined"
+                        || $scope.comment == ""
+                        || $scope.comment == $scope.request.comment);
             };
 
             $scope.showError = function(error, param) {
@@ -503,6 +581,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
             $scope.updateRequest = function() {
                 $scope.uploading = true;
                 $scope.request.docsAdded = $scope.files.length > 0;
+                $scope.request.comment = $scope.comment;
                 $http.get('index.php/documents/EditRequestController/updateRequest', {params:$scope.request})
                     .then(function (response) {
                         console.log(response.data);
@@ -587,6 +666,54 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                                                  evt.loaded / evt.total));
                     });
                 });
+            }
+
+            $scope.showHelp = function() {
+                var options = {
+                    showNavigation : true,
+                    showCloseBox : true,
+                    delay : -1,
+                    tripTheme: "dark",
+                    prevLabel: "Anterior",
+                    nextLabel: "Siguiente",
+                    finishLabel: "Entendido"
+                };
+                showFormHelp(options);
+            };
+
+            /**
+             * Shows tour-based help of all input fields.
+             * @param options: Obj containing tour.js options
+             */
+            function showFormHelp(options) {
+                var tripToShowNavigation = new Trip([], options);
+                if (typeof $scope.comment === "undefined" || $scope.comment == ""
+                    || $scope.comment == $scope.request.comment) {
+                    var content = "Puede opcionalmente realizar algún comentario " +
+                    "hacia la solicitud.";
+                    appendFieldHelp(tripToShowNavigation, "#comment", content);
+                }
+                if ($scope.files.length == 0) {
+                    var content = "Haga click para para agregar documentos " +
+                    "adicionales a la solicitud.";
+                    appendFieldHelp(tripToShowNavigation, "#more-files", content);
+                } else {
+                    content = "Estas tarjetas contienen el nombre y posible descripción " +
+                    "de los documentos seleccionados. Puede eliminarla o proporcionar una descripción" +
+                    " a través de los íconos en la parte inferior de la tarjeta."
+                    appendFieldHelp(tripToShowNavigation, "#file-card", content);
+                }
+                if (!$scope.allFieldsMissing()) {
+                    var content = "Haga click en ACTUALIZAR para guardar los cambios."
+                    appendFieldHelp(tripToShowNavigation, "#edit-btn", content);
+                }
+                tripToShowNavigation.start();
+            }
+
+            function appendFieldHelp(trip, id, content) {
+                trip.tripData.push(
+                    { sel : $(id), content: content, position: "s", animation: 'fadeInUp' }
+                );
             }
         }
     };
@@ -756,4 +883,116 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
     $scope.openMenu = function() {
        $mdSidenav('left').toggle();
     };
+
+    $scope.showHelp = function() {
+        var options = {
+            showNavigation : true,
+            showCloseBox : true,
+            delay : -1,
+            tripTheme: "dark",
+            prevLabel: "Anterior",
+            nextLabel: "Siguiente",
+            finishLabel: "Entendido"
+        };
+        if (!$scope.contentAvailable) {
+            // Indicate user to input another user's ID.
+            showSearchbarHelp(options);
+        } else if ($scope.docs.length == 0) {
+            // User has not selected any request yet, tell him to do it.
+            showSidenavHelp(options);
+        } else {
+            // Guide user through request selection's possible actions.
+            showRequestHelp(options);
+        }
+    };
+
+    /**
+     * Shows tour-based help of searchbar
+     * @param options: Obj containing tour.js options
+     */
+    function showSearchbarHelp(options) {
+        var tripToShowNavigation = new Trip([
+            { sel : $("#search"),
+                content : "Ingrese la cédula de identidad de algún afiliado para " +
+                "gestionar sus solicitudes.",
+                position : "s", animation: 'fadeInDown' }
+        ], options);
+        tripToShowNavigation.start();
+    }
+
+    /**
+     * Shows tour-based help of side navigation panel
+     * @param options: Obj containing tour.js options
+     */
+    function showSidenavHelp(options) {
+        if ($mdSidenav('left').isLockedOpen()) {
+            options.showHeader = true;
+            var tripToShowNavigation = new Trip([
+                { sel : $("#requests-list"),
+                    content : "Consulte datos de interés del afiliado, o seleccione " +
+                    "alguna de sus solicitudes en la lista para ver más detalles.",
+                    position : "e", expose : true, header: "Panel de navegación", animation: 'fadeInUp' }
+            ], options);
+            tripToShowNavigation.start();
+        } else {
+            var tripToShowNavigation = new Trip([
+                { sel : $("#nav-panel"),
+                    content : "Haga click en el ícono para abrir el panel de navegación," +
+                    " donde podrá consultar datos del afiliado o gestionar sus solicitudes.",
+                    position : "e", animation: 'fadeInUp'}
+            ], options);
+            tripToShowNavigation.start();
+        }
+    }
+
+     /**
+      * Shows tour-based help of selected request details section.
+      * @param options: Obj containing tour.js options
+      */
+    function showRequestHelp(options) {
+        options.showHeader = true;
+        // options.showSteps = true;
+        var tripToShowNavigation = new Trip([
+            // Request summary information
+            { sel : $("#request-summary"), content : "Aquí se muestra información acerca de " +
+                "la fecha de creación, monto solicitado, y un comentario de haberlo realizado.",
+                position : "s", header: "Resumen de la solicitud", expose : true },
+            // Request status information
+            { sel : $("#request-status-summary"), content : "Esta sección provee información " +
+                "acerca del estatus de la solicitud.",
+                position : "s", header: "Resumen de estatus", expose : true, animation: 'fadeInDown' },
+            // Request documents information
+            { sel : $("#request-docs"), content : "Éste y los siguientes items contienen " +
+                "el nombre y, de existir, una descripción de cada documento en la solicitud. " +
+                "Puede verlos/descargarlos haciendo click encima de ellos.",
+                position : "s", header: "Documentos", expose : true, animation: 'fadeInDown' },
+            // Request documents actions
+            { sel : $("#request-docs-actions"), content : "Siendo un documento adicional, " +
+                "puede hacer click en el botón de opciones para proveer una descripción, " +
+                "descargarlos o incluso eliminarlos.",
+                position : "w", header: "Documentos", expose : true, animation: 'fadeInLeft' },
+        ], options);
+        if ($scope.docs.length < 3) {
+            // This request hasn't additional documents.
+            tripToShowNavigation.tripData.splice(3, 1);
+        }
+        if ($mdSidenav('left').isLockedOpen()) {
+            tripToShowNavigation.tripData.push(
+                // Download as zip information
+                { sel : $("#request-summary-actions"), content : "Puede ver el historial de la solicitud, " +
+                    "editarla (si la solicitud no se ha cerrado), o descargar todos " +
+                    "sus documentos presionando el botón correspondiente.",
+                    position : "w", header: "Acciones", expose : true, animation: 'fadeInLeft' }
+            );
+        } else {
+            tripToShowNavigation.tripData.push(
+                // Download as zip information request-summary-actions-menu
+                { sel : $("#request-summary-actions-menu"), content : "Haga click en el botón de opciones para " +
+                    "ver el historial de la solicitud, editarla (si la solicitud no se ha cerrado)" +
+                    ", o descargar todos sus documentos.",
+                    position : "w", header: "Acciones", expose : true, animation: 'fadeInLeft' }
+            );
+        }
+        tripToShowNavigation.start();
+    }
 }
