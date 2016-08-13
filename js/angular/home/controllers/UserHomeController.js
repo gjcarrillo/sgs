@@ -90,6 +90,59 @@ function userHome($scope, $rootScope, $http, $cookies, $timeout, $mdSidenav) {
     };
 
     $scope.showHelp = function() {
-        
+        var options = {
+            showNavigation : true,
+            showCloseBox : true,
+            delay : -1,
+            tripTheme: "dark",
+            prevLabel: "Anterior",
+            nextLabel: "Siguiente",
+            skipLabel: "Omitir",
+            finishLabel: "Entendido"
+        };
+        if ($scope.docs.length == 0) {
+            // User has not selected any request yet, tell him to do it.
+            if ($mdSidenav('left').isLockedOpen()) {
+                options.showHeader = true;
+                var tripToShowNavigation = new Trip([
+                    { sel : $("#requests-list"),
+                        content : "Seleccione alguna de sus solicitudes en la lista para ver más detalles",
+                        position : "e", expose : true, header: "Panel de navegación", animation: 'fadeInUp' }
+                ], options);
+                tripToShowNavigation.start();
+            } else {
+                var tripToShowNavigation = new Trip([
+                    { sel : $("#nav-panel"),
+                        content : "Haga click en el ícono para abrir el panel de navegación" +
+                        " y seleccionar alguna de sus solicitudes para ver más detalles",
+                        position : "e", animation: 'fadeInUp'}
+                ], options);
+                tripToShowNavigation.start();
+            }
+        } else {
+            // Guide user through request selection's possible actions
+            options.showHeader = true;
+            // options.showSteps = true;
+            var tripToShowNavigation = new Trip([
+                // Request summary information
+                { sel : $("#request-summary"), content : "Aquí se muestra información acerca de " +
+                    "la fecha de creación, monto solicitado por usted, y un posible comentario.",
+                    position : "s", header: "Resumen de la solicitud", expose : true },
+                // Request status information
+                { sel : $("#request-status-summary"), content : "Esta sección provee información " +
+                    "acerca del estatus de su solicitud.",
+                    position : "s", header: "Resumen de estatus", expose : true, animation: 'fadeInDown' },
+                // Request documents information
+                { sel : $("#request-docs"), content : "Éste y los siguientes items contienen " +
+                    "el nombre y una posible descripción de cada documento en su solicitud. " +
+                    "Puede verlos/descargarlos haciendo click encima de ellos.",
+                    position : "s", header: "Documentos", expose : true, animation: 'fadeInDown' },
+                // Download as zip information
+                { sel : $("#request-summary-actions"), content : "También puede descargar todos los documentos " +
+                    "haciendo click aquí.",
+                    position : "w", header: "Descargar todo", expose : true, animation: 'fadeInLeft' }
+            ], options);
+            tripToShowNavigation.start();
+        }
     };
 }

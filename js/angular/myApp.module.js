@@ -94,7 +94,7 @@ sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $md
         .accentPalette('red');
     $mdThemingProvider.theme('whiteInput')
         .primaryPalette('white')
-        .accentPalette('blue');
+        .accentPalette('red');
 
     // Translation of calendar to Venezuelan localization
     $mdDateLocaleProvider.months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];

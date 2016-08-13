@@ -2,6 +2,7 @@
 <md-toolbar layout-padding>
     <div class="md-toolbar-tools">
         <md-button
+            id="nav-panel"
             ng-show="contentAvailable"
             hide-gt-sm
             class="md-icon-button"
@@ -28,11 +29,12 @@
     <md-progress-linear md-mode="query" ng-if="loading"></md-progress-linear>
     <!-- Sidenav -->
     <md-sidenav
+        id="requests-list"
         ng-show="contentAvailable"
         class="md-sidenav-left sidenav-frame"
         md-component-id="left"
         md-is-locked-open="$mdMedia('gt-sm') && contentLoaded">
-        <md-content id="requests-list" class="sidenav-height">
+        <md-content class="sidenav-height">
             <!-- Requests list -->
             <md-list class="sidenavList">
                 <md-list-item ng-click="toggleList()">
