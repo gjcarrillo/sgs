@@ -7,7 +7,7 @@
             <span>SGDP</span>
         </h2>
         <span flex></span>
-        <md-button class="md-icon-button" ng-click="null" aria-label="Help">
+        <md-button class="md-icon-button" ng-click="showHelp()" aria-label="Help">
             <md-icon>help_outline</md-icon>
             <md-tooltip md-direction="down">Ayuda</md-tooltip>
         </md-button>
@@ -21,7 +21,7 @@
     <md-toolbar>
     </md-toolbar>
     <md-content style="background-color:#F5F5F5" class="u-overflow-fix" layout layout-align="center center">
-        <md-card class="user-info-card">
+        <md-card id="info-card" class="user-info-card">
             <md-card-header>
                 <md-card-avatar>
                     <img class="md-user-avatar" src="images/avatar_circle.png"/>

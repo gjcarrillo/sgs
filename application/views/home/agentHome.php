@@ -150,7 +150,6 @@
     <div layout="column" flex>
         <main class="main-w-footer">
             <!-- Search error -->
-            <!-- Search error -->
             <div
                 class="full-contet-height"
                 ng-if="fetchError != ''"

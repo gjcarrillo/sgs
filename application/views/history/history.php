@@ -14,6 +14,7 @@
         <!-- Search bar -->
         <!-- Show only on width >= 600px screen -->
         <md-input-container
+            id="filter"
             hide show-gt-xs
             md-no-float
             flex-offset="25"
@@ -42,7 +43,7 @@
                 <md-tooltip md-direction="right">Puede buscar por nombre, acción o fecha</md-tooltip>
         </md-input-container>
         <span flex></span>
-        <md-button class="md-icon-button" ng-click="null" aria-label="Help">
+        <md-button class="md-icon-button" ng-click="showHelp()" aria-label="Help">
             <md-icon>help_outline</md-icon>
             <md-tooltip md-direction="down">Ayuda</md-tooltip>
         </md-button>
@@ -68,6 +69,7 @@
                 <md-list>
                     <div ng-repeat="(hKey, hist) in history | filter:filterInput">
                         <md-list-item
+                            id="action-summary"
                             class="md-3-line"
                             ng-click="showListBottomSheet(hist)"
                             class="noright">

@@ -29,7 +29,7 @@ class HistoryController extends CI_Controller {
 				$history = array_reverse($history->getValues());
 				foreach ($history as $hKey => $history) {
 					$result['history'][$hKey]['userResponsable'] = $history->getUserResponsable();
-					$result['history'][$hKey]['date'] = $history->getDate()->format('d/m/y - h:i:sa');
+					$result['history'][$hKey]['date'] = $history->getDate()->format('d/m/Y - h:i:sa');
 					$result['history'][$hKey]['title'] = $history->getTitleByText();
 					$actions = $history->getActions();
 					foreach ($actions as $aKey => $action) {
