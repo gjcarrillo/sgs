@@ -1,7 +1,12 @@
 <!-- Toolbar -->
 <md-toolbar layout-padding>
     <div class="md-toolbar-tools">
-        <md-button hide-gt-sm class="md-icon-button" ng-click="openMenu()" aria-label="Open sidenav">
+        <md-button
+            id="nav-panel"
+            hide-gt-sm
+            class="md-icon-button"
+            ng-click="openMenu()"
+            aria-label="Open sidenav">
             <md-icon>menu</md-icon>
         </md-button>
         <h2 class="md-headline">
@@ -12,7 +17,7 @@
             <md-icon>account_box</md-icon>
             <md-tooltip md-direction="top">Nuevo usuario gestor</md-tooltip>
         </md-button>
-        <md-button class="md-icon-button" ng-click="testMe()" aria-label="Help">
+        <md-button class="md-icon-button" ng-click="showHelp()" aria-label="Help">
             <md-icon>help_outline</md-icon>
             <md-tooltip md-direction="top">Ayuda</md-tooltip>
         </md-button>
@@ -24,13 +29,16 @@
 </md-toolbar>
 <div layout>
     <!-- Sidenav -->
-    <md-sidenav class="md-sidenav-left sidenav-frame" md-component-id="left" md-is-locked-open="$mdMedia('gt-sm') && test">
+    <md-sidenav
+        class="md-sidenav-left sidenav-frame"
+        md-component-id="left"
+        md-is-locked-open="$mdMedia('gt-sm')">
         <md-content class="sidenav-height">
             <md-progress-linear md-mode="query" ng-if="loading"></md-progress-linear>
             <!-- Query selection -->
             <div ng-show="showOptions && !loading">
                 <md-list class="sidenavList">
-                    <md-list-item>
+                    <md-list-item id="adv-search">
                         <p class="sidenavTitle">
                             Búsqueda avanzada
                         </p>
@@ -103,6 +111,14 @@
                                        ng-keyup="$event.keyCode == 13 && fetchUserRequests(0)">
                                 </md-input-container>
                             </div>
+                            <div layout layout-align="center center">
+                                <md-button
+                                    ng-disabled="!model.perform[0].id"
+                                    ng-click="fetchUserRequests(0)"
+                                    class="md-raised md-primary">
+                                    Consultar
+                                </md-button>
+                            </div>
                         </div>
                         <!-- Query by state -->
                         <div ng-show="model.query == 1" layout="column" layout-padding>
@@ -111,7 +127,6 @@
                             <md-input-container
                                 style="margin:0">
                                 <md-select
-                                    ng-change="fetchRequestsByStatus(model.perform[1].status, 1)"
                                     md-on-open="onStatusOpen()"
                                     md-on-close="onStatusClose()"
                                     placeholder="Estatus"
@@ -119,6 +134,14 @@
                                     <md-option ng-value="status" ng-repeat="(sKey, status) in statuses">{{status}}</md-option>
                                 </md-select>
                             </md-input-container>
+                            <div layout layout-align="center center">
+                                <md-button
+                                    ng-disabled="!model.perform[1].status"
+                                    ng-click="fetchRequestsByStatus(model.perform[1].status, 1)"
+                                    class="md-raised md-primary">
+                                    Consultar
+                                </md-button>
+                            </div>
                         </div>
                         <!-- Query by interval of dates -->
                         <div ng-show="model.query == 2" layout="column">
@@ -146,9 +169,16 @@
                             <div layout-padding>
                                 <p>Fecha exacta</p>
                                 <md-datepicker
-                                    ng-change="fetchRequestsByExactDate(model.perform[3].date, 3)"
                                     ng-model="model.perform[3].date"
                                     md-placeholder="Ingese fecha"></md-datepicker>
+                            </div>
+                            <div layout layout-align="center center">
+                                <md-button
+                                    ng-disabled="!model.perform[3].date"
+                                    ng-click="fetchRequestsByExactDate(model.perform[3].date, 3)"
+                                    class="md-raised md-primary">
+                                    Consultar
+                                </md-button>
                             </div>
                         </div>
                         <!-- Query approved amount by interval of dates -->
@@ -205,10 +235,18 @@
                                        ng-keyup="$event.keyCode == 13 && getApprovedAmountById(5)">
                                 </md-input-container>
                             </div>
+                            <div layout layout-align="center center">
+                                <md-button
+                                    ng-disabled="!model.perform[5].id"
+                                    ng-click="getApprovedAmountById(5)"
+                                    class="md-raised md-primary">
+                                    Consultar
+                                </md-button>
+                            </div>
                         </div>
                     </div>
                     <!-- Pending requests -->
-                    <md-list-item>
+                    <md-list-item id="pending-req">
                         <p class="sidenavTitle">
                             Solicitudes pendientes
                         </p>
@@ -250,15 +288,15 @@
                 </md-list>
             </div>
             <!-- Result for specific user requests query -->
-            <div ng-show="showResult == 0">
-                <div class="md-toolbar-tools md-whiteframe-z1">
+            <div ng-if="showResult == 0">
+                <div id="back-to-query" class="md-toolbar-tools md-whiteframe-z1">
                     <md-button ng-click="goBack()" class="md-icon-button">
                         <md-icon>arrow_back</md-icon>
                     </md-button>
                     <span>Atrás</span>
                 </div>
                 <md-list class="sidenavList">
-                    <md-list-item ng-click="loadUserData(fetchId)">
+                    <md-list-item id="user-data" ng-click="loadUserData(fetchId)">
                         <p class="sidenavTitle">
                             Datos del afiliado
                         </p>
@@ -270,7 +308,7 @@
                         </p>
                     </md-list-item>
                     <md-divider></md-divider>
-                    <md-list-item ng-click="toggleList()">
+                    <md-list-item id="result-data" ng-click="toggleList()">
                         <p class="sidenavTitle">
                             Préstamos Personales
                         </p>
@@ -295,8 +333,8 @@
                 </md-list>
             </div>
             <!-- Result for multiple users requests query -->
-            <div ng-show="fetchedRequests()">
-                <div class="md-toolbar-tools md-whiteframe-z1">
+            <div ng-if="fetchedRequests()">
+                <div id="back-to-query" class="md-toolbar-tools md-whiteframe-z1">
                     <md-button ng-click="goBack()" class="md-icon-button">
                         <md-icon>arrow_back</md-icon>
                     </md-button>
@@ -310,7 +348,7 @@
                     </md-list-item>
                     <md-divider></md-divider>
                     <div ng-repeat="(rKey, request) in requests">
-                        <md-list-item ng-click="toggleReqList(request)">
+                        <md-list-item id="result-data" ng-click="toggleReqList(request)">
                             <p class="sidenavTitle">
                                 <md-icon ng-if="showResult != 1" ng-style="getBulbColor(request.status, rKey)">
                                     lightbulb_outline
@@ -364,12 +402,14 @@
             <div layout layout-align="center center" class="full-contet-height"
                 ng-show="pieloaded && docs.length == 0">
                 <div
+                    id="piechart-tour"
                     layout="column"
                     layout-align="center center"
                     layout-padding class="md-whiteframe-z2 statistics-card">
                     <div>
                         <span>{{statisticsTitle}}</span>
                         <md-button
+                            id="report-btn"
                             flex
                             ng-csv="report"
                             add-bom="true"
@@ -401,7 +441,10 @@
                     <md-card class="documents-card">
                         <md-card-content>
                             <md-list>
-                                <md-list-item class="md-3-line" class="noright">
+                                <md-list-item
+                                    id="request-summary"
+                                    class="md-3-line"
+                                    class="noright">
                                     <div class="md-list-item-text request-details-wrapper" layout="column">
                                         <h3 class="request-details-title">
                                             Préstamo solicitado el
@@ -419,7 +462,10 @@
                                         </p>
                                     </div>
                                     <!-- Show only when screen width >= 960px -->
-                                    <div hide show-gt-sm class="md-secondary">
+                                    <div
+                                        id="request-summary-actions"
+                                        hide show-gt-sm
+                                        class="md-secondary">
                                         <md-button ng-click="loadHistory()" class="md-icon-button">
                                             <md-icon>history</md-icon>
                                             <md-tooltip>Historial</md-tooltip>
@@ -440,7 +486,10 @@
                                         </md-button>
                                     </div>
                                     <!-- Show when screen width < 960px -->
-                                    <md-menu hide-gt-sm class="md-secondary">
+                                    <md-menu
+                                        id="request-summary-actions-menu"
+                                        hide-gt-sm
+                                        class="md-secondary">
                                        <md-button ng-click="$mdOpenMenu($event)" class="md-icon-button" aria-label="More">
                                            <md-icon>more_vert</md-icon>
                                        </md-button>
@@ -471,7 +520,7 @@
                                        </md-menu-content>
                                    </md-menu>
                                </md-list-item>
-                                <md-list-item class="md-2-line" class="noright">
+                                <md-list-item id="request-status-summary" class="md-2-line noright">
                                     <md-icon  ng-style="{'font-size':'36px'}">info_outline</md-icon>
                                     <div class="md-list-item-text" layout="column">
                                        <h3>
@@ -500,6 +549,7 @@
                                 <md-divider></md-divider>
                                 <div ng-repeat="(dKey, doc) in docs">
                                     <md-list-item
+                                        id="request-docs"
                                         class="md-2-line"
                                         ng-click="downloadDoc(doc)"
                                         class="noright">

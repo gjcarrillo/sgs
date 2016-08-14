@@ -4,6 +4,10 @@
         <div class="md-toolbar-tools">
             <h2>Nuevo usuario Gestor</h2>
             <span flex></span>
+            <md-button class="md-icon-button" ng-click="showHelp()" aria-label="Help">
+                <md-icon>help_outline</md-icon>
+                <md-tooltip md-direction="top">Ayuda</md-tooltip>
+            </md-button>
             <md-button ng-show="!uploading" class="md-icon-button" ng-click="closeDialog()">
                 <md-icon aria-label="Close dialog">close</md-icon>
             </md-button>
@@ -36,6 +40,7 @@
                             </md-select>
                         </md-input-container>
                         <md-input-container
+                            id="user-id"
                             style="margin:0"
                             md-no-float>
                            <input
@@ -51,7 +56,7 @@
                     <div style="color:grey">
                         Contraseña
                     </div>
-                    <md-input-container style="margin:0" class="md-block" md-no-float>
+                    <md-input-container id="user-psw" style="margin:0" class="md-block" md-no-float>
                         <input required type="password" ng-model="model.psw" placeholder="***********"></input>
                     </md-input-container>
                 </div>
@@ -62,7 +67,7 @@
                     <div style="color:grey">
                         Nombre
                     </div>
-                    <md-input-container style="margin:0" class="md-block" md-no-float>
+                    <md-input-container id="user-name" style="margin:0" class="md-block" md-no-float>
                         <input required type="text" ng-model="model.name" placeholder="Ej: Carlos"></input>
                     </md-input-container>
                 </div>
@@ -70,7 +75,7 @@
                     <div style="color:grey">
                         Apellido
                     </div>
-                    <md-input-container style="margin:0" class="md-block" md-no-float>
+                    <md-input-container id="user-lastname" style="margin:0" class="md-block" md-no-float>
                         <input required type="text" ng-model="model.lastname" placeholder="Ej: Gutierrez"></input>
                     </md-input-container>
                 </div>
@@ -100,6 +105,7 @@
                     </md-input-container>
                 </div>
                 <md-input-container
+                    id="user-id-mobile"
                     style="margin:0"
                     md-no-float>
                    <input
@@ -112,19 +118,31 @@
                 <div style="color:grey">
                     Contraseña
                 </div>
-                <md-input-container style="margin:0" class="md-block" md-no-float>
+                <md-input-container
+                    id="user-psw-mobile"
+                    style="margin:0"
+                    class="md-block"
+                    md-no-float>
                     <input required type="password" ng-model="model.psw" placeholder="***********"></input>
                 </md-input-container>
                 <div style="color:grey">
                     Nombre
                 </div>
-                <md-input-container style="margin:0" class="md-block" md-no-float>
+                <md-input-container
+                    id="user-name-mobile"
+                    style="margin:0"
+                    class="md-block"
+                    md-no-float>
                     <input required type="text" ng-model="model.name" placeholder="Ej: Carlos"></input>
                 </md-input-container>
                 <div style="color:grey">
                     Apellido
                 </div>
-                <md-input-container style="margin:0" class="md-block" md-no-float>
+                <md-input-container
+                    id="user-lastname-mobile"
+                    style="margin:0"
+                    class="md-block"
+                    md-no-float>
                     <input required type="text" ng-model="model.lastname" placeholder="Ej: Gutierrez"></input>
                 </md-input-container>
             </div>
@@ -135,7 +153,11 @@
         </div>
     </md-dialog-content>
     <md-dialog-actions>
-        <md-button ng-disabled="missingField()" ng-hide="uploading" ng-click="createNewAgent()" class="md-primary">
+        <md-button
+            id ="register-btn"
+            ng-disabled="missingField()"
+            ng-hide="uploading" ng-click="createNewAgent()"
+            class="md-primary">
             Registrar
         </md-button>
         <md-progress-circular ng-show="uploading" md-mode="indeterminate" md-diameter="60"></md-progress-circular>

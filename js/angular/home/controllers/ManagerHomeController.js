@@ -3,9 +3,10 @@ angular
     .controller('ManagerHomeController', managerHome);
 
 managerHome.$inject = ['$scope', '$rootScope', '$mdDialog', '$cookies', '$http',
-    '$state', '$timeout', '$mdSidenav'];
+    '$state', '$timeout', '$mdSidenav', '$mdMedia'];
 
-function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $timeout, $mdSidenav) {
+function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
+    $timeout, $mdSidenav, $mdMedia) {
     'use strict';
     $scope.model = {};
     $scope.model.query = -1;
@@ -40,10 +41,6 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
     $scope.showList = false;
     $scope.showPendingReq = false;
     $scope.showAdvSearch = false;
-    $scope.test = true;
-    $scope.testMe = function() {
-        $scope.test = !$scope.test;
-    };
 
     // Check if there is stored data for requests before we went to History
     var requests = JSON.parse(sessionStorage.getItem("requests"));
@@ -475,6 +472,58 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
                         }
                     });
             };
+
+            $scope.showHelp = function() {
+                var options = {
+                    showNavigation : true,
+                    showCloseBox : true,
+                    delay : -1,
+                    tripTheme: "dark",
+                    prevLabel: "Anterior",
+                    nextLabel: "Siguiente",
+                    finishLabel: "Entendido"
+                };
+                showFormHelp(options);
+            };
+
+            /**
+             * Shows tour-based help of all input fields.
+             * @param options: Obj containing tour.js options
+             */
+            function showFormHelp(options) {
+                var tripToShowNavigation = new Trip([], options);
+                if (typeof $scope.model.comment === "undefined" || $scope.model.comment == ""
+                    || $scope.model.comment == $scope.request.comment) {
+                    var content = "Agregue un comentario (opcional) " +
+                    "hacia la solicitud.";
+                    appendFieldHelp(tripToShowNavigation, "#comment", content);
+                }
+                if ($scope.model.status == "Recibida") {
+                    var content = "Seleccione el nuevo estatus de la solicitud.";
+                    appendFieldHelp(tripToShowNavigation, "#status", content);
+                }
+                if ($scope.model.status != "Recibida"
+                    && typeof $scope.model.reunion === "undefined") {
+                    var content = "Agrege el número de reunión (opcional).";
+                    appendFieldHelp(tripToShowNavigation, "#reunion", content);
+                }
+                if ($scope.model.status == "Aprobada"
+                    && typeof $scope.model.approvedAmount === "undefined") {
+                    var content = "Agrege el monto aprobado en Bs.";
+                    appendFieldHelp(tripToShowNavigation, "#approved-amount", content);
+                }
+                if (!$scope.missingField()) {
+                    var content = "Haga click en ACTUALIZAR para guardar los cambios."
+                    appendFieldHelp(tripToShowNavigation, "#edit-btn", content);
+                }
+                tripToShowNavigation.start();
+            }
+
+            function appendFieldHelp(trip, id, content) {
+                trip.tripData.push(
+                    { sel : $(id), content: content, position: "s", animation: 'fadeInUp' }
+                );
+            }
         }
     };
 
@@ -554,6 +603,69 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
                         $scope.uploading = false;
                     });
             };
+
+            $scope.showHelp = function() {
+                var options = {
+                    showNavigation : true,
+                    showCloseBox : true,
+                    delay : -1,
+                    tripTheme: "dark",
+                    prevLabel: "Anterior",
+                    nextLabel: "Siguiente",
+                    finishLabel: "Entendido"
+                };
+                showFormHelp(options);
+            };
+
+            /**
+             * Shows tour-based help of all input fields.
+             * @param options: Obj containing tour.js options
+             */
+            function showFormHelp(options) {
+                var tripToShowNavigation = new Trip([], options);
+                var contentId = "Ingrese la cédula de identidad del nuevo gestor.";
+                var contentPsw = "Ingrese la contraseña con que el nuevo gestor ingresará al sistema.";
+                var contentName = "Ingrese el nombre del gestor.";
+                var contentLastName = "Ingrese el apellido del gestor.";
+                if ($mdMedia('gt-xs')) {
+                    if (typeof $scope.userId === "undefined") {
+                        appendFieldHelp(tripToShowNavigation, "#user-id", contentId);
+                    }
+                    if (typeof $scope.model.psw === "undefined") {
+                        appendFieldHelp(tripToShowNavigation, "#user-psw", contentPsw);
+                    }
+                    if (typeof $scope.model.name === "undefined") {
+                        appendFieldHelp(tripToShowNavigation, "#user-name", contentName);
+                    }
+                    if (typeof $scope.model.lastname === "undefined") {
+                        appendFieldHelp(tripToShowNavigation, "#user-lastname", contentLastName);
+                    }
+                } else {
+                    if (typeof $scope.userId === "undefined") {
+                        appendFieldHelp(tripToShowNavigation, "#user-id-mobile", contentId);
+                    }
+                    if (typeof $scope.model.psw === "undefined") {
+                        appendFieldHelp(tripToShowNavigation, "#user-psw-mobile", contentPsw);
+                    }
+                    if (typeof $scope.model.name === "undefined") {
+                        appendFieldHelp(tripToShowNavigation, "#user-name-mobile", contentName);
+                    }
+                    if (typeof $scope.model.lastname === "undefined") {
+                        appendFieldHelp(tripToShowNavigation, "#user-lastname-mobile", contentLastName);
+                    }
+                }
+                if (!$scope.missingField()) {
+                    var content = "Haga click en REGISTRAR para crear el nuevo gestor."
+                    appendFieldHelp(tripToShowNavigation, "#register-btn", content);
+                }
+                tripToShowNavigation.start();
+            }
+
+            function appendFieldHelp(trip, id, content) {
+                trip.tripData.push(
+                    { sel : $(id), content: content, position: "s", animation: 'fadeInUp' }
+                );
+            }
         }
     };
 
@@ -679,11 +791,183 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state, $ti
         }, 200);
     }
 
-    /**
-     * The following code is used to fill the ng-csv attributes
-     */
+    // Gets current timestamp in seconds and uses it as name for the report file
+    $scope.reportName = function() {
+        return Math.floor(Date.now() / 1000) + ".csv"; // timestamp in seconds
+    };
 
-     $scope.reportName = function() {
-         return Math.floor(Date.now() / 1000) + ".csv"; // timestamp in seconds
-     }
+    $scope.showHelp = function() {
+        var options = {
+            showNavigation : true,
+            showCloseBox : true,
+            delay : -1,
+            tripTheme: "dark",
+            prevLabel: "Anterior",
+            nextLabel: "Siguiente",
+            finishLabel: "Entendido"
+        };
+        if ($scope.pieloaded && $scope.docs.length == 0) {
+            if ($scope.showResult == 0) {
+                showSingleUserResultHelp(options);
+            } else if ($scope.fetchedRequests()) {
+                showMultipleUsersResultHelp(options);
+            }
+        } else if ($scope.docs.length == 0) {
+            // User has not selected any request yet, tell him to do it.
+            showSidenavHelp(options);
+        } else {
+            // Guide user through request selection's possible actions.
+            showRequestHelp(options);
+        }
+    };
+
+    /**
+     * Shows tour-based help of single user result query
+     * @param options: Obj containing tour.js options
+     */
+    function showSingleUserResultHelp(options) {
+        options.showHeader = true;
+        var tripToShowNavigation = new Trip([
+            { sel : $("#piechart-tour"),
+                content : "Esta tarjeta muestra las estadísticas de las solicitudes " +
+                "del afiliado. Los datos aparecen al mover el ratón hacia alguna de las " +
+                "divisiones de la gráfica.",
+                position : "n", header: "Estadísticas", expose: true, animation: 'fadeInUp' },
+            { sel : $("#report-btn"),
+                content : "Puede generar un reporte detallado haciendo click aquí.",
+                position : "s", header: "Generación de reporte", expose: true, animation: 'fadeInDown' }
+        ], options);
+        if ($mdSidenav('left').isLockedOpen()) {
+            // Nav. panel information
+            tripToShowNavigation.tripData.push(
+                { sel : $("#user-data"),
+                    content : "Consulte datos del afiliado",
+                    position : "e", header: "Datos del afiliado", animation: 'fadeInLeft' },
+                { sel : $("#result-data"),
+                    content : "Ésta es la lista de solicitudes del afiliado. Para facilitar " +
+                    "la elección, el estatus de cada una está identificada por un bombillo " +
+                    "amarillo, verde y rojo para Recibida, Aprobada y Rechazada, respectivamente.",
+                    position : "e", header: "Préstamos personales", animation: 'fadeInRight' },
+                { sel : $("#back-to-query"),
+                    content : "Para hacer otro tipo de consulta, haga click aquí.",
+                    position : "e", header: "Atrás", animation: 'fadeInRight' }
+            );
+        }
+        tripToShowNavigation.start();
+    };
+
+    /**
+     * Shows tour-based help of multiple users result query
+     * @param options: Obj containing tour.js options
+     */
+    function showMultipleUsersResultHelp(options) {
+        options.showHeader = true;
+        var tripToShowNavigation = new Trip([
+            { sel : $("#piechart-tour"),
+                content : "Esta tarjeta muestra las estadísticas de las solicitudes " +
+                "del afiliado. Los datos aparecen al mover el ratón hacia alguna de las " +
+                "divisiones de la gráfica.",
+                position : "n", header: "Estadísticas", expose: true, animation: 'fadeInTop' },
+            { sel : $("#report-btn"),
+                content : "Puede generar un reporte detallado haciendo click aquí.",
+                position : "s", header: "Generación de reporte", expose: true, animation: 'fadeInDown' }
+        ], options);
+        if ($mdSidenav('left').isLockedOpen()) {
+            // Nav. panel information
+            if ($scope.showResult !== 1) {
+                var content = "Éstas son las solicitudes resultantes de la búsqueda. " +
+                "Al hacer click en alguna de ellas, podrá consultar los datos del afiliado " +
+                "o ver los detalles de la solicitud. Para facilitar " +
+                "la elección, el estatus de cada una está identificada por un bombillo " +
+                "amarillo, verde y rojo para Recibida, Aprobada y Rechazada, respectivamente.";
+            } else {
+                var content = "Éstas son las solicitudes resultantes de la búsqueda. " +
+                "Al hacer click en alguna de ellas, podrá consultar los datos del afiliado " +
+                "o ver los detalles de la solicitud.";
+            }
+            tripToShowNavigation.tripData.push(
+                { sel : $("#result-data"),
+                    content : content,
+                    position : "e", header: "Solicitudes", animation: 'fadeInRight' },
+                { sel : $("#back-to-query"),
+                    content : "Para hacer otro tipo de consulta, haga click aquí.",
+                    position : "e", header: "Atrás", animation: 'fadeInRight' }
+            );
+        }
+        tripToShowNavigation.start();
+    }
+
+    /**
+     * Shows tour-based help of side navigation panel
+     * @param options: Obj containing tour.js options
+     */
+    function showSidenavHelp(options) {
+        if ($mdSidenav('left').isLockedOpen()) {
+            options.showHeader = true;
+            var tripToShowNavigation = new Trip([
+                { sel : $("#pending-req"),
+                    content : "Ésta es la lista de solicitudes por administrar. Al seleccionar " +
+                    "alguna, puede verificar los datos del solicitante o ver los detalles de " +
+                    "la solicitud para administrarla.",
+                    position : "e", header: "Solicitudes pendientes", animation: 'fadeInUp' },
+                { sel : $("#adv-search"),
+                    content : "También puede realizar búsquedas más específicas de las solicitudes. " +
+                    "Sólo seleccione el tipo de consulta e ingrese los datos solicitados.",
+                    position : "e", header: "Búsqueda avanzada", animation: 'fadeInUp' }
+
+            ], options);
+            tripToShowNavigation.start();
+        } else {
+            var tripToShowNavigation = new Trip([
+                { sel : $("#nav-panel"),
+                    content : "Haga click en el ícono para abrir el panel de navegación," +
+                    " donde podrá elegir las solicitudes a administrar o realizar búsquedas avanzadas.",
+                    position : "e", animation: 'fadeInUp'}
+            ], options);
+            tripToShowNavigation.start();
+        }
+    }
+
+     /**
+      * Shows tour-based help of selected request details section.
+      * @param options: Obj containing tour.js options
+      */
+    function showRequestHelp(options) {
+        options.showHeader = true;
+        // options.showSteps = true;
+        var tripToShowNavigation = new Trip([
+            // Request summary information
+            { sel : $("#request-summary"), content : "Aquí se muestra información acerca de " +
+                "la fecha de creación, monto solicitado, y un comentario de haberlo realizado.",
+                position : "s", header: "Resumen de la solicitud", expose : true },
+            // Request status information
+            { sel : $("#request-status-summary"), content : "Esta sección provee información " +
+                "acerca del estatus de la solicitud.",
+                position : "s", header: "Resumen de estatus", expose : true, animation: 'fadeInDown' },
+            // Request documents information
+            { sel : $("#request-docs"), content : "Éste y los siguientes items contienen " +
+                "el nombre y, de existir, una descripción de cada documento en la solicitud. " +
+                "Puede verlos/descargarlos haciendo click encima de ellos.",
+                position : "s", header: "Documentos", expose : true, animation: 'fadeInDown' }
+        ], options);
+
+        if ($mdSidenav('left').isLockedOpen()) {
+            tripToShowNavigation.tripData.push(
+                // Download as zip information
+                { sel : $("#request-summary-actions"), content : "Puede ver el historial de la solicitud, " +
+                    "editarla (si la solicitud no se ha cerrado), o descargar todos " +
+                    "sus documentos presionando el botón correspondiente.",
+                    position : "w", header: "Acciones", expose : true, animation: 'fadeInLeft' }
+            );
+        } else {
+            tripToShowNavigation.tripData.push(
+                // Download as zip information request-summary-actions-menu
+                { sel : $("#request-summary-actions-menu"), content : "Haga click en el botón de opciones para " +
+                    "ver el historial de la solicitud, editarla (si la solicitud no se ha cerrado)" +
+                    ", o descargar todos sus documentos.",
+                    position : "w", header: "Acciones", expose : true, animation: 'fadeInLeft' }
+            );
+        }
+        tripToShowNavigation.start();
+    }
 }
