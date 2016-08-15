@@ -94,6 +94,7 @@ class ManagerHomeController extends CI_Controller {
 							array("FECHA Y HORA DE GENERACIÓN DE REPORTE: " . $now)
 						);
 						$result['report']['dataTitle'] = "SOLICITUDES DEL AFILIADO " . strtoupper($applicant);
+						$result['report']['filename'] = $result['report']['dataTitle'];
 						$result['report']['dataHeader'] = array(
 							'Nro.', 'Identificador', 'Fecha de creación', 'Estatus', 'Nro. de Reunión',
 							 'Monto solicitado (Bs)', 'Monto aprobado (Bs)', 'Comentario'
@@ -158,25 +159,20 @@ class ManagerHomeController extends CI_Controller {
                             $result['requests'][$rKey]['docs'][$dKey]['lpath'] = $doc->getLpath();
                         }
 						// Gather up report information
-						$totalRequested += $result['requests'][$rKey]['reqAmount'];
-						$result['report'][$rKey]['id'] = sprintf('%06d', $request->getId());
-						$result['report'][$rKey]['applicantId'] = $result['requests'][$rKey]['userOwner'];
-						$result['report'][$rKey]['creationDate'] = $request->getCreationDate()->format('d/m/y');
-						$result['report'][$rKey]['comment'] = $request->getComment();
-						$result['report'][$rKey]['reqAmount'] = number_format(
-							$request->getRequestedAmount(), 2
+						$result['report']['data'][$rKey] = array(
+							$rKey+1,
+							$request->getId(),
+							$request->getCreationDate()->format('d/m/Y'),
 						);
-						if ($_GET['status'] === "Aprobada") {
-							$result['report'][$rKey]['approvedAmount'] = number_format(
-								$request->getApprovedAmount(), 2
-							);
-							$totalApproved = (
-								$result['requests'][$rKey]['approvedAmount'] === null ? $totalApproved + 0 : $totalApproved + $result['requests'][$rKey]['approvedAmount']
-							);
-						}
 						if ($_GET['status'] !== "Recibida") {
-							$result['report'][$rKey]['reunion'] = $request->getReunion();
+							array_push($result['report']['data'][$rKey], $request->getReunion());
 						}
+						array_push($result['report']['data'][$rKey], $request->getRequestedAmount());
+						if ($_GET['status'] === "Aprobada") {
+							array_push($result['report']['data'][$rKey], $request->getApprovedAmount());
+						}
+						array_push($result['report']['data'][$rKey], $request->getComment());
+
                     }
 					// Fill up pie chart information
 					$received = $_GET['status'] === "Recibida" ? count($requests) : (
@@ -204,38 +200,32 @@ class ManagerHomeController extends CI_Controller {
 					$result['pie']['hoverBackgroundColor'][2] = "#F44336"; // 500 red
 					// Fill up report information
 					$dataHeader = array(
-						'Identificador', 'Solicitante', 'Fecha de creación', 'Comentario', 'Monto solicitado (Bs)'
+						'Nro.', 'Identificador', 'Fecha de creación'
 					 );
+					 if ($_GET['status'] !== "Recibida") {
+						 array_push($dataHeader, 'Nro. de Reunión');
+					 }
+					 array_push($dataHeader, 'Monto solicitado (Bs)');
 					if ($_GET['status'] === "Aprobada") {
 						array_push($dataHeader, 'Monto aprobado (Bs)');
 					}
-					if ($_GET['status'] !== "Recibida") {
-						array_push($dataHeader, 'Reunión');
-					}
-					array_unshift($result['report'], $dataHeader);
-					array_unshift($result['report'], array(""));
-					array_unshift($result['report'], array("Solicitudes en estatus " . $_GET['status']));
+					array_push($dataHeader, 'Comentario');
+
 					$now = (new DateTime('now', new DateTimeZone('America/Barbados')))->format('d/m/Y - h:i:sa');
-					array_unshift($result['report'], array(
-						"Fecha y hora de generación de reporte: " . $now
-					));
-					array_push($result['report'], array(""));
-					array_push($result['report'], array(
-						"Monto solicitado total: Bs " . number_format($totalRequested, 2))
+					$result['report']['header'] = array(
+						array("SGDP - IPAPEDI"),
+						array("FECHA Y HORA DE GENERACIÓN DE REPORTE: " . $now)
+					);
+					$result['report']['dataTitle'] = "SOLICITUDES EN ESTATUS '" . strtoupper($_GET['status'] . "'");
+					$result['report']['dataHeader'] = $dataHeader;
+					$result['report']['total'] = array(
+						array("Monto solicitado total", "")
 					);
 					if ($_GET['status'] === "Aprobada") {
-						array_push($result['report'], array(
-							"Monto aprobado total: Bs " . number_format($totalApproved, 2))
+						array_push($result['report']['total'], array(
+							"Monto aprobado total", "")
 						);
 					}
-					array_push($result['report'], array(""));
-					array_push($result['report'], array("Total de solicitudes en el sistema"));
-					array_push($result['report'],
-						array("Solicitudes con estatus Recibida: " . $received . " (" . $result['pie']['data'][0] . "%)"));
-					array_push($result['report'],
-						array("Solicitudes con estatus Aprobada: " . $approved . " (" . $result['pie']['data'][1] . "%)"));
-					array_push($result['report'],
-						array("Solicitudes con estatus Rechazada: " . $rejected . " (" . $result['pie']['data'][2] . "%)"));
 					$result['message'] = "success";
 				}
             } catch (Exception $e) {
@@ -306,22 +296,16 @@ class ManagerHomeController extends CI_Controller {
 							$rejected++;
 						}
 						// Gather up report information
-						$totalRequested += $result['requests'][$rKey]['reqAmount'];
-						$totalApproved = (
-							$result['requests'][$rKey]['approvedAmount'] === null ? $totalApproved + 0 : $totalApproved + $result['requests'][$rKey]['approvedAmount']
+						$result['report']['data'][$rKey] = array(
+							$rKey+1,
+							$request->getId(),
+							$request->getCreationDate()->format('d/m/Y'),
+							$request->getStatusByText(),
+							$request->getReunion(),
+							$request->getRequestedAmount(),
+							$request->getApprovedAmount(),
+							$request->getComment()
 						);
-						$result['report'][$rKey]['id'] = sprintf('%06d', $request->getId());
-						$result['report'][$rKey]['applicantId'] = $result['requests'][$rKey]['userOwner'];
-						$result['report'][$rKey]['creationDate'] = $request->getCreationDate()->format('d/m/y');
-						$result['report'][$rKey]['comment'] = $request->getComment();
-						$result['report'][$rKey]['reqAmount'] = number_format(
-							$request->getRequestedAmount(), 2
-						);
-						$result['report'][$rKey]['approvedAmount'] = number_format(
-							$request->getApprovedAmount(), 2
-						);
-						$result['report'][$rKey]['reunion'] = $request->getReunion();
-						$result['report'][$rKey]['status'] = $request->getStatusByText();
                     }
 					// Fill up pie chart information
 					$result['pie']['title'] = $days > 0 ? (
@@ -342,33 +326,37 @@ class ManagerHomeController extends CI_Controller {
 					$result['pie']['hoverBackgroundColor'][1] = "#00E676"; // A400 green
 					$result['pie']['hoverBackgroundColor'][2] = "#F44336"; // 500 red
 					// Fill up report information
-					$dataHeader = array(
-						'Identificador', 'Solicitante', 'Fecha de creación', 'Comentario', 'Monto solicitado (Bs)',
-						 'Monto aprobado (Bs)', 'Reunión', 'Estatus'
-					 );
-					array_unshift($result['report'], $dataHeader);
-					array_unshift($result['report'], array(""));
-					array_unshift($result['report'], array(
-						"Solicitudes realizadas desde: " . $from->format('d/m/Y - h:i:sa') . " hasta: " . $to->format('d/m/Y - h:i:sa')
-					));
 					$now = (new DateTime('now', new DateTimeZone('America/Barbados')))->format('d/m/Y - h:i:sa');
-					array_unshift($result['report'], array(
-						"Fecha y hora de generación de reporte: " . $now
-					));
-					array_push($result['report'], array(""));
-					array_push($result['report'], array(
-						"Monto solicitado total: Bs " . number_format($totalRequested, 2))
+					$result['report']['header'] = array(
+						array("SGDP - IPAPEDI"),
+						array("FECHA Y HORA DE GENERACIÓN DE REPORTE: " . $now)
 					);
-					array_push($result['report'], array(
-						"Monto aprobado total: Bs " . number_format($totalApproved, 2))
+					$interval = $days > 0 ? "DEL " . $from->format('d/m/Y') . " HASTA EL " . $to->format('d/m/Y') : "EL " . $to->format('d/m/Y');
+					$dataTitle = "SOLICITUDES REALIZADAS " . $interval;
+					$filename =  $days > 0 ? "DEL " . $from->format('d-m-Y') . " HASTA EL " . $to->format('d-m-Y') : "EL " . $to->format('d-m-Y');
+					$result['report']['filename'] = $filename;
+					$result['report']['dataTitle'] = $dataTitle;
+					$result['report']['dataHeader'] = array(
+						'Nro.', 'Identificador', 'Fecha de creación', 'Estatus', 'Nro. de Reunión',
+						 'Monto solicitado (Bs)', 'Monto aprobado (Bs)', 'Comentario'
+					 );
+					$result['report']['total'] = array(
+						array("Monto solicitado total", ""),
+						array("Monto aprobado total", "")
 					);
-					array_push($result['report'], array(""));
-					array_push($result['report'],
-						array("Solicitudes con estatus Recibida: " . $received . " (" . $result['pie']['data'][0] . "%)"));
-					array_push($result['report'],
-						array("Solicitudes con estatus Aprobada: " . $approved . " (" . $result['pie']['data'][1] . "%)"));
-					array_push($result['report'],
-						array("Solicitudes con estatus Rechazada: " . $rejected . " (" . $result['pie']['data'][2] . "%)"));
+					$result['report']['stats']['title'] = "ESTADÍSTICAS DE SOLICITUDES DEL AFILIADO";
+					$result['report']['stats']['dataHeader'] = array(
+						'Estatus', 'Cantidad', 'Porcentaje'
+					 );
+					$result['report']['stats']['data'][0] = array(
+						"Recibida",  "", ""
+					);
+					$result['report']['stats']['data'][1] = array(
+						"Aprobada",  "", ""
+					);
+					$result['report']['stats']['data'][2] = array(
+						"Rechazada",  "", ""
+					);
 					$result['message'] = "success";
                 }
             } catch (Exception $e) {

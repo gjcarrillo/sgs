@@ -31,7 +31,7 @@ class DocumentGenerator extends CI_Controller {
 		echo json_encode($result);
     }
 
-	public function generateUserRequestsReport() {
+	public function generateRequestsReport() {
 		if ($_SESSION['type'] != 2) {
 			$this->load->view('errors/index.html');
 		} else {
@@ -41,7 +41,7 @@ class DocumentGenerator extends CI_Controller {
 			// activate worksheet number 1
 			$this->excel->setActiveSheetIndex(0);
 			// name the worksheet
-			$this->excel->getActiveSheet()->setTitle('test worksheet');
+			$this->excel->getActiveSheet()->setTitle($data['sheetTitle']);
 			// Fill the content
 			$this->excel->getActiveSheet()->fromArray((array)$data['header'], NULL, 'A1');
 			// Offset will give **starting** cell
@@ -134,6 +134,120 @@ class DocumentGenerator extends CI_Controller {
 			$this->excel->getActiveSheet()->getColumnDimension('F')->setAutoSize(true);
 			$this->excel->getActiveSheet()->getColumnDimension('G')->setAutoSize(true);
 			$this->excel->getActiveSheet()->getColumnDimension('H')->setAutoSize(true);
+			// (PATCH) Initialize cell selection, otherwise might get a bit crazy
+			$this->excel->getActiveSheet()->setSelectedCells('A1');
+			// Save our workbook as this file name
+			$filename="REPORTE - " . $data['filename'] . ".xls";
+			// save it to Excel5 format (excel 2003 .XLS file)
+			$objWriter = PHPExcel_IOFactory::createWriter($this->excel, 'Excel5');
+			// Create the excel
+			$objWriter->save(DropPath . $filename);
+			// Successful operation
+			$result['lpath'] = $filename;
+			$result['message'] = "success";
+		}
+		echo json_encode($result);
+	}
+
+	public function generateStatusRequestsReport() {
+		if ($_SESSION['type'] != 2) {
+			$this->load->view('errors/index.html');
+		} else {
+			$data = json_decode(file_get_contents('php://input'), true);
+			// load PHPExcel library
+			$this->load->library('excel');
+			// activate worksheet number 1
+			$this->excel->setActiveSheetIndex(0);
+			// name the worksheet
+			$this->excel->getActiveSheet()->setTitle('Reporte por estatus');
+			// Fill the content
+			$this->excel->getActiveSheet()->fromArray((array)$data['header'], NULL, 'A1');
+			// Offset will give **starting** cell
+			// Report header offset plus one empty row
+			$offset = count($data['header']) + 2;
+			// Set table title
+			$this->excel->getActiveSheet()->setCellValue('A' . $offset, $data['dataTitle']);
+			// data title offset plus one empty row
+			$offset += 2;
+			// Set table header
+			$this->excel->getActiveSheet()->fromArray((array)$data['dataHeader'], NULL, 'A' . $offset);
+			// dataHeader offset
+			$offset++;
+			// Set table data
+			$this->excel->getActiveSheet()->fromArray((array)$data['data'], NULL, 'A' . $offset);
+			// data offset
+			$offset += count($data['data']);
+			// Extend table for total amounts
+			if ($data['status'] == "Recibida") {
+				// Don't take reunion number into account
+				$this->excel->getActiveSheet()->fromArray((array)$data['total'], NULL, 'C' . $offset);
+				$totalStartCell = 'C';
+				$requestedCell = $totalValCell = 'D';
+				$lastCell = 'E';
+			} else if ($data['status'] == "Rechazada") {
+				// Take reunion number into account
+				$this->excel->getActiveSheet()->fromArray((array)$data['total'], NULL, 'D' . $offset);
+				$totalStartCell = 'D';
+				$requestedCell = $totalValCell = 'E';
+				$lastCell = 'F';
+			} else {
+				$this->excel->getActiveSheet()->fromArray((array)$data['total'], NULL, 'E' . $offset);
+				$totalStartCell = $requestedCell = 'E';
+				$totalValCell = 'F';
+				$lastCell = 'G';
+			}
+			$this->excel->getActiveSheet()
+				->setCellValue($totalValCell . $offset, '=SUM(' . $requestedCell . '7:' . $requestedCell . ($offset-1) . ')');
+			if ($data['status'] == "Aprobada") {
+				$this->excel->getActiveSheet()->setCellValue($totalValCell . ($offset+1), '=SUM(F7:F' . ($offset-1) . ')');
+			}
+			// Merge header and dataTitle cells
+			$this->excel->getActiveSheet()->mergeCells('A1:' . $lastCell .'1');
+			$this->excel->getActiveSheet()->mergeCells('A2:' . $lastCell . '2');
+			$this->excel->getActiveSheet()->mergeCells('A4:' . $lastCell .'4');
+			// Align horizontally, as a title is supposed to be.
+			$this->excel->getActiveSheet()->getStyle('A4')->getAlignment()
+			->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+			$tableBorders = array(
+				'borders' => array(
+					'allborders' => array(
+						'style' => PHPExcel_Style_Border::BORDER_THIN
+					)
+				),
+			);
+			$headerStyle = array(
+				'fill' => array(
+					'type' => PHPExcel_Style_Fill::FILL_SOLID,
+					'startcolor' => array(
+						'rgb' => 'CCCCCC'
+					)
+				)
+			);
+			// Table offset
+			$tableOffset = 6 + count($data['data']);
+			$tableExtensionEnd = $data['status'] == "Aprobada" ? $tableOffset+2 : $tableOffset+1;
+			// Add table style
+			$this->excel->getActiveSheet()->getStyle('A6:' . $lastCell . $tableOffset)->applyFromArray($tableBorders);
+			// Extend table style for requested & approved total amount
+			$this->excel->getActiveSheet()->getStyle($totalStartCell . ($tableOffset+1) . ':' . $totalValCell . $tableExtensionEnd)
+				->applyFromArray($tableBorders);
+			// Add table header style
+			$this->excel->getActiveSheet()->getStyle('A6:' . $lastCell . '6')->applyFromArray($headerStyle);
+			// Add table data numbers separator
+			$this->excel->getActiveSheet()->getStyle($totalStartCell . 	'7:' . $totalValCell . ($tableOffset+2))->getNumberFormat()
+				->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
+			// Configure columns width
+			$this->excel->getActiveSheet()->getColumnDimension('A')->setWidth(10);
+			$this->excel->getActiveSheet()->getColumnDimension('B')->setAutoSize(true);
+			$this->excel->getActiveSheet()->getColumnDimension('C')->setAutoSize(true);
+			$this->excel->getActiveSheet()->getColumnDimension('D')->setAutoSize(true);
+			$this->excel->getActiveSheet()->getColumnDimension('E')->setAutoSize(true);
+			if ($lastCell >= 'F') {
+				$this->excel->getActiveSheet()->getColumnDimension('F')->setAutoSize(true);
+			}
+			if ($lastCell >= 'G') {
+				$this->excel->getActiveSheet()->getColumnDimension('G')->setAutoSize(true);
+			}
 			// (PATCH) Initialize cell selection, otherwise might get a bit crazy
 			$this->excel->getActiveSheet()->setSelectedCells('A1');
 			// Save our workbook as this file name

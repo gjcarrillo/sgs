@@ -175,6 +175,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
                     $scope.pieloaded = true;
                     drawPie(response.data.pie);
                     $scope.report = response.data.report;
+                    $scope.report.status = status;
                 } else {
                     $scope.fetchError = response.data.error;
                 }
@@ -970,13 +971,19 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
 
     $scope.generateExcelReport = function() {
         $scope.loadingReport = true;
+        var url = ''
+        if ($scope.showResult == 0 || $scope.showResult > 1) {
+            $scope.report.sheetTitle = $scope.showResult > 1 ? "Reporte por fechas" : "Reporte de afiliado";
+            url = 'index.php/documents/DocumentGenerator/generateRequestsReport';
+        } else if ($scope.showResult == 1) {
+            url = 'index.php/documents/DocumentGenerator/generateStatusRequestsReport';
+        }
         var report = JSON.stringify($scope.report);
-        $http.post('index.php/documents/DocumentGenerator/generateUserRequestsReport', report)
-            .then(function (response) {
-                if (response.data.message == "success") {
-                    location.href = 'index.php/documents/DocumentGenerator/downloadReport?lpath=' + response.data.lpath;
-                }
-                $scope.loadingReport = false;
-            });
+        $http.post(url, report).then(function (response) {
+            if (response.data.message == "success") {
+                location.href = 'index.php/documents/DocumentGenerator/downloadReport?lpath=' + response.data.lpath;
+            }
+            $scope.loadingReport = false;
+        });
     };
 }
