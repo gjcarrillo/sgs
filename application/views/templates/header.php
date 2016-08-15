@@ -30,12 +30,10 @@
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/users/controllers/UserInfoController.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/generator/controllers/DocumentGenerator.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/angular-ui-router.min.js"></script>
+        <!-- Utilities -->
         <script type="text/javascript" src="<?php echo base_url(); ?>js/webcam.min.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/moment/moment.js"></script>
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/chart.js/dist/Chart.min.js"></script>
-        <!-- Import Angular CSV for excel documents generation -->
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/ng-csv/angular-sanitize.min.js"></script>
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/ng-csv/ng-csv.min.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>js/chart.js/dist/Chart.js"></script>
         <!-- Import Angular File Upload -->
         <script type="text/javascript" src="<?php echo base_url(); ?>js/ng-file-upload/ng-file-upload.min.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/ng-file-upload-shim/ng-file-upload-shim.min.js"></script>

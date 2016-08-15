@@ -18,6 +18,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
     $scope.showOptions = true;
     $scope.showResult = -1;
     $scope.chart = null;
+    $scope.loadingReport = false;
     $scope.statuses = ["Recibida", "Aprobada", "Rechazada"];
     $scope.queries = [
         { category: 'req', name: 'Por cédula', id: 0},
@@ -146,7 +147,6 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
                     $scope.showResult = index;
                     $scope.pieloaded = true;
                     $scope.report = response.data.report;
-                    console.log($scope.report);
                     drawPie(response.data.pie);
                 } else {
                     $scope.fetchError = response.data.error;
@@ -758,6 +758,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
         // Recycle the chart
         $scope.statisticsTitle = pie.title;
         $timeout(function() {
+            // timeout will allow user to see the drawing animation
             if ($scope.chart !== null) {
                 $scope.chart.destroy();
             }
@@ -790,11 +791,6 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
             });
         }, 200);
     }
-
-    // Gets current timestamp in seconds and uses it as name for the report file
-    $scope.reportName = function() {
-        return Math.floor(Date.now() / 1000) + ".csv"; // timestamp in seconds
-    };
 
     $scope.showHelp = function() {
         var options = {
@@ -970,4 +966,17 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
         }
         tripToShowNavigation.start();
     }
+
+
+    $scope.generateExcelReport = function() {
+        $scope.loadingReport = true;
+        var report = JSON.stringify($scope.report);
+        $http.post('index.php/documents/DocumentGenerator/generateUserRequestsReport', report)
+            .then(function (response) {
+                if (response.data.message == "success") {
+                    location.href = 'index.php/documents/DocumentGenerator/downloadReport?lpath=' + response.data.lpath;
+                }
+                $scope.loadingReport = false;
+            });
+    };
 }

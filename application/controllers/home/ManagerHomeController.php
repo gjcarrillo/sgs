@@ -60,21 +60,16 @@ class ManagerHomeController extends CI_Controller {
 								$rejected++;
 							}
 							// Gather up report information
-							$totalRequested += $result['requests'][$rKey]['reqAmount'];
-							$totalApproved = (
-								$result['requests'][$rKey]['approvedAmount'] === null ? $totalApproved + 0 : $totalApproved + $result['requests'][$rKey]['approvedAmount']
+							$result['report']['data'][$rKey] = array(
+								$rKey+1,
+								$request->getId(),
+								$request->getCreationDate()->format('d/m/Y'),
+								$request->getStatusByText(),
+								$request->getReunion(),
+								$request->getRequestedAmount(),
+								$request->getApprovedAmount(),
+								$request->getComment()
 							);
-							$result['report'][$rKey]['id'] = sprintf('%06d', $request->getId());
-							$result['report'][$rKey]['creationDate'] = $request->getCreationDate()->format('d/m/y');
-							$result['report'][$rKey]['comment'] = $request->getComment();
-							$result['report'][$rKey]['reqAmount'] = number_format(
-								$request->getRequestedAmount(), 2
-							);
-							$result['report'][$rKey]['approvedAmount'] = number_format(
-								$request->getApprovedAmount(), 2
-							);
-							$result['report'][$rKey]['reunion'] = $request->getReunion();
-							$result['report'][$rKey]['status'] = $request->getStatusByText();
 						}
 						// Fill up pie chart information
 						$result['pie']['title'] = "Estadísticas de solicitudes para el afiliado";
@@ -92,32 +87,34 @@ class ManagerHomeController extends CI_Controller {
 						$result['pie']['hoverBackgroundColor'][1] = "#00E676"; // A400 green
 						$result['pie']['hoverBackgroundColor'][2] = "#F44336"; // 500 red
 						// Fill up report information
-						$dataHeader = array(
-							'Identificador', 'Fecha de creación', 'Comentario', 'Monto solicitado (Bs)',
-							 'Monto aprobado (Bs)', 'Reunión', 'Estatus'
-						 );
-						array_unshift($result['report'], $dataHeader);
 						$applicant = $user->getId() . ' - ' .$user->getName() . ' ' . $user->getLastName();
-						array_unshift($result['report'], array(""));
-						array_unshift($result['report'], array("Solicitudes del solicitante: " . $applicant));
 						$now = (new DateTime('now', new DateTimeZone('America/Barbados')))->format('d/m/Y - h:i:sa');
-						array_unshift($result['report'], array(
-							"Fecha y hora de generación de reporte: " . $now
-						));
-						array_push($result['report'], array(""));
-						array_push($result['report'], array(
-							"Monto solicitado total: Bs " . number_format($totalRequested, 2))
+						$result['report']['header'] = array(
+							array("SGDP - IPAPEDI"),
+							array("FECHA Y HORA DE GENERACIÓN DE REPORTE: " . $now)
 						);
-						array_push($result['report'], array(
-							"Monto aprobado total: Bs " . number_format($totalApproved, 2))
+						$result['report']['dataTitle'] = "SOLICITUDES DEL AFILIADO " . strtoupper($applicant);
+						$result['report']['dataHeader'] = array(
+							'Nro.', 'Identificador', 'Fecha de creación', 'Estatus', 'Nro. de Reunión',
+							 'Monto solicitado (Bs)', 'Monto aprobado (Bs)', 'Comentario'
+						 );
+						$result['report']['total'] = array(
+							array("Monto solicitado total", ""),
+							array("Monto aprobado total", "")
 						);
-						array_push($result['report'], array(""));
-						array_push($result['report'],
-							array("Solicitudes con estatus Recibida: " . $received . " (" . $result['pie']['data'][0] . "%)"));
-						array_push($result['report'],
-							array("Solicitudes con estatus Aprobada: " . $approved . " (" . $result['pie']['data'][1] . "%)"));
-						array_push($result['report'],
-							array("Solicitudes con estatus Rechazada: " . $rejected . " (" . $result['pie']['data'][2] . "%)"));
+						$result['report']['stats']['title'] = "ESTADÍSTICAS DE SOLICITUDES DEL AFILIADO";
+						$result['report']['stats']['dataHeader'] = array(
+							'Estatus', 'Cantidad', 'Porcentaje'
+						 );
+						$result['report']['stats']['data'][0] = array(
+							"Recibida",  "", ""
+						);
+						$result['report']['stats']['data'][1] = array(
+							"Aprobada",  "", ""
+						);
+						$result['report']['stats']['data'][2] = array(
+							"Rechazada",  "", ""
+						);
 						$result['message'] = "success";
 					}
 				}

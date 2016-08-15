@@ -78,7 +78,6 @@ class UserHomeController extends CI_Controller {
             } else {
                 header('Content-Disposition: attachment; filename="' . $parsed[2] . '.' . $parsed[3] . '"');
             }
-
             // The document source
             readfile(DropPath . $_GET['lpath']);
         }
@@ -104,7 +103,7 @@ class UserHomeController extends CI_Controller {
             }
         }
         $zip->close();
-
+		ignore_user_abort(true);
         header('Content-Type: application/zip');
         header('Content-disposition: attachment; filename='.$zipname);
         header('Content-Length: ' . filesize($zipname));

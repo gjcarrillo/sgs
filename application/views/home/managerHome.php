@@ -406,19 +406,21 @@
                     layout="column"
                     layout-align="center center"
                     layout-padding class="md-whiteframe-z2 statistics-card">
-                    <div>
+                    <div layout layout-align="center center">
                         <span>{{statisticsTitle}}</span>
                         <md-button
                             id="report-btn"
-                            flex
-                            ng-csv="report"
-                            add-bom="true"
-                            filename="{{reportName()}}"
+                            ng-hide="loadingReport"
                             class="md-icon-button"
-                            ng-click="null">
+                            ng-click="generateExcelReport()">
                             <md-icon>assignment</md-icon>
                             <md-tooltip md-direction="top">Generar reporte</md-tooltip>
                         </md-button>
+                        <md-progress-circular
+                            ng-show="loadingReport"
+                            md-mode="indeterminate"
+                            md-diameter="40">
+                        </md-progress-circular>
                     </div>
                     <canvas id="piechart" width="300" height="300"></canvas>
                 </div>
