@@ -134,6 +134,8 @@ class DocumentGenerator extends CI_Controller {
 			$this->excel->getActiveSheet()->getColumnDimension('F')->setAutoSize(true);
 			$this->excel->getActiveSheet()->getColumnDimension('G')->setAutoSize(true);
 			$this->excel->getActiveSheet()->getColumnDimension('H')->setAutoSize(true);
+			// (PATCH) Initialize cell selection, otherwise might get a bit crazy
+			$this->excel->getActiveSheet()->setSelectedCells('A1');
 			// Save our workbook as this file name
 			$filename="REPORTE - " . $data['dataTitle'] . ".xls";
 			// save it to Excel5 format (excel 2003 .XLS file)
