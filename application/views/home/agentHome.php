@@ -58,7 +58,7 @@
             </div>
         </div>
         <!-- Hide on width >= 600px screen -->
-        <div id="search" hide-gt-xs layout style="margin-top:25px; padding-left:10px;">
+        <div id="search-mobile" hide-gt-xs layout style="margin-top:25px; padding-left:10px;">
             <div>
                 <md-input-container
                     md-no-float>

@@ -57,7 +57,7 @@ class ManageRequestController extends CI_Controller {
 					}
                     if (isset($_GET['reunion']) && $request->getReunion() !== $_GET['reunion']) {
                         $action = new \Entity\HistoryAction();
-                        $action->setSummary("Número de reunión especificado");
+                        $action->setSummary("Número de reunión especificado.");
                         $action->setDetail("Reunión #" . $_GET['reunion']);
                         $action->setBelongingHistory($history);
                         $history->addAction($action);

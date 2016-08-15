@@ -30,6 +30,7 @@
         </md-input-container>
         <!-- Hide on width >= 600px screen -->
         <md-input-container
+            id="filter-mobile"
             hide-gt-xs
             md-no-float
             md-theme="whiteInput"

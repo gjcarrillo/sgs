@@ -3,10 +3,10 @@ angular
     .controller('AgentHomeController', agentHome);
 
 agentHome.$inject = ['$scope', '$rootScope', '$mdDialog', 'Upload', '$cookies', '$http', '$state',
-    '$timeout', '$mdSidenav'];
+    '$timeout', '$mdSidenav', '$mdMedia'];
 
 function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $state,
-    $timeout, $mdSidenav) {
+    $timeout, $mdSidenav, $mdMedia) {
     'use strict';
     $scope.loading = false;
     $scope.selectedReq = -1;
@@ -911,8 +911,13 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
      * @param options: Obj containing tour.js options
      */
     function showSearchbarHelp(options) {
+        if ($mdMedia('gt-xs')) {
+            var id = "#search";
+        } else {
+            var id = "#search-mobile";
+        }
         var tripToShowNavigation = new Trip([
-            { sel : $("#search"),
+            { sel : $(id),
                 content : "Ingrese la cédula de identidad de algún afiliado para " +
                 "gestionar sus solicitudes.",
                 position : "s", animation: 'fadeInDown' }
