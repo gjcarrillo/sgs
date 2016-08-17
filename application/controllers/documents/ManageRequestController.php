@@ -42,7 +42,14 @@ class ManageRequestController extends CI_Controller {
 						$history->setTitle(4);
 						$action = new \Entity\HistoryAction();
 						$action->setSummary("Cierre de solicitud.");
-						$action->setDetail("Nuevo estado: " . $_GET['status']);
+						if (isset($_GET['approvedAmount'])) {
+							$approvedAmount = number_format($_GET['approvedAmount'], 2);
+							$action->setDetail(
+								"Nuevo estado: " . $_GET['status'] . ". Monto aprobado: Bs " . $approvedAmount
+							);
+						} else {
+							$action->setDetail("Nuevo estado: " . $_GET['status']);
+						}
 						$action->setBelongingHistory($history);
 						$history->addAction($action);
 						$em->persist($action);

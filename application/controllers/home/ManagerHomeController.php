@@ -388,29 +388,38 @@ class ManagerHomeController extends CI_Controller {
                     new DateTimeZone('America/Barbados')
                 );
                 $em = $this->doctrine->em;
-                $query = $em->createQuery
-                    ('SELECT t FROM \Entity\Request t WHERE t.creationDate BETWEEN ?1 AND ?2');
-                $query->setParameter(1, $from);
-                $query->setParameter(2, $to);
-                $requests = $query->getResult();
-                if (empty($requests)) {
+                $qb = $em->createQueryBuilder();
+				$qb->select(array('h'))
+					->from('\Entity\History', 'h')
+					->where($qb->expr()->andX(
+						$qb->expr()->eq('h.title', '?1'),
+						$qb->expr()->between('h.date', '?2', '?3')
+					));
+                $qb->setParameter(1, 4);
+				$qb->setParameter(2, $from);
+                $qb->setParameter(3, $to);
+                $history = $qb->getQuery()->getResult();
+				$result['approvedAmount'] = $count = 0;
+				foreach ($history as $h) {
+					$request = $h->getOrigin();
+					if ($request->getStatusByText() === "Aprobada") {
+						// Perform all approved amount's computation
+						$count++;
+						if ($request->getApprovedAmount() !== null) {
+							$result['approvedAmount'] += $request->getApprovedAmount();
+						}
+					}
+				}
+                if (!$count) {
                     $interval = $from->diff($to);
                     $days = $interval->format("%a");
                     if ($days > 0) {
-                        $result['error'] = "No se han encontrado solicitudes para el rango de fechas especificado";
+                        $result['error'] = "No se han encontrado solicitudes aprobadas en el rango de fechas especificado";
                     } else {
-                        $result['error'] = "No se han encontrado solicitudes para la fecha especificada";
+                        $result['error'] = "No se han encontrado solicitudes aprobadas en la fecha especificada";
                     }
-                } else {
-                    // Perform all approved amount's computation
-                    $result['approvedAmount'] = 0;
-                    foreach ($requests as $rKey => $request) {
-                        if ($request->getApprovedAmount() !== null) {
-                            $result['approvedAmount'] += $request->getApprovedAmount();
-                        }
-                    }
-                    $result['message'] = "success";
                 }
+				$result['message'] = "success";
             } catch (Exception $e) {
                 \ChromePhp::log($e);
                 $result['message'] = "error";

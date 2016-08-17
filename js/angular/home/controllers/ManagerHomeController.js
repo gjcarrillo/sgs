@@ -82,7 +82,6 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
     // Fetch pending requests and automatically show first one to user (if any)
     if ($scope.selectedReq == -1 && $scope.selectedPendingReq == -1) {
         $scope.loadingContent = true;
-        $scope.fetchError = "";
         $http.get('index.php/home/ManagerHomeController/fetchRequestsByStatus', {params:{status:"Recibida"}})
             .then(function (response) {
                 console.log(response);
@@ -91,13 +90,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
                     if ($scope.pendingRequests.length > 0) {
                         $scope.showPendingReq = true;
                         $mdSidenav('left').open();
-                        // $timeout(function() {
-                        //     $scope.toggleReqList($scope.pendingRequests[0]);
-                        //     $scope.selectPendingReq(0);
-                        // }, 500);
                     }
-                } else {
-                    $scope.fetchError = response.data.error;
                 }
                 $scope.loadingContent = false;
 
@@ -444,7 +437,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
             // Creates new request in database and uploads documents
             $scope.updateRequest = function() {
                 $scope.uploading = true;
-                var updatePending = $scope.request.status !== $scope.model.status;
+                // var updatePending = $scope.request.status !== $scope.model.status;
                 $scope.request.status = $scope.model.status;
                 $scope.request.comment = $scope.model.comment;
                 $scope.request.reunion = $scope.model.reunion;
@@ -455,9 +448,9 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
                         console.log(response.data);
                         if (response.data.message === "success") {
                             console.log("Request update succeded...");
-                            if (updatePending) {
-                                updatePendingList();
-                            }
+                            // if (updatePending) {
+                            //     updatePendingList();
+                            // }
                             // Close dialog and alert user that operation was successful
                             $mdDialog.hide();
                             $mdDialog.show(
@@ -528,6 +521,10 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
         }
     };
 
+    /**
+     * Updates the pending requests list by deleting the selected request
+     * from the list.
+     */
     function updatePendingList() {
         if ($scope.selectedPendingReq !== -1) {
             $scope.pendingRequests.splice($scope.selectedPendingReq, 1);

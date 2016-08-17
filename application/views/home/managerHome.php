@@ -255,10 +255,18 @@
                     </md-list-item>
                     <md-divider></md-divider>
                     <div ng-show="showPendingReq">
+                        <div ng-if="pendingRequests.length == 0" layout layout-align="center center" class="md-padding">
+                            <p style="color:#4CAF50">
+                                ¡No se han encontrado solicitudes pendientes!
+                            </p>
+                        </div>
                         <div ng-repeat="(rKey, request) in pendingRequests">
                             <md-list-item ng-click="toggleReqList(request)">
                                 <p class="sidenavSubtitle">
                                     Solicitud ID &#8470; {{pad(request.id, 6)}}
+                                    <md-icon ng-if="request.status !== 'Recibida'" style="color:#4CAF50">
+                                        check_circle
+                                    </md-icon>
                                 </p>
                                 <md-icon ng-class="md-secondary" ng-if="!request.showList">keyboard_arrow_down</md-icon>
                                 <md-icon ng-class="md-secondary" ng-if="request.showList">keyboard_arrow_up</md-icon>
