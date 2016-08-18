@@ -264,7 +264,10 @@
                             <md-list-item ng-click="toggleReqList(request)">
                                 <p class="sidenavSubtitle">
                                     Solicitud ID &#8470; {{pad(request.id, 6)}}
-                                    <md-icon ng-if="request.status !== 'Recibida'" style="color:#4CAF50">
+                                    <md-icon ng-if="request.status === 'Aprobada'" style="color:#4CAF50">
+                                        check_circle
+                                    </md-icon>
+                                    <md-icon ng-if="request.status === 'Rechazada'" style="color:#F44336">
                                         check_circle
                                     </md-icon>
                                 </p>
@@ -360,7 +363,18 @@
                             <p class="sidenavTitle">
                                 <md-icon ng-if="showResult != 1" ng-style="getBulbColor(request.status, rKey)">
                                     lightbulb_outline
-                                </md-icon> Solicitud ID &#8470; {{pad(request.id, 6)}}
+                                </md-icon>
+                                Solicitud ID &#8470; {{pad(request.id, 6)}}
+                                <md-icon
+                                    ng-if="request.status === 'Aprobada' && showResult == 1 && model.perform[1].status == 'Recibida'"
+                                    style="color:#4CAF50">
+                                    check_circle
+                                </md-icon>
+                                <md-icon
+                                    ng-if="request.status === 'Rechazada'&& showResult == 1  && model.perform[1].status == 'Recibida'"
+                                    style="color:#F44336">
+                                    check_circle
+                                </md-icon>
                             </p>
                             <md-icon ng-class="md-secondary" ng-if="!request.showList">keyboard_arrow_down</md-icon>
                             <md-icon ng-class="md-secondary" ng-if="request.showList">keyboard_arrow_up</md-icon>
@@ -395,7 +409,7 @@
         <main class="main-w-footer">
             <!-- Watermark -->
             <div class="full-contet-height" layout layout-align="center center"
-                ng-if="docs.length == 0 && !loadingContent && !showApprovedAmount && !pieloaded">
+                ng-if="docs.length == 0 && !loadingContent && !showApprovedAmount && !pieloaded && pieError == ''">
                 <div class="watermark" layout="column" layout-align="center center">
                     <img src="images/ipapedi.png" alt="Ipapedi logo"/>
                 </div>
@@ -408,7 +422,7 @@
             </div>
             <!-- Pie chart statistics result -->
             <div layout layout-align="center center" class="full-contet-height"
-                ng-show="pieloaded && docs.length == 0">
+                ng-show="pieloaded && docs.length == 0 &&  pieError == ''">
                 <div
                     id="piechart-tour"
                     layout="column"
@@ -431,6 +445,16 @@
                         </md-progress-circular>
                     </div>
                     <canvas id="piechart" width="300" height="300"></canvas>
+                </div>
+            </div>
+            <!-- Pie error -->
+            <div
+                class="full-contet-height"
+                ng-if="pieError != '' && docs.length == 0"
+                layout layout-align="center center"
+                class="md-padding">
+                <div layout="column" layout-align="center center">
+                    <span style="color:red">{{pieError}}</span>
                 </div>
             </div>
             <!-- Approved amount result -->

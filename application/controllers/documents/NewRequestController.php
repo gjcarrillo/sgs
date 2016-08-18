@@ -152,7 +152,7 @@ class NewRequestController extends CI_Controller {
 			$imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $imageData));
 
 			$filepath = DropPath . $data['userId'] . "." . $data['requestId'] . "." . $data['docName'] . ".png";
-			file_put_contents($filepath, $data);
+			file_put_contents($filepath, $imageData);
 
 			$result['message'] = "success";
 			$result['lpath'] = $data['userId'] . "." . $data['requestId'] . "." . $data['docName'] . ".png";

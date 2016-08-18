@@ -39,9 +39,13 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
     $scope.pendingRequests = [];
     $scope.docs = [];
     $scope.fetchError = "";
+    $scope.pieError = '';
     $scope.showList = false;
     $scope.showPendingReq = false;
     $scope.showAdvSearch = false;
+    // dataChanged notifies whether data changed through user interaction,
+    // thus needing to update pie and report data
+    var dataChanged = false;
 
     // Check if there is stored data for requests before we went to History
     var requests = JSON.parse(sessionStorage.getItem("requests"));
@@ -131,6 +135,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
         $scope.docs = [];
         $scope.showList = false;
         $scope.fetchError = "";
+        $scope.pieError = '';
         $http.get('index.php/home/ManagerHomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
             .then(function (response) {
                 console.log(response);
@@ -156,6 +161,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
         $scope.docs = [];
         $scope.showList = false;
         $scope.fetchError = "";
+        $scope.pieError = '';
         $scope.showApprovedAmount = false;
         $scope.pieloaded = false;
         $http.get('index.php/home/ManagerHomeController/fetchRequestsByStatus', {params:{status:status}})
@@ -184,6 +190,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
         $scope.docs = [];
         $scope.showList = false;
         $scope.fetchError = "";
+        $scope.pieError = '';
         $scope.showApprovedAmount = false;
         $scope.pieloaded = false;
         $http.get('index.php/home/ManagerHomeController/fetchRequestsByDateInterval',
@@ -212,6 +219,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
         $scope.docs = [];
         $scope.showList = false;
         $scope.fetchError = "";
+        $scope.pieError = '';
         $scope.showApprovedAmount = false;
         $scope.pieloaded = false;
         $http.get('index.php/home/ManagerHomeController/fetchRequestsByDateInterval',
@@ -241,6 +249,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
         $scope.showList = false;
         $scope.showApprovedAmount = false;
         $scope.fetchError = "";
+        $scope.pieError = '';
         $scope.showApprovedAmount = false;
         $scope.pieloaded = false;
         $scope.loadingContent = true;
@@ -269,6 +278,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
         var userId = $scope.idPrefix + $scope.model.perform[index].id;
         $scope.showApprovedAmount = false;
         $scope.fetchError = "";
+        $scope.pieError = '';
         $scope.showApprovedAmount = false;
         $scope.pieloaded = false;
         $scope.loadingContent = true;
@@ -306,6 +316,9 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
     $scope.loadUserData = function(userId) {
         sessionStorage.setItem("fetchId", userId);
         window.open('http://localhost:8080/sgdp/#/userInfo', '_blank');
+        // Data not being changed so far - don't request data again if
+        // user clicks on Stats
+        setDataChanged(false);
     };
 
     $scope.selectRequest = function(req) {
@@ -314,6 +327,10 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
         if (req != -1) {
             $scope.docs = $scope.requests[req].docs;
         }
+        // Data not being changed so far - don't request data again if
+        // user clicks on Stats
+        setDataChanged(false);
+        // Close sidenav
         $mdSidenav('left').toggle();
     };
 
@@ -323,6 +340,10 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
         if (req != -1) {
             $scope.docs = $scope.pendingRequests[req].docs;
         }
+        // Data not being changed so far - don't request data again if
+        // user clicks on Stats
+        setDataChanged(false);
+        // Close sidenav
         $mdSidenav('left').toggle();
     };
 
@@ -446,11 +467,14 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
                     .then(function (response) {
                         $scope.uploading = false;
                         console.log(response.data);
-                        if (response.data.message === "success") {
+                        if (response.status == 200) {
                             console.log("Request update succeded...");
                             // if (updatePending) {
                             //     updatePendingList();
                             // }
+                            // Notify that data has changed, thus updating stats
+                            // when requested
+                            setDataChanged(true);
                             // Close dialog and alert user that operation was successful
                             $mdDialog.hide();
                             $mdDialog.show(
@@ -820,9 +844,74 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
     };
 
     $scope.showPie = function() {
-        $scope.pieloaded = true;
-        $scope.docs = [];
+        $scope.pieloaded = false;
+        if (dataChanged) {
+            updatePie();
+            setDataChanged(false);
+        } else {
+            console.log($scope.pieError);
+            $scope.docs = [];
+            if ($scope.pieError == '') { $scope.pieloaded = true; }
+        }
+        // Un-select requests
+        $scope.selectedReq = -1;
     };
+
+    function updatePie() {
+        $scope.docs = [];
+        $scope.loadingContent = true;
+        if ($scope.showResult == 0) {
+            // update user's pie
+            $http.get('index.php/home/ManagerHomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
+                .then(function (response) {
+                    if (response.data.message == "success") {
+                        $scope.report = response.data.report;
+                        drawPie(response.data.pie);
+                        $scope.pieloaded = true;
+                    } else {
+                        $scope.pieError = response.data.error;
+                    }
+                    $scope.loadingContent = false;
+
+                });
+        } else if ($scope.showResult == 1 && $scope.model.perform[1].status == 'Recibida') {
+            // update status pie
+            $http.get('index.php/home/ManagerHomeController/fetchRequestsByStatus', {params:{status:"Recibida"}})
+                .then(function (response) {
+                    if (response.data.message == "success") {
+                        $scope.report = response.data.report;
+                        drawPie(response.data.pie);
+                        $scope.pieloaded = true;
+                    } else {
+                        $scope.pieError = response.data.error;
+                    }
+                    $scope.loadingContent = false;
+
+                });
+        } else if ($scope.showResult == 2 || $scope.showResult == 3) {
+            // update date interval pie
+            if ($scope.showResult == 2) {
+                var from = $scope.model.perform[2].from;
+                var to = $scope.model.perform[2].to;
+            } else {
+                var from = $scope.model.perform[3].date;
+                var to = from;
+            }
+            $http.get('index.php/home/ManagerHomeController/fetchRequestsByDateInterval',
+                {params:{from:moment(from).format('DD/MM/YYYY'), to:moment(to).format('DD/MM/YYYY')}})
+                .then(function (response) {
+                    if (response.data.message == "success") {
+                        $scope.report = response.data.report;
+                        drawPie(response.data.pie);
+                        $scope.pieloaded = true;
+                    } else {
+                        $scope.pieError = response.data.error;
+                    }
+                    $scope.loadingContent = false;
+
+                });
+        }
+    }
 
     function drawPie(pie) {
         // Recycle the chart
@@ -843,8 +932,6 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
                     }]
             };
             var options = {
-                // String - Template string for single tooltips
-                // tooltipTemplate: "<%if (label){%><%=label %>: <%}%><%= value + ' %' %>",
                 tooltips: {
                   callbacks: {
                     label: function(tooltipItem, data) {
@@ -1055,4 +1142,12 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
             $scope.loadingReport = false;
         });
     };
+
+    /**
+     * Auxiliar function that performs as setter for dataChanged var.
+     * @param val: New value
+     */
+    function setDataChanged(val) {
+        dataChanged = val;
+    }
 }
