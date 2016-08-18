@@ -147,14 +147,15 @@ class NewRequestController extends CI_Controller {
 		if ($_SESSION['type'] != 1) {
 			$this->load->view('errors/index.html');
 		} else {
-			$data = $_POST['imageData'];
-			$data = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $data));
+			$data = json_decode(file_get_contents('php://input'), true);
+			$imageData = $data['imageData'];
+			$imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $imageData));
 
-			$filepath = DropPath . $_POST['userId'] . "." . $_POST['requestId'] . "." . $_POST['docName'] . ".png";
+			$filepath = DropPath . $data['userId'] . "." . $data['requestId'] . "." . $data['docName'] . ".png";
 			file_put_contents($filepath, $data);
 
 			$result['message'] = "success";
-			$result['lpath'] = $_POST['userId'] . "." . $_POST['requestId'] . "." . $_POST['docName'] . ".png";
+			$result['lpath'] = $data['userId'] . "." . $data['requestId'] . "." . $data['docName'] . ".png";
 			echo json_encode($result);
 		}
 	}

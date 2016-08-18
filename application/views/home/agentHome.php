@@ -208,10 +208,10 @@
                                             <md-icon>cloud_download</md-icon>
                                             <md-tooltip>Descargar todo</md-tooltip>
                                         </md-button>
-                                        <!-- <md-button ng-click="deleteRequest($event)" class="md-icon-button">
+                                        <md-button ng-click="deleteRequest($event)" class="md-icon-button">
                                             <md-icon>delete</md-icon>
                                             <md-tooltip>Eliminar solicitud</md-tooltip>
-                                        </md-button> -->
+                                        </md-button>
                                     </div>
                                     <!-- Show when screen width < 960px -->
                                     <md-menu

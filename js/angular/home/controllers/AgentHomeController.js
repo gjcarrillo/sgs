@@ -126,7 +126,8 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
             $scope.docPicTaken = false;
             $scope.uploading = false;
             $scope.uploadErr = '';
-            var uploadedFiles = 0;
+            // Gonna have to upload 2 files
+            var uploadedFiles = new Array(2).fill(false);
 
             $scope.closeDialog = function() {
                 $mdDialog.hide();
@@ -185,17 +186,17 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                     {params:{userId:fetchId, reqAmount:$scope.reqAmount}})
                     .then(function (response) {
                         if (response.data.message== "success") {
-                            uploadData(1, response.data.requestId, response.data.historyId);
+                            uploadData(1, response.data.requestId, response.data.historyId, 0);
                             if (!$scope.file) {
-                                uploadData(2, response.data.requestId, response.data.historyId);
+                                uploadData(2, response.data.requestId, response.data.historyId, 1);
                             } else {
-                                uploadFile($scope.file, response.data.requestId, response.data.historyId);
+                                uploadFile($scope.file, response.data.requestId, response.data.historyId, 1);
                             }
                         }
                     });
             };
 
-            function uploadData(data, requestId, historyId) {
+            function uploadData(data, requestId, historyId, uploadIndex) {
                 var imageData = "";
                 var docName = "";
                 var description = "";
@@ -208,63 +209,67 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                     docName = "Solicitud";
                     description = "Documento con datos de solicitud"
                 }
-                $.ajax({
-                    type: "POST",
-                    url: 'index.php/documents/NewRequestController/uploadBase64Images',
-                    dataType: 'text',
-                    data: {
-                         imageData:imageData,
-                         userId:fetchId,
-                         requestId:requestId,
-                         docName:docName
-                    },
-                    success: function (response) {
-                        var file = {};
-                        file.lpath = JSON.parse(response).lpath;
-                        file.requestId = requestId;
-                        file.historyId = historyId;
-                        file.docName = docName;
-                        file.description = description;
-                        // Doc successfully uploaded. Now create it on database.
-                        $http.get('index.php/documents/NewRequestController/createDocument', {params:file})
-                            .then(function (response) {
-                                console.log(response);
-                                if (response.status == 200) {
-                                    uploadedFiles++;
-                                    console.log(uploadedFiles);
-                                    if (uploadedFiles === 2) {
-                                        // Update interface
-                                        $http.get('index.php/home/AgentHomeController/getUserRequests', {params:{fetchId:fetchId}})
-                                            .then(function (response) {
-                                                if (response.data.message === "success") {
-                                                    updateContent(response.data.requests, 0);
-                                                    toggleReqList();
-                                                    // Close dialog and alert user that operation was successful
-                                                    $mdDialog.hide();
-                                                    $mdDialog.show(
-                                                        $mdDialog.alert()
-                                                            .parent(angular.element(document.body))
-                                                            .clickOutsideToClose(true)
-                                                            .title('Solicitud creada')
-                                                            .textContent('La solicitud ha sido creada exitosamente.')
-                                                            .ariaLabel('Successful request creation dialog')
-                                                            .ok('Ok')
-                                                    );
-                                                } else {
-                                                    console.log("REFRESHING ERROR!");
-                                                }
-                                            });
-                                    }
-                                } else {
-                                    console.log("Document creation in database had an error");
-                                }
-                            });
-                    }
+                var postData = JSON.stringify({
+                    imageData:imageData,
+                    userId:fetchId,
+                    requestId:requestId,
+                    docName:docName
                 });
+                $http.post('index.php/documents/NewRequestController/uploadBase64Images', postData)
+                    .then(function(response) {
+                        if (response.status == 200) {
+                            var file = {};
+                            file.lpath = response.data.lpath;
+                            file.requestId = requestId;
+                            file.historyId = historyId;
+                            file.docName = docName;
+                            file.description = description;
+                            // Doc successfully uploaded. Now create it on database.
+                            $http.get('index.php/documents/NewRequestController/createDocument', {params:file})
+                                .then(function (response) {
+                                    console.log(response);
+                                    if (response.status == 200) {
+                                        uploadedFiles[uploadIndex] = true;
+                                        if (uploadsFinished(uploadedFiles)) {
+                                            // Update interface
+                                            $http.get('index.php/home/AgentHomeController/getUserRequests',
+                                                {params:{fetchId:fetchId}})
+                                                .then(function (response) {
+                                                    if (response.status == 200) {
+                                                        updateContent(response.data.requests, 0);
+                                                        toggleReqList();
+                                                        // Close dialog and alert user that operation was successful
+                                                        $mdDialog.hide();
+                                                        $mdDialog.show(
+                                                            $mdDialog.alert()
+                                                                .parent(angular.element(document.body))
+                                                                .clickOutsideToClose(true)
+                                                                .title('Solicitud creada')
+                                                                .textContent('La solicitud ha sido creada exitosamente.')
+                                                                .ariaLabel('Successful request creation dialog')
+                                                                .ok('Ok')
+                                                        );
+                                                    } else {
+                                                        console.log("REFRESHING ERROR!");
+                                                    }
+                                                });
+                                        }
+                                    } else {
+                                        console.log("Document creation in database had an error");
+                                    }
+                                });
+                        }
+                    });
             };
+
+            function uploadsFinished(uploadedFiles) {
+                return (uploadedFiles.filter(function(bool){
+                    return !bool;
+                }).length == 0);
+            }
             // Uploads each of selected documents to the server
             // and updates database
-            function uploadFile(file, requestId, historyId) {
+            function uploadFile(file, requestId, historyId, uploadIndex) {
                 file.upload = Upload.upload({
                     url: 'index.php/documents/NewRequestController/upload',
                     data: {file: file, userId: fetchId, requestId: requestId},
@@ -280,13 +285,14 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                     console.log(file);
                     $http.get('index.php/documents/NewRequestController/createDocument', {params:file})
                         .then(function (response) {
-                            if (response.data.message== "success") {
-                                uploadedFiles++;
-                                if (uploadedFiles == 2) {
+                            if (response.status == 200) {
+                                uploadedFiles[uploadIndex] = true;
+                                if (uploadsFinished(uploadedFiles)) {
                                     // Update interface
-                                    $http.get('index.php/home/AgentHomeController/getUserRequests', {params:{fetchId:fetchId}})
+                                    $http.get('index.php/home/AgentHomeController/getUserRequests',
+                                        {params:{fetchId:fetchId}})
                                         .then(function (response) {
-                                            if (response.data.message === "success") {
+                                            if (response.status == 200) {
                                                 updateContent(response.data.requests, 0);
                                                 // Close dialog and alert user that operation was successful
                                                 $mdDialog.hide();
@@ -576,7 +582,6 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
             // Gathers the files whenever the file input's content is updated
             $scope.gatherFiles = function(files, errFiles) {
                 $scope.files = files;
-                console.log($scope.files);
                 $scope.errFiles = errFiles;
             };
 
@@ -616,8 +621,8 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
             // Uploads each of selected documents to the server
             // and updates database
             function uploadFiles(userId, requestId, historyId) {
-                var uploadedFiles = 0;
-                angular.forEach($scope.files, function(file) {
+                var uploadedFiles = new Array($scope.files.length).fill(false);
+                angular.forEach($scope.files, function(file, index) {
                     file.upload = Upload.upload({
                         url: 'index.php/documents/NewRequestController/upload',
                         data: {file: file, userId: userId, requestId: requestId},
@@ -634,8 +639,8 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                         $http.get('index.php/documents/NewRequestController/createDocument', {params:file})
                             .then(function (response) {
                                 if (response.data.message== "success") {
-                                    uploadedFiles++;
-                                    if (uploadedFiles == $scope.files.length) {
+                                    uploadedFiles[index] = true;
+                                    if (uploadsFinished(uploadedFiles)) {
                                         // Update interface
                                         $http.get('index.php/home/AgentHomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
                                             .then(function (response) {
@@ -669,6 +674,12 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                                                  evt.loaded / evt.total));
                     });
                 });
+            }
+
+            function uploadsFinished(uploadedFiles) {
+                return (uploadedFiles.filter(function(bool){
+                    return !bool;
+                }).length == 0);
             }
 
             $scope.showHelp = function() {
