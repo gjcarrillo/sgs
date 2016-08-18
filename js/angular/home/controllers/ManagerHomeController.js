@@ -297,14 +297,6 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
             });
     };
 
-    $scope.getDocumentContainerStyle = function() {
-        return {
-            'background-color': '#F5F5F5',
-            'max-height':($(window).height() - 129),
-        };
-    };
-
-
     $scope.toggleList = function() {
         $scope.showList = !$scope.showList;
     };
@@ -742,8 +734,8 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
             function showUserSelectionHelp(options) {
                 var tripToShowNavigation = new Trip([], options);
                 if (!$scope.selectedUser) {
-                    var content = "Al hacer click se desplegará una lista con los " +
-                        "usuarios gestores registrados en el sistema. Escoja " +
+                    var content = "Haga click para desplegar una lista con los " +
+                        "usuarios gestores registrados en el sistema y escoja " +
                         "el usuario a eliminar."
                     appendFieldHelp(tripToShowNavigation, "#select-agent", content);
                 }
@@ -1018,7 +1010,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
         var tripToShowNavigation = new Trip([
             { sel : $("#piechart-tour"),
                 content : "Esta tarjeta muestra las estadísticas de las solicitudes " +
-                "del afiliado. Los datos aparecen al mover el ratón hacia alguna de las " +
+                "en cuestión. Los datos aparecen al mover el ratón hacia alguna de las " +
                 "divisiones de la gráfica.",
                 position : "n", header: "Estadísticas", expose: true, animation: 'fadeInTop' },
             { sel : $("#report-btn"),
@@ -1144,7 +1136,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
     };
 
     /**
-     * Auxiliar function that performs as setter for dataChanged var.
+     * Help function that performs as setter for dataChanged var.
      * @param val: New value
      */
     function setDataChanged(val) {

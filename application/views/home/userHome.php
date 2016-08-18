@@ -85,7 +85,7 @@
             <!-- The actual content -->
             <md-content
                 ng-hide="docs.length == 0"
-                ng-style="getDocumentContainerStyle()">
+                class="document-container">
                 <div layout layout-align="center center">
                     <md-card class="documents-card">
                         <md-card-content>

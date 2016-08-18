@@ -54,13 +54,6 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
         };
     };
 
-    $scope.getDocumentContainerStyle = function() {
-        return {
-            'background-color': '#F5F5F5',
-            'max-height':($(window).height() - 129)
-        };
-    };
-
     $scope.toggleList = function() {
         $scope.showList = !$scope.showList;
     };

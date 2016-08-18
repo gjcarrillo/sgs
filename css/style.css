@@ -1,6 +1,6 @@
 
 main, body {
-  background-color: #F5F5F5;
+  background-color: #EEEEEE;
 }
 
 footer {
@@ -72,7 +72,7 @@ footer {
 .watermark2 {
     padding-top: calc(20vh);
     padding-left: calc(22vw);
-    background-color: #F5F5F5;
+    background-color: #EEEEEE;
     opacity:0.3;
 }
 
@@ -133,6 +133,11 @@ md-list .md-button {
 .sidenav-height {
     height: calc(100vh - 129px);
     background-color: white;
+}
+
+.document-container {
+    background-color: #EEEEEE;
+    max-height: calc(100vh - 129px);
 }
 
 @media screen and (max-width: 960px) {

@@ -50,13 +50,6 @@ function userHome($scope, $rootScope, $http, $cookies, $timeout, $mdSidenav) {
         };
     };
 
-    $scope.getDocumentContainerStyle = function() {
-        return {
-            'background-color': '#F5F5F5',
-            'max-height':($(window).height() - 129)
-        };
-    };
-
     $scope.selectRequest = function(req) {
         $scope.selectedReq = req;
         if (req != -1) {

@@ -13,7 +13,7 @@
         <span class="md-subhead">Inicie sesión para ingresar al sistema</span>
     </div>
     <md-content>
-        <div layout="column" layout-align="center center" style="background:#F5F5F5">
+        <div layout="column" layout-align="center center" style="background:#EEEEEE">
             <md-card class="login-card">
                 <md-card-title layout layout-align="center center">
                     <md-card-title-media>
