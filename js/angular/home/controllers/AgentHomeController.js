@@ -157,10 +157,12 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
             };
 
             $scope.gatherFile = function(file, errFiles) {
-                $scope.file = file;
-                $scope.file.description = "Documento con datos de solicitud";
-                $scope.docPicTaken = true;
-                $scope.errFiles = errFiles;
+                if (file) {
+                    $scope.file = file;
+                    $scope.file.description = "Documento con datos de solicitud";
+                    $scope.docPicTaken = true;
+                    $scope.errFiles = errFiles;
+                }
             };
 
             $scope.removeScannedDoc = function() {
@@ -226,7 +228,8 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                         // Doc successfully uploaded. Now create it on database.
                         $http.get('index.php/documents/NewRequestController/createDocument', {params:file})
                             .then(function (response) {
-                                if (response.data.message== "success") {
+                                console.log(response);
+                                if (response.status == 200) {
                                     uploadedFiles++;
                                     console.log(uploadedFiles);
                                     if (uploadedFiles === 2) {

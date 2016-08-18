@@ -13,9 +13,9 @@
             <span>SGDP</span>
         </h2>
         <span flex></span>
-        <md-button class="md-icon-button" ng-click="openNewAgentDialog($event)" aria-label="Help">
+        <md-button class="md-icon-button" ng-click="openManageUserAgentDialog($event)" aria-label="Help">
             <md-icon>account_box</md-icon>
-            <md-tooltip md-direction="top">Nuevo usuario gestor</md-tooltip>
+            <md-tooltip md-direction="top">Administrar usuarios gestores</md-tooltip>
         </md-button>
         <md-button class="md-icon-button" ng-click="showHelp()" aria-label="Help">
             <md-icon>help_outline</md-icon>

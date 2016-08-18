@@ -536,12 +536,12 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
     /**
      * Dialog that prompts for new agent user information
      */
-    $scope.openNewAgentDialog = function($event) {
+    $scope.openManageUserAgentDialog = function($event) {
         var parentEl = angular.element(document.body);
         $mdDialog.show({
             parent: parentEl,
             targetEvent: $event,
-            templateUrl: 'index.php/users/NewAgentController',
+            templateUrl: 'index.php/users/ManageAgentUsers',
             clickOutsideToClose: false,
             escapeToClose: false,
             controller: DialogController
@@ -552,6 +552,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
             $scope.operationError = '';
             $scope.model = {};
             $scope.idPrefix = "V";
+            $scope.selectedTab = 1;
 
             $scope.closeDialog = function() {
                 $mdDialog.hide();
@@ -581,7 +582,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
                 $scope.errorMsg = '';
                 $scope.uploading = true;
                 $scope.model.id = $scope.idPrefix + $scope.userId;
-                $http.post('index.php/users/NewAgentController/createNewAgent', $scope.model)
+                $http.post('index.php/users/ManageAgentUsers/createNewAgent', $scope.model)
                     .then(function(response) {
                         console.log(response);
                         if (response.data.message == "success") {
@@ -602,6 +603,57 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
                     });
             };
 
+            /**
+             * Build `userAgents` list of key/value pairs
+             */
+            $scope.selectedUser = null;
+
+            $http.get('index.php/users/ManageAgentUsers/fetchAllAgents')
+                .then(function(response) {
+                    var allAgents = response.data.agents;
+                    $scope.userAgents = allAgents.map(function(agent) {
+                        return {
+                            value: agent.split('(')[0].trim(),
+                            display: agent
+                        };
+                    });
+                });
+
+            $scope.onUsersOpen = function() {
+                $scope.userBackup = $scope.selectedUser;
+                $scope.selectedUser = null;
+            };
+
+            $scope.onUsersClose = function() {
+                if ($scope.selectedUser === null) {
+                    $scope.selectedUser = $scope.userBackup;
+                }
+            };
+
+            $scope.deleteAgent = function() {
+                $scope.errorMsg = '';
+                $scope.uploading = true;
+                $http.post('index.php/users/ManageAgentUsers/deleteAgentUser', $scope.selectedUser.value)
+                    .then(function(response) {
+                        console.log(response);
+                        if (response.status == 200) {
+                            // Close dialog and alert user that operation was successful
+                            $mdDialog.hide();
+                            $mdDialog.show(
+                                $mdDialog.alert()
+                                    .parent(angular.element(document.body))
+                                    .clickOutsideToClose(true)
+                                    .title('Operación exitosa')
+                                    .textContent('El usuario elegido ha sido eliminado del sistema exitosamente')
+                                    .ariaLabel('Successful operation dialog')
+                                    .ok('Ok'));
+                        } else {
+                            $scope.errorMsg = response.data.message;
+                        }
+                        $scope.uploading = false;
+                    });
+            };
+
             $scope.showHelp = function() {
                 var options = {
                     showNavigation : true,
@@ -612,7 +664,11 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
                     nextLabel: "Siguiente",
                     finishLabel: "Entendido"
                 };
-                showFormHelp(options);
+                if ($scope.selectedTab == 1) {
+                    showFormHelp(options);
+                } else {
+                    showUserSelectionHelp(options);
+                }
             };
 
             /**
@@ -655,6 +711,22 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
                 if (!$scope.missingField()) {
                     var content = "Haga click en REGISTRAR para crear el nuevo gestor."
                     appendFieldHelp(tripToShowNavigation, "#register-btn", content);
+                }
+                tripToShowNavigation.start();
+            }
+
+            function showUserSelectionHelp(options) {
+                var tripToShowNavigation = new Trip([], options);
+                if (!$scope.selectedUser) {
+                    var content = "Al hacer click se desplegará una lista con los " +
+                        "usuarios gestores registrados en el sistema. Escoja " +
+                        "el usuario a eliminar."
+                    appendFieldHelp(tripToShowNavigation, "#select-agent", content);
+                }
+                if ($scope.selectedUser) {
+                    var content = "Haga click en ELIMINAR para proceder con la eliminación " +
+                        "del usuario seleccionado."
+                    appendFieldHelp(tripToShowNavigation, "#remove-btn", content);
                 }
                 tripToShowNavigation.start();
             }
