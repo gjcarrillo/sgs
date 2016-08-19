@@ -612,7 +612,6 @@
                         </md-card-content>
                     </md-card>
                 </div>
-                <br/>
             </md-content>
         </main>
         <md-divider></md-divider>

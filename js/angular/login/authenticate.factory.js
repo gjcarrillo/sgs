@@ -52,6 +52,9 @@ angular.module('sgdp.login').factory("auth", function($cookies, $location, $http
             $cookies.remove('session');
             // redirect to login page
             $location.path("/login");
+            // Remove possible data on broswer's session storage
+            cleanBrowser();
+            // Clear login form
             $rootScope.model = {};
         },
         permission : function()
@@ -71,5 +74,20 @@ angular.module('sgdp.login').factory("auth", function($cookies, $location, $http
         {
             return typeof $cookies.get('session') !== "undefined" ;
         },
+    };
+
+    function cleanBrowser() {
+        sessionStorage.removeItem("requests");
+        sessionStorage.removeItem("fetchId");
+        sessionStorage.removeItem("selectedReq");
+        sessionStorage.removeItem("showList");
+        sessionStorage.removeItem("pendingRequests");
+        sessionStorage.removeItem("selectedPendingReq");
+        sessionStorage.removeItem("showReq");
+        sessionStorage.removeItem("status");
+        sessionStorage.removeItem("from");
+        sessionStorage.removeItem("to");
+        sessionStorage.removeItem("date");
+
     }
 });
