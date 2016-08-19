@@ -172,9 +172,7 @@ md-list .md-button {
     padding: 8px 0;
     width: 100%;
 }
-/*md-select .md-select-value {
-    border-bottom-color: white;
-}*/
+
 md-select.no-md-select {
     border-bottom-color: white !important;
     color: black;
@@ -187,12 +185,18 @@ md-select.no-md-select .md-select-value {
     border-bottom-color: white !important;
     font-size:16px;
     min-width: 20px !important;
+    min-height: 0px !important;
 }
 
 .search-icon {
     color: grey !important;
     padding-left: 10px;
     cursor: pointer;
+}
+
+.full-screen-dialog {
+    max-width: 100%;
+    max-height: 100%;
 }
 
 @media screen and (max-width: 960px) {
