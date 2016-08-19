@@ -5,45 +5,22 @@
                 arrow_back
             </md-icon>
         </md-button>
-        <h2 flex="10" hide show-gt-xs class="md-headline">
+        <h2 style="padding-right:10px;" class="md-headline">
             <span>SGDP</span>
         </h2>
-        <h2 hide-gt-xs class="md-headline">
-            <span>SGDP</span>
-        </h2>
-        <!-- Search bar -->
-        <!-- Show only on width >= 600px screen -->
-        <md-input-container
-            id="filter"
-            hide show-gt-xs
-            md-no-float
-            flex-offset="25"
-            md-theme="whiteInput"
-            style="padding-bottom:0px">
-            <md-icon style="color:white" class="material-icons">&#xE8B6;</md-icon>
-            <input
-                placeholder="Filtre su búsqueda"
-                aria-label="Search"
-                ng-model="filterInput"
-                style="color:white; padding-left:25px; margin-right:5px; font-size:16px"/>
-                <md-tooltip md-direction="right">Puede buscar por nombre, acción o fecha</md-tooltip>
-        </md-input-container>
-        <!-- Hide on width >= 600px screen -->
-        <md-input-container
-            id="filter-mobile"
-            hide-gt-xs
-            md-no-float
-            md-theme="whiteInput"
-            style="padding-bottom:0px; margin-top:25px; margin-left:25px;">
-            <md-icon style="color:white" class="material-icons">&#xE8B6;</md-icon>
-            <input
-                aria-label="Search"
-                placeholder="Filtre su búsqueda"
-                ng-model="filterInput"
-                style="color:white; padding-left:25px; margin-right:5px; font-size:16px"/>
-                <md-tooltip md-direction="right">Puede buscar por nombre, acción o fecha</md-tooltip>
-        </md-input-container>
-        <span flex></span>
+        <!-- Filter search bar -->
+        <div id="filter" flex class="search-wrapper">
+            <div layout layout-align="center center">
+                <input
+                    class="search-input"
+                    aria-label="Filter"
+                    placeholder="Filtre su búsqueda"
+                    ng-model="filterInput"
+                    type="text" />
+                <md-icon class="search-icon">search</md-icon>
+            </div>
+            <md-tooltip md-direction="right">Puede buscar por nombre, acción o fecha</md-tooltip>
+        </div>
         <md-button class="md-icon-button" ng-click="showHelp()" aria-label="Help">
             <md-icon>help_outline</md-icon>
             <md-tooltip md-direction="down">Ayuda</md-tooltip>

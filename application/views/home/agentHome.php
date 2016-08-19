@@ -10,87 +10,30 @@
             aria-label="Open sidenav">
             <md-icon>menu</md-icon>
         </md-button>
-        <h2 hide show-gt-xs flex="10" class="md-headline">
-            <span>SGDP</span>
-        </h2>
-        <h2 hide-gt-xs class="md-headline">
+        <h2 style="padding-right:10px;" class="md-headline">
             <span>SGDP</span>
         </h2>
         <!-- Search bar -->
-        <!-- Show only on width >= 600px screen -->
-        <div
-            id="search"
-            hide show-gt-xs
-            layout
-            flex-offset="30"
-            style="margin-top:25px;">
-            <div>
-                <md-input-container
-                    md-no-float
-                    style="padding-bottom:0px">
-                    <md-select
-                        md-on-open="onIdOpen()"
-                        md-on-close="onIdClose()"
-                        aria-label="V or E ID"
-                        ng-model="idPrefix">
-                        <md-option value="V">
-                            V
-                        </md-option>
-                        <md-option value="E">
-                            E
-                        </md-option>
-                    </md-select>
-                </md-input-container>
+        <div id="search" flex class="search-wrapper">
+            <div layout layout-align="center center">
+                <md-select
+                    class="no-md-select"
+                    aria-label="V or E ID"
+                    ng-model="idPrefix">
+                    <md-option value="V">V</md-option>
+                    <md-option value="E">E</md-option>
+                </md-select>
+                <input
+                    class="search-input"
+                    placeholder="Ingrese una cédula"
+                    aria-label="Search"
+                    ng-model="searchInput"
+                    ng-keyup="$event.keyCode == 13 && fetchRequests(searchInput)"
+                    type="text" />
+                <md-icon ng-click="fetchRequests(searchInput)" class="search-icon">search</md-icon>
             </div>
-            <div>
-                <md-input-container
-                    md-no-float
-                    style="padding-bottom:0px"
-                    md-theme="whiteInput">
-                   <input
-                       placeholder="Ingrese una cédula"
-                       aria-label="Search"
-                       ng-model="searchInput"
-                       ng-keyup="$event.keyCode == 13 && fetchRequests(searchInput)"
-                       style="color:white; font-size:16px">
-                       <md-tooltip md-direction="right">Ej: 123456789</md-tooltip>
-                </md-input-container>
-            </div>
+            <md-tooltip md-direction="right">Ej: 123456789</md-tooltip>
         </div>
-        <!-- Hide on width >= 600px screen -->
-        <div id="search-mobile" hide-gt-xs layout style="margin-top:25px; padding-left:10px;">
-            <div>
-                <md-input-container
-                    md-no-float>
-                    <md-select
-                        md-on-open="onIdOpen()"
-                        md-on-close="onIdClose()"
-                        aria-label="V or E ID"
-                        ng-model="idPrefix">
-                        <md-option value="V">
-                            V
-                        </md-option>
-                        <md-option value="E">
-                            E
-                        </md-option>
-                    </md-select>
-                </md-input-container>
-            </div>
-            <div>
-                <md-input-container
-                    md-no-float
-                    md-theme="whiteInput">
-                   <input
-                       placeholder="Cédula"
-                       aria-label="Search"
-                       ng-model="searchInput"
-                       ng-keyup="$event.keyCode == 13 && fetchRequests(searchInput)"
-                       style="color:white; font-size:16px">
-                       <md-tooltip md-direction="right">Ej: 123456789</md-tooltip>
-                </md-input-container>
-            </div>
-        </div>
-        <span flex></span>
         <!-- <md-button class="md-fab md-mini md-raised" href="#/generator" aria-label="Generate contract">
             <md-icon style="color:#2196F3">insert_drive_file</md-icon>
             <md-tooltip md-direction="left">Generar PDF</md-tooltip>
@@ -155,7 +98,7 @@
                 ng-if="fetchError != ''"
                 layout layout-align="center center"
                 class="md-padding">
-                <div layout="column" layout-align="center center">
+                <div layout="column" layout-align="center center" class="md-whiteframe-z2 error-card">
                     <span style="color:red">{{fetchError}}</span>
                 </div>
             </div>

@@ -1,5 +1,4 @@
-
-main, body {
+main {
   background-color: #EEEEEE;
 }
 
@@ -40,6 +39,17 @@ footer {
 .statistics-card {
     width: 30vw;
     background-color: #fff;
+}
+
+.error-card {
+    background-color: #fff;
+    padding: 35px;
+}
+
+.pie-error-card {
+    width: 60%;
+    background-color: #fff;
+    padding: 35px;
 }
 
 .history-card {
@@ -138,6 +148,51 @@ md-list .md-button {
 .document-container {
     background-color: #EEEEEE;
     max-height: calc(100vh - 129px);
+}
+
+
+.search-wrapper {
+    border-radius: 2px;
+    box-shadow: 0 2px 4px 0 rgba(0,0,0,0.20);
+    margin: 0 auto;
+    max-width: 280px;
+    background: #fff;
+    padding: 8px 20px 8px 16px;
+}
+
+.search-input {
+    -webkit-appearance: none;
+    -webkit-tap-highlight-color: none;
+    border: none;
+    color: #212121;
+    font-family: arial,sans-serif;
+    font-size: 16px;
+    height: 16px;
+    outline: none;
+    padding: 8px 0;
+    width: 100%;
+}
+/*md-select .md-select-value {
+    border-bottom-color: white;
+}*/
+md-select.no-md-select {
+    border-bottom-color: white !important;
+    color: black;
+    margin: 0;
+    font-size:16px;
+    padding-right:10px;
+}
+
+md-select.no-md-select .md-select-value {
+    border-bottom-color: white !important;
+    font-size:16px;
+    min-width: 20px !important;
+}
+
+.search-icon {
+    color: grey !important;
+    padding-left: 10px;
+    cursor: pointer;
 }
 
 @media screen and (max-width: 960px) {

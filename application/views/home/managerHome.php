@@ -453,7 +453,7 @@
                 ng-if="pieError != '' && docs.length == 0"
                 layout layout-align="center center"
                 class="md-padding">
-                <div layout="column" layout-align="center center">
+                <div layout="column" layout-align="center center" class="md-whiteframe-z2 pie-error-card">
                     <span style="color:red">{{pieError}}</span>
                 </div>
             </div>
