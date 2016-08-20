@@ -26,7 +26,9 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
         { category: 'date', name: 'Intervalo de fecha', id: 2},
         { category: 'date', name: 'Fecha exacta', id: 3},
         { category: 'money', name: 'Intervalo de fecha', id: 4},
-        { category: 'money', name: 'Por cédula', id: 5}
+        { category: 'money', name: 'Por cédula', id: 5},
+        { category: 'report', name: 'Intervalo de fecha', id: 6},
+        { category: 'report', name: 'Semana actual', id: 7}
     ];
     $scope.model.perform = new Array($scope.queries.length);
     // initialize all ng-model variables.
@@ -38,7 +40,8 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
     $scope.requests = [];
     $scope.pendingRequests = [];
     $scope.docs = [];
-    $scope.fetchError = "";
+    $scope.fetchError = '';
+    $scope.approvalReportError = '';
     $scope.pieError = '';
     $scope.showList = false;
     $scope.showPendingReq = false;
@@ -126,16 +129,9 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
     }
 
     $scope.fetchUserRequests = function(index) {
-        $scope.fetchId = $scope.idPrefix + $scope.model.perform[index].id;
-        $scope.requests = [];
-        $scope.showApprovedAmount = false;
-        $scope.pieloaded = false;
-        $scope.selectedReq = -1;
+        resetContent();
         $scope.loading = true;
-        $scope.docs = [];
-        $scope.showList = false;
-        $scope.fetchError = "";
-        $scope.pieError = '';
+        $scope.fetchId = $scope.idPrefix + $scope.model.perform[index].id;
         $http.get('index.php/home/ManagerHomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
             .then(function (response) {
                 console.log(response);
@@ -155,15 +151,8 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
     };
 
     $scope.fetchRequestsByStatus = function(status, index) {
-        $scope.requests = [];
-        $scope.selectedReq = -1;
+        resetContent();
         $scope.loading = true;
-        $scope.docs = [];
-        $scope.showList = false;
-        $scope.fetchError = "";
-        $scope.pieError = '';
-        $scope.showApprovedAmount = false;
-        $scope.pieloaded = false;
         $http.get('index.php/home/ManagerHomeController/fetchRequestsByStatus', {params:{status:status}})
             .then(function (response) {
                 console.log(response);
@@ -184,15 +173,8 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
     };
 
     $scope.fetchRequestsByDateInterval = function(from, to, index) {
-        $scope.requests = [];
-        $scope.selectedReq = -1;
+        resetContent();
         $scope.loading = true;
-        $scope.docs = [];
-        $scope.showList = false;
-        $scope.fetchError = "";
-        $scope.pieError = '';
-        $scope.showApprovedAmount = false;
-        $scope.pieloaded = false;
         $http.get('index.php/home/ManagerHomeController/fetchRequestsByDateInterval',
             {params:{from:moment(from).format('DD/MM/YYYY'), to:moment(to).format('DD/MM/YYYY')}})
             .then(function (response) {
@@ -213,15 +195,8 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
     };
 
     $scope.fetchRequestsByExactDate = function(date, index) {
-        $scope.requests = [];
-        $scope.selectedReq = -1;
+        resetContent();
         $scope.loading = true;
-        $scope.docs = [];
-        $scope.showList = false;
-        $scope.fetchError = "";
-        $scope.pieError = '';
-        $scope.showApprovedAmount = false;
-        $scope.pieloaded = false;
         $http.get('index.php/home/ManagerHomeController/fetchRequestsByDateInterval',
             {params:{from:moment(date).format('DD/MM/YYYY'), to:moment(date).format('DD/MM/YYYY')}})
             .then(function (response) {
@@ -243,15 +218,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
 
     $scope.getApprovedAmountByDateInterval = function(from, to) {
         $mdSidenav('left').toggle();
-        $scope.requests = [];
-        $scope.selectedReq = -1;
-        $scope.docs = [];
-        $scope.showList = false;
-        $scope.showApprovedAmount = false;
-        $scope.fetchError = "";
-        $scope.pieError = '';
-        $scope.showApprovedAmount = false;
-        $scope.pieloaded = false;
+        resetContent();
         $scope.loadingContent = true;
         $http.get('index.php/home/ManagerHomeController/getApprovedAmountByDateInterval',
             {params:{from:moment(from).format('DD/MM/YYYY'), to:moment(to).format('DD/MM/YYYY')}})
@@ -271,17 +238,9 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
 
     $scope.getApprovedAmountById = function(index) {
         $mdSidenav('left').toggle();
-        $scope.requests = [];
-        $scope.selectedReq = -1;
-        $scope.docs = [];
-        $scope.showList = false;
-        var userId = $scope.idPrefix + $scope.model.perform[index].id;
-        $scope.showApprovedAmount = false;
-        $scope.fetchError = "";
-        $scope.pieError = '';
-        $scope.showApprovedAmount = false;
-        $scope.pieloaded = false;
+        resetContent();
         $scope.loadingContent = true;
+        var userId = $scope.idPrefix + $scope.model.perform[index].id;
         $http.get('index.php/home/ManagerHomeController/getApprovedAmountById',
             {params:{userId:userId}})
             .then(function (response) {
@@ -297,6 +256,41 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
             });
     };
 
+    //    console.log(moment().startOf('isoWeek').format('DD/MM/YYYY HH:mm:ss'));
+    $scope.getApprovedReportByCurrentWeek = function() {
+        $mdSidenav('left').toggle();
+        resetContent();
+        $scope.loadingReport = true;
+        $http.get('index.php/home/ManagerHomeController/getApprovedReportByCurrentWeek')
+            .then(function (response) {
+                console.log(response);
+                if (response.data.message === "success") {
+                    $scope.report = response.data.report;
+                    $scope.generateExcelReport();
+                } else {
+                    $scope.approvalReportError = response.data.error;
+                    $scope.loadingReport = false;
+                }
+            });
+    };
+
+    $scope.getApprovedReportByDateInterval = function(from, to) {
+        $mdSidenav('left').toggle();
+        resetContent();
+        $scope.loadingReport = true;
+        $http.get('index.php/home/ManagerHomeController/getApprovedReportByDateInterval',
+            {params:{from:moment(from).format('DD/MM/YYYY'), to:moment(to).format('DD/MM/YYYY')}})
+            .then(function (response) {
+                console.log(response);
+                if (response.data.message === "success") {
+                    $scope.report = response.data.report;
+                    $scope.generateExcelReport();
+                } else {
+                    $scope.approvalReportError = response.data.error;
+                    $scope.loadingReport = false;
+                }
+            });
+    };
     $scope.toggleList = function() {
         $scope.showList = !$scope.showList;
     };
@@ -779,6 +773,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
         $scope.model.query = $scope.selectedQuery;
         // re-initialize any error message
         $scope.fetchError = '';
+        $scope.approvalReportError = '';
     };
 
     $scope.onStatusOpen = function() {
@@ -1125,6 +1120,9 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
             url = 'index.php/documents/DocumentGenerator/generateRequestsReport';
         } else if ($scope.showResult == 1) {
             url = 'index.php/documents/DocumentGenerator/generateStatusRequestsReport';
+        } else {
+            // Approved requests report
+            url = 'index.php/documents/DocumentGenerator/generateApprovedRequestsReport';
         }
         var report = JSON.stringify($scope.report);
         $http.post(url, report).then(function (response) {
@@ -1136,10 +1134,26 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
     };
 
     /**
-     * Help function that performs as setter for dataChanged var.
+     * Helper function that performs as setter for dataChanged var.
      * @param val: New value
      */
     function setDataChanged(val) {
         dataChanged = val;
+    }
+
+    /**
+     * Helper function that resets UI for all query results
+     */
+    function resetContent() {
+        $scope.requests = [];
+        $scope.selectedReq = -1;
+        $scope.docs = [];
+        $scope.showList = false;
+        $scope.showApprovedAmount = false;
+        $scope.fetchError = '';
+        $scope.approvalReportError = '';
+        $scope.pieError = '';
+        $scope.showApprovedAmount = false;
+        $scope.pieloaded = false;
     }
 }

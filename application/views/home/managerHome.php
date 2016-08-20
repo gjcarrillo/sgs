@@ -116,7 +116,7 @@
                                     ng-disabled="!model.perform[0].id"
                                     ng-click="fetchUserRequests(0)"
                                     class="md-raised md-primary">
-                                    Consultar
+                                    <md-icon>search</md-icon>Consultar
                                 </md-button>
                             </div>
                         </div>
@@ -139,17 +139,17 @@
                                     ng-disabled="!model.perform[1].status"
                                     ng-click="fetchRequestsByStatus(model.perform[1].status, 1)"
                                     class="md-raised md-primary">
-                                    Consultar
+                                    <md-icon>search</md-icon>Consultar
                                 </md-button>
                             </div>
                         </div>
                         <!-- Query by interval of dates -->
-                        <div ng-show="model.query == 2" layout="column">
-                            <div layout-padding>
+                        <div ng-show="model.query == 2" layout="column" layout-padding>
+                            <div>
                                 <p>Desde</p>
                                 <md-datepicker ng-model="model.perform[2].from" md-placeholder="Ingese fecha"></md-datepicker>
                             </div>
-                            <div layout-padding>
+                            <div>
                                 <p>Hasta</p>
                                 <md-datepicker ng-model="model.perform[2].to" md-placeholder="Ingese fecha"></md-datepicker>
                             </div>
@@ -159,14 +159,14 @@
                                     ng-disabled="!model.perform[2].from || !model.perform[2].to"
                                     ng-click="fetchRequestsByDateInterval(model.perform[2].from, model.perform[2].to, 2)"
                                     class="md-raised md-primary">
-                                    Consultar
+                                    <md-icon>search</md-icon>Consultar
                                 </md-button>
                             </div>
                         </div>
 
                         <!-- Query by exact date -->
-                        <div ng-show="model.query == 3" layout="column">
-                            <div layout-padding>
+                        <div ng-show="model.query == 3" layout="column" layout-padding>
+                            <div>
                                 <p>Fecha exacta</p>
                                 <md-datepicker
                                     ng-model="model.perform[3].date"
@@ -177,26 +177,26 @@
                                     ng-disabled="!model.perform[3].date"
                                     ng-click="fetchRequestsByExactDate(model.perform[3].date, 3)"
                                     class="md-raised md-primary">
-                                    Consultar
+                                    <md-icon>search</md-icon>Consultar
                                 </md-button>
                             </div>
                         </div>
                         <!-- Query approved amount by interval of dates -->
-                        <div ng-show="model.query == 4" layout="column">
-                            <div layout-padding>
+                        <div ng-show="model.query == 4" layout="column" layout-padding>
+                            <div>
                                 <p>Desde</p>
                                 <md-datepicker ng-model="model.perform[4].from" md-placeholder="Ingese fecha"></md-datepicker>
                             </div>
-                            <div layout-padding>
+                            <div>
                                 <p>Hasta</p>
                                 <md-datepicker ng-model="model.perform[4].to" md-placeholder="Ingese fecha"></md-datepicker>
                             </div>
                             <div layout layout-align="center center">
                                 <md-button
-                                    ng-disabled="!model.perform[4].from || !model.perform[4].to"
+                                    ng-disabled="!model.perform[4].from || !model.perform[4].to || loadingContent"
                                     ng-click="getApprovedAmountByDateInterval(model.perform[4].from, model.perform[4].to)"
                                     class="md-raised md-primary">
-                                    Consultar
+                                    <md-icon>search</md-icon>Consultar
                                 </md-button>
                             </div>
                         </div>
@@ -237,12 +237,77 @@
                             </div>
                             <div layout layout-align="center center">
                                 <md-button
-                                    ng-disabled="!model.perform[5].id"
+                                    ng-disabled="!model.perform[5].id || loadingContent"
                                     ng-click="getApprovedAmountById(5)"
                                     class="md-raised md-primary">
-                                    Consultar
+                                    <md-icon>search</md-icon>Consultar
                                 </md-button>
                             </div>
+                        </div>
+                        <md-divider></md-divider>
+                    </div>
+                    <md-list-item id="approval-report">
+                        <p class="sidenavTitle">
+                            Reporte de solicitudes
+                        </p>
+                        <md-switch ng-model="showApprovalReport" aria-label="Enable approval report">
+                        </md-switch>
+                    </md-list-item>
+                    <md-divider></md-divider>
+                    <div ng-show="showApprovalReport">
+                        <div ng-if="approvalReportError != ''" layout layout-align="center center" class="md-padding">
+                            <span style="color:red">{{approvalReportError}}</span>
+                        </div>
+                        <div layout="column" layout-align="center center" layout-padding>
+                            <md-input-container class="requestItems" style="padding:0;margin:0;padding-bottom:10px">
+                                <md-select
+                                    md-on-open="onQueryOpen()"
+                                    md-on-close="onQueryClose()"
+                                    placeholder="Seleccione el rango"
+                                    ng-model="selectedQuery">
+                                    <md-option value="6">Intervalo de fecha</md-option>
+                                    <md-option value="7">Semana actual</md-option>
+                                </md-select>
+                            </md-input-container>
+                        </div>
+                        <!-- Query approved requests report by interval of dates -->
+                        <div ng-show="model.query == 6" layout="column" layout-padding>
+                            <div>
+                                <p>Desde</p>
+                                <md-datepicker ng-model="model.perform[6].from" md-placeholder="Ingese fecha"></md-datepicker>
+                            </div>
+                            <div>
+                                <p>Hasta</p>
+                                <md-datepicker ng-model="model.perform[6].to" md-placeholder="Ingese fecha"></md-datepicker>
+                            </div>
+                            <div layout layout-align="center center">
+                                <md-button
+                                    ng-disabled="!model.perform[6].from || !model.perform[6].to"
+                                    ng-hide="loadingReport"
+                                    ng-click="getApprovedReportByDateInterval(model.perform[6].from, model.perform[6].to)"
+                                    class="md-raised md-primary">
+                                    <md-icon>assignment</md-icon> Generar
+                                </md-button>
+                                <md-progress-circular ng-if="loadingReport" md-mode="indeterminate">
+                            </div>
+                            <md-divider></md-divider>
+                        </div>
+                        <!-- Query this week's approved requests -->
+                        <div ng-show="model.query == 7" layout="column" layout-padding>
+                            <div>
+                                <p>Reporte de solicitudes cerradas esta semana</p>
+                            </div>
+                            <div layout layout-align="center center">
+                                <md-button
+                                    ng-hide="loadingReport"
+                                    ng-click="getApprovedReportByCurrentWeek()"
+                                    class="md-raised md-primary">
+                                    <md-icon>assignment</md-icon> Generar
+                                </md-button>
+                                <md-progress-circular ng-if="loadingReport" md-mode="indeterminate">
+                                </md-progress-circular>
+                            </div>
+                            <md-divider></md-divider>
                         </div>
                     </div>
                     <!-- Pending requests -->

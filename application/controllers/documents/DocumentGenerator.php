@@ -263,10 +263,122 @@ class DocumentGenerator extends CI_Controller {
 		echo json_encode($result);
 	}
 
+	public function generateApprovedRequestsReport() {
+		if ($_SESSION['type'] != 2) {
+			$this->load->view('errors/index.html');
+		} else {
+			$data = json_decode(file_get_contents('php://input'), true);
+			// load PHPExcel library
+			$this->load->library('excel');
+			// activate worksheet number 1
+			$this->excel->setActiveSheetIndex(0);
+			// name the worksheet
+			$this->excel->getActiveSheet()->setTitle("Solicitudes aprobadas");
+			// Fill the content
+			$this->excel->getActiveSheet()->fromArray((array)$data['header'], NULL, 'A1');
+			// Offset will give **starting** cell
+			// Report header offset plus one empty row
+			$offset = count($data['header']) + 2;
+			// Set table title
+			$this->excel->getActiveSheet()->setCellValue('A' . $offset, $data['dataTitle']);
+			// data title offset plus one empty row
+			$offset += 2;
+			// Set table header
+			$this->excel->getActiveSheet()->fromArray((array)$data['dataHeader'], NULL, 'A' . $offset);
+			// dataHeader offset
+			$offset++;
+			// Set table data
+			$this->excel->getActiveSheet()->fromArray((array)$data['data'], NULL, 'A' . $offset);
+			// data offset
+			$offset += count($data['data']);
+			// Extend table for total amounts
+			$this->excel->getActiveSheet()->fromArray((array)$data['total'], NULL, 'G' . $offset);
+			$this->excel->getActiveSheet()->setCellValue('H' . $offset, '=SUM(G7:G' . ($offset-1) . ')');
+			$this->excel->getActiveSheet()->setCellValue('H' . ($offset+1), '=SUM(H7:H' . ($offset-1) . ')');
+			// Total amounts offset plus a few empty row
+			$offset += 6;
+			// Draw three signatures input
+			$WS = "                 ";
+			$this->excel->getActiveSheet()->setCellValue('A' . $offset,
+				"______________________________________" . $WS . $WS .
+				"______________________________________" . $WS . $WS .
+				"______________________________________"
+			);
+			$this->excel->getActiveSheet()->setCellValue('A' . ($offset+1),
+				"PRESIDENTE" . $WS . $WS . $WS . $WS . $WS . "             " .
+				"SECRETARIO" . $WS . $WS . $WS . $WS . $WS . "               " .
+				"TESORERO"
+			);
+			$this->excel->getActiveSheet()->mergeCells('A' . $offset . ':I' . $offset);
+			$this->excel->getActiveSheet()->mergeCells('A' . ($offset+1) . ':I' . ($offset+1));
+			$this->excel->getActiveSheet()->getStyle('A' . $offset)->getAlignment()
+				->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+			$this->excel->getActiveSheet()->getStyle('A' . ($offset+1))->getAlignment()
+				->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+			// Merge header and dataTitle cells
+			$this->excel->getActiveSheet()->mergeCells('A1:I1');
+			$this->excel->getActiveSheet()->mergeCells('A2:I2');
+			$this->excel->getActiveSheet()->mergeCells('A4:I4');
+			$tableBorders = array(
+				'borders' => array(
+					'allborders' => array(
+						'style' => PHPExcel_Style_Border::BORDER_THIN
+					)
+				),
+			);
+			$headerStyle = array(
+				'fill' => array(
+					'type' => PHPExcel_Style_Fill::FILL_SOLID,
+					'startcolor' => array(
+						'rgb' => 'CCCCCC'
+					)
+				)
+			);
+			// Table offset
+			$tableOffset = 6 + count($data['data']);
+			// Add table style
+			$this->excel->getActiveSheet()->getStyle('A6:I' . $tableOffset)->applyFromArray($tableBorders);
+			// Extend table style for requested & approved total amount
+			$this->excel->getActiveSheet()->getStyle('G' . ($tableOffset+1) . ':H' . ($tableOffset+2))
+				->applyFromArray($tableBorders);
+			// Add table header style
+			$this->excel->getActiveSheet()->getStyle('A6:I6')->applyFromArray($headerStyle);
+			// Add table data numbers separator
+			$this->excel->getActiveSheet()->getStyle('G7:H' . ($tableOffset+2))->getNumberFormat()
+				->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
+			// Configure columns width
+			$this->excel->getActiveSheet()->getColumnDimension('A')->setWidth(10);
+			$this->excel->getActiveSheet()->getColumnDimension('B')->setAutoSize(true);
+			$this->excel->getActiveSheet()->getColumnDimension('C')->setAutoSize(true);
+			$this->excel->getActiveSheet()->getColumnDimension('D')->setAutoSize(true);
+			$this->excel->getActiveSheet()->getColumnDimension('E')->setAutoSize(true);
+			$this->excel->getActiveSheet()->getColumnDimension('F')->setAutoSize(true);
+			$this->excel->getActiveSheet()->getColumnDimension('G')->setAutoSize(true);
+			$this->excel->getActiveSheet()->getColumnDimension('H')->setAutoSize(true);
+			$this->excel->getActiveSheet()->getColumnDimension('I')->setAutoSize(true);
+			// (PATCH) Initialize cell selection, otherwise might get a bit crazy
+			$this->excel->getActiveSheet()->setSelectedCells('A1');
+			// Save our workbook as this file name
+			$filename="REPORTE - " . $data['filename'] . ".xls";
+			// save it to Excel5 format (excel 2003 .XLS file)
+			$objWriter = PHPExcel_IOFactory::createWriter($this->excel, 'Excel5');
+			// Create the excel
+			$objWriter->save(DropPath . $filename);
+			// Successful operation
+			$result['lpath'] = $filename;
+			$result['message'] = "success";
+		}
+		echo json_encode($result);
+	}
+
 	public function download() {
-		header('Content-Disposition: attachment; filename=' . $_GET['docName']);
-		// The document source
-		readfile(DropPath . $_GET['docName']);
+		if ($_SESSION['type'] != 2) {
+			$this->load->view('errors/index.html');
+		} else {
+			header('Content-Disposition: attachment; filename=' . $_GET['docName']);
+			// The document source
+			readfile(DropPath . $_GET['docName']);
+		}
 	}
 
 	public function downloadReport() {

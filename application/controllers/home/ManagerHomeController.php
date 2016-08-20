@@ -332,10 +332,9 @@ class ManagerHomeController extends CI_Controller {
 						array("FECHA Y HORA DE GENERACIÓN DE REPORTE: " . $now)
 					);
 					$interval = $days > 0 ? "DEL " . $from->format('d/m/Y') . " HASTA EL " . $to->format('d/m/Y') : "EL " . $to->format('d/m/Y');
-					$dataTitle = "SOLICITUDES REALIZADAS " . $interval;
 					$filename =  $days > 0 ? "DEL " . $from->format('d-m-Y') . " HASTA EL " . $to->format('d-m-Y') : "EL " . $to->format('d-m-Y');
-					$result['report']['filename'] = $filename;
-					$result['report']['dataTitle'] = $dataTitle;
+					$result['report']['filename'] = "SOLICITUDES REALIZADAS " . $filename;
+					$result['report']['dataTitle'] = "SOLICITUDES REALIZADAS " . $interval;
 					$result['report']['dataHeader'] = array(
 						'Nro.', 'Identificador', 'Fecha de creación', 'Estatus', 'Nro. de Reunión',
 						 'Monto solicitado (Bs)', 'Monto aprobado (Bs)', 'Comentario'
@@ -363,7 +362,6 @@ class ManagerHomeController extends CI_Controller {
                 \ChromePhp::log($e);
                 $result['message'] = "error";
             }
-
             echo json_encode($result);
         }
     }
@@ -418,8 +416,9 @@ class ManagerHomeController extends CI_Controller {
                     } else {
                         $result['error'] = "No se han encontrado solicitudes aprobadas en la fecha especificada";
                     }
-                }
-				$result['message'] = "success";
+                } else {
+					$result['message'] = "success";
+				}
             } catch (Exception $e) {
                 \ChromePhp::log($e);
                 $result['message'] = "error";
@@ -460,6 +459,190 @@ class ManagerHomeController extends CI_Controller {
             echo json_encode($result);
         }
     }
+
+	public function getApprovedReportByDateInterval() {
+		if ($_SESSION['type'] != 2) {
+			$this->load->view('errors/index.html');
+		} else {
+			try {
+				$em = $this->doctrine->em;
+				// Compute approved amount within specified time
+				// from first second of the day
+				$from = date_create_from_format(
+					'd/m/Y H:i:s',
+					$_GET['from'] . ' ' . '00:00:00',
+					new DateTimeZone('America/Barbados')
+				);
+				// to last second of the day
+				$to = date_create_from_format(
+					'd/m/Y H:i:s',
+					$_GET['to'] . ' ' . '23:59:59',
+					new DateTimeZone('America/Barbados')
+				);
+				$em = $this->doctrine->em;
+				$qb = $em->createQueryBuilder();
+				$qb->select(array('h'))
+					->from('\Entity\History', 'h')
+					->where($qb->expr()->andX(
+						$qb->expr()->eq('h.title', '?1'),
+						$qb->expr()->between('h.date', '?2', '?3')
+					));
+				$qb->setParameter(1, 4); // 4 = close
+				$qb->setParameter(2, $from);
+				$qb->setParameter(3, $to);
+				$history = $qb->getQuery()->getResult();
+				$count = 0;
+				foreach ($history as $h) {
+					$request = $h->getOrigin();
+					if ($request->getStatusByText() !== "Recibida") {
+						// Gather up report information
+						$count++;
+						$result['report']['data'][$count] = array(
+							$count,
+							$request->getId(),
+							$request->getCreationDate()->format('d/m/Y'),
+							$request->getStatusByText(),
+							$h->getUserResponsable(),
+							$request->getReunion(),
+							$request->getRequestedAmount(),
+							$request->getApprovedAmount(),
+							$request->getComment()
+						);
+					}
+				}
+				if (!$count) {
+					$interval = $from->diff($to);
+					$days = $interval->format("%a");
+					if ($days > 0) {
+						$result['error'] = "No se han encontrado solicitudes cerradas en el rango de fechas especificado";
+					} else {
+						$result['error'] = "No se han encontrado solicitudes cerradas en la fecha especificada";
+					}
+				} else {
+					// Fill up report information
+					$now = (new DateTime('now', new DateTimeZone('America/Barbados')))->format('d/m/Y - h:i:sa');
+					$user = strtoupper($_SESSION['name'] . " " . $_SESSION['lastName']);
+					$result['report']['header'] = array(
+						array("SGDP - IPAPEDI"),
+						array("REPORTE GENERADO POR: " . $user . ". FECHA Y HORA: " . $now)
+					);
+					$interval = "DEL " . $from->format('d/m/Y') . " HASTA EL " . $to->format('d/m/Y');
+					$filenameInterval = "DEL " . $from->format('d-m-Y') . " HASTA EL " . $to->format('d-m-Y');
+					$dataTitle = "SOLICITUDES APROBADAS " . $interval;
+					$filename =  "SOLICITUDES APROBADAS " . $filenameInterval;
+					$result['report']['filename'] = $filename;
+					$result['report']['dataTitle'] = $dataTitle;
+					$result['report']['dataHeader'] = array(
+						'Nro.', 'Identificador', 'Fecha de creación', 'Estatus', 'Cerrada por',
+						 'Nro. de Reunión', 'Monto solicitado (Bs)', 'Monto aprobado (Bs)', 'Comentario'
+					 );
+					$result['report']['total'] = array(
+						array("Monto solicitado total", ""),
+						array("Monto aprobado total", "")
+					);
+					$result['message'] = "success";
+				}
+			} catch (Exception $e) {
+				\ChromePhp::log($e);
+				$result['message'] = "error";
+			}
+			echo json_encode($result);
+		}
+	}
+
+	public function getApprovedReportByCurrentWeek() {
+		if ($_SESSION['type'] != 2) {
+			$this->load->view('errors/index.html');
+		} else {
+			try {
+				$em = $this->doctrine->em;
+				// start first day of week, end last day of week
+				if (date('D') == 'Mon') {
+					$start = date('d/m/Y');
+				} else {
+					$start = date('d/m/Y', strtotime('last monday'));
+				}
+				if (date('D') == 'Sun') {
+					$end = date('d/m/Y');
+				} else {
+					$end = date('d/m/Y', strtotime('next sunday'));
+				}
+				// from first second of the day
+				$from = date_create_from_format(
+					'd/m/Y H:i:s',
+					$start . ' ' . '00:00:00',
+					new DateTimeZone('America/Barbados')
+				);
+				// to last second of the day
+				$to = date_create_from_format(
+					'd/m/Y H:i:s',
+					$end . ' ' . '23:59:59',
+					new DateTimeZone('America/Barbados')
+				);
+				$em = $this->doctrine->em;
+				$qb = $em->createQueryBuilder();
+				$qb->select(array('h'))
+					->from('\Entity\History', 'h')
+					->where($qb->expr()->andX(
+						$qb->expr()->eq('h.title', '?1'),
+						$qb->expr()->between('h.date', '?2', '?3')
+					));
+				$qb->setParameter(1, 4); // 4 = close
+				$qb->setParameter(2, $from);
+				$qb->setParameter(3, $to);
+				$history = $qb->getQuery()->getResult();
+				$count = 0;
+				foreach ($history as $h) {
+					$request = $h->getOrigin();
+					if ($request->getStatusByText() !== "Recibida") {
+						// Gather up report information
+						$count++;
+						$result['report']['data'][$count] = array(
+							$count,
+							$request->getId(),
+							$request->getCreationDate()->format('d/m/Y'),
+							$request->getStatusByText(),
+							$h->getUserResponsable(),
+							$request->getReunion(),
+							$request->getRequestedAmount(),
+							$request->getApprovedAmount(),
+							$request->getComment()
+						);
+					}
+				}
+				if (!$count) {
+					$result['error'] = "No se han detectado cierres de solicitudes esta semana.";
+				} else {
+					// Fill up report information
+					$now = (new DateTime('now', new DateTimeZone('America/Barbados')))->format('d/m/Y - h:i:sa');
+					$user = $_SESSION['name'] . " " . $_SESSION['lastName'];
+					$result['report']['header'] = array(
+						array("SGDP - IPAPEDI"),
+						array("REPORTE GENERADO POR: " . $user . ". FECHA Y HORA: " . $now)
+					);
+					$interval = "DEL " . $from->format('d/m/Y') . " HASTA EL " . $to->format('d/m/Y');
+					$filenameInterval = "DEL " . $from->format('d-m-Y') . " HASTA EL " . $to->format('d-m-Y');
+					$dataTitle = "SOLICITUDES APROBADAS " . $interval;
+					$filename =  "SOLICITUDES APROBADAS " . $filenameInterval;
+					$result['report']['filename'] = $filename;
+					$result['report']['dataTitle'] = $dataTitle;
+					$result['report']['dataHeader'] = array(
+						'Nro.', 'Identificador', 'Fecha de creación', 'Estatus', 'Cerrada por',
+						 'Nro. de Reunión', 'Monto solicitado (Bs)', 'Monto aprobado (Bs)', 'Comentario'
+					 );
+					$result['report']['total'] = array(
+						array("Monto solicitado total", ""),
+						array("Monto aprobado total", "")
+					);
+					$result['message'] = "success";
+				}
+			} catch (Exception $e) {
+				\ChromePhp::log($e);
+				$result['message'] = "error";
+			}
+			echo json_encode($result);
+		}
+	}
 
     public function getStatusByText($status) {
         if ($_SESSION['type'] != 2) {
