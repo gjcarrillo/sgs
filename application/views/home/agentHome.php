@@ -80,16 +80,17 @@
                             Este afiliado no posee solicitudes de préstamos personales
                         </p>
                     </div>
-                    <md-list-item
+                    <div
+                        layout="column"
+                        layout-align="center"
                         ng-repeat="(rKey, request) in requests">
                         <md-button
-                            flex
                             ng-click="selectRequest(rKey)"
                             class="requestItems"
                             ng-class="{'md-primary md-raised' : selectedReq === rKey }">
                             Solicitud ID &#8470; {{pad(request.id, 6)}}
                         </md-button>
-                    </md-list-item>
+                    </div>
                 </div>
             </md-list>
         </md-content>

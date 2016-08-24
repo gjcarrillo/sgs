@@ -340,23 +340,21 @@
                             </md-list-item>
                             <md-divider ng-if="!$last"></md-divider>
                             <div class="slide-toggle" ng-show="request.showList">
-                                <md-list-item>
+                                <div layout="column" layout-align="center">
                                     <md-button
                                         class="requestItems"
-                                        ng-click="loadUserData(request.userOwner)"
-                                        flex>
+                                        ng-click="loadUserData(request.userOwner)">
                                         Datos del afiliado
                                     </md-button>
-                                </md-list-item>
-                                <md-list-item>
+                                </div>
+                                <div layout="column" layout-align="center">
                                     <md-button
-                                        flex
                                         ng-click="selectPendingReq(rKey)"
                                         class="requestItems"
                                         ng-class="{'md-primary md-raised' : selectedPendingReq === rKey }">
                                         Detalles de la solicitud
                                     </md-button>
-                                </md-list-item>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -392,10 +390,11 @@
                     </md-list-item>
                     <md-divider></md-divider>
                     <div class="slide-toggle" ng-show="showList">
-                        <md-list-item
+                        <div
+                            layout="column"
+                            layout-align="center"
                             ng-repeat="(rKey, request) in requests">
                             <md-button
-                                flex
                                 ng-click="selectRequest(rKey)"
                                 class="requestItems"
                                 ng-class="{'md-primary md-raised' : selectedReq === rKey }">
@@ -403,7 +402,7 @@
                                     lightbulb_outline
                                 </md-icon> Solicitud ID &#8470; {{pad(request.id, 6)}}
                             </md-button>
-                        </md-list-item>
+                        </div>
                     </div>
                 </md-list>
             </div>
@@ -445,23 +444,21 @@
                         </md-list-item>
                         <md-divider ng-if="!$last"></md-divider>
                         <div class="slide-toggle" ng-show="request.showList">
-                            <md-list-item>
+                            <div layout="column" layout-align="center">
                                 <md-button
                                     class="requestItems"
-                                    ng-click="loadUserData(request.userOwner)"
-                                    flex>
+                                    ng-click="loadUserData(request.userOwner)">
                                     Datos del afiliado
                                 </md-button>
-                            </md-list-item>
-                            <md-list-item>
+                            </div>
+                            <div layout="column" layout-align="center">
                                 <md-button
-                                    flex
                                     ng-click="selectRequest(rKey)"
                                     class="requestItems"
                                     ng-class="{'md-primary md-raised' : selectedReq === rKey }">
                                     Detalles de la solicitud
                                 </md-button>
-                            </md-list-item>
+                            </div>
                         </div>
                     </div>
                 </md-list>

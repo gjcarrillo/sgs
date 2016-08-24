@@ -78,7 +78,7 @@ angular.module('sgdp.login').factory("auth", function($cookies, $location,
             return typeof $cookies.get('session') !== "undefined" ;
         },
     };
-
+    // Clears possible data stored on browser
     function cleanBrowser() {
         sessionStorage.removeItem("requests");
         sessionStorage.removeItem("fetchId");
