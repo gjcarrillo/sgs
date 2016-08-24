@@ -84,18 +84,6 @@ function userHome($scope, $rootScope, $http, $cookies, $timeout,
                 return !$scope.idPicTaken || typeof $scope.model.reqAmount === "undefined";
             };
 
-            function updateIdPic(dataURL) {
-                $("#idThumbnail").attr("src", dataURL);
-                $scope.idPicTaken = true;
-                $scope.idData = dataURL;
-            }
-
-            function updateDocPic(dataURL){
-                $("#docThumbnail").attr("src", dataURL);
-                $scope.docPicTaken = true;
-                $scope.docData = dataURL;
-            }
-
             $scope.deleteIdPic = function() {
                 $scope.idPicTaken = false;
             };
@@ -122,11 +110,6 @@ function userHome($scope, $rootScope, $http, $cookies, $timeout,
                     $scope.docPicTaken = true;
                     $scope.errFiles = errFiles;
                 }
-            };
-
-            $scope.removeScannedDoc = function() {
-                $scope.docPicTaken = false;
-                $scope.file = null;
             };
 
             $scope.showError = function(error, param) {

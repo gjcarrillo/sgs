@@ -1,10 +1,12 @@
 // factory controlling authentication
 // uses cookies to save user session
-angular.module('sgdp.login').factory("auth", function($cookies, $location, $http , $rootScope)
+angular.module('sgdp.login').factory("auth", function($cookies, $location,
+    $http ,$rootScope, $timeout)
 {
     return{
         login : function(username, password)
         {
+            $rootScope.loading = true;
             $http.get('index.php/login/LoginController/authenticate', {params:{id: username , password:password}})
                 .then(function(response) {
                     console.log(response);
@@ -37,14 +39,15 @@ angular.module('sgdp.login').factory("auth", function($cookies, $location, $http
                         } else {
                             $location.path("userHome");
                         }
+                        $timeout(function() {
+                            $rootScope.loading = false;
+                        }, 1000);
 
                     } else {
+                        $rootScope.loading = false;
                         $rootScope.model.loginError =  response.data.message;
                    }
-                }, function (response){
-
-            })
-
+                })
         },
         logout : function()
         {

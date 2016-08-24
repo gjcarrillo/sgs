@@ -90,7 +90,6 @@
                     </div>
                     <div layout>
                         <md-input-container md-no-float class="md-block" flex="60" flex-offset="20">
-                            <!-- <md-icon>lock</md-icon> -->
                             <input
                                 type="password"
                                 placeholder="************"
@@ -99,12 +98,26 @@
                         </md-input-container>
                     </div>
                     <div layout layout-align="center center">
-                        <span style="color:red">{{model.loginError}}</span>
-                    </div>
-                    <div layout layout-align="center center">
-                        <md-button ng-click="login()" class="md-raised md-primary">
+                        <md-button ng-hide="loading" ng-click="login()" class="md-raised md-primary">
                             Iniciar sesión
                         </md-button>
+                        <md-button
+                            aria-label="logging in"
+                            ng-if="loading"
+                            ng-click="login()"
+                            class="md-raised md-primary">
+                            <div layout layout-align="center center">
+                                <md-progress-circular
+                                    md-theme="whiteInput"
+                                    md-mode="indeterminate"
+                                    md-diameter="30">
+                                </md-progress-circular>
+                            </div>
+                        </md-button>
+                    </div>
+                    <br/>
+                    <div layout layout-align="center center">
+                        <span style="color:red; text-align:center">{{model.loginError}}</span>
                     </div>
                     <br/>
                 </md-card-content>
