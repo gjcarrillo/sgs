@@ -10,9 +10,10 @@ class NewRequestController extends CI_Controller {
     }
 
 	public function index() {
-		if ($_SESSION['type'] != 1) {
+		if ($_SESSION['type'] != 1 && $_SESSION['type'] != 3) {
 			$this->load->view('errors/index.html');
 		} else {
+			// Both agents and applicants can create a new request
 			$this->load->view('documents/newRequest');
 		}
 	}
@@ -23,7 +24,7 @@ class NewRequestController extends CI_Controller {
         // if (!file_exists($uploaddir)) {
         //     mkdir($uploaddir, 0777, true);
         // }
-		if ($_SESSION['type'] != 1) {
+		if ($_SESSION['type'] != 1 && $_SESSION['type'] != 3) {
 			$this->load->view('errors/index.html');
 		} else {
 			$uploadfile = DropPath . $_POST['userId'] . '.' . $_POST['requestId'] . '.' . basename($_FILES['file']['name']);
@@ -36,9 +37,10 @@ class NewRequestController extends CI_Controller {
     }
 
     public function createRequest() {
-		if ($_SESSION['type'] != 1) {
+		if ($_SESSION['type'] != 1 && $_SESSION['type'] != 3) {
 			$this->load->view('errors/index.html');
 		} else {
+			// Both agents and applicants can create new requests
 	        try {
 	            $em = $this->doctrine->em;
 	            // New request
@@ -54,7 +56,7 @@ class NewRequestController extends CI_Controller {
 				// Register it's corresponding actions
 				$action = new \Entity\HistoryAction();
 				$action->setSummary("Solicitud creada.");
-				$action->setDetail("Estado de la solicitud: Recibida. Monto solicitado: Bs " . number_format($_GET['reqAmount'], 2));
+				$action->setDetail("Estado de la solicitud: Recibida.\nMonto solicitado: Bs " . number_format($_GET['reqAmount'], 2));
 				$action->setBelongingHistory($history);
 				$history->addAction($action);
 				$em->persist($action);
@@ -83,7 +85,7 @@ class NewRequestController extends CI_Controller {
     }
 
     public function createDocument() {
-		if ($_SESSION['type'] != 1) {
+		if ($_SESSION['type'] != 1 && $_SESSION['type'] != 3) {
 			$this->load->view('errors/index.html');
 		} else {
 	        try {

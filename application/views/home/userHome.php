@@ -162,6 +162,20 @@
         <md-divider></md-divider>
     </div>
 </div>
+<!-- FAB -->
+<div ng-hide="requests.length == 0" class="relative">
+    <md-button
+        id="new-req-fab"
+        ng-click="openNewRequestDialog($event)"
+        style="margin-bottom:40px"
+        class="md-fab md-fab-bottom-right"
+        aria-label="Create request">
+        <md-tooltip md-direction="top">
+            Crear una solicitud
+        </md-tooltip>
+        <md-icon>add</md-icon>
+    </md-button>
+</div>
 <footer hide-xs>
     <div layout layout-align="space-around center">
         <span>&copy; IPAPEDI 2016</span>

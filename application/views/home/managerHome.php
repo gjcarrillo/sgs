@@ -290,7 +290,6 @@
                                 </md-button>
                                 <md-progress-circular ng-if="loadingReport" md-mode="indeterminate">
                             </div>
-                            <md-divider></md-divider>
                         </div>
                         <!-- Query this week's approved requests -->
                         <div ng-show="model.query == 7" layout="column" layout-padding>
@@ -307,8 +306,8 @@
                                 <md-progress-circular ng-if="loadingReport" md-mode="indeterminate">
                                 </md-progress-circular>
                             </div>
-                            <md-divider></md-divider>
                         </div>
+                        <md-divider></md-divider>
                     </div>
                     <!-- Pending requests -->
                     <md-list-item id="pending-req">

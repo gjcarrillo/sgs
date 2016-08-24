@@ -75,6 +75,11 @@
                 </md-list-item>
                 <md-divider></md-divider>
                 <div class="slide-toggle" ng-show="showList">
+                    <div ng-if="requests.length == 0" layout layout-align="center center" class="md-padding">
+                        <p style="color:#F44336">
+                            Este afiliado no posee solicitudes de préstamos personales
+                        </p>
+                    </div>
                     <md-list-item
                         ng-repeat="(rKey, request) in requests">
                         <md-button
@@ -281,8 +286,9 @@
     </div>
 </div>
 <!-- FAB -->
-<div ng-hide="requests.length == 0" class="relative">
+<div ng-show="contentAvailable" class="relative">
     <md-button
+        id="new-req-fab"
         ng-click="openNewRequestDialog($event)"
         style="margin-bottom:40px"
         class="md-fab md-fab-bottom-right"

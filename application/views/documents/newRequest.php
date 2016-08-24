@@ -13,25 +13,26 @@
             </md-button>
         </div>
     </md-toolbar>
-    <md-dialog-content layout-padding>
+    <!-- Inputs requested for agents -->
+    <md-dialog-content ng-if="userType(1)" layout-padding>
         <div layout layout-align="center center">
             <md-input-container id="req-amount" >
-                <label>Monto solicitado (Bs)</label>
-                <input ng-model="reqAmount" type="number" min="100" step="100" required placeholder="Ej: 300000.25"/>
+                <label>Monto solicitado (Bs) *</label>
+                <input ng-model="model.reqAmount" type="number" min="100" step="100" required placeholder="Ej: 300000.25"/>
             </md-input-container>
         </div>
         <div ng-hide="idPicTaken && docPicTaken" layout layout-align="center center">
             <div id="id-pic" ng-hide="idPicTaken">
                 <md-button ng-click="openIdentityCamera($event)">
                     <md-icon>photo_camera</md-icon>
-                    Foto del afiliado
+                    Foto del afiliado (*)
                 </md-button>
             </div>
             <div id="doc-pic" ng-hide="docPicTaken">
                 <md-menu>
                    <md-button ng-click="$mdOpenMenu($event)" aria-label="Request doc">
                        <md-icon>insert_drive_file</md-icon>
-                       Documento de solicitud
+                       Documento explicativo
                    </md-button>
                    <md-menu-content>
                        <md-menu-item>
@@ -46,7 +47,7 @@
                                ngf-pattern="'image/*,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheetapplication/vnd.openxmlformats-officedocument.spreadsheetml.template,,application/pdf,application/msword'"
                                ngf-max-size="4MB">
                                <md-icon>file_upload</md-icon>
-                               Subir escaneado
+                               Subir de la PC
                            </md-button>
                        </md-menu-item>
                    </md-menu-content>
@@ -100,6 +101,78 @@
                 <md-card-actions ng-show="uploading">
                     <div class="md-padding">
                         <md-progress-linear md-mode="determinate" value="{{file.progress}}"></md-progress-linear>
+                    </div>
+                </md-card-actions>
+            </md-card>
+        </div>
+        <div ng-repeat="f in errFiles" style="color:red">
+            Error en archivo {{f.name}}: {{showError(f.$error, f.$errorParam)}}
+        </div>
+    </md-dialog-content>
+    <!-- Inputs requested for applicants -->
+    <md-dialog-content ng-if="userType(3)" layout-padding>
+        <div layout layout-align="center center">
+            <md-input-container id="req-amount" >
+                <label>Monto solicitado (Bs) *</label>
+                <input ng-model="model.reqAmount" type="number" min="100" step="100" required placeholder="Ej: 300000.25"/>
+            </md-input-container>
+        </div>
+        <div ng-hide="idPicTaken && docPicTaken" layout layout-align="center center">
+            <div id="id-pic" ng-hide="idPicTaken">
+                <md-button
+                    ngf-select="gatherIDFile($file, $invalidFiles)"
+                    ngf-pattern="'image/*,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheetapplication/vnd.openxmlformats-officedocument.spreadsheetml.template,,application/pdf,application/msword'"
+                    ngf-max-size="4MB">
+                    <md-icon>file_upload</md-icon>
+                    Cédula de identidad (*)
+                </md-button>
+            </div>
+            <div id="doc-pic" ng-hide="docPicTaken">
+                <md-button
+                    ngf-select="gatherDocFile($file, $invalidFiles)"
+                    ngf-pattern="'image/*,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheetapplication/vnd.openxmlformats-officedocument.spreadsheetml.template,,application/pdf,application/msword'"
+                    ngf-max-size="4MB">
+                    <md-icon>file_upload</md-icon>
+                    Documento explicativo
+                </md-button>
+            </div>
+        </div>
+        <div layout layout-align="center center">
+            <!-- ID picture result -->
+            <md-card id="id-pic-result" ng-show="idPicTaken">
+                <md-card-title>
+                <md-card-title-text>
+                    <span class="md-headline">{{idFile.name}}</span>
+                    <span class="md-subhead">{{idFile.description}}</span>
+                </md-card-title-text>
+                </md-card-title>
+                <!-- Delete file action -->
+                <md-card-actions ng-hide="uploading" layout layout-align="end center">
+                    <md-button class="md-icon-button" ng-click="deleteIdPic()"><md-icon>delete</md-icon></md-button>
+                </md-card-actions>
+                <!-- Uploading progress -->
+                <md-card-actions ng-show="uploading">
+                    <div class="md-padding">
+                        <md-progress-linear md-mode="determinate" value="{{idFile.progress}}"></md-progress-linear>
+                    </div>
+                </md-card-actions>
+            </md-card>
+            <!-- Doc pic result -->
+            <md-card id="doc-pic-selection" ng-show="docPicTaken">
+                <md-card-title>
+                <md-card-title-text>
+                    <span class="md-headline">{{docFile.name}}</span>
+                    <span class="md-subhead">{{docFile.description}}</span>
+                </md-card-title-text>
+                </md-card-title>
+                <!-- Delete file action -->
+                <md-card-actions ng-hide="uploading" layout layout-align="end center">
+                    <md-button class="md-icon-button" ng-click="deleteDocPic()"><md-icon>delete</md-icon></md-button>
+                </md-card-actions>
+                <!-- Uploading progress -->
+                <md-card-actions ng-show="uploading">
+                    <div class="md-padding">
+                        <md-progress-linear md-mode="determinate" value="{{docFile.progress}}"></md-progress-linear>
                     </div>
                 </md-card-actions>
             </md-card>

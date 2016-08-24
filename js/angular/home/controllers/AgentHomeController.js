@@ -2,8 +2,8 @@ angular
     .module('sgdp')
     .controller('AgentHomeController', agentHome);
 
-agentHome.$inject = ['$scope', '$rootScope', '$mdDialog', 'Upload', '$cookies', '$http', '$state',
-    '$timeout', '$mdSidenav', '$mdMedia'];
+agentHome.$inject = ['$scope', '$rootScope', '$mdDialog', 'Upload', '$cookies',
+    '$http', '$state', '$timeout', '$mdSidenav', '$mdMedia'];
 
 function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $state,
     $timeout, $mdSidenav, $mdMedia) {
@@ -47,13 +47,6 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
             });
     };
 
-    $scope.getSidenavHeight = function() {
-        return {
-            // 129 = header and footer height, approx
-            'height':($(window).height() - 129)
-        };
-    };
-
     $scope.toggleList = function() {
         $scope.showList = !$scope.showList;
     };
@@ -78,7 +71,9 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
         $http.get('index.php/home/AgentHomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
             .then(function (response) {
                 if (response.data.message === "success") {
-                    $scope.requests = response.data.requests;
+                    if (typeof response.data.requests !== "undefined") {
+                        $scope.requests = response.data.requests;
+                    }
                     $scope.contentAvailable = true;
                     $timeout(function() {
                         $scope.contentLoaded = true;
@@ -119,15 +114,15 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
             $scope.docPicTaken = false;
             $scope.uploading = false;
             $scope.uploadErr = '';
-            // Gonna have to upload 2 files
-            var uploadedFiles = new Array(2).fill(false);
+            $scope.model = {};
+            var uploadedFiles;
 
             $scope.closeDialog = function() {
                 $mdDialog.hide();
             };
 
             $scope.missingField = function() {
-                return !$scope.idPicTaken || !$scope.docPicTaken || typeof $scope.reqAmount === "undefined";
+                return !$scope.idPicTaken || typeof $scope.model.reqAmount === "undefined";
             };
 
             function updateIdPic(dataURL) {
@@ -153,7 +148,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
             $scope.gatherFile = function(file, errFiles) {
                 if (file) {
                     $scope.file = file;
-                    $scope.file.description = "Documento con datos de solicitud";
+                    $scope.file.description = "Documento explicativo de la solicitud";
                     $scope.docPicTaken = true;
                     $scope.errFiles = errFiles;
                 }
@@ -174,16 +169,19 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
 
             // Creates new request in database and uploads documents
             $scope.createNewRequest = function() {
+                uploadedFiles = new Array($scope.docPicTaken ? 2 : 1).fill(false);
                 $scope.uploading = true;
                 $http.get('index.php/documents/NewRequestController/createRequest',
-                    {params:{userId:fetchId, reqAmount:$scope.reqAmount}})
+                    {params:{userId:fetchId, reqAmount:$scope.model.reqAmount}})
                     .then(function (response) {
-                        if (response.data.message== "success") {
+                        if (response.status == 200) {
                             uploadData(1, response.data.requestId, response.data.historyId, 0);
-                            if (!$scope.file) {
-                                uploadData(2, response.data.requestId, response.data.historyId, 1);
-                            } else {
-                                uploadFile($scope.file, response.data.requestId, response.data.historyId, 1);
+                            if ($scope.docPicTaken) {
+                                if (!$scope.file) {
+                                    uploadData(2, response.data.requestId, response.data.historyId, 1);
+                                } else {
+                                    uploadFile($scope.file, response.data.requestId, response.data.historyId, 1);
+                                }
                             }
                         }
                     });
@@ -196,11 +194,11 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                 if (data == 1) {
                     imageData = $scope.idData;
                     docName = "Identidad";
-                    description = "Prueba de presencia"
+                    description = "Comprobación de autorización"
                 } else {
                     imageData = $scope.docData;
                     docName = "Solicitud";
-                    description = "Documento con datos de solicitud"
+                    description = "Documento explicativo de la solicitud"
                 }
                 var postData = JSON.stringify({
                     imageData:imageData,
@@ -251,10 +249,13 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                                         console.log("Document creation in database had an error");
                                     }
                                 });
+                        } else {
+                            console.log("???")
                         }
                     });
             };
 
+            // Determines whether all files were uploaded
             function uploadsFinished(uploadedFiles) {
                 return (uploadedFiles.filter(function(bool){
                     return !bool;
@@ -416,6 +417,11 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                 }
             }
 
+            // Determines wether the specified userType matches logged user's type
+            $scope.userType = function(type) {
+                return type === $cookies.getObject('session').type;
+            };
+
             $scope.showHelp = function() {
                 var options = {
                     showNavigation : true,
@@ -455,7 +461,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
             }
 
             function showAllFieldsHelp(tripToShowNavigation) {
-                if (!$scope.reqAmount) {
+                if (!$scope.model.reqAmount) {
                     // Requested amount field
                     var content = "Ingrese la cantidad de Bs. solicitado por el afiliado.";
                     showFieldHelp(tripToShowNavigation, "#req-amount", content);
@@ -472,18 +478,20 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                 }
                 if (!$scope.docPicTaken) {
                     // Show doc pic field help
-                    var content = "Haga click para proveer el documento de la solicitud." +
-                    " Puede tomarle foto o elegir el documento desde la computadora.";
+                    var content = "Haga click para opcionalmente proveer un documento" +
+                    " explicativo de la solicitud. Puede tomarle foto o subir el " +
+                    "documento desde la computadora.";
                     showFieldHelp(tripToShowNavigation, "#doc-pic", content);
                 } else {
                     if (!$scope.file) {
                         // Picture was taken, show pic result help
-                        var content = "Resultado de la foto del documento de solicitud." +
-                        " Si lo desea, puede eliminarla y volver a tomarla.";
+                        var content = "Resultado de la foto del documento " +
+                        "explicativo de la solicitud. Si lo desea, puede eliminarla " +
+                        "y volver a tomarla.";
                         showFieldHelp(tripToShowNavigation, "#doc-pic-result", content);
                     } else {
                         // doc was uploaded instead
-                        var content = "Documento de solicitud seleccionado." +
+                        var content = "Documento explicativo de la solicitud seleccionado." +
                         " Si lo desea, puede eliminarlo y volver a seleccionarlo.";
                         showFieldHelp(tripToShowNavigation, "#doc-pic-selection", content);
                     }
@@ -927,7 +935,10 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                 { sel : $("#requests-list"),
                     content : "Consulte datos de interés del afiliado, o seleccione " +
                     "alguna de sus solicitudes en la lista para ver más detalles.",
-                    position : "e", expose : true, header: "Panel de navegación", animation: 'fadeInUp' }
+                    position : "e", expose : true, header: "Panel de navegación", animation: 'fadeInUp' },
+                { sel : $("#new-req-fab"),
+                    content : "También puede abrir una solicitud haciendo click aquí",
+                    position : "w", expose : true, header: "Nueva solicitud", animation: 'fadeInUp' }
             ], options);
             tripToShowNavigation.start();
         } else {
