@@ -401,10 +401,13 @@ class ManagerHomeController extends CI_Controller {
 				foreach ($history as $h) {
 					$request = $h->getOrigin();
 					if ($request->getStatusByText() === "Aprobada") {
-						// Perform all approved amount's computation
-						$count++;
-						if ($request->getApprovedAmount() !== null) {
-							$result['approvedAmount'] += $request->getApprovedAmount();
+						if (!isset($evaluated[$request->getId()])) {
+							// Perform all approved amount's computation
+							$evaluated[$request->getId()] = true;
+							$count++;
+							if ($request->getApprovedAmount() !== null) {
+								$result['approvedAmount'] += $request->getApprovedAmount();
+							}
 						}
 					}
 				}
@@ -492,10 +495,12 @@ class ManagerHomeController extends CI_Controller {
 				$qb->setParameter(3, $to);
 				$history = $qb->getQuery()->getResult();
 				$count = 0;
+				$evaluated = [];
 				foreach ($history as $h) {
 					$request = $h->getOrigin();
-					if ($request->getStatusByText() !== "Recibida") {
+					if (!isset($evaluated[$request->getId()])) {
 						// Gather up report information
+						$evaluated[$request->getId()] = true;
 						$count++;
 						$result['report']['data'][$count] = array(
 							$count,
@@ -611,10 +616,12 @@ class ManagerHomeController extends CI_Controller {
 				$qb->setParameter(3, $to);
 				$history = $qb->getQuery()->getResult();
 				$count = 0;
+				$evaluated = [];
 				foreach ($history as $h) {
 					$request = $h->getOrigin();
-					if ($request->getStatusByText() !== "Recibida") {
+					if (!isset($evaluated[$request->getId()])) {
 						// Gather up report information
+						$evaluated[$request->getId()] = true;
 						$count++;
 						$result['report']['data'][$count] = array(
 							$count,
