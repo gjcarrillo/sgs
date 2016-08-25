@@ -24,6 +24,7 @@ function userHome($scope, $rootScope, $http, $cookies, $timeout,
         .then(function (response) {
             if (response.data.message === "success") {
                 $scope.requests = response.data.requests;
+                $scope.maxReqAmount = response.data.maxReqAmount;
                 $scope.contentAvailable = true;
                 $timeout(function() {
                     $scope.contentLoaded = true;
@@ -63,15 +64,17 @@ function userHome($scope, $rootScope, $http, $cookies, $timeout,
             escapeToClose: false,
             autoWrap: false,
             locals:{
-                fetchId:fetchId
+                fetchId:fetchId,
+                maxReqAmount: $scope.maxReqAmount
             },
             controller: DialogController
         });
         // Isolated dialog controller for the new request dialog
-        function DialogController($scope, $mdDialog, fetchId) {
+        function DialogController($scope, $mdDialog, fetchId, maxReqAmount) {
             $scope.idPicTaken = false;
             $scope.docPicTaken = false;
             $scope.uploading = false;
+            $scope.maxReqAmount = maxReqAmount;
             $scope.model = {};
             $scope.uploadErr = '';
             var uploadedFiles;

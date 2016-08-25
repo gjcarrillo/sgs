@@ -426,6 +426,7 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
             $scope.model = {};
             $scope.model.status = $scope.statuses[0];
             $scope.model.comment = $scope.request.comment;
+            $scope.model.approvedAmount = $scope.request.reqAmount;
 
             $scope.closeDialog = function() {
                 $mdDialog.hide();

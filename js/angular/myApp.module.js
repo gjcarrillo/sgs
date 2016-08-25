@@ -1,5 +1,5 @@
 var sgdp = angular.module("sgdp", ["sgdp.login", "ui.router", "ngMaterial",
-    "ngFileUpload", "webcam"]);
+    "ngFileUpload", "webcam", "ngMessages"]);
 
 
 sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $mdDateLocaleProvider, $locationProvider) {

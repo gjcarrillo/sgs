@@ -211,7 +211,7 @@ class History
     public function getTitleByText()
     {
         $title = $this->title;
-        return ($title == 1 ? "Creación" : ($title == 2 ? "Adición" : ($title == 3 ? "Modificación" : ($title == 4 ? "Cierre" : "Eliminación"))));
+        return ($title == 1 ? "Creación" : ($title == 2 ? "Adición" : ($title == 3 ? "Modificación" : ($title == 4 ? "Cierre" : ($title == 5 ? "Eliminación" : "Reporte")))));
     }
 
     /**
@@ -221,7 +221,7 @@ class History
     */
     public function setTitleByText($title)
     {
-        $this->title = ($title == "Creación" ? 1 : ($title == "Modificación" ? 2 : ($title == "Adición" ? 3 : ($title == "Cierre" ? 4 : 5))));
+        $this->title = ($title == "Creación" ? 1 : ($title == "Modificación" ? 2 : ($title == "Adición" ? 3 : ($title == "Cierre" ? 4 : ($title == "Eliminación" ? 5 : 6)))));
         return $this;
     }
 }

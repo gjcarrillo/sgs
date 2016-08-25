@@ -508,8 +508,27 @@ class ManagerHomeController extends CI_Controller {
 							$request->getApprovedAmount(),
 							$request->getComment()
 						);
+						// Add report generation action to history
+						$newLog = new \Entity\History();
+						$newLog->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
+						$newLog->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
+						// 6 = report generation
+						$newLog->setTitle(6);
+						$newLog->setOrigin($request);
+						$request->addHistory($newLog);
+						// Register it's corresponding action
+						$action = new \Entity\HistoryAction();
+						$action->setSummary("Generación de reporte de solcitudes cerradas");
+						$action->setDetail("Solicitudes cerradas entre " . $from->format('d/m/Y') . " y " . $to->format('d/m/Y'));
+						$action->setBelongingHistory($newLog);
+						$newLog->addAction($action);
+						$em->persist($action);
+						$em->persist($newLog);
+						$em->merge($request);
 					}
 				}
+				$em->flush();
+				$em->clear();
 				if (!$count) {
 					$interval = $from->diff($to);
 					$days = $interval->format("%a");
@@ -608,8 +627,26 @@ class ManagerHomeController extends CI_Controller {
 							$request->getApprovedAmount(),
 							$request->getComment()
 						);
+						// Add report generation action to history
+						$newLog = new \Entity\History();
+						$newLog->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
+						$newLog->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
+						// 6 = report generation
+						$newLog->setTitle(6);
+						$newLog->setOrigin($request);
+						$request->addHistory($newLog);
+						// Register it's corresponding action
+						$action = new \Entity\HistoryAction();
+						$action->setSummary("Generación de reporte de solcitudes cerradas");
+						$action->setDetail("Solicitudes cerradas entre " . $from->format('d/m/Y') . " y " . $to->format('d/m/Y'));
+						$action->setBelongingHistory($newLog);
+						$newLog->addAction($action);
+						$em->persist($action);
+						$em->persist($newLog);
+						$em->merge($request);
 					}
 				}
+				$em->flush();
 				if (!$count) {
 					$result['error'] = "No se han detectado cierres de solicitudes esta semana.";
 				} else {

@@ -45,7 +45,7 @@ class ManageRequestController extends CI_Controller {
 						if (isset($_GET['approvedAmount'])) {
 							$approvedAmount = number_format($_GET['approvedAmount'], 2);
 							$action->setDetail(
-								"Nuevo estado: " . $_GET['status'] . ". Monto aprobado: Bs " . $approvedAmount
+								"Sugerencia: " . $this->statusToVerb($_GET['status']) . " solicitud. Monto aprobado: Bs " . $approvedAmount
 							);
 						} else {
 							$action->setDetail("Nuevo estado: " . $_GET['status']);
@@ -93,5 +93,9 @@ class ManageRequestController extends CI_Controller {
 
 			echo json_encode($result);
 		}
+	}
+
+	public function statusToVerb($status) {
+		return ($status == "Aprobada" ? "aprobar" : "rechazar");
 	}
 }

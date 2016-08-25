@@ -49,6 +49,16 @@ class AgentHomeController extends CI_Controller {
                             $result['requests'][$rKey]['docs'][$dKey]['lpath'] = $doc->getLpath();
                         }
                     }
+					// Get user's max request amount
+					$this->db->select('*');
+					$this->db->from('db_dt_personales');
+					$this->db->where('cedula', $_GET['fetchId']);
+					$query = $this->db->get();
+					if (!empty($query->result())) {
+						$data = $query->result()[0];
+						// use Data to get user info in the formula
+						$result['maxReqAmount'] = 250000;
+					}
                     $result['message'] = "success";
                 }
             } catch (Exception $e) {

@@ -15,45 +15,59 @@
     </md-toolbar>
     <!-- Inputs requested for agents -->
     <md-dialog-content ng-if="userType(1)" layout-padding>
-        <div layout layout-align="center center">
-            <md-input-container id="req-amount" >
-                <label>Monto solicitado (Bs) *</label>
-                <input ng-model="model.reqAmount" type="number" min="100" step="100" required placeholder="Ej: 300000.25"/>
-            </md-input-container>
-        </div>
-        <div ng-hide="idPicTaken && docPicTaken" layout layout-align="center center">
-            <div id="id-pic" ng-hide="idPicTaken">
-                <md-button ng-click="openIdentityCamera($event)">
-                    <md-icon>photo_camera</md-icon>
-                    Foto del afiliado (*)
-                </md-button>
+        <form name="agentForm">
+            <div layout>
+                <md-input-container flex="50" flex-offset="25" id="req-amount" >
+                    <label>Monto solicitado (Bs) *</label>
+                    <input
+                        ng-model="model.reqAmount"
+                        type="number"
+                        min="100"
+                        max="{{maxReqAmount}}"
+                        step="100"
+                        required
+                        name="reqAmount"
+                        placeholder="Ej: 300000.25"/>
+                    <div ng-messages="agentForm.reqAmount.$error" ng-show="agentForm.reqAmount.$dirty">
+                        <div ng-message="required">¡Este campo es obligatorio!</div>
+                        <div ng-message="max">Monto máximo: Bs. {{maxReqAmount | number:2}}</div>
+                    </div>
+                </md-input-container>
             </div>
-            <div id="doc-pic" ng-hide="docPicTaken">
-                <md-menu>
-                   <md-button ng-click="$mdOpenMenu($event)" aria-label="Request doc">
-                       <md-icon>insert_drive_file</md-icon>
-                       Documento explicativo
-                   </md-button>
-                   <md-menu-content>
-                       <md-menu-item>
-                           <md-button ng-click="openDocCamera($event)">
-                               <md-icon>photo_camera</md-icon>
-                               Tomar foto
-                           </md-button>
-                       </md-menu-item>
-                       <md-menu-item>
-                           <md-button
-                               ngf-select="gatherFile($file, $invalidFiles)"
-                               ngf-pattern="'image/*,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheetapplication/vnd.openxmlformats-officedocument.spreadsheetml.template,,application/pdf,application/msword'"
-                               ngf-max-size="4MB">
-                               <md-icon>file_upload</md-icon>
-                               Subir de la PC
-                           </md-button>
-                       </md-menu-item>
-                   </md-menu-content>
-               </md-menu>
+            <div ng-hide="idPicTaken && docPicTaken" layout layout-align="center center">
+                <div id="id-pic" ng-hide="idPicTaken">
+                    <md-button ng-click="openIdentityCamera($event)">
+                        <md-icon>photo_camera</md-icon>
+                        Foto del afiliado (*)
+                    </md-button>
+                </div>
+                <div id="doc-pic" ng-hide="docPicTaken">
+                    <md-menu>
+                       <md-button ng-click="$mdOpenMenu($event)" aria-label="Request doc">
+                           <md-icon>insert_drive_file</md-icon>
+                           Documento explicativo
+                       </md-button>
+                       <md-menu-content>
+                           <md-menu-item>
+                               <md-button ng-click="openDocCamera($event)">
+                                   <md-icon>photo_camera</md-icon>
+                                   Tomar foto
+                               </md-button>
+                           </md-menu-item>
+                           <md-menu-item>
+                               <md-button
+                                   ngf-select="gatherFile($file, $invalidFiles)"
+                                   ngf-pattern="'image/*,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheetapplication/vnd.openxmlformats-officedocument.spreadsheetml.template,,application/pdf,application/msword'"
+                                   ngf-max-size="4MB">
+                                   <md-icon>file_upload</md-icon>
+                                   Subir de la PC
+                               </md-button>
+                           </md-menu-item>
+                       </md-menu-content>
+                   </md-menu>
+                </div>
             </div>
-        </div>
+        </form>
         <div layout layout-align="center center">
             <!-- ID picture result -->
             <md-card id="id-pic-result" ng-show="idPicTaken">
@@ -111,32 +125,46 @@
     </md-dialog-content>
     <!-- Inputs requested for applicants -->
     <md-dialog-content ng-if="userType(3)" layout-padding>
-        <div layout layout-align="center center">
-            <md-input-container id="req-amount" >
-                <label>Monto solicitado (Bs) *</label>
-                <input ng-model="model.reqAmount" type="number" min="100" step="100" required placeholder="Ej: 300000.25"/>
-            </md-input-container>
-        </div>
-        <div ng-hide="idPicTaken && docPicTaken" layout layout-align="center center">
-            <div id="id-pic" ng-hide="idPicTaken">
-                <md-button
-                    ngf-select="gatherIDFile($file, $invalidFiles)"
-                    ngf-pattern="'image/*,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheetapplication/vnd.openxmlformats-officedocument.spreadsheetml.template,,application/pdf,application/msword'"
-                    ngf-max-size="4MB">
-                    <md-icon>file_upload</md-icon>
-                    Cédula de identidad (*)
-                </md-button>
+        <form name="applicantForm">
+            <div layout>
+                <md-input-container flex="50" flex-offset="25" id="req-amount" >
+                    <label>Monto solicitado (Bs) *</label>
+                    <input
+                        ng-model="model.reqAmount"
+                        type="number"
+                        min="100"
+                        max="{{maxReqAmount}}"
+                        step="100"
+                        name="reqAmount"
+                        required
+                        placeholder="Ej: 300000.25"/>
+                    <div ng-messages="applicantForm.reqAmount.$error" ng-show="applicantForm.reqAmount.$dirty">
+                        <div ng-message="required">¡Este campo es obligatorio!</div>
+                        <div ng-message="max">Monto máximo: Bs. {{maxReqAmount | number:2}}</div>
+                    </div>
+                </md-input-container>
             </div>
-            <div id="doc-pic" ng-hide="docPicTaken">
-                <md-button
-                    ngf-select="gatherDocFile($file, $invalidFiles)"
-                    ngf-pattern="'image/*,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheetapplication/vnd.openxmlformats-officedocument.spreadsheetml.template,,application/pdf,application/msword'"
-                    ngf-max-size="4MB">
-                    <md-icon>file_upload</md-icon>
-                    Documento explicativo
-                </md-button>
+            <div ng-hide="idPicTaken && docPicTaken" layout layout-align="center center">
+                <div id="id-pic" ng-hide="idPicTaken">
+                    <md-button
+                        ngf-select="gatherIDFile($file, $invalidFiles)"
+                        ngf-pattern="'image/*,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheetapplication/vnd.openxmlformats-officedocument.spreadsheetml.template,,application/pdf,application/msword'"
+                        ngf-max-size="4MB">
+                        <md-icon>file_upload</md-icon>
+                        Cédula de identidad (*)
+                    </md-button>
+                </div>
+                <div id="doc-pic" ng-hide="docPicTaken">
+                    <md-button
+                        ngf-select="gatherDocFile($file, $invalidFiles)"
+                        ngf-pattern="'image/*,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheetapplication/vnd.openxmlformats-officedocument.spreadsheetml.template,,application/pdf,application/msword'"
+                        ngf-max-size="4MB">
+                        <md-icon>file_upload</md-icon>
+                        Documento explicativo
+                    </md-button>
+                </div>
             </div>
-        </div>
+        </form>
         <div layout layout-align="center center">
             <!-- ID picture result -->
             <md-card id="id-pic-result" ng-show="idPicTaken">

@@ -24,7 +24,8 @@
             <div flex="45" flex-offset="10">
                 <md-input-container id="status" class="md-block">
                     <label>Estado</label>
-                    <md-select ng-model="model.status">
+                    <md-select
+                        ng-model="model.status">
                         <md-option ng-value="status" ng-repeat="status in statuses">{{status}}</md-option>
                     </md-select>
                 </md-input-container>

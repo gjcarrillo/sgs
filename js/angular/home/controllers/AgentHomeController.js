@@ -73,6 +73,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                 if (response.data.message === "success") {
                     if (typeof response.data.requests !== "undefined") {
                         $scope.requests = response.data.requests;
+                        $scope.maxReqAmount = response.data.maxReqAmount;
                     }
                     $scope.contentAvailable = true;
                     $timeout(function() {
@@ -104,15 +105,17 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
             escapeToClose: false,
             autoWrap: false,
             locals:{
-                fetchId:$scope.fetchId
+                fetchId:$scope.fetchId,
+                maxReqAmount: $scope.maxReqAmount
             },
             controller: DialogController
         });
         // Isolated dialog controller for the new request dialog
-        function DialogController($scope, $mdDialog, fetchId) {
+        function DialogController($scope, $mdDialog, fetchId, maxReqAmount) {
             $scope.idPicTaken = false;
             $scope.docPicTaken = false;
             $scope.uploading = false;
+            $scope.maxReqAmount = maxReqAmount;
             $scope.uploadErr = '';
             $scope.model = {};
             var uploadedFiles;

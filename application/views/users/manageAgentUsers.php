@@ -17,7 +17,7 @@
         <md-tabs md-border-bottom="true" md-dynamic-height="true" md-stretch-tabs="always" md-swipe-content="true">
             <md-tab label="Registrar" md-on-select="selectedTab = 1">
                 <md-content>
-                    <form>
+                    <form name="userForm">
                         <!-- Show only on screen width >= 600 px-->
                         <div hide-xs layout layout-padding>
                             <div layout="column" flex="45">
@@ -49,8 +49,12 @@
                                        <input
                                            placeholder="Ej: 123456789"
                                            required
+                                           name="id"
                                            aria-label="userId"
-                                           ng-model="userId">
+                                           ng-model="userId"/>
+                                       <div ng-messages="userForm.id.$error" ng-show="userForm.id.$dirty">
+                                           <div ng-message="required">¡Este campo es obligatorio!</div>
+                                       </div>
                                     </md-input-container>
                                 </div>
                             </div>
@@ -60,7 +64,15 @@
                                     Contraseña
                                 </div>
                                 <md-input-container id="user-psw" style="margin:0" class="md-block" md-no-float>
-                                    <input required type="password" ng-model="model.psw" placeholder="***********"></input>
+                                    <input
+                                        required
+                                        name="psw"
+                                        type="password"
+                                        ng-model="model.psw"
+                                        placeholder="***********"/>
+                                    <div ng-messages="userForm.psw.$error" ng-show="userForm.psw.$dirty">
+                                        <div ng-message="required">¡Este campo es obligatorio!</div>
+                                    </div>
                                 </md-input-container>
                             </div>
                         </div>
@@ -71,7 +83,10 @@
                                     Nombre
                                 </div>
                                 <md-input-container id="user-name" style="margin:0" class="md-block" md-no-float>
-                                    <input required type="text" ng-model="model.name" placeholder="Ej: Carlos"></input>
+                                    <input name="name" required type="text" ng-model="model.name" placeholder="Ej: Carlos"/>
+                                    <div ng-messages="userForm.name.$error" ng-show="userForm.name.$dirty">
+                                        <div ng-message="required">¡Este campo es obligatorio!</div>
+                                    </div>
                                 </md-input-container>
                             </div>
                             <div layout="column" flex="45" flex-offset="10">
@@ -79,7 +94,15 @@
                                     Apellido
                                 </div>
                                 <md-input-container id="user-lastname" style="margin:0" class="md-block" md-no-float>
-                                    <input required type="text" ng-model="model.lastname" placeholder="Ej: Gutierrez"></input>
+                                    <input
+                                        name="lastname"
+                                        required
+                                        type="text"
+                                        ng-model="model.lastname"
+                                        placeholder="Ej: Gutierrez"/>
+                                    <div ng-messages="userForm.lastname.$error" ng-show="userForm.lastname.$dirty">
+                                        <div ng-message="required">¡Este campo es obligatorio!</div>
+                                    </div>
                                 </md-input-container>
                             </div>
                         </div>
@@ -113,9 +136,13 @@
                                 md-no-float>
                                <input
                                    placeholder="Ej: 123456789"
+                                   name="mobileId"
                                    required
                                    aria-label="userId"
-                                   ng-model="userId">
+                                   ng-model="userId"/>
+                               <div ng-messages="userForm.mobileId.$error" ng-show="userForm.mobileId.$dirty">
+                                   <div ng-message="required">¡Este campo es obligatorio!</div>
+                               </div>
                             </md-input-container>
                             <br/>
                             <div style="color:grey">
@@ -126,7 +153,15 @@
                                 style="margin:0"
                                 class="md-block"
                                 md-no-float>
-                                <input required type="password" ng-model="model.psw" placeholder="***********"></input>
+                                <input
+                                    name="mobilePsw"
+                                    required
+                                    type="password"
+                                    ng-model="model.psw"
+                                    placeholder="***********"/>
+                                <div ng-messages="userForm.mobilePsw.$error" ng-show="userForm.mobilePsw.$dirty">
+                                    <div ng-message="required">¡Este campo es obligatorio!</div>
+                                </div>
                             </md-input-container>
                             <div style="color:grey">
                                 Nombre
@@ -136,7 +171,15 @@
                                 style="margin:0"
                                 class="md-block"
                                 md-no-float>
-                                <input required type="text" ng-model="model.name" placeholder="Ej: Carlos"></input>
+                                <input
+                                    name="mobileName"
+                                    required
+                                    type="text"
+                                    ng-model="model.name"
+                                    placeholder="Ej: Carlos"/>
+                                <div ng-messages="userForm.mobileName.$error" ng-show="userForm.mobileName.$dirty">
+                                    <div ng-message="required">¡Este campo es obligatorio!</div>
+                                </div>
                             </md-input-container>
                             <div style="color:grey">
                                 Apellido
@@ -146,7 +189,15 @@
                                 style="margin:0"
                                 class="md-block"
                                 md-no-float>
-                                <input required type="text" ng-model="model.lastname" placeholder="Ej: Gutierrez"></input>
+                                <input
+                                    name="mobileLastname"
+                                    required
+                                    type="text"
+                                    ng-model="model.lastname"
+                                    placeholder="Ej: Gutierrez"/>
+                                <div ng-messages="userForm.mobileLastname.$error" ng-show="userForm.mobileLastname.$dirty">
+                                    <div ng-message="required">¡Este campo es obligatorio!</div>
+                                </div>
                             </md-input-container>
                         </div>
                     </form>
