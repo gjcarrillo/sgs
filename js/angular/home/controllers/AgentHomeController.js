@@ -70,10 +70,10 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
         $scope.fetchError = "";
         $http.get('index.php/home/AgentHomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
             .then(function (response) {
+                $scope.maxReqAmount = response.data.maxReqAmount;
                 if (response.data.message === "success") {
                     if (typeof response.data.requests !== "undefined") {
                         $scope.requests = response.data.requests;
-                        $scope.maxReqAmount = response.data.maxReqAmount;
                     }
                     $scope.contentAvailable = true;
                     $timeout(function() {

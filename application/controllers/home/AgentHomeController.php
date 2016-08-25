@@ -26,6 +26,18 @@ class AgentHomeController extends CI_Controller {
             $this->load->view('errors/index.html');
         } else {
             try {
+				// Get user's max request amount
+				$this->db->select('*');
+				$this->db->from('db_dt_personales');
+				$this->db->where('cedula', $_GET['fetchId']);
+				$query = $this->db->get();
+				if (!empty($query->result())) {
+					$data = $query->result()[0];
+					// use Data to get user info in the formula
+					$result['maxReqAmount'] = 250000;
+				} else {
+					$result['maxReqAmount'] = 100000;
+				}
                 $em = $this->doctrine->em;
                 $user = $em->find('\Entity\User', $_GET['fetchId']);
                 if ($user === null) {
@@ -49,16 +61,6 @@ class AgentHomeController extends CI_Controller {
                             $result['requests'][$rKey]['docs'][$dKey]['lpath'] = $doc->getLpath();
                         }
                     }
-					// Get user's max request amount
-					$this->db->select('*');
-					$this->db->from('db_dt_personales');
-					$this->db->where('cedula', $_GET['fetchId']);
-					$query = $this->db->get();
-					if (!empty($query->result())) {
-						$data = $query->result()[0];
-						// use Data to get user info in the formula
-						$result['maxReqAmount'] = 250000;
-					}
                     $result['message'] = "success";
                 }
             } catch (Exception $e) {

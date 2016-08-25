@@ -67,7 +67,7 @@
                 ng-if="fetchError != ''"
                 layout layout-align="center center"
                 class="md-padding">
-                <div layout="column" layout-align="center center">
+                <div layout="column" layout-align="center center" class="md-whiteframe-z2 error-card">
                     <span style="color:red">{{fetchError}}</span>
                 </div>
             </div>
@@ -161,7 +161,7 @@
     </div>
 </div>
 <!-- FAB -->
-<div ng-hide="requests.length == 0" class="relative">
+<di class="relative">
     <md-button
         id="new-req-fab"
         ng-click="openNewRequestDialog($event)"

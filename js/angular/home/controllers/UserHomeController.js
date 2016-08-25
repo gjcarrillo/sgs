@@ -22,9 +22,11 @@ function userHome($scope, $rootScope, $http, $cookies, $timeout,
     var fetchId = $cookies.getObject('session').id;
     $http.get('index.php/home/UserHomeController/getUserRequests', {params:{fetchId:fetchId}})
         .then(function (response) {
+            $scope.maxReqAmount = response.data.maxReqAmount;
             if (response.data.message === "success") {
-                $scope.requests = response.data.requests;
-                $scope.maxReqAmount = response.data.maxReqAmount;
+                if (typeof response.data.requests !== "undefined") {
+                    $scope.requests = response.data.requests;
+                }
                 $scope.contentAvailable = true;
                 $timeout(function() {
                     $scope.contentLoaded = true;
@@ -170,6 +172,7 @@ function userHome($scope, $rootScope, $http, $cookies, $timeout,
                                         .then(function (response) {
                                             if (response.status == 200) {
                                                 updateContent(response.data.requests, 0);
+                                                toggleReqList();
                                                 // Close dialog and alert user that operation was successful
                                                 $mdDialog.hide();
                                                 $mdDialog.show(
@@ -262,9 +265,22 @@ function userHome($scope, $rootScope, $http, $cookies, $timeout,
 
     // Helper function that updates content with new request
     function updateContent(requests, selection) {
+        $scope.contentLoaded = true;
+        $scope.contentAvailable = true;
+        $scope.fetchError = '';
         $scope.requests = requests;
         // Automatically select created request
         $scope.selectRequest(selection);
+    }
+
+    function toggleReqList() {
+        // Toggle list
+        $scope.showList = false;
+        $timeout(function() {
+            // Toggle list again
+            $scope.showList = true;
+        }, 1000);
+
     }
 
     // Helper function for formatting numbers with leading zeros
@@ -315,7 +331,7 @@ function userHome($scope, $rootScope, $http, $cookies, $timeout,
      * @param options: Obj containing tour.js options
      */
     function showSidenavHelp(options) {
-        if ($mdSidenav('left').isLockedOpen()) {
+        if ($mdSidenav('left').isLockedOpen() && $scope.requests.length > 0) {
             options.showHeader = true;
             var tripToShowNavigation = new Trip([
                 { sel : $("#requests-list"),
@@ -323,15 +339,26 @@ function userHome($scope, $rootScope, $http, $cookies, $timeout,
                     position : "e", expose : true, header: "Panel de navegación", animation: 'fadeInUp' },
                 { sel : $("#new-req-fab"),
                     content : "También puede abrir una solicitud haciendo click aquí",
-                    position : "w", expose : true, header: "Nueva solicitud", animation: 'fadeInUp' }
+                    position : "w", expose : true, header: "Crear solicitud", animation: 'fadeInUp' }
             ], options);
             tripToShowNavigation.start();
-        } else {
+        } else if ($scope.requests.length > 0){
             var tripToShowNavigation = new Trip([
                 { sel : $("#nav-panel"),
                     content : "Haga click en el ícono para abrir el panel de navegación" +
                     " y seleccionar alguna de sus solicitudes para ver más detalles",
-                    position : "e", animation: 'fadeInUp'}
+                    position : "e", animation: 'fadeInUp'},
+                { sel : $("#new-req-fab"),
+                    content : "También puede abrir una solicitud haciendo click aquí",
+                    position : "w", expose : true, header: "Crear solicitud", animation: 'fadeInUp' }
+            ], options);
+            tripToShowNavigation.start();
+        } else {
+            options.showHeader = true;
+            var tripToShowNavigation = new Trip([
+                { sel : $("#new-req-fab"),
+                    content : "Para abrir una solicitud haga click aquí",
+                    position : "w", expose : true, header: "Crear solicitud", animation: 'fadeInUp' }
             ], options);
             tripToShowNavigation.start();
         }
