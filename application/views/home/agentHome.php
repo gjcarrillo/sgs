@@ -1,6 +1,6 @@
 <!-- Header -->
 <md-toolbar layout-padding>
-    <div class="md-toolbar-tools">
+    <div class="md-toolbar-tools" ng-hide="searchEnabled">
         <md-button
             id="nav-panel"
             ng-show="contentAvailable"
@@ -14,7 +14,7 @@
             <span>SGDP</span>
         </h2>
         <!-- Search bar -->
-        <div id="search" flex class="search-wrapper">
+        <div id="search" hide-xs flex class="search-wrapper">
             <div layout layout-align="center center">
                 <md-select
                     class="no-md-select"
@@ -34,18 +34,54 @@
             </div>
             <md-tooltip md-direction="right">Ej: 123456789</md-tooltip>
         </div>
+        <span flex hide-gt-xs></span>
         <!-- <md-button class="md-fab md-mini md-raised" href="#/generator" aria-label="Generate contract">
             <md-icon style="color:#2196F3">insert_drive_file</md-icon>
             <md-tooltip md-direction="left">Generar PDF</md-tooltip>
         </md-button> -->
+        <md-button id="toggle-search" class="md-icon-button" hide show-xs ng-click="toggleSearch()" aria-label="Search">
+            <md-icon>search</md-icon>
+            <md-tooltip md-direction="bottom">Buscar</md-tooltip>
+        </md-button>
         <md-button class="md-icon-button" ng-click="showHelp()" aria-label="Help">
             <md-icon>help_outline</md-icon>
-            <md-tooltip md-direction="top">Ayuda</md-tooltip>
+            <md-tooltip md-direction="bottom">Ayuda</md-tooltip>
         </md-button>
         <md-button class="md-icon-button" ng-click="logout()" aria-label="Logout">
             <md-icon>exit_to_app</md-icon>
-            <md-tooltip md-direction="top">Cerrar sesión</md-tooltip>
+            <md-tooltip md-direction="bottom">Cerrar sesión</md-tooltip>
         </md-button>
+    </div>
+    <!-- Mobile search bar -->
+    <div class="md-toolbar-tools" ng-if="searchEnabled">
+        <md-button
+            id="nav-panel"
+            ng-show="contentAvailable"
+            hide-gt-sm
+            class="md-icon-button"
+            ng-click="openMenu()"
+            aria-label="Open sidenav">
+            <md-icon>menu</md-icon>
+        </md-button>
+        <div class="search-wrapper-xs" flex>
+            <div layout layout-align="center center">
+                <md-select
+                    class="no-md-select"
+                    aria-label="V or E ID"
+                    ng-model="idPrefix">
+                    <md-option value="V">V</md-option>
+                    <md-option value="E">E</md-option>
+                </md-select>
+                <input
+                    class="search-input"
+                    placeholder="Ingrese una cédula"
+                    aria-label="Search"
+                    ng-model="searchInput"
+                    ng-keyup="$event.keyCode == 13 && fetchRequests(searchInput)"
+                    type="text" />
+                <md-icon ng-click="toggleSearch()" class="search-icon">close</md-icon>
+            </div>
+        </div>
     </div>
 </md-toolbar>
 <div layout>
@@ -183,9 +219,7 @@
                                                </md-button>
                                            </md-menu-item>
                                            <md-menu-item ng-if="requests[selectedReq].status == 'Recibida'">
-                                               <md-button
-                                                   ng-if="requests[selectedReq].status == 'Recibida'"
-                                                   ng-click="openEditRequestDialog($event)">
+                                               <md-button ng-click="openEditRequestDialog($event)">
                                                    <md-icon>edit</md-icon>
                                                    Editar
                                                </md-button>
@@ -208,7 +242,7 @@
                                 <md-list-item id="request-status-summary" class="md-2-line" class="noright">
                                     <md-icon  ng-style="{'font-size':'36px'}">info_outline</md-icon>
                                     <div class="md-list-item-text" layout="column">
-                                       <h3>Estado de la solicitud: {{requests[selectedReq].status}}</h3>
+                                       <h3>Estatus de la solicitud: {{requests[selectedReq].status}}</h3>
                                        <h4 ng-if="requests[selectedReq].reunion">
                                            Reunión &#8470; {{requests[selectedReq].reunion}}
                                        </h4>

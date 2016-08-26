@@ -9,11 +9,11 @@
         <span flex></span>
         <md-button class="md-icon-button" ng-click="showHelp()" aria-label="Help">
             <md-icon>help_outline</md-icon>
-            <md-tooltip md-direction="down">Ayuda</md-tooltip>
-        </md-button>
+            <md-tooltip md-direction="bottom">Ayuda</md-tooltip>
         <md-button class="md-icon-button" ng-click="logout()" aria-label="Logout">
+        </md-button>
             <md-icon>exit_to_app</md-icon>
-            <md-tooltip md-direction="down">Cerrar sesión</md-tooltip>
+            <md-tooltip md-direction="bottom">Cerrar sesión</md-tooltip>
         </md-button>
     </div>
 </md-toolbar>
@@ -36,8 +36,8 @@
             <md-progress-linear md-mode="query" ng-if="loading"></md-progress-linear>
             <!-- Show only on width >= 960 screen  -->
             <md-card-content hide show-gt-sm ng-if="!loading">
-                <div layout layout-padding>
-                    <div flex="30">
+                <div layout layout-xs="column" layout-padding>
+                    <div flex="30" flex-xs="100">
                         <span class="md-title user-info-title">Cédula</span>
                         <br/><span>{{userData.cedula}}</span>
                     </div>

@@ -17,7 +17,12 @@
     <md-dialog-content ng-if="userType(1)" layout-padding>
         <form name="agentForm">
             <div layout>
-                <md-input-container flex="50" flex-offset="25" id="req-amount" >
+                <md-input-container
+                    id="req-amount"
+                    flex="100"
+                    flex-gt-xs="50"
+                    flex-offset="25"
+                    flex-offset-xs="0">
                     <label>Monto solicitado (Bs) *</label>
                     <input
                         ng-model="model.reqAmount"
@@ -34,7 +39,11 @@
                     </div>
                 </md-input-container>
             </div>
-            <div ng-hide="idPicTaken && docPicTaken" layout layout-align="center center">
+            <div
+                ng-hide="idPicTaken && docPicTaken"
+                layout layout-xs="column"
+                layout-align="center center"
+                layout-align-xs="start start">
                 <div id="id-pic" ng-hide="idPicTaken">
                     <md-button ng-click="openIdentityCamera($event)">
                         <md-icon>photo_camera</md-icon>
@@ -68,7 +77,7 @@
                 </div>
             </div>
         </form>
-        <div layout layout-align="center center">
+        <div layout layout-xs="column" layout-align="center center">
             <!-- ID picture result -->
             <md-card id="id-pic-result" ng-show="idPicTaken">
                 <md-card-title>
@@ -119,7 +128,7 @@
                 </md-card-actions>
             </md-card>
         </div>
-        <div ng-repeat="f in errFiles" style="color:red">
+        <div ng-repeat="f in errFiles" style="color:red" layout-padding>
             Error en archivo {{f.name}}: {{showError(f.$error, f.$errorParam)}}
         </div>
     </md-dialog-content>
@@ -127,7 +136,12 @@
     <md-dialog-content ng-if="userType(3)" layout-padding>
         <form name="applicantForm">
             <div layout>
-                <md-input-container flex="50" flex-offset="25" id="req-amount" >
+                <md-input-container
+                    id="req-amount"
+                    flex="50"
+                    flex-xs="100"
+                    flex-offset="25"
+                    flex-offset-xs="0">
                     <label>Monto solicitado (Bs) *</label>
                     <input
                         ng-model="model.reqAmount"
@@ -144,7 +158,11 @@
                     </div>
                 </md-input-container>
             </div>
-            <div ng-hide="idPicTaken && docPicTaken" layout layout-align="center center">
+            <div
+                ng-hide="idPicTaken && docPicTaken"
+                layout layout-xs="column"
+                layout-align="center center"
+                layout-align-xs="start start">
                 <div id="id-pic" ng-hide="idPicTaken">
                     <md-button
                         ngf-select="gatherIDFile($file, $invalidFiles)"

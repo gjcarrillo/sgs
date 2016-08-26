@@ -719,32 +719,17 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
                 var contentPsw = "Ingrese la contraseña con que el nuevo gestor ingresará al sistema.";
                 var contentName = "Ingrese el nombre del gestor.";
                 var contentLastName = "Ingrese el apellido del gestor.";
-                if ($mdMedia('gt-xs')) {
-                    if (typeof $scope.userId === "undefined") {
-                        appendFieldHelp(tripToShowNavigation, "#user-id", contentId);
-                    }
-                    if (typeof $scope.model.psw === "undefined") {
-                        appendFieldHelp(tripToShowNavigation, "#user-psw", contentPsw);
-                    }
-                    if (typeof $scope.model.name === "undefined") {
-                        appendFieldHelp(tripToShowNavigation, "#user-name", contentName);
-                    }
-                    if (typeof $scope.model.lastname === "undefined") {
-                        appendFieldHelp(tripToShowNavigation, "#user-lastname", contentLastName);
-                    }
-                } else {
-                    if (typeof $scope.userId === "undefined") {
-                        appendFieldHelp(tripToShowNavigation, "#user-id-mobile", contentId);
-                    }
-                    if (typeof $scope.model.psw === "undefined") {
-                        appendFieldHelp(tripToShowNavigation, "#user-psw-mobile", contentPsw);
-                    }
-                    if (typeof $scope.model.name === "undefined") {
-                        appendFieldHelp(tripToShowNavigation, "#user-name-mobile", contentName);
-                    }
-                    if (typeof $scope.model.lastname === "undefined") {
-                        appendFieldHelp(tripToShowNavigation, "#user-lastname-mobile", contentLastName);
-                    }
+                if (typeof $scope.userId === "undefined") {
+                    appendFieldHelp(tripToShowNavigation, "#user-id", contentId);
+                }
+                if (typeof $scope.model.psw === "undefined") {
+                    appendFieldHelp(tripToShowNavigation, "#user-psw", contentPsw);
+                }
+                if (typeof $scope.model.name === "undefined") {
+                    appendFieldHelp(tripToShowNavigation, "#user-name", contentName);
+                }
+                if (typeof $scope.model.lastname === "undefined") {
+                    appendFieldHelp(tripToShowNavigation, "#user-lastname", contentLastName);
                 }
                 if (!$scope.missingField()) {
                     var content = "Haga click en REGISTRAR para crear el nuevo gestor."

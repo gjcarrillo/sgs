@@ -15,15 +15,15 @@
         <span flex></span>
         <md-button class="md-icon-button" ng-click="openManageUserAgentDialog($event)" aria-label="Help">
             <md-icon>account_box</md-icon>
-            <md-tooltip md-direction="top">Administrar usuarios gestores</md-tooltip>
+            <md-tooltip md-direction="bottom">Administrar usuarios gestores</md-tooltip>
         </md-button>
         <md-button class="md-icon-button" ng-click="showHelp()" aria-label="Help">
             <md-icon>help_outline</md-icon>
-            <md-tooltip md-direction="top">Ayuda</md-tooltip>
+            <md-tooltip md-direction="bottom">Ayuda</md-tooltip>
         </md-button>
         <md-button class="md-icon-button" ng-click="logout()" aria-label="Logout">
             <md-icon>exit_to_app</md-icon>
-            <md-tooltip md-direction="top">Cerrar sesión</md-tooltip>
+            <md-tooltip md-direction="bottom">Cerrar sesión</md-tooltip>
         </md-button>
     </div>
 </md-toolbar>
@@ -603,7 +603,7 @@
                                            <md-menu-item
                                                ng-if="(selectedPendingReq == -1
                                                     && requests[selectedReq].status == 'Recibida')
-                                                    || (selectedReq != -1 &&
+                                                    || (selectedReq == -1 &&
                                                         pendingRequests[selectedPendingReq].status == 'Recibida')">
                                                <md-button
                                                    ng-click="openEditRequestDialog($event)">

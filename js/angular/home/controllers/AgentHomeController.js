@@ -19,6 +19,8 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
     $scope.contentAvailable = false;
     // contentLoaded will indicate whether sidenav can be locked open
     $scope.contentLoaded = false;
+    // This will enable / disable search bar in mobile screens
+    $scope.searchEnabled = false;
 
     // Check if there is stored data before we went to History
     var requests = JSON.parse(sessionStorage.getItem("requests"));
@@ -451,7 +453,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                         // Tell user to hit the create button
                         { sel : $("#create-btn"),
                             content : "Haga click en CREAR para generar la solicitud.",
-                            position : "w", animation: 'fadeInLeft'}
+                            position : "n", animation: 'fadeInLeft'}
 
                     ], options);
                     tripToShowNavigation.start();
@@ -905,7 +907,11 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
         };
         if (!$scope.contentAvailable) {
             // Indicate user to input another user's ID.
-            showSearchbarHelp(options);
+            if ($mdMedia('gt-xs')) {
+                showSearchbarHelp(options);
+            } else {
+                showMobileSearchbarHelp(options);
+            }
         } else if ($scope.docs.length == 0) {
             // User has not selected any request yet, tell him to do it.
             showSidenavHelp(options);
@@ -925,6 +931,20 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                 content : "Ingrese la cédula de identidad de algún afiliado para " +
                 "gestionar sus solicitudes.",
                 position : "s", animation: 'fadeInDown' }
+        ], options);
+        tripToShowNavigation.start();
+    }
+
+    /**
+     * Shows tour-based help of mobile searchbar
+     * @param options: Obj containing tour.js options
+     */
+    function showMobileSearchbarHelp(options) {
+        var tripToShowNavigation = new Trip([
+            { sel : $("#toggle-search"),
+                content : "Haga click en la lupa e ingrese la cédula de identidad " +
+                "de algún afiliado para gestionar sus solicitudes.",
+                position : "w", animation: 'fadeInDown' }
         ], options);
         tripToShowNavigation.start();
     }
@@ -1007,4 +1027,9 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
         }
         tripToShowNavigation.start();
     }
+
+    // Enables / disables search bar (for mobile screens)
+    $scope.toggleSearch = function() {
+        $scope.searchEnabled = !$scope.searchEnabled;
+    };
 }

@@ -16,11 +16,11 @@
         <span flex></span>
         <md-button class="md-icon-button" ng-click="showHelp()" aria-label="Help">
             <md-icon>help_outline</md-icon>
-            <md-tooltip md-direction="top">Ayuda</md-tooltip>
+            <md-tooltip md-direction="bottom">Ayuda</md-tooltip>
         </md-button>
         <md-button class="md-icon-button" ng-click="logout()" aria-label="Logout">
             <md-icon>exit_to_app</md-icon>
-            <md-tooltip md-direction="top">Cerrar sesión</md-tooltip>
+            <md-tooltip md-direction="bottom">Cerrar sesión</md-tooltip>
         </md-button>
     </div>
 </md-toolbar>
@@ -114,7 +114,7 @@
                                 <md-list-item id="request-status-summary" class="md-2-line" class="noright">
                                     <md-icon  ng-style="{'font-size':'36px'}">info_outline</md-icon>
                                     <div class="md-list-item-text" layout="column">
-                                       <h3>Estado de la solicitud: {{requests[selectedReq].status}}</h3>
+                                       <h3>Estatus de la solicitud: {{requests[selectedReq].status}}</h3>
                                        <h4 ng-if="requests[selectedReq].reunion">
                                            Reunión &#8470; {{requests[selectedReq].reunion}}
                                        </h4>

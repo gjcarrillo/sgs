@@ -160,6 +160,15 @@ md-list .md-button {
     padding: 8px 20px 8px 16px;
 }
 
+.search-wrapper-xs {
+    border-radius: 2px;
+    box-shadow: 0 2px 4px 0 rgba(0,0,0,0.20);
+    margin: 0 auto;
+    max-width: 600px;
+    background: #fff;
+    padding: 8px 20px 8px 16px;
+}
+
 .search-input {
     -webkit-appearance: none;
     -webkit-tap-highlight-color: none;

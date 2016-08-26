@@ -18,14 +18,13 @@
             <md-tab label="Registrar" md-on-select="selectedTab = 1">
                 <md-content>
                     <form name="userForm">
-                        <!-- Show only on screen width >= 600 px-->
-                        <div hide-xs layout layout-padding>
-                            <div layout="column" flex="45">
+                        <div layout layout-xs="column" layout-padding>
+                            <div layout="column" flex="45" flex-xs="100">
                                 <br/>
                                 <div style="color:grey">
                                     Cédula de identidad
                                 </div>
-                                <div layout layout-align="start start">
+                                <div layout layout-align-gt-xs="start start" flex-xs="100">
                                     <md-input-container
                                         style="margin:0"
                                         md-no-float>
@@ -45,6 +44,7 @@
                                     <md-input-container
                                         id="user-id"
                                         style="margin:0"
+                                        flex-xs="100"
                                         md-no-float>
                                        <input
                                            placeholder="Ej: 123456789"
@@ -58,7 +58,7 @@
                                     </md-input-container>
                                 </div>
                             </div>
-                            <div layout="column" flex="45" flex-offset="10">
+                            <div layout="column" flex="45" flex-xs="100" flex-offset="10" flex-offset-xs="0">
                                 <br/>
                                 <div style="color:grey">
                                     Contraseña
@@ -76,9 +76,8 @@
                                 </md-input-container>
                             </div>
                         </div>
-                        <!-- Show only on screen width >= 600 px-->
-                        <div hide-xs layout layout-padding>
-                            <div layout="column" flex="45">
+                        <div layout layout-xs="column" layout-padding>
+                            <div layout="column" flex="45" flex-xs="100">
                                 <div style="color:grey">
                                     Nombre
                                 </div>
@@ -89,7 +88,7 @@
                                     </div>
                                 </md-input-container>
                             </div>
-                            <div layout="column" flex="45" flex-offset="10">
+                            <div layout="column" flex="45" flex-xs="100" flex-offset="10" flex-offset-xs="0">
                                 <div style="color:grey">
                                     Apellido
                                 </div>
@@ -105,100 +104,6 @@
                                     </div>
                                 </md-input-container>
                             </div>
-                        </div>
-                        <!-- Show only on screen width < 600 px-->
-                        <div hide-gt-xs layout="column" layout-padding>
-                            <br/>
-                            <div style="color:grey">
-                                Cédula de identidad
-                            </div>
-                            <div layout layout-align="start start">
-                                <md-input-container
-                                    style="margin:0"
-                                    md-no-float>
-                                    <md-select
-                                        md-on-open="onIdOpen()"
-                                        md-on-close="onIdClose()"
-                                        aria-label="V or E ID"
-                                        ng-model="idPrefix">
-                                        <md-option value="V">
-                                            V
-                                        </md-option>
-                                        <md-option value="E">
-                                            E
-                                        </md-option>
-                                    </md-select>
-                                </md-input-container>
-                            </div>
-                            <md-input-container
-                                id="user-id-mobile"
-                                style="margin:0"
-                                md-no-float>
-                               <input
-                                   placeholder="Ej: 123456789"
-                                   name="mobileId"
-                                   required
-                                   aria-label="userId"
-                                   ng-model="userId"/>
-                               <div ng-messages="userForm.mobileId.$error" ng-show="userForm.mobileId.$dirty">
-                                   <div ng-message="required">¡Este campo es obligatorio!</div>
-                               </div>
-                            </md-input-container>
-                            <br/>
-                            <div style="color:grey">
-                                Contraseña
-                            </div>
-                            <md-input-container
-                                id="user-psw-mobile"
-                                style="margin:0"
-                                class="md-block"
-                                md-no-float>
-                                <input
-                                    name="mobilePsw"
-                                    required
-                                    type="password"
-                                    ng-model="model.psw"
-                                    placeholder="***********"/>
-                                <div ng-messages="userForm.mobilePsw.$error" ng-show="userForm.mobilePsw.$dirty">
-                                    <div ng-message="required">¡Este campo es obligatorio!</div>
-                                </div>
-                            </md-input-container>
-                            <div style="color:grey">
-                                Nombre
-                            </div>
-                            <md-input-container
-                                id="user-name-mobile"
-                                style="margin:0"
-                                class="md-block"
-                                md-no-float>
-                                <input
-                                    name="mobileName"
-                                    required
-                                    type="text"
-                                    ng-model="model.name"
-                                    placeholder="Ej: Carlos"/>
-                                <div ng-messages="userForm.mobileName.$error" ng-show="userForm.mobileName.$dirty">
-                                    <div ng-message="required">¡Este campo es obligatorio!</div>
-                                </div>
-                            </md-input-container>
-                            <div style="color:grey">
-                                Apellido
-                            </div>
-                            <md-input-container
-                                id="user-lastname-mobile"
-                                style="margin:0"
-                                class="md-block"
-                                md-no-float>
-                                <input
-                                    name="mobileLastname"
-                                    required
-                                    type="text"
-                                    ng-model="model.lastname"
-                                    placeholder="Ej: Gutierrez"/>
-                                <div ng-messages="userForm.mobileLastname.$error" ng-show="userForm.mobileLastname.$dirty">
-                                    <div ng-message="required">¡Este campo es obligatorio!</div>
-                                </div>
-                            </md-input-container>
                         </div>
                     </form>
                     <!-- Operation error -->

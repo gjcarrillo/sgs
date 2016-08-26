@@ -14,9 +14,12 @@
         </div>
     </md-toolbar>
     <md-dialog-content>
-        <div layout layout-padding layout-align="space-around center">
+        <div
+            layout layout-xs="column"
+            layout-padding
+            layout-align-gt-xs="space-around center">
             <!-- Optional comment input -->
-            <div>
+            <div flex-xs="100">
                 <md-input-container id="comment" class="md-block" md-no-float>
                     <label>Comentario</label>
                     <textarea type="text" ng-model="comment" placeholder="Sin comentario"></textarea>
@@ -35,7 +38,7 @@
                </md-button>
             </div>
         </div>
-        <div layout>
+        <div layout layout-xs="column">
             <!-- Files cards. One card for each file. Allows adding a description or individual removal for each one -->
             <div  ng-repeat="(dKey, doc) in files">
                 <md-card id="file-card">
@@ -75,7 +78,7 @@
                 </md-card>
             </div>
         </div>
-        <div ng-repeat="f in errFiles" style="color:red">
+        <div ng-repeat="f in errFiles" style="color:red" layout-padding>
             Error en archivo {{f.name}}: {{showError(f.$error, f.$errorParam)}}
         </div>
     </md-dialog-content>

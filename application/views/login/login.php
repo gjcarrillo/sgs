@@ -24,72 +24,57 @@
                 </md-card-title>
                 <br/>
                 <md-card-content>
-                    <div layout>
-                        <span style="color:grey" flex flex-offset="20">
+                    <div layout flex-xs="90" flex-gt-xs="80">
+                        <span
+                            style="color:grey"
+                            flex-offset-gt-xs="20"
+                            flex-offset-xs="10">
                             Cédula de identidad
                         </span>
                     </div>
-                    <!-- Show only on width >= 600px screen -->
-                    <div hide show-gt-xs layout>
-                        <div flex="5" flex-offset="20">
-                            <md-input-container class="md-block">
-                                <md-select
-                                    md-on-open="onIdOpen()"
-                                    md-on-close="onIdClose()"
-                                    ng-model="idPrefix"
-                                    aria-label="V or E ID">
-                                    <md-option value="V">
-                                        V
-                                    </md-option>
-                                    <md-option value="E">
-                                        E
-                                    </md-option>
-                                </md-select>
-                            </md-input-container>
-                        </div>
-                        <div flex="40" flex-offset="15">
-                            <md-input-container md-no-float class="md-block">
-                                <input
-                                    type="text"
-                                    placeholder="Ej: 123456789"
-                                    ng-model="model.login"
-                                    ng-keyup="$event.keyCode == 13 && login()">
-                            </md-input-container>
-                        </div>
+                    <div layout flex-xs="90" flex-gt-xs="80">
+                        <md-input-container
+                            flex-offset-gt-xs="20"
+                            flex-offset-xs="10"
+                            class="md-block">
+                            <md-select
+                                md-on-open="onIdOpen()"
+                                md-on-close="onIdClose()"
+                                ng-model="idPrefix"
+                                aria-label="V or E ID">
+                                <md-option value="V">
+                                    V
+                                </md-option>
+                                <md-option value="E">
+                                    E
+                                </md-option>
+                            </md-select>
+                        </md-input-container>
+                        <md-input-container
+                            md-no-float
+                            flex
+                            class="md-block">
+                            <input
+                                type="text"
+                                placeholder="Ej: 123456789"
+                                ng-model="model.login"
+                                ng-keyup="$event.keyCode == 13 && login()">
+                        </md-input-container>
                     </div>
-                    <!-- Show only on width < 600px screen -->
-                    <div hide show-xs layout>
-                        <div flex="60" flex-offset="20">
-                            <div>
-                                <md-input-container class="md-block">
-                                    <md-select ng-model="idPrefix" aria-label="V or E ID">
-                                        <md-option value="V">
-                                            V
-                                        </md-option>
-                                        <md-option value="E">
-                                            E
-                                        </md-option>
-                                    </md-select>
-                                </md-input-container>
-                            </div>
-                            <div>
-                                <md-input-container md-no-float class="md-block">
-                                    <input
-                                        type="text"
-                                        placeholder="Ej: 123456789"
-                                        ng-model="model.login"
-                                        ng-keyup="$event.keyCode == 13 && login()">
-                                </md-input-container>
-                            </div>
-                        </div>
-                    </div>
-                    <div layout>
-                        <span style="color:grey" flex flex-offset="20">
+                    <div layout flex-xs="90" flex-gt-xs="80">
+                        <span
+                            style="color:grey"
+                            flex-offset-gt-xs="20"
+                            flex-offset-xs="10">
                             Contraseña
                         </span>
                     </div>
-                    <div layout>
-                        <md-input-container md-no-float class="md-block" flex="60" flex-offset="20">
+                    <div layout flex-xs="90" flex-gt-xs="80">
+                        <md-input-container
+                            md-no-float class="md-block"
+                            flex
+                            flex-offset-gt-xs="20"
+                            flex-offset-xs="10">
                             <input
                                 type="password"
                                 placeholder="************"

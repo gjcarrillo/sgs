@@ -1,5 +1,5 @@
 <md-toolbar layout-padding>
-    <div class="md-toolbar-tools">
+    <div class="md-toolbar-tools" ng-hide="searchEnabled">
         <md-button href="#/home" class="md-icon-button">
             <md-icon>
                 arrow_back
@@ -9,7 +9,7 @@
             <span>SGDP</span>
         </h2>
         <!-- Filter search bar -->
-        <div id="filter" flex class="search-wrapper">
+        <div id="filter" hide-xs flex class="search-wrapper">
             <div layout layout-align="center center">
                 <input
                     class="search-input"
@@ -21,6 +21,16 @@
             </div>
             <md-tooltip md-direction="right">Puede buscar por nombre, acción o fecha</md-tooltip>
         </div>
+        <span hide-gt-xs flex></span>
+        <md-button
+            id="toggle-search"
+            class="md-icon-button"
+            hide show-xs
+            ng-click="toggleSearch()"
+            aria-label="Search">
+            <md-icon>search</md-icon>
+            <md-tooltip md-direction="bottom">Buscar</md-tooltip>
+        </md-button>
         <md-button class="md-icon-button" ng-click="showHelp()" aria-label="Help">
             <md-icon>help_outline</md-icon>
             <md-tooltip md-direction="down">Ayuda</md-tooltip>
@@ -29,6 +39,25 @@
             <md-icon>exit_to_app</md-icon>
             <md-tooltip md-direction="down">Cerrar sesión</md-tooltip>
         </md-button>
+    </div>
+    <!-- Mobile filter search bar -->
+    <div class="md-toolbar-tools" ng-if="searchEnabled">
+        <md-button href="#/home" class="md-icon-button">
+            <md-icon>
+                arrow_back
+            </md-icon>
+        </md-button>
+        <div class="search-wrapper-xs" flex ng-if="searchEnabled">
+            <div layout layout-align="center center">
+                <input
+                    class="search-input"
+                    aria-label="Filter"
+                    placeholder="Filtre su búsqueda"
+                    ng-model="filterInput"
+                    type="text" />
+                <md-icon ng-click="toggleSearch()" class="search-icon">close</md-icon>
+            </div>
+        </div>
     </div>
 </md-toolbar>
 <main>
