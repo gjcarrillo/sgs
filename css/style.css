@@ -228,4 +228,7 @@ md-select.no-md-select .md-select-value {
         width: 80%;
         margin-bottom: 20px;
     }
+    .history-card {
+        width: 90%;
+    }
 }

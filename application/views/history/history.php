@@ -41,13 +41,13 @@
         </md-button>
     </div>
     <!-- Mobile filter search bar -->
-    <div class="md-toolbar-tools" ng-if="searchEnabled">
+    <div class="md-toolbar-tools" ng-show="searchEnabled">
         <md-button href="#/home" class="md-icon-button">
             <md-icon>
                 arrow_back
             </md-icon>
         </md-button>
-        <div class="search-wrapper-xs" flex ng-if="searchEnabled">
+        <div class="search-wrapper-xs" flex>
             <div layout layout-align="center center">
                 <input
                     class="search-input"

@@ -273,7 +273,7 @@
                                            <p>{{doc.description}}</p>
                                          </div>
                                          <md-button
-                                            ng-if="doc.name =='Identidad' || doc.name == 'Solicitud'"
+                                            ng-if="doc.name =='Identidad'"
                                             class="md-secondary md-icon-button">
                                             <md-icon>file_download</md-icon>
                                          </md-button>
