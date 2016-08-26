@@ -445,20 +445,26 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
             // Creates new request in database and uploads documents
             $scope.updateRequest = function() {
                 $scope.uploading = true;
-                // var updatePending = $scope.request.status !== $scope.model.status;
                 $scope.request.status = $scope.model.status;
                 $scope.request.comment = $scope.model.comment;
                 $scope.request.reunion = $scope.model.reunion;
                 $scope.request.approvedAmount = $scope.model.approvedAmount;
-                $http.get('index.php/documents/ManageRequestController/updateRequest', {params:$scope.request})
+                $http.post('index.php/documents/ManageRequestController/updateRequest', JSON.stringify($scope.request))
                     .then(function (response) {
                         $scope.uploading = false;
                         console.log(response.data);
                         if (response.status == 200) {
                             console.log("Request update succeded...");
-                            // if (updatePending) {
-                            //     updatePendingList();
-                            // }
+                            // Update data on the pending request list so that
+                            // changes would reflect even when updating from
+                            // advanced query lists
+                            updatePendingList(
+                                $scope.request.id,
+                                $scope.model.status,
+                                $scope.model.comment,
+                                $scope.model.reunion,
+                                $scope.model.approvedAmount
+                            );
                             // Notify that data has changed, thus updating stats
                             // when requested
                             setDataChanged(true);
@@ -533,15 +539,36 @@ function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
     };
 
     /**
-     * Updates the pending requests list by deleting the selected request
-     * from the list.
+     * Helper function that updates the pending requests list by deleting the
+     * selected request from the list.
+     * @param id - unique id of the request to update.
+     * @param status - new status
+     * @param comment - new comment
+     * @param reunion - request closure's reunion
+     * @param approvedAmount - request's approved amount
      */
-    function updatePendingList() {
-        if ($scope.selectedPendingReq !== -1) {
-            $scope.pendingRequests.splice($scope.selectedPendingReq, 1);
-            $scope.selectedPendingReq = -1;
-            $scope.docs = [];
+    function updatePendingList(id, status, comment, reunion, approvedAmount) {
+        var index = getPendingIndex(id);
+        console.log(index);
+        $scope.pendingRequests[index].status = status;
+        $scope.pendingRequests[index].comment = comment;
+        $scope.pendingRequests[index].reunion = reunion;
+        $scope.pendingRequests[index].approvedAmount = approvedAmount;
+    }
+
+    /**
+     * Helper function that returns the index of the specified pending request
+     * @param id - unique id of the request
+     * @return index of the specified request within pendingRequests array
+     */
+    function getPendingIndex(id) {
+        var i = 0;
+        while (i < $scope.pendingRequests.length &&
+            id != $scope.pendingRequests[i].id) {
+            i++;
         }
+        // Updating request should always exist here, so no need to valdiate
+        return i;
     }
 
     /**

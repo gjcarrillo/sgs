@@ -41,6 +41,7 @@ class NewRequestController extends CI_Controller {
 			$this->load->view('errors/index.html');
 		} else {
 			// Both agents and applicants can create new requests
+			$data = json_decode(file_get_contents('php://input'), true);
 	        try {
 	            $em = $this->doctrine->em;
 	            // New request
@@ -56,7 +57,7 @@ class NewRequestController extends CI_Controller {
 				// Register it's corresponding actions
 				$action = new \Entity\HistoryAction();
 				$action->setSummary("Solicitud creada.");
-				$action->setDetail("Estado de la solicitud: Recibida.\nMonto solicitado: Bs " . number_format($_GET['reqAmount'], 2));
+				$action->setDetail("Estado de la solicitud: Recibida.\nMonto solicitado: Bs " . number_format($data['reqAmount'], 2));
 				$action->setBelongingHistory($history);
 				$history->addAction($action);
 				$em->persist($action);
@@ -64,8 +65,8 @@ class NewRequestController extends CI_Controller {
 	            // 1 = Waiting
 	            $request->setStatus(1);
 	            $request->setCreationDate(new DateTime('now', new DateTimeZone('America/Barbados')));
-				$request->setRequestedAmount($_GET['reqAmount']);
-	            $user = $em->find('\Entity\User', $_GET['userId']);
+				$request->setRequestedAmount($data['reqAmount']);
+	            $user = $em->find('\Entity\User', $data['userId']);
 	            $request->setUserOwner($user);
 	            $user->addRequest($request);
 
@@ -88,27 +89,28 @@ class NewRequestController extends CI_Controller {
 		if ($_SESSION['type'] != 1 && $_SESSION['type'] != 3) {
 			$this->load->view('errors/index.html');
 		} else {
+			$data = json_decode(file_get_contents('php://input'), true);
 	        try {
 	            $em = $this->doctrine->em;
 				$doc = $em->getRepository('\Entity\Document')->findOneBy(array(
-					"lpath"=>$_GET['lpath']
+					"lpath"=>$data['lpath']
 				));
 				if ($doc !== null) {
 					// doc already exists, so just merge. Otherwise we'll have
 					// 'duplicates' in database, because document name is not unique
-					if (isset($_GET['description'])) {
-						$doc->setDescription($_GET['description']);
+					if (isset($data['description'])) {
+						$doc->setDescription($data['description']);
 						$em->merge($doc);
 					}
 				} else {
 		            // New document
 		            $doc = new \Entity\Document();
-		            $doc->setName($_GET['docName']);
-		            if (isset($_GET['description'])) {
-		                $doc->setDescription($_GET['description']);
+		            $doc->setName($data['docName']);
+		            if (isset($data['description'])) {
+		                $doc->setDescription($data['description']);
 		            }
-		            $doc->setLpath($_GET['lpath']);
-					$request = $em->find('\Entity\Request', $_GET['requestId']);
+		            $doc->setLpath($data['lpath']);
+					$request = $em->find('\Entity\Request', $data['requestId']);
 		            $doc->setBelongingRequest($request);
 		            $request->addDocument($doc);
 
@@ -116,11 +118,11 @@ class NewRequestController extends CI_Controller {
 		            $em->merge($request);
 				}
 				// Set History action for this request's corresponding history
-				$history =  $em->find('\Entity\History', $_GET['historyId']);
+				$history =  $em->find('\Entity\History', $data['historyId']);
 				$action = new \Entity\HistoryAction();
-				$action->setSummary("Adición del documento '" . $_GET['docName'] . "'.");
-				if (isset($_GET['description']) && $_GET['description'] !== "") {
-					$action->setDetail("Descripción: " . $_GET['description']);
+				$action->setSummary("Adición del documento '" . $data['docName'] . "'.");
+				if (isset($data['description']) && $data['description'] !== "") {
+					$action->setDetail("Descripción: " . $data['description']);
 				}
 				$action->setBelongingHistory($history);
 				$history->addAction($action);

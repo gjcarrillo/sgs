@@ -174,8 +174,9 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
             $scope.createNewRequest = function() {
                 uploadedFiles = new Array($scope.docPicTaken ? 2 : 1).fill(false);
                 $scope.uploading = true;
-                $http.get('index.php/documents/NewRequestController/createRequest',
-                    {params:{userId:fetchId, reqAmount:$scope.model.reqAmount}})
+                var postData = {userId:fetchId, reqAmount:$scope.model.reqAmount};
+                $http.post('index.php/documents/NewRequestController/createRequest',
+                    JSON.stringify(postData))
                     .then(function (response) {
                         if (response.status == 200) {
                             uploadData(1, response.data.requestId, response.data.historyId, 0);
@@ -219,7 +220,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                             file.docName = docName;
                             file.description = description;
                             // Doc successfully uploaded. Now create it on database.
-                            $http.get('index.php/documents/NewRequestController/createDocument', {params:file})
+                            $http.post('index.php/documents/NewRequestController/createDocument', file)
                                 .then(function (response) {
                                     console.log(response);
                                     if (response.status == 200) {
@@ -273,14 +274,16 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                 });
 
                 file.upload.then(function (response) {
-                    file.lpath = response.data.lpath;
-                    file.requestId = requestId;
-                    file.historyId = historyId;
+                    var fileData = {};
+                    fileData.lpath = response.data.lpath;
+                    fileData.requestId = requestId;
+                    fileData.historyId = historyId;
+                    fileData.description = file.description;
                     // file.name is not passed through GET. Gotta create new property
-                    file.docName = "Solicitud";
+                    fileData.docName = "Solicitud";
                     // Doc successfully uploaded. Now create it on database.
-                    console.log(file);
-                    $http.get('index.php/documents/NewRequestController/createDocument', {params:file})
+                    console.log(fileData);
+                    $http.post('index.php/documents/NewRequestController/createDocument', JSON.stringify(fileData))
                         .then(function (response) {
                             if (response.status == 200) {
                                 uploadedFiles[uploadIndex] = true;
@@ -291,6 +294,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                                         .then(function (response) {
                                             if (response.status == 200) {
                                                 updateContent(response.data.requests, 0);
+                                                toggleReqList();
                                                 // Close dialog and alert user that operation was successful
                                                 $mdDialog.hide();
                                                 $mdDialog.show(
@@ -592,15 +596,11 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
             // Creates new request in database and uploads documents
             $scope.updateRequest = function() {
                 $scope.uploading = true;
-                $scope.request.docsAdded = $scope.files.length > 0;
                 $scope.request.comment = $scope.comment;
-                $http.get('index.php/documents/EditRequestController/updateRequest', {params:$scope.request})
+                $http.post('index.php/documents/EditRequestController/updateRequest', JSON.stringify($scope.request))
                     .then(function (response) {
-                        console.log(response.data);
                         if (response.data.message === "success") {
-                            console.log("Request update succeded...");
                             if ($scope.files.length === 0) {
-                                console.log("No documents to upload....");
                                 // Close dialog and alert user that operation was successful
                                 $mdDialog.hide();
                                 $mdDialog.show(
@@ -613,7 +613,6 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                                         .ok('Ok')
                                 );
                             } else {
-                                console.log("Uploading documents....");
                                 uploadFiles($scope.fetchId, $scope.request.id, response.data.historyId);
                             }
                         } else {
@@ -632,15 +631,16 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                         data: {file: file, userId: userId, requestId: requestId},
                     });
                     file.upload.then(function (response) {
-                        file.lpath = response.data.lpath;
-                        file.requestId = requestId;
-                        file.historyId = historyId;
+                        var fileData = {};
+                        fileData.lpath = response.data.lpath;
+                        fileData.requestId = requestId;
+                        fileData.historyId = historyId;
+                        fileData.description = file.description;
                         // file.name is not passed through GET. Gotta create new property
-                        file.docName = file.name;
+                        fileData.docName = file.name;
                         // Doc successfully uploaded. Now create it on database.
-                        console.log(file);
-                        console.log(file.name);
-                        $http.get('index.php/documents/NewRequestController/createDocument', {params:file})
+                        console.log(fileData);
+                        $http.post('index.php/documents/NewRequestController/createDocument', JSON.stringify(fileData))
                             .then(function (response) {
                                 if (response.data.message== "success") {
                                     uploadedFiles[index] = true;
@@ -745,7 +745,8 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
              .ok('Continuar')
              .cancel('Cancelar');
              $mdDialog.show(confirm).then(function() {
-                 $http.get('index.php/home/AgentHomeController/deleteDocument',{params:$scope.requests[$scope.selectedReq].docs[dKey]})
+                 $http.post('index.php/home/AgentHomeController/deleteDocument',
+                    JSON.stringify($scope.requests[$scope.selectedReq].docs[dKey]))
                      .then(function(response) {
                          console.log(response)
                          if (response.data.message == "success") {
@@ -791,7 +792,8 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
             .ok('Continuar')
             .cancel('Cancelar');
             $mdDialog.show(confirm).then(function() {
-                $http.get('index.php/home/AgentHomeController/deleteRequest',{params:$scope.requests[$scope.selectedReq]})
+                $http.post('index.php/home/AgentHomeController/deleteRequest',
+                    JSON.stringify($scope.requests[$scope.selectedReq]))
                     .then(function(response) {
                         console.log(response)
                         if (response.data.message == "success") {
@@ -852,7 +854,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
             $scope.doc = doc;
 
             $scope.saveEdition = function() {
-                $http.get('index.php/documents/EditRequestController/updateDocDescription', {params:doc});
+                $http.post('index.php/documents/EditRequestController/updateDocDescription', JSON.stringify(doc));
                 $mdDialog.hide();
             }
         }
@@ -982,7 +984,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                 "descargarlos o incluso eliminarlos.",
                 position : "w", header: "Documentos", expose : true, animation: 'fadeInLeft' },
         ], options);
-        if ($scope.docs.length < 3) {
+        if ($scope.docs.length < 2) {
             // This request hasn't additional documents.
             tripToShowNavigation.tripData.splice(3, 1);
         }

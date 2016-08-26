@@ -128,9 +128,10 @@ function userHome($scope, $rootScope, $http, $cookies, $timeout,
             // Creates new request in database and uploads documents
             $scope.createNewRequest = function() {
                 $scope.uploading = true;
+                var postData = {userId:fetchId, reqAmount:$scope.model.reqAmount};
                 uploadedFiles = new Array($scope.docPicTaken ? 2 : 1).fill(false);
-                $http.get('index.php/documents/NewRequestController/createRequest',
-                    {params:{userId:fetchId, reqAmount:$scope.model.reqAmount}})
+                $http.post('index.php/documents/NewRequestController/createRequest',
+                    JSON.stringify(postData))
                     .then(function (response) {
                         if (response.status == 200) {
                             uploadFile($scope.idFile, response.data.requestId, response.data.historyId, 0);
@@ -157,11 +158,14 @@ function userHome($scope, $rootScope, $http, $cookies, $timeout,
                 });
 
                 file.upload.then(function (response) {
-                    file.lpath = response.data.lpath;
-                    file.requestId = requestId;
-                    file.historyId = historyId;
+                    var fileData = {};
+                    fileData.lpath = response.data.lpath;
+                    fileData.requestId = requestId;
+                    fileData.historyId = historyId;
+                    fileData.docName = file.docName;
+                    fileData.description = file.description;
                     // Doc successfully uploaded. Now create it on database.
-                    $http.get('index.php/documents/NewRequestController/createDocument', {params:file})
+                    $http.post('index.php/documents/NewRequestController/createDocument', JSON.stringify(fileData))
                         .then(function (response) {
                             if (response.status == 200) {
                                 uploadedFiles[uploadIndex] = true;

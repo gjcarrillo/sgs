@@ -320,7 +320,7 @@
                     <md-divider></md-divider>
                     <div ng-show="showPendingReq">
                         <div ng-if="pendingRequests.length == 0" layout layout-align="center center" class="md-padding">
-                            <p style="color:#4CAF50">
+                            <p style="color:#4CAF50; text-align:center">
                                 ¡No se han encontrado solicitudes pendientes!
                             </p>
                         </div>
@@ -630,7 +630,7 @@
                                        </h3>
                                        <h4 ng-if="(selectedPendingReq == -1 &&
                                             requests[selectedReq].reunion)
-                                            || (selectedReq != -1 &&
+                                            || (selectedReq == -1 &&
                                                 pendingRequests[selectedPendingReq].reunion)">
                                            Reunión &#8470;
                                            {{selectedPendingReq == -1 ? requests[selectedReq].reunion :
@@ -638,7 +638,7 @@
                                        </h4>
                                        <p ng-if="(selectedPendingReq == -1 &&
                                             requests[selectedReq].approvedAmount)
-                                            || (selectedReq != -1 &&
+                                            || (selectedReq == -1 &&
                                                 pendingRequests[selectedPendingReq].approvedAmount)">
                                            Monto aprobado: Bs
                                            {{selectedPendingReq == -1 ? (requests[selectedReq].approvedAmount | number:2) :

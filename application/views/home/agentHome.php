@@ -245,7 +245,7 @@
                                          </md-button>
                                          <md-menu
                                             id="request-docs-actions"
-                                            ng-if="doc.name !='Identidad' && doc.name != 'Solicitud'"
+                                            ng-if="doc.name !='Identidad'"
                                             class="md-secondary">
                                             <md-button
                                                 ng-click="$mdOpenMenu($event)"

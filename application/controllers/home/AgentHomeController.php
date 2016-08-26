@@ -76,11 +76,12 @@ class AgentHomeController extends CI_Controller {
             $this->load->view('errors/index.html');
         } else {
             try {
+				$data = json_decode(file_get_contents('php://input'), true);
                 $em = $this->doctrine->em;
                 // Delete the document from the server.
-                unlink(DropPath . $_GET['lpath']);
+                unlink(DropPath . $data['lpath']);
                 // Get the specified doc entity
-                $doc = $em->find('\Entity\Document', $_GET['id']);
+                $doc = $em->find('\Entity\Document', $data['id']);
                 // Get it's request.
                 $request = $doc->getBelongingRequest();
                 // Remove this doc from it's request entity
@@ -118,10 +119,11 @@ class AgentHomeController extends CI_Controller {
         if ($_SESSION['type'] != 1) {
             $this->load->view('errors/index.html');
         } else {
+			$data = json_decode(file_get_contents('php://input'), true);
             try {
                 $em = $this->doctrine->em;
                 // Must delete all documents belonging to this request first
-                $request = $em->find('\Entity\Request', $_GET['id']);
+                $request = $em->find('\Entity\Request', $data['id']);
                 $docs = $request->getDocuments();
                 foreach($docs as $doc) {
                     unlink(DropPath . $doc->getLpath());
