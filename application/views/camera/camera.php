@@ -9,6 +9,7 @@
     <md-dialog-content style="background:black" layout="column" layout-align="center">
         <div ng-hide="picTaken" layout-padding>
             <webcam
+                id="camera"
                 on-stream="onStream(stream)"
                 on-error="onError(err)"
                 on-streaming="onSuccess()"

@@ -6,6 +6,10 @@ footer {
   background-color:white;
 }
 
+.bg {
+    background-color: #EEEEEE;
+}
+
 .main-w-footer {
     /*129 = aprox. toolbar + footer height */
   min-height: calc(100vh - 129px);
@@ -19,6 +23,17 @@ footer {
 .login-card {
     width: 40%;
     margin-bottom: 60px;
+}
+
+.help-card {
+    max-width: 60%;
+}
+
+.help-title {
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-left: 10px;
+    color: #827717;
 }
 
 .documents-card {
@@ -208,6 +223,16 @@ md-select.no-md-select .md-select-value {
     max-height: 100%;
 }
 
+.perspective-svg {
+    color: grey;
+    height: 128px;
+    width: 128px;
+}
+
+.md-grid-item-content:hover .perspective-svg{
+    color: #0D47A1;
+}
+
 @media screen and (max-width: 960px) {
     .login-card {
         width: 60%;
@@ -230,5 +255,8 @@ md-select.no-md-select .md-select-value {
     }
     .history-card {
         width: 90%;
+    }
+    .help-card {
+        max-width: 90%;
     }
 }

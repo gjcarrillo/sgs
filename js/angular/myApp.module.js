@@ -2,7 +2,8 @@ var sgdp = angular.module("sgdp", ["sgdp.login", "ui.router", "ngMaterial",
     "ngFileUpload", "webcam", "ngMessages"]);
 
 
-sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $mdDateLocaleProvider, $locationProvider) {
+sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider,
+    $mdDateLocaleProvider, $locationProvider) {
   $urlRouterProvider.otherwise('login');
   $stateProvider
     .state('login', {
@@ -34,6 +35,11 @@ sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $md
         url: '/history',
         templateUrl: 'index.php/history/HistoryController',
         controller: 'HistoryController'
+    })
+    .state('perspective', {
+        url: '/perspective',
+        templateUrl: 'index.php/login/PerspectiveSelection',
+        controller: 'PerspectiveSelection'
     })
     .state('userInfo', {
         url: '/userInfo',
@@ -88,7 +94,9 @@ sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $md
         '500' : '0D47A1'
     });
     $mdThemingProvider.definePalette('darkBlue', darkBlue);
-
+    $mdThemingProvider.theme('help-card').backgroundPalette('lime', {
+          'default': '100',
+    });
     $mdThemingProvider.theme('default')
         .primaryPalette('darkBlue')
         .accentPalette('red');
@@ -126,55 +134,56 @@ sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $md
 
 sgdp.run(['$rootScope', '$location','$state','auth', '$cookies', '$http',
     function ($rootScope, $location, $state, auth, $cookies, $http) {
-
         $rootScope.logout = function() {
             $http.get('index.php/login/LoginController/logout');
             auth.logout();
         };
         $rootScope.$on("$locationChangeStart", function(e, toState, toParams, fromState, fromParams) {
+            if (!auth.isLoggedIn() && $location.url() != "/login") {
+                // if user is not logged in and is trying to access
+                // private content, send to login.
+                e.preventDefault();
+                $state.go('login');
+            }
+            else if(auth.isLoggedIn() && $location.url() == "/login") {
+                // if user Is logged in and is trying to access login page
+                // send to home page
+                e.preventDefault();
+                auth.sendHome();
+            } else if (auth.isLoggedIn() && !userHasPermission(auth.permission(), $location.url())) {
+                // check if user actually has access permission to intended url
 
-        if (!auth.isLoggedIn() && $location.url() != "/login") {
-            // if user is not logged in and is trying to access
-            // private content, send to login.
-            e.preventDefault();
-            $state.go('login');
-        }
-        else if(auth.isLoggedIn() && $location.url() == "/login") {
-            // if user Is logged in and is trying to access login page
-            // send to home page
-            e.preventDefault();
-            auth.sendHome();
-        } else if (auth.isLoggedIn() && !userHasPermission(auth.permission(), $location.url())) {
-            // check if user actually has access permission to intended url
+                e.preventDefault();
+                // if user does not have the propper permission, send home
+                // or maybe send to error page.
+                auth.sendHome();
+            }
+      });
 
-            e.preventDefault();
-            // if user does not have the propper permission, send home
-            // or maybe send to error page.
-            auth.sendHome();
-        }
-  });
-
-  function userHasPermission(userType, url) {
-      switch (url) {
-        case '/userHome':
-            // Anyone can access user home page
-            return true;
-        case '/agentHome':
-            // Check for agent rights
-            return userType == 1;
-        case '/managerHome':
-            // Check for manager rights
-            return userType == 2;
-        case '/history':
-            // check for agent rights
-            return userType <= 2;
-        case '/userInfo':
-            // check for agent rights
-            return userType <= 2;
+      function userHasPermission(userType, url) {
+          switch (url) {
+            case '/userHome':
+                // Anyone can access user home page
+                return true;
+            case '/agentHome':
+                // Check for agent rights
+                return userType == 1;
+            case '/managerHome':
+                // Check for manager rights
+                return userType == 2;
+            case '/history':
+                // check for agent or manager rights
+                return userType <= 2;
+            case '/userInfo':
+                // check for agent or manager rights
+                return userType <= 2;
+            case '/perspective':
+            // check for agent or manager rights
+                return userType <= 2;
+          }
+          //  Going to login (.otherwise('login')), so keep going!
+          return true;
       }
-      //  Going to login (.otherwise('login')), so keep going!
-      return true;
-  }
 }]);
 
 // Slide up/down animation for ng-hide

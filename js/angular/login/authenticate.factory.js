@@ -17,7 +17,6 @@ angular.module('sgdp.login').factory("auth", function($cookies, $location,
                         // create the session cookie
                         $cookies.putObject('session', {
                             id: username,
-                            password: password,
                             type: response.data.type,
                             name: response.data.name,
                             lastName: response.data.lastName
@@ -31,13 +30,12 @@ angular.module('sgdp.login').factory("auth", function($cookies, $location,
                         //     name: response.data.name,
                         //     lastName: response.data.lastName
                         // });
-                        // redirect to home
-                        if (response.data.type == 1) {
-                            $location.path("agentHome");
-                        } else if (response.data.type == 2) {
-                            $location.path("managerHome");
-                        } else {
+                        if (response.data.type == 3) {
+                            // if applicant then redirect to home
                             $location.path("userHome");
+                        } else {
+                            // if agent or manager, allow perspective selection
+                            $location.path("perspective");
                         }
                         $timeout(function() {
                             $rootScope.loading = false;
