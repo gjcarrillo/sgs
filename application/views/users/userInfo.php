@@ -1,17 +1,14 @@
 <md-toolbar layout-padding>
     <div class="md-toolbar-tools">
-        <h2 flex="10" hide show-gt-xs class="md-headline">
-            <span>SGDP</span>
-        </h2>
-        <h2 hide-gt-xs class="md-headline">
+        <h2 class="md-headline">
             <span>SGDP</span>
         </h2>
         <span flex></span>
         <md-button class="md-icon-button" ng-click="showHelp()" aria-label="Help">
             <md-icon>help_outline</md-icon>
             <md-tooltip md-direction="bottom">Ayuda</md-tooltip>
-        <md-button class="md-icon-button" ng-click="logout()" aria-label="Logout">
         </md-button>
+        <md-button class="md-icon-button" ng-click="logout()" aria-label="Logout">
             <md-icon>exit_to_app</md-icon>
             <md-tooltip md-direction="bottom">Cerrar sesión</md-tooltip>
         </md-button>

@@ -10,12 +10,8 @@ class NewRequestController extends CI_Controller {
     }
 
 	public function index() {
-		if ($_SESSION['type'] != 1 && $_SESSION['type'] != 3) {
-			$this->load->view('errors/index.html');
-		} else {
-			// Both agents and applicants can create a new request
-			$this->load->view('documents/newRequest');
-		}
+		// Everyone can create requests
+		$this->load->view('documents/newRequest');
 	}
 
     public function upload() {
@@ -24,7 +20,8 @@ class NewRequestController extends CI_Controller {
         // if (!file_exists($uploaddir)) {
         //     mkdir($uploaddir, 0777, true);
         // }
-		if ($_SESSION['type'] != 1 && $_SESSION['type'] != 3) {
+		if ($_POST['userId'] != $_SESSION['id'] && $_SESSION['type'] > 1) {
+			// Only agents can upload documents that aren't their own
 			$this->load->view('errors/index.html');
 		} else {
 			$uploadfile = DropPath . $_POST['userId'] . '.' . $_POST['requestId'] . '.' . basename($_FILES['file']['name']);
@@ -37,11 +34,11 @@ class NewRequestController extends CI_Controller {
     }
 
     public function createRequest() {
-		if ($_SESSION['type'] != 1 && $_SESSION['type'] != 3) {
+		$data = json_decode(file_get_contents('php://input'), true);
+		if ($data['userId'] != $_SESSION['id'] && $_SESSION['type'] > 1) {
+			// Only agents can create requests for other people
 			$this->load->view('errors/index.html');
 		} else {
-			// Both agents and applicants can create new requests
-			$data = json_decode(file_get_contents('php://input'), true);
 	        try {
 	            $em = $this->doctrine->em;
 	            // New request
@@ -86,57 +83,58 @@ class NewRequestController extends CI_Controller {
     }
 
     public function createDocument() {
-		if ($_SESSION['type'] != 1 && $_SESSION['type'] != 3) {
-			$this->load->view('errors/index.html');
-		} else {
+		try {
 			$data = json_decode(file_get_contents('php://input'), true);
-	        try {
-	            $em = $this->doctrine->em;
-				$doc = $em->getRepository('\Entity\Document')->findOneBy(array(
-					"lpath"=>$data['lpath']
-				));
-				if ($doc !== null) {
-					// doc already exists, so just merge. Otherwise we'll have
-					// 'duplicates' in database, because document name is not unique
-					if (isset($data['description'])) {
-						$doc->setDescription($data['description']);
-						$em->merge($doc);
+			$em = $this->doctrine->em;
+			$request = $em->find('\Entity\Request', $data['requestId']);
+			if ($request->getUserOwner()->getId() != $_SESSION['id'] && $_SESSION['type'] > 1) {
+				// Only agents can create documents for other people
+				$this->load->view('errors/index.html');
+			} else {
+					$doc = $em->getRepository('\Entity\Document')->findOneBy(array(
+						"lpath"=>$data['lpath']
+					));
+					if ($doc !== null) {
+						// doc already exists, so just merge. Otherwise we'll have
+						// 'duplicates' in database, because document name is not unique
+						if (isset($data['description'])) {
+							$doc->setDescription($data['description']);
+							$em->merge($doc);
+						}
+					} else {
+			            // New document
+			            $doc = new \Entity\Document();
+			            $doc->setName($data['docName']);
+			            if (isset($data['description'])) {
+			                $doc->setDescription($data['description']);
+			            }
+			            $doc->setLpath($data['lpath']);
+			            $doc->setBelongingRequest($request);
+			            $request->addDocument($doc);
+
+			            $em->persist($doc);
+			            $em->merge($request);
 					}
-				} else {
-		            // New document
-		            $doc = new \Entity\Document();
-		            $doc->setName($data['docName']);
-		            if (isset($data['description'])) {
-		                $doc->setDescription($data['description']);
-		            }
-		            $doc->setLpath($data['lpath']);
-					$request = $em->find('\Entity\Request', $data['requestId']);
-		            $doc->setBelongingRequest($request);
-		            $request->addDocument($doc);
+					// Set History action for this request's corresponding history
+					$history =  $em->find('\Entity\History', $data['historyId']);
+					$action = new \Entity\HistoryAction();
+					$action->setSummary("Adición del documento '" . $data['docName'] . "'.");
+					if (isset($data['description']) && $data['description'] !== "") {
+						$action->setDetail("Descripción: " . $data['description']);
+					}
+					$action->setBelongingHistory($history);
+					$history->addAction($action);
+					$em->persist($action);
+					$em->merge($history);
+					$em->flush();
+					$result['message'] = "success";
 
-		            $em->persist($doc);
-		            $em->merge($request);
-				}
-				// Set History action for this request's corresponding history
-				$history =  $em->find('\Entity\History', $data['historyId']);
-				$action = new \Entity\HistoryAction();
-				$action->setSummary("Adición del documento '" . $data['docName'] . "'.");
-				if (isset($data['description']) && $data['description'] !== "") {
-					$action->setDetail("Descripción: " . $data['description']);
-				}
-				$action->setBelongingHistory($history);
-				$history->addAction($action);
-				$em->persist($action);
-				$em->merge($history);
-				$em->flush();
-				$result['message'] = "success";
-	        } catch (Exception $e) {
-	            \ChromePhp::log($e);
-	            $result['message'] = "error";
-	        }
-
-	        echo json_encode($result);
+			}
+		} catch (Exception $e) {
+			\ChromePhp::log($e);
+			$result['message'] = "error";
 		}
+		echo json_encode($result);
     }
 
 	public function camera() {
