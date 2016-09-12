@@ -1,6 +1,6 @@
 angular
     .module('sgdp.login')
-    .controller('PerspectiveSelection', selection);
+    .controller('PerspectiveSelectionController', selection);
 
 selection.$inject = ['$scope', '$rootScope', '$state', '$cookies'];
 
@@ -27,10 +27,10 @@ function selection($scope, $rootScope, $state, $cookies) {
     $scope.goApplicant = function() {
         // re-write the session cookie
         $cookies.putObject('session', {
-            id: $cookies.getObject('session').id,
+            id: id,
             type: 3,
-            name: $cookies.getObject('session').name,
-            lastName: $cookies.getObject('session').lastName
+            name: name,
+            lastName: lastName
         }, {
             expires : timeToExpire
         });
@@ -40,10 +40,10 @@ function selection($scope, $rootScope, $state, $cookies) {
     $scope.goAgent = function() {
         // re-write the session cookie
         $cookies.putObject('session', {
-            id: $cookies.getObject('session').id,
+            id: id,
             type: 1,
-            name: $cookies.getObject('session').name,
-            lastName: $cookies.getObject('session').lastName
+            name: name,
+            lastName: lastName
         }, {
             expires : timeToExpire
         });
@@ -53,10 +53,10 @@ function selection($scope, $rootScope, $state, $cookies) {
     $scope.goManager = function() {
         // re-write the session cookie
         $cookies.putObject('session', {
-            id: $cookies.getObject('session').id,
+            id: id,
             type: 2,
-            name: $cookies.getObject('session').name,
-            lastName: $cookies.getObject('session').lastName
+            name: name,
+            lastName: lastName
         }, {
             expires : timeToExpire
         });

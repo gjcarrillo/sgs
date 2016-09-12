@@ -2,10 +2,10 @@ angular
     .module('sgdp')
     .controller('ManagerHomeController', managerHome);
 
-managerHome.$inject = ['$scope', '$rootScope', '$mdDialog', '$cookies', '$http',
+managerHome.$inject = ['$scope', '$mdDialog', '$cookies', '$http',
     '$state', '$timeout', '$mdSidenav', '$mdMedia'];
 
-function managerHome($scope, $rootScope, $mdDialog, $cookies, $http, $state,
+function managerHome($scope, $mdDialog, $cookies, $http, $state,
     $timeout, $mdSidenav, $mdMedia) {
     'use strict';
     $scope.model = {};

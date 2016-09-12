@@ -38,8 +38,8 @@ sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider,
     })
     .state('perspective', {
         url: '/perspective',
-        templateUrl: 'index.php/login/PerspectiveSelection',
-        controller: 'PerspectiveSelection'
+        templateUrl: 'index.php/login/PerspectiveSelectionController',
+        controller: 'PerspectiveSelectionController'
     })
     .state('userInfo', {
         url: '/userInfo',
@@ -134,6 +134,8 @@ sgdp.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider,
 
 sgdp.run(['$rootScope', '$location','$state','auth', '$cookies', '$http',
     function ($rootScope, $location, $state, auth, $cookies, $http) {
+        $rootScope.appName = "SGDP";
+
         $rootScope.logout = function() {
             $http.get('index.php/login/LoginController/logout');
             auth.logout();

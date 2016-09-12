@@ -10,7 +10,7 @@
             <md-icon>menu</md-icon>
         </md-button>
         <h2 class="md-headline">
-            <span>SGDP</span>
+            <span>{{appName}}</span>
         </h2>
         <span flex></span>
         <md-button class="md-icon-button" ng-click="openManageUserAgentDialog($event)" aria-label="Help">
@@ -488,7 +488,8 @@
                     id="piechart-tour"
                     layout="column"
                     layout-align="center center"
-                    layout-padding class="md-whiteframe-z2 statistics-card">
+                    layout-padding
+                    class="md-whiteframe-z2 statistics-card">
                     <div layout layout-align="center center">
                         <span>{{statisticsTitle}}</span>
                         <md-button

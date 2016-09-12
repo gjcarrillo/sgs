@@ -2,11 +2,11 @@ angular
     .module('sgdp')
     .controller('AgentHomeController', agentHome);
 
-agentHome.$inject = ['$scope', '$rootScope', '$mdDialog', 'Upload', '$cookies',
+agentHome.$inject = ['$scope', '$mdDialog', 'Upload', '$cookies',
     '$http', '$state', '$timeout', '$mdSidenav', '$mdMedia'];
 
-function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $state,
-    $timeout, $mdSidenav, $mdMedia) {
+function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
+                   $timeout, $mdSidenav, $mdMedia) {
     'use strict';
     $scope.loading = false;
     $scope.selectedReq = -1;
@@ -42,18 +42,18 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
         sessionStorage.removeItem("showList");
     }
 
-    $scope.generatePdfDoc = function() {
+    $scope.generatePdfDoc = function () {
         $http.get('index.php/documents/DocumentGenerator/generatePdf')
             .then(function (response) {
                 console.log(response);
             });
     };
 
-    $scope.toggleList = function() {
+    $scope.toggleList = function () {
         $scope.showList = !$scope.showList;
     };
 
-    $scope.selectRequest = function(req) {
+    $scope.selectRequest = function (req) {
         $scope.selectedReq = req;
         if (req != -1) {
             $scope.docs = $scope.requests[req].docs;
@@ -61,7 +61,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
         $mdSidenav('left').toggle();
     };
 
-    $scope.fetchRequests = function(searchInput) {
+    $scope.fetchRequests = function (searchInput) {
         $scope.showList = false;
         $scope.contentAvailable = false;
         $scope.fetchId = $scope.idPrefix + searchInput;
@@ -70,7 +70,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
         $scope.loading = true;
         $scope.docs = [];
         $scope.fetchError = "";
-        $http.get('index.php/home/AgentHomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
+        $http.get('index.php/home/AgentHomeController/getUserRequests', {params: {fetchId: $scope.fetchId}})
             .then(function (response) {
                 $scope.maxReqAmount = response.data.maxReqAmount;
                 if (response.data.message === "success") {
@@ -78,7 +78,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                         $scope.requests = response.data.requests;
                     }
                     $scope.contentAvailable = true;
-                    $timeout(function() {
+                    $timeout(function () {
                         $scope.contentLoaded = true;
                         $mdSidenav('left').open();
                     }, 300);
@@ -90,14 +90,14 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
     };
 
     // Helper function for formatting numbers with leading zeros
-    $scope.pad = function(n, width, z) {
+    $scope.pad = function (n, width, z) {
         z = z || '0';
         n = n + '';
         return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
     };
 
 
-    $scope.openNewRequestDialog = function($event) {
+    $scope.openNewRequestDialog = function ($event) {
         var parentEl = angular.element(document.body);
         $mdDialog.show({
             parent: parentEl,
@@ -106,8 +106,8 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
             clickOutsideToClose: false,
             escapeToClose: false,
             autoWrap: false,
-            locals:{
-                fetchId:$scope.fetchId,
+            locals: {
+                fetchId: $scope.fetchId,
                 maxReqAmount: $scope.maxReqAmount
             },
             controller: DialogController
@@ -122,11 +122,11 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
             $scope.model = {};
             var uploadedFiles;
 
-            $scope.closeDialog = function() {
+            $scope.closeDialog = function () {
                 $mdDialog.hide();
             };
 
-            $scope.missingField = function() {
+            $scope.missingField = function () {
                 return !$scope.idPicTaken || typeof $scope.model.reqAmount === "undefined";
             };
 
@@ -136,21 +136,21 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                 $scope.idData = dataURL;
             }
 
-            function updateDocPic(dataURL){
+            function updateDocPic(dataURL) {
                 $("#docThumbnail").attr("src", dataURL);
                 $scope.docPicTaken = true;
                 $scope.docData = dataURL;
             }
 
-            $scope.deleteIdPic = function() {
+            $scope.deleteIdPic = function () {
                 $scope.idPicTaken = false;
             };
 
-            $scope.deleteDocPic = function() {
+            $scope.deleteDocPic = function () {
                 $scope.docPicTaken = false;
             };
 
-            $scope.gatherFile = function(file, errFiles) {
+            $scope.gatherFile = function (file, errFiles) {
                 if (file) {
                     $scope.file = file;
                     $scope.file.description = "Documento explicativo de la solicitud";
@@ -159,12 +159,12 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                 }
             };
 
-            $scope.removeScannedDoc = function() {
+            $scope.removeScannedDoc = function () {
                 $scope.docPicTaken = false;
                 $scope.file = null;
             };
 
-            $scope.showError = function(error, param) {
+            $scope.showError = function (error, param) {
                 if (error === "pattern") {
                     return "Archivo no aceptado. Por favor seleccione sólo documentos.";
                 } else if (error === "maxSize") {
@@ -173,10 +173,10 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
             };
 
             // Creates new request in database and uploads documents
-            $scope.createNewRequest = function() {
+            $scope.createNewRequest = function () {
                 uploadedFiles = new Array($scope.docPicTaken ? 2 : 1).fill(false);
                 $scope.uploading = true;
-                var postData = {userId:fetchId, reqAmount:$scope.model.reqAmount};
+                var postData = {userId: fetchId, reqAmount: $scope.model.reqAmount};
                 $http.post('index.php/documents/NewRequestController/createRequest',
                     JSON.stringify(postData))
                     .then(function (response) {
@@ -207,13 +207,13 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                     description = "Documento explicativo de la solicitud"
                 }
                 var postData = JSON.stringify({
-                    imageData:imageData,
-                    userId:fetchId,
-                    requestId:requestId,
-                    docName:docName
+                    imageData: imageData,
+                    userId: fetchId,
+                    requestId: requestId,
+                    docName: docName
                 });
                 $http.post('index.php/documents/NewRequestController/uploadBase64Images', postData)
-                    .then(function(response) {
+                    .then(function (response) {
                         if (response.status == 200) {
                             var file = {};
                             file.lpath = response.data.lpath;
@@ -230,7 +230,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                                         if (uploadsFinished(uploadedFiles)) {
                                             // Update interface
                                             $http.get('index.php/home/AgentHomeController/getUserRequests',
-                                                {params:{fetchId:fetchId}})
+                                                {params: {fetchId: fetchId}})
                                                 .then(function (response) {
                                                     if (response.status == 200) {
                                                         updateContent(response.data.requests, 0);
@@ -259,14 +259,15 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                             console.log("???")
                         }
                     });
-            };
+            }
 
             // Determines whether all files were uploaded
             function uploadsFinished(uploadedFiles) {
-                return (uploadedFiles.filter(function(bool){
+                return (uploadedFiles.filter(function (bool) {
                     return !bool;
                 }).length == 0);
             }
+
             // Uploads each of selected documents to the server
             // and updates database
             function uploadFile(file, requestId, historyId, uploadIndex) {
@@ -292,7 +293,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                                 if (uploadsFinished(uploadedFiles)) {
                                     // Update interface
                                     $http.get('index.php/home/AgentHomeController/getUserRequests',
-                                        {params:{fetchId:fetchId}})
+                                        {params: {fetchId: fetchId}})
                                         .then(function (response) {
                                             if (response.status == 200) {
                                                 updateContent(response.data.requests, 0);
@@ -318,11 +319,11 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                         $scope.errorMsg = response.status + ': ' + response.data;
                 }, function (evt) {
                     file.progress = Math.min(100, parseInt(100.0 *
-                                       evt.loaded / evt.total));
+                        evt.loaded / evt.total));
                 });
             }
 
-            $scope.openIdentityCamera = function(ev) {
+            $scope.openIdentityCamera = function (ev) {
                 var parentEl = angular.element(document.body);
                 $mdDialog.show({
                     parent: parentEl,
@@ -340,7 +341,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                 });
             };
 
-            $scope.openDocCamera = function(ev) {
+            $scope.openDocCamera = function (ev) {
                 var parentEl = angular.element(document.body);
                 $mdDialog.show({
                     parent: parentEl,
@@ -381,15 +382,15 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                     // The video element contains the captured camera data
                     _video = $scope.channel.video;
                 };
-                $scope.closeDialog = function() {
+                $scope.closeDialog = function () {
                     $mdDialog.hide();
                 };
 
-                $scope.deletePic = function() {
+                $scope.deletePic = function () {
                     $scope.picTaken = false;
                 };
 
-                $scope.savePic = function() {
+                $scope.savePic = function () {
                     if (sendTo == 1) {
                         updateIdPic(document.querySelector('#snapshot').toDataURL());
                     } else {
@@ -398,7 +399,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                     $mdDialog.hide();
                 };
 
-                $scope.takePicture = function() {
+                $scope.takePicture = function () {
                     if (_video) {
                         var patCanvas = document.querySelector('#snapshot');
                         if (!patCanvas) return;
@@ -427,15 +428,15 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
             }
 
             // Determines wether the specified userType matches logged user's type
-            $scope.userType = function(type) {
+            $scope.userType = function (type) {
                 return type === $cookies.getObject('session').type;
             };
 
-            $scope.showHelp = function() {
+            $scope.showHelp = function () {
                 var options = {
-                    showNavigation : true,
-                    showCloseBox : true,
-                    delay : -1,
+                    showNavigation: true,
+                    showCloseBox: true,
+                    delay: -1,
                     tripTheme: "dark",
                     prevLabel: "Anterior",
                     nextLabel: "Siguiente",
@@ -451,9 +452,11 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                 if (!$scope.missingField()) {
                     var tripToShowNavigation = new Trip([
                         // Tell user to hit the create button
-                        { sel : $("#create-btn"),
-                            content : "Haga click en CREAR para generar la solicitud.",
-                            position : "n", animation: 'fadeInLeft'}
+                        {
+                            sel: $("#create-btn"),
+                            content: "Haga click en CREAR para generar la solicitud.",
+                            position: "n", animation: 'fadeInLeft'
+                        }
 
                     ], options);
                     tripToShowNavigation.start();
@@ -465,7 +468,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
 
             function showFieldHelp(trip, id, content) {
                 trip.tripData.push(
-                    { sel : $(id), content: content, position: "s", animation: 'fadeInUp' }
+                    {sel: $(id), content: content, position: "s", animation: 'fadeInUp'}
                 );
             }
 
@@ -482,26 +485,26 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                 } else {
                     // Show pic result help
                     var content = "Resultado de la foto del afiliado. Si lo desea, " +
-                    "puede eliminarla y volver a tomarla.";
+                        "puede eliminarla y volver a tomarla.";
                     showFieldHelp(tripToShowNavigation, "#id-pic-result", content);
                 }
                 if (!$scope.docPicTaken) {
                     // Show doc pic field help
                     var content = "Haga click para opcionalmente proveer un documento" +
-                    " explicativo de la solicitud. Puede tomarle foto o subir el " +
-                    "documento desde la computadora.";
+                        " explicativo de la solicitud. Puede tomarle foto o subir el " +
+                        "documento desde la computadora.";
                     showFieldHelp(tripToShowNavigation, "#doc-pic", content);
                 } else {
                     if (!$scope.file) {
                         // Picture was taken, show pic result help
                         var content = "Resultado de la foto del documento " +
-                        "explicativo de la solicitud. Si lo desea, puede eliminarla " +
-                        "y volver a tomarla.";
+                            "explicativo de la solicitud. Si lo desea, puede eliminarla " +
+                            "y volver a tomarla.";
                         showFieldHelp(tripToShowNavigation, "#doc-pic-result", content);
                     } else {
                         // doc was uploaded instead
                         var content = "Documento explicativo de la solicitud seleccionado." +
-                        " Si lo desea, puede eliminarlo y volver a seleccionarlo.";
+                            " Si lo desea, puede eliminarlo y volver a seleccionarlo.";
                         showFieldHelp(tripToShowNavigation, "#doc-pic-selection", content);
                     }
                 }
@@ -520,7 +523,7 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
     function toggleReqList() {
         // Toggle list
         $scope.showList = false;
-        $timeout(function() {
+        $timeout(function () {
             // Toggle list again
             $scope.showList = true;
         }, 1000);
@@ -528,9 +531,9 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
     }
 
     /**
-    * Custom dialog for updating an existing request
-    */
-    $scope.openEditRequestDialog = function($event) {
+     * Custom dialog for updating an existing request
+     */
+    $scope.openEditRequestDialog = function ($event) {
         var parentEl = angular.element(document.body);
         $mdDialog.show({
             parent: parentEl,
@@ -556,33 +559,33 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
             $scope.statuses = ["Recibida", "Aprobada", "Rechazada"];
             $scope.comment = $scope.request.comment;
 
-            $scope.closeDialog = function() {
+            $scope.closeDialog = function () {
                 $mdDialog.hide();
             };
 
-            $scope.removeDoc = function(index) {
+            $scope.removeDoc = function (index) {
                 $scope.files.splice(index, 1);
             };
 
-            $scope.isDescriptionEnabled = function(dKey) {
+            $scope.isDescriptionEnabled = function (dKey) {
                 return $scope.enabledDescription == dKey;
             };
 
-            $scope.enableDescription = function(dKey) {
+            $scope.enableDescription = function (dKey) {
                 $scope.enabledDescription = dKey;
-                $timeout(function(){
-                    $("#"+dKey).focus();
+                $timeout(function () {
+                    $("#" + dKey).focus();
                 }, 300);
             };
 
-            $scope.allFieldsMissing = function() {
+            $scope.allFieldsMissing = function () {
                 return $scope.files.length == 0 &&
                     (typeof $scope.comment === "undefined"
-                        || $scope.comment == ""
-                        || $scope.comment == $scope.request.comment);
+                    || $scope.comment == ""
+                    || $scope.comment == $scope.request.comment);
             };
 
-            $scope.showError = function(error, param) {
+            $scope.showError = function (error, param) {
                 if (error === "pattern") {
                     return "Archivo no aceptado. Por favor seleccione sólo documentos.";
                 } else if (error === "maxSize") {
@@ -590,13 +593,13 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                 }
             };
             // Gathers the files whenever the file input's content is updated
-            $scope.gatherFiles = function(files, errFiles) {
+            $scope.gatherFiles = function (files, errFiles) {
                 $scope.files = files;
                 $scope.errFiles = errFiles;
             };
 
             // Creates new request in database and uploads documents
-            $scope.updateRequest = function() {
+            $scope.updateRequest = function () {
                 $scope.uploading = true;
                 $scope.request.comment = $scope.comment;
                 $http.post('index.php/documents/EditRequestController/updateRequest', JSON.stringify($scope.request))
@@ -627,10 +630,10 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
             // and updates database
             function uploadFiles(userId, requestId, historyId) {
                 var uploadedFiles = new Array($scope.files.length).fill(false);
-                angular.forEach($scope.files, function(file, index) {
+                angular.forEach($scope.files, function (file, index) {
                     file.upload = Upload.upload({
                         url: 'index.php/documents/NewRequestController/upload',
-                        data: {file: file, userId: userId, requestId: requestId},
+                        data: {file: file, userId: userId, requestId: requestId}
                     });
                     file.upload.then(function (response) {
                         var fileData = {};
@@ -644,11 +647,11 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                         console.log(fileData);
                         $http.post('index.php/documents/NewRequestController/createDocument', JSON.stringify(fileData))
                             .then(function (response) {
-                                if (response.data.message== "success") {
+                                if (response.data.message == "success") {
                                     uploadedFiles[index] = true;
                                     if (uploadsFinished(uploadedFiles)) {
                                         // Update interface
-                                        $http.get('index.php/home/AgentHomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
+                                        $http.get('index.php/home/AgentHomeController/getUserRequests', {params: {fetchId: $scope.fetchId}})
                                             .then(function (response) {
                                                 if (response.data.message === "success") {
                                                     updateContent(response.data.requests, $scope.selectedReq);
@@ -677,22 +680,22 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                     }, function (evt) {
                         // Fetch file updating progress
                         file.progress = Math.min(100, parseInt(100.0 *
-                                                 evt.loaded / evt.total));
+                            evt.loaded / evt.total));
                     });
                 });
             }
 
             function uploadsFinished(uploadedFiles) {
-                return (uploadedFiles.filter(function(bool){
+                return (uploadedFiles.filter(function (bool) {
                     return !bool;
                 }).length == 0);
             }
 
-            $scope.showHelp = function() {
+            $scope.showHelp = function () {
                 var options = {
-                    showNavigation : true,
-                    showCloseBox : true,
-                    delay : -1,
+                    showNavigation: true,
+                    showCloseBox: true,
+                    delay: -1,
                     tripTheme: "dark",
                     prevLabel: "Anterior",
                     nextLabel: "Siguiente",
@@ -710,17 +713,17 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
                 if (typeof $scope.comment === "undefined" || $scope.comment == ""
                     || $scope.comment == $scope.request.comment) {
                     var content = "Puede opcionalmente realizar algún comentario " +
-                    "hacia la solicitud.";
+                        "hacia la solicitud.";
                     appendFieldHelp(tripToShowNavigation, "#comment", content);
                 }
                 if ($scope.files.length == 0) {
                     var content = "Haga click para para agregar documentos " +
-                    "adicionales a la solicitud.";
+                        "adicionales a la solicitud.";
                     appendFieldHelp(tripToShowNavigation, "#more-files", content);
                 } else {
                     content = "Estas tarjetas contienen el nombre y posible descripción " +
-                    "de los documentos seleccionados. Puede eliminarla o proporcionar una descripción" +
-                    " a través de los íconos en la parte inferior de la tarjeta."
+                        "de los documentos seleccionados. Puede eliminarla o proporcionar una descripción" +
+                        " a través de los íconos en la parte inferior de la tarjeta."
                     appendFieldHelp(tripToShowNavigation, "#file-card", content);
                 }
                 if (!$scope.allFieldsMissing()) {
@@ -732,60 +735,60 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
 
             function appendFieldHelp(trip, id, content) {
                 trip.tripData.push(
-                    { sel : $(id), content: content, position: "s", animation: 'fadeInUp' }
+                    {sel: $(id), content: content, position: "s", animation: 'fadeInUp'}
                 );
             }
         }
     };
 
-    $scope.deleteDoc = function(ev, dKey) {
-         var confirm = $mdDialog.confirm()
-             .title('Confirmación de eliminación')
-             .textContent("El documento " + $scope.requests[$scope.selectedReq].docs[dKey].name + " será eliminado.")
-             .ariaLabel('Document removal warning')
-             .targetEvent(ev)
-             .ok('Continuar')
-             .cancel('Cancelar');
-             $mdDialog.show(confirm).then(function() {
-                 $http.post('index.php/home/AgentHomeController/deleteDocument',
-                    JSON.stringify($scope.requests[$scope.selectedReq].docs[dKey]))
-                     .then(function(response) {
-                         console.log(response)
-                         if (response.data.message == "success") {
-                             // Update the view
-                             $http.get('index.php/home/AgentHomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
-                                 .then(function (response) {
-                                     if (response.data.message === "success") {
-                                         updateContent(response.data.requests, $scope.selectedReq);
-                                     }
-                                 });
-                             $mdDialog.show(
-                                 $mdDialog.alert()
-                                     .parent(angular.element(document.body))
-                                     .clickOutsideToClose(true)
-                                     .title('Documento eliminado')
-                                     .textContent('El documento fue eliminado exitosamente.')
-                                     .ariaLabel('Successful document removal dialog')
-                                     .ok('Ok')
-                                     .targetEvent(ev)
-                             );
-                         } else {
-                             $mdDialog.show(
-                                 $mdDialog.alert()
-                                     .parent(angular.element(document.body))
-                                     .clickOutsideToClose(true)
-                                     .title('Oops!')
-                                     .textContent('Ha ocurrido un error en el sistema. Por favor intente más tarde')
-                                     .ariaLabel('Failed document removal dialog')
-                                     .ok('Ok')
-                                     .targetEvent(ev)
-                             );
-                         }
-                     });
-             });
+    $scope.deleteDoc = function (ev, dKey) {
+        var confirm = $mdDialog.confirm()
+            .title('Confirmación de eliminación')
+            .textContent("El documento " + $scope.requests[$scope.selectedReq].docs[dKey].name + " será eliminado.")
+            .ariaLabel('Document removal warning')
+            .targetEvent(ev)
+            .ok('Continuar')
+            .cancel('Cancelar');
+        $mdDialog.show(confirm).then(function () {
+            $http.post('index.php/home/AgentHomeController/deleteDocument',
+                JSON.stringify($scope.requests[$scope.selectedReq].docs[dKey]))
+                .then(function (response) {
+                    console.log(response)
+                    if (response.data.message == "success") {
+                        // Update the view
+                        $http.get('index.php/home/AgentHomeController/getUserRequests', {params: {fetchId: $scope.fetchId}})
+                            .then(function (response) {
+                                if (response.data.message === "success") {
+                                    updateContent(response.data.requests, $scope.selectedReq);
+                                }
+                            });
+                        $mdDialog.show(
+                            $mdDialog.alert()
+                                .parent(angular.element(document.body))
+                                .clickOutsideToClose(true)
+                                .title('Documento eliminado')
+                                .textContent('El documento fue eliminado exitosamente.')
+                                .ariaLabel('Successful document removal dialog')
+                                .ok('Ok')
+                                .targetEvent(ev)
+                        );
+                    } else {
+                        $mdDialog.show(
+                            $mdDialog.alert()
+                                .parent(angular.element(document.body))
+                                .clickOutsideToClose(true)
+                                .title('Oops!')
+                                .textContent('Ha ocurrido un error en el sistema. Por favor intente más tarde')
+                                .ariaLabel('Failed document removal dialog')
+                                .ok('Ok')
+                                .targetEvent(ev)
+                        );
+                    }
+                });
+        });
     };
 
-    $scope.deleteRequest = function(ev) {
+    $scope.deleteRequest = function (ev) {
         var confirm = $mdDialog.confirm()
             .title('Confirmación de eliminación')
             .textContent('Al eliminar la solicitud, también eliminará todos sus documentos.')
@@ -793,52 +796,52 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
             .targetEvent(ev)
             .ok('Continuar')
             .cancel('Cancelar');
-            $mdDialog.show(confirm).then(function() {
-                $http.post('index.php/home/AgentHomeController/deleteRequest',
-                    JSON.stringify($scope.requests[$scope.selectedReq]))
-                    .then(function(response) {
-                        console.log(response)
-                        if (response.data.message == "success") {
-                            // Update the view.
-                            $scope.docs = [];
-                            $http.get('index.php/home/AgentHomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
-                                .then(function (response) {
-                                    if (response.data.message === "success") {
-                                        // Update content
-                                        updateContent(response.data.requests, -1);
-                                        toggleReqList();
-                                    }
-                                });
-                                $mdDialog.show(
-                                    $mdDialog.alert()
-                                        .parent(angular.element(document.body))
-                                        .clickOutsideToClose(true)
-                                        .title('Solicitud eliminada')
-                                        .textContent('La solicitud fue eliminada exitosamente.')
-                                        .ariaLabel('Successful request removal dialog')
-                                        .ok('Ok')
-                                        .targetEvent(ev)
-                                );
-                        } else {
-                            $mdDialog.show(
-                                $mdDialog.alert()
-                                    .parent(angular.element(document.body))
-                                    .clickOutsideToClose(true)
-                                    .title('Oops!')
-                                    .textContent('Ha ocurrido un error en el sistema. Por favor intente más tarde.')
-                                    .ariaLabel('Failed request removal dialog')
-                                    .ok('Ok')
-                                    .targetEvent(ev)
-                            );
-                        }
-                    });
-            });
+        $mdDialog.show(confirm).then(function () {
+            $http.post('index.php/home/AgentHomeController/deleteRequest',
+                JSON.stringify($scope.requests[$scope.selectedReq]))
+                .then(function (response) {
+                    console.log(response)
+                    if (response.data.message == "success") {
+                        // Update the view.
+                        $scope.docs = [];
+                        $http.get('index.php/home/AgentHomeController/getUserRequests', {params: {fetchId: $scope.fetchId}})
+                            .then(function (response) {
+                                if (response.data.message === "success") {
+                                    // Update content
+                                    updateContent(response.data.requests, -1);
+                                    toggleReqList();
+                                }
+                            });
+                        $mdDialog.show(
+                            $mdDialog.alert()
+                                .parent(angular.element(document.body))
+                                .clickOutsideToClose(true)
+                                .title('Solicitud eliminada')
+                                .textContent('La solicitud fue eliminada exitosamente.')
+                                .ariaLabel('Successful request removal dialog')
+                                .ok('Ok')
+                                .targetEvent(ev)
+                        );
+                    } else {
+                        $mdDialog.show(
+                            $mdDialog.alert()
+                                .parent(angular.element(document.body))
+                                .clickOutsideToClose(true)
+                                .title('Oops!')
+                                .textContent('Ha ocurrido un error en el sistema. Por favor intente más tarde.')
+                                .ariaLabel('Failed request removal dialog')
+                                .ok('Ok')
+                                .targetEvent(ev)
+                        );
+                    }
+                });
+        });
     };
 
     /*
-    * Mini custom dialog to edit a document's description
-    */
-    $scope.editDescription = function($event, doc) {
+     * Mini custom dialog to edit a document's description
+     */
+    $scope.editDescription = function ($event, doc) {
         var parentEl = angular.element(document.body);
         $mdDialog.show({
             parent: parentEl,
@@ -855,14 +858,14 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
         function DialogController($scope, $mdDialog, doc) {
             $scope.doc = doc;
 
-            $scope.saveEdition = function() {
+            $scope.saveEdition = function () {
                 $http.post('index.php/documents/EditRequestController/updateDocDescription', JSON.stringify(doc));
                 $mdDialog.hide();
             }
         }
     };
 
-    $scope.loadHistory = function() {
+    $scope.loadHistory = function () {
         // Save data before going to history page
         sessionStorage.setItem("requests", JSON.stringify($scope.requests));
         sessionStorage.setItem("fetchId", $scope.fetchId);
@@ -873,33 +876,33 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
 
     };
 
-    $scope.downloadDoc = function(doc) {
+    $scope.downloadDoc = function (doc) {
         window.open('index.php/home/UserHomeController/download?lpath=' + doc.lpath, '_blank');
     };
 
-    $scope.downloadAll = function() {
+    $scope.downloadAll = function () {
         // Bits of pre-processing before passing objects to URL
         var paths = new Array();
-        angular.forEach($scope.docs, function(doc) {
+        angular.forEach($scope.docs, function (doc) {
             paths.push(doc.lpath);
         });
         location.href = 'index.php/home/UserHomeController/downloadAll?docs=' + JSON.stringify(paths);
     };
 
-    $scope.loadUserData = function() {
+    $scope.loadUserData = function () {
         sessionStorage.setItem("fetchId", $scope.fetchId);
         window.open('http://localhost:8080/sgdp/#/userInfo', '_blank');
     };
 
-    $scope.openMenu = function() {
-       $mdSidenav('left').toggle();
+    $scope.openMenu = function () {
+        $mdSidenav('left').toggle();
     };
 
-    $scope.showHelp = function() {
+    $scope.showHelp = function () {
         var options = {
-            showNavigation : true,
-            showCloseBox : true,
-            delay : -1,
+            showNavigation: true,
+            showCloseBox: true,
+            delay: -1,
             tripTheme: "dark",
             prevLabel: "Anterior",
             nextLabel: "Siguiente",
@@ -927,10 +930,12 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
      */
     function showSearchbarHelp(options) {
         var tripToShowNavigation = new Trip([
-            { sel : $("#search"),
-                content : "Ingrese la cédula de identidad de algún afiliado para " +
+            {
+                sel: $("#search"),
+                content: "Ingrese la cédula de identidad de algún afiliado para " +
                 "gestionar sus solicitudes.",
-                position : "s", animation: 'fadeInDown' }
+                position: "s", animation: 'fadeInDown'
+            }
         ], options);
         tripToShowNavigation.start();
     }
@@ -941,10 +946,12 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
      */
     function showMobileSearchbarHelp(options) {
         var tripToShowNavigation = new Trip([
-            { sel : $("#toggle-search"),
-                content : "Haga click en la lupa e ingrese la cédula de identidad " +
+            {
+                sel: $("#toggle-search"),
+                content: "Haga click en la lupa e ingrese la cédula de identidad " +
                 "de algún afiliado para gestionar sus solicitudes.",
-                position : "w", animation: 'fadeInDown' }
+                position: "w", animation: 'fadeInDown'
+            }
         ], options);
         tripToShowNavigation.start();
     }
@@ -957,52 +964,66 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
         if ($mdSidenav('left').isLockedOpen()) {
             options.showHeader = true;
             var tripToShowNavigation = new Trip([
-                { sel : $("#requests-list"),
-                    content : "Consulte datos de interés del afiliado, o seleccione " +
+                {
+                    sel: $("#requests-list"),
+                    content: "Consulte datos de interés del afiliado, o seleccione " +
                     "alguna de sus solicitudes en la lista para ver más detalles.",
-                    position : "e", expose : true, header: "Panel de navegación", animation: 'fadeInUp' },
-                { sel : $("#new-req-fab"),
-                    content : "También puede abrir una solicitud haciendo click aquí",
-                    position : "w", expose : true, header: "Nueva solicitud", animation: 'fadeInUp' }
+                    position: "e", expose: true, header: "Panel de navegación", animation: 'fadeInUp'
+                },
+                {
+                    sel: $("#new-req-fab"),
+                    content: "También puede abrir una solicitud haciendo click aquí",
+                    position: "w", expose: true, header: "Nueva solicitud", animation: 'fadeInUp'
+                }
             ], options);
             tripToShowNavigation.start();
         } else {
             var tripToShowNavigation = new Trip([
-                { sel : $("#nav-panel"),
-                    content : "Haga click en el ícono para abrir el panel de navegación," +
+                {
+                    sel: $("#nav-panel"),
+                    content: "Haga click en el ícono para abrir el panel de navegación," +
                     " donde podrá consultar datos del afiliado o gestionar sus solicitudes.",
-                    position : "e", animation: 'fadeInUp'}
+                    position: "e", animation: 'fadeInUp'
+                }
             ], options);
             tripToShowNavigation.start();
         }
     }
 
-     /**
-      * Shows tour-based help of selected request details section.
-      * @param options: Obj containing tour.js options
-      */
+    /**
+     * Shows tour-based help of selected request details section.
+     * @param options: Obj containing tour.js options
+     */
     function showRequestHelp(options) {
         options.showHeader = true;
         // options.showSteps = true;
         var tripToShowNavigation = new Trip([
             // Request summary information
-            { sel : $("#request-summary"), content : "Aquí se muestra información acerca de " +
-                "la fecha de creación, monto solicitado, y un comentario de haberlo realizado.",
-                position : "s", header: "Resumen de la solicitud", expose : true },
+            {
+                sel: $("#request-summary"), content: "Aquí se muestra información acerca de " +
+            "la fecha de creación, monto solicitado, y un comentario de haberlo realizado.",
+                position: "s", header: "Resumen de la solicitud", expose: true
+            },
             // Request status information
-            { sel : $("#request-status-summary"), content : "Esta sección provee información " +
-                "acerca del estatus de la solicitud.",
-                position : "s", header: "Resumen de estatus", expose : true, animation: 'fadeInDown' },
+            {
+                sel: $("#request-status-summary"), content: "Esta sección provee información " +
+            "acerca del estatus de la solicitud.",
+                position: "s", header: "Resumen de estatus", expose: true, animation: 'fadeInDown'
+            },
             // Request documents information
-            { sel : $("#request-docs"), content : "Éste y los siguientes items contienen " +
-                "el nombre y, de existir, una descripción de cada documento en la solicitud. " +
-                "Puede verlos/descargarlos haciendo click encima de ellos.",
-                position : "s", header: "Documentos", expose : true, animation: 'fadeInDown' },
+            {
+                sel: $("#request-docs"), content: "Éste y los siguientes items contienen " +
+            "el nombre y, de existir, una descripción de cada documento en la solicitud. " +
+            "Puede verlos/descargarlos haciendo click encima de ellos.",
+                position: "s", header: "Documentos", expose: true, animation: 'fadeInDown'
+            },
             // Request documents actions
-            { sel : $("#request-docs-actions"), content : "Siendo un documento adicional, " +
-                "puede hacer click en el botón de opciones para proveer una descripción, " +
-                "descargarlos o incluso eliminarlos.",
-                position : "w", header: "Documentos", expose : true, animation: 'fadeInLeft' },
+            {
+                sel: $("#request-docs-actions"), content: "Siendo un documento adicional, " +
+            "puede hacer click en el botón de opciones para proveer una descripción, " +
+            "descargarlos o incluso eliminarlos.",
+                position: "w", header: "Documentos", expose: true, animation: 'fadeInLeft'
+            },
         ], options);
         if ($scope.docs.length < 2) {
             // This request hasn't additional documents.
@@ -1011,25 +1032,29 @@ function agentHome($scope, $rootScope, $mdDialog, Upload, $cookies, $http, $stat
         if ($mdSidenav('left').isLockedOpen()) {
             tripToShowNavigation.tripData.push(
                 // Download as zip information
-                { sel : $("#request-summary-actions"), content : "Puede ver el historial de la solicitud, " +
-                    "editarla (si la solicitud no se ha cerrado), o descargar todos " +
-                    "sus documentos presionando el botón correspondiente.",
-                    position : "w", header: "Acciones", expose : true, animation: 'fadeInLeft' }
+                {
+                    sel: $("#request-summary-actions"), content: "Puede ver el historial de la solicitud, " +
+                "editarla (si la solicitud no se ha cerrado), o descargar todos " +
+                "sus documentos presionando el botón correspondiente.",
+                    position: "w", header: "Acciones", expose: true, animation: 'fadeInLeft'
+                }
             );
         } else {
             tripToShowNavigation.tripData.push(
                 // Download as zip information request-summary-actions-menu
-                { sel : $("#request-summary-actions-menu"), content : "Haga click en el botón de opciones para " +
-                    "ver el historial de la solicitud, editarla (si la solicitud no se ha cerrado)" +
-                    ", o descargar todos sus documentos.",
-                    position : "w", header: "Acciones", expose : true, animation: 'fadeInLeft' }
+                {
+                    sel: $("#request-summary-actions-menu"), content: "Haga click en el botón de opciones para " +
+                "ver el historial de la solicitud, editarla (si la solicitud no se ha cerrado)" +
+                ", o descargar todos sus documentos.",
+                    position: "w", header: "Acciones", expose: true, animation: 'fadeInLeft'
+                }
             );
         }
         tripToShowNavigation.start();
     }
 
     // Enables / disables search bar (for mobile screens)
-    $scope.toggleSearch = function() {
+    $scope.toggleSearch = function () {
         $scope.searchEnabled = !$scope.searchEnabled;
     };
 }

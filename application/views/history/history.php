@@ -6,7 +6,7 @@
             </md-icon>
         </md-button>
         <h2 style="padding-right:10px;" class="md-headline">
-            <span>SGDP</span>
+            <span>{{appName}}</span>
         </h2>
         <!-- Filter search bar -->
         <div id="filter" hide-xs flex class="search-wrapper">

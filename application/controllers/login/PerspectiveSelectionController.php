@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 include (APPPATH. '/libraries/ChromePhp.php');
 
-class PerspectiveSelection extends CI_Controller {
+class PerspectiveSelectionController extends CI_Controller {
 
     public function __construct() {
         parent::__construct();

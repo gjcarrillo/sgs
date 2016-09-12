@@ -2,10 +2,10 @@ angular
     .module('sgdp')
     .controller('UserHomeController', userHome);
 
-userHome.$inject = ['$scope', '$rootScope', '$http', '$cookies', '$timeout',
+userHome.$inject = ['$scope', '$http', '$cookies', '$timeout',
     '$mdSidenav', '$mdDialog', 'Upload'];
 
-function userHome($scope, $rootScope, $http, $cookies, $timeout,
+function userHome($scope, $http, $cookies, $timeout,
     $mdSidenav, $mdDialog, Upload) {
     'use strict';
     $scope.loading = true;

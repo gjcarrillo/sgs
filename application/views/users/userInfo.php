@@ -1,7 +1,7 @@
 <md-toolbar layout-padding>
     <div class="md-toolbar-tools">
         <h2 class="md-headline">
-            <span>SGDP</span>
+            <span>{{appName}}</span>
         </h2>
         <span flex></span>
         <md-button class="md-icon-button" ng-click="showHelp()" aria-label="Help">

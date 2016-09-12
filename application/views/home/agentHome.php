@@ -11,7 +11,7 @@
             <md-icon>menu</md-icon>
         </md-button>
         <h2 style="padding-right:10px;" class="md-headline">
-            <span>SGDP</span>
+            <span>{{appName}}</span>
         </h2>
         <!-- Search bar -->
         <div id="search" hide-xs flex class="search-wrapper">
@@ -28,9 +28,14 @@
                     placeholder="Ingrese una cédula"
                     aria-label="Search"
                     ng-model="searchInput"
-                    ng-keyup="$event.keyCode == 13 && fetchRequests(searchInput)"
+                    ng-keyup="$event.keyCode == 13 &&
+                        fetchRequests(searchInput)"
                     type="text" />
-                <md-icon ng-click="fetchRequests(searchInput)" class="search-icon">search</md-icon>
+                <md-icon
+                    ng-click="fetchRequests(searchInput)"
+                    class="search-icon">
+                    search
+                </md-icon>
             </div>
             <md-tooltip md-direction="right">Ej: 123456789</md-tooltip>
         </div>
@@ -39,7 +44,12 @@
             <md-icon style="color:#2196F3">insert_drive_file</md-icon>
             <md-tooltip md-direction="left">Generar PDF</md-tooltip>
         </md-button> -->
-        <md-button id="toggle-search" class="md-icon-button" hide show-xs ng-click="toggleSearch()" aria-label="Search">
+        <md-button
+            id="toggle-search"
+            class="md-icon-button"
+            hide show-xs
+            ng-click="toggleSearch()"
+            aria-label="Search">
             <md-icon>search</md-icon>
             <md-tooltip md-direction="bottom">Buscar</md-tooltip>
         </md-button>
