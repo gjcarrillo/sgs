@@ -10,7 +10,7 @@ footer {
     background-color: #EEEEEE;
 }
 
-.main-w-footer {
+.main-w-footer, .full-content-height {
     /*129 = aprox. toolbar + footer height */
   min-height: calc(100vh - 129px);
 }
@@ -42,17 +42,14 @@ footer {
     margin-bottom: 30px;
 }
 
-.full-contet-height {
-    height: calc(100vh - 129px);
-}
-
 .information-card {
     max-width: 75%;
     background-color: #fff;
 }
 
 .statistics-card {
-    width: 30vw;
+    width: auto;
+    height: auto;
     background-color: #fff;
 }
 
@@ -91,13 +88,6 @@ footer {
 }
 
 .watermark {
-    opacity:0.3;
-}
-
-.watermark2 {
-    padding-top: calc(20vh);
-    padding-left: calc(22vw);
-    background-color: #EEEEEE;
     opacity:0.3;
 }
 
@@ -233,7 +223,7 @@ md-select.no-md-select .md-select-value {
     color: #0D47A1;
 }
 
-@media screen and (max-width: 960px) {
+@media screen and (max-width: 959px) {
     .login-card {
         width: 60%;
         margin-bottom: 20px;
@@ -241,10 +231,6 @@ md-select.no-md-select .md-select-value {
 
     .sidenav-height {
         height: calc(100vh - 5px);
-    }
-
-    .statistics-card {
-        width: 60vw;
     }
 }
 
@@ -257,7 +243,36 @@ md-select.no-md-select .md-select-value {
     .history-card {
         width: 90%;
     }
+
     .help-card {
         max-width: 90%;
+    }
+}
+
+/** Mobile landscape **/
+@media only screen and (max-width: 959px) and
+    (min-width: 0) and
+    (orientation: landscape) {
+    .main-w-footer, .full-content-height {
+        /*
+         * Toolbar is now 64 px height
+         * (for tablet/desktop it was 80px)
+         * 113 = aprox. toolbar + footer height
+         */
+        min-height: calc(100vh - 113px);
+    }
+}
+
+/** Mobile portrait **/
+@media only screen and (max-width: 959px) and
+    (min-width: 0) and
+    (orientation: portrait) {
+    .main-w-footer, .full-content-height {
+        /*
+         * Toolbar is now 72 px height
+         * (for tablet/desktop it was 80px)
+         * 113 = aprox. toolbar + footer height
+         */
+        min-height: calc(100vh - 121px);
     }
 }

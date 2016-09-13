@@ -469,20 +469,26 @@
     <div layout="column" flex>
         <main class="main-w-footer">
             <!-- Watermark -->
-            <div class="full-contet-height" layout layout-align="center center"
-                ng-if="docs.length == 0 && !loadingContent && !showApprovedAmount && !pieloaded && pieError == ''">
+            <div
+                class="full-content-height"
+                layout layout-align="center center"
+                ng-if="docs.length == 0 &&
+                    !loadingContent &&
+                    !showApprovedAmount &&
+                    !pieloaded &&
+                    pieError == ''">
                 <div class="watermark" layout="column" layout-align="center center">
                     <img src="images/ipapedi.png" alt="Ipapedi logo"/>
                 </div>
             </div>
             <!-- Content pre loader -->
-            <div layout layout-align="center center" class="full-contet-height" ng-if="loadingContent">
+            <div layout layout-align="center center" class="full-content-height" ng-if="loadingContent">
                 <div layout="column" layout-align="center center">
                     <md-progress-circular md-mode="indeterminate" md-diameter="80"></md-progress-circular>
                 </div>
             </div>
             <!-- Pie chart statistics result -->
-            <div layout layout-align="center center" class="full-contet-height"
+            <div layout layout-align="center center" class="full-content-height"
                 ng-show="pieloaded && docs.length == 0 &&  pieError == ''">
                 <div
                     id="piechart-tour"
@@ -498,7 +504,9 @@
                             class="md-icon-button"
                             ng-click="generateExcelReport()">
                             <md-icon>assignment</md-icon>
-                            <md-tooltip md-direction="top">Generar reporte</md-tooltip>
+                            <md-tooltip md-direction="top">
+                                Generar reporte
+                            </md-tooltip>
                         </md-button>
                         <md-progress-circular
                             ng-show="loadingReport"
@@ -511,7 +519,7 @@
             </div>
             <!-- Pie error -->
             <div
-                class="full-contet-height"
+                class="full-content-height"
                 ng-if="pieError != '' && docs.length == 0"
                 layout layout-align="center center"
                 class="md-padding">
@@ -520,7 +528,7 @@
                 </div>
             </div>
             <!-- Approved amount result -->
-            <div layout layout-align="center center" class="full-contet-height" ng-if="showApprovedAmount">
+            <div layout layout-align="center center" class="full-content-height" ng-if="showApprovedAmount">
                 <div
                     layout="column"
                     layout-align="center center"

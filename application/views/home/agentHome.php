@@ -146,7 +146,7 @@
         <main class="main-w-footer">
             <!-- Search error -->
             <div
-                class="full-contet-height"
+                class="full-content-height"
                 ng-if="fetchError != ''"
                 layout layout-align="center center"
                 class="md-padding">
@@ -157,8 +157,8 @@
             <!-- Watermark -->
             <div
                 ng-if="fetchError == '' && docs.length == 0"
-                class="full-contet-height"
-                layout layout-align="center center">
+                class="full-content-height"
+                layout="column" layout-align="center center">
                 <div class="watermark" layout="column" layout-align="center center">
                     <img src="images/ipapedi.png" alt="Ipapedi logo"/>
                 </div>
