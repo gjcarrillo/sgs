@@ -59,11 +59,7 @@ class EditRequestController extends CI_Controller {
 				}
 				$em->merge($request);
 				$em->flush();
-				if (isset($history)) {
-					// Must do it after flushing, so we can get
-					// the database-generated id
-					$result['historyId'] = $history->getId();
-				}
+				$this->addDocuments($request, $history->getId(), $data['newDocs']);
 				$em->clear();
 				$result['message'] = "success";
 			} catch (Exception $e) {
@@ -72,6 +68,54 @@ class EditRequestController extends CI_Controller {
 			}
 
 			echo json_encode($result);
+		}
+	}
+
+	// Helper function that adds a set of docs to a request in database.
+	private function addDocuments($request, $historyId, $docs) {
+		try {
+			$em = $this->doctrine->em;
+			foreach ($docs as $data) {
+				$doc = $em->getRepository('\Entity\Document')->findOneBy(array(
+					"lpath" => $data['lpath']
+				));
+				if ($doc !== null) {
+					// doc already exists, so just merge. Otherwise we'll have
+					// 'duplicates' in database, because document name is not unique
+					if (isset($data['description'])) {
+						$doc->setDescription($data['description']);
+						$em->merge($doc);
+					}
+				} else {
+					// New document
+					$doc = new \Entity\Document();
+					$doc->setName($data['docName']);
+					if (isset($data['description'])) {
+						$doc->setDescription($data['description']);
+					}
+					$doc->setLpath($data['lpath']);
+					$doc->setBelongingRequest($request);
+					$request->addDocument($doc);
+
+					$em->persist($doc);
+					$em->merge($request);
+				}
+				// Set History action for this request's corresponding history
+				$history =  $em->find('\Entity\History', $historyId);
+				$action = new \Entity\HistoryAction();
+				$action->setSummary("Adición del documento '" . $data['docName'] . "'.");
+				if (isset($data['description']) && $data['description'] !== "") {
+					$action->setDetail("Descripción: " . $data['description']);
+				}
+				$action->setBelongingHistory($history);
+				$history->addAction($action);
+				$em->persist($action);
+				$em->merge($history);
+			}
+			$em->flush();
+		} catch (Exception $e) {
+			\ChromePhp::log($e);
+			$result['message'] = "error";
 		}
 	}
 

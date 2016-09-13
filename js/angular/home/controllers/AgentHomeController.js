@@ -70,7 +70,8 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
         $scope.loading = true;
         $scope.docs = [];
         $scope.fetchError = "";
-        $http.get('index.php/home/AgentHomeController/getUserRequests', {params: {fetchId: $scope.fetchId}})
+        $http.get('index.php/home/AgentHomeController/getUserRequests',
+            {params: {fetchId: $scope.fetchId}})
             .then(function (response) {
                 $scope.maxReqAmount = response.data.maxReqAmount;
                 if (response.data.message === "success") {
@@ -109,7 +110,7 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
             locals: {
                 fetchId: $scope.fetchId,
                 maxReqAmount: $scope.maxReqAmount,
-                requestNumb: $scope.requests.length
+                requestNumb: $scope.requests.length + 1
             },
             controller: DialogController
         });
@@ -218,11 +219,14 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
                                 performCreation(0);
                             }
                         } else {
-                            console.log("???")
+                            console.log("Image upload error!")
+                            console.log(response);
                         }
                     });
             }
 
+            // Helper function that generates image data upon
+            // specified type of data.
             function generateImageData(type) {
                 var imageData = "";
                 var docName = "";
@@ -245,6 +249,7 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
                 };
             }
 
+            // Helper function that performs the document's creation.
             function performCreation(autoSelectIndex) {
                 var postData = {
                     userId: fetchId,
@@ -255,37 +260,10 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
                     JSON.stringify(postData))
                     .then(function (response) {
                         if (response.status == 200) {
-                            updateRequestListUI(autoSelectIndex,
+                            updateRequestListUI(fetchId, autoSelectIndex,
                                 'Solicitud creada',
-                                'La solicitud ha sido creada exitosamente.')
-                        }
-                    });
-            }
-
-            function updateRequestListUI(autoSelectIndex, dialogTitle,
-                                        dialogContent) {
-                // Update interface
-                $http.get('index.php/home/AgentHomeController/getUserRequests',
-                    {params: {fetchId: fetchId}})
-                    .then(function (response) {
-                        if (response.status == 200) {
-                            updateContent(response.data.requests,
-                                autoSelectIndex);
-                            toggleReqList();
-                            // Close dialog and alert user that operation was
-                            // successful
-                            $mdDialog.hide();
-                            $mdDialog.show(
-                                $mdDialog.alert()
-                                    .parent(angular.element(document.body))
-                                    .clickOutsideToClose(true)
-                                    .title(dialogTitle)
-                                    .textContent(dialogContent)
-                                    .ariaLabel(dialogTitle)
-                                    .ok('Ok')
-                            );
-                        } else {
-                            console.log("REFRESHING ERROR!");
+                                'La solicitud ha sido creada exitosamente.',
+                                true, true);
                         }
                     });
             }
@@ -521,10 +499,53 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
         }
     };
 
+    // Helper method that updates UI's request list.
+    function updateRequestListUI(userId, autoSelectIndex,
+                                dialogTitle, dialogContent,
+                                updateUI = false, toggleList = false) {
+        // Update interface
+        $http.get('index.php/home/AgentHomeController/getUserRequests',
+            {params: {fetchId: userId}})
+            .then(function (response) {
+                if (response.status == 200) {
+                    // Update UI only if needed
+                    if (updateUI) {
+                        updateContent(response.data.requests,
+                            autoSelectIndex);
+                    }
+                    // Toggle request list only if requested.
+                    if (toggleList) { toggleReqList() };
+                    // Close dialog and alert user that operation was
+                    // successful
+                    $mdDialog.hide();
+                    showAlertDialog(dialogTitle, dialogContent);
+
+                } else {
+                    console.log("REFRESHING ERROR!");
+                    console.log(response);
+                }
+            });
+    }
+
+    // Helper function that shows an alert dialog message
+    // to user.
+    function showAlertDialog(dialogTitle, dialogContent) {
+        $mdDialog.show(
+            $mdDialog.alert()
+                .parent(angular.element(document.body))
+                .clickOutsideToClose(true)
+                .title(dialogTitle)
+                .textContent(dialogContent)
+                .ariaLabel(dialogTitle)
+                .ok('Ok')
+        );
+    }
+
     // Helper function that updates content with new request
     function updateContent(requests, selection) {
-        $scope.requests = requests;
-        // Automatically select created request
+        $scope.requests = typeof requests !== "undefined" ?
+            requests : [];
+        // Automatically select specified request
         $scope.selectRequest(selection);
     }
 
@@ -552,12 +573,14 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
             locals: {
                 fetchId: $scope.fetchId,
                 request: $scope.requests[$scope.selectedReq],
-                selectedReq: $scope.selectedReq
+                selectedReq: $scope.selectedReq,
+                totalReq: $scope.requests.length
             },
             controller: DialogController
         });
         // Isolated dialog controller
-        function DialogController($scope, $mdDialog, fetchId, request, selectedReq) {
+        function DialogController($scope, $mdDialog, fetchId, request,
+                selectedReq, totalReq) {
             $scope.files = [];
             $scope.selectedReq = selectedReq;
             $scope.fetchId = fetchId;
@@ -610,76 +633,65 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
             $scope.updateRequest = function () {
                 $scope.uploading = true;
                 $scope.request.comment = $scope.comment;
-                $http.post('index.php/documents/EditRequestController/updateRequest', JSON.stringify($scope.request))
+                if ($scope.files.length === 0) {
+                    performEdition($scope.request);
+                } else {
+                    // Add additional files to this request.
+                    uploadFiles($scope.fetchId);
+                }
+            };
+
+            // Performs the request edition update in DB
+            function performEdition(postData) {
+                $http.post('index.php/documents/EditRequestController/updateRequest',
+                    JSON.stringify(postData))
                     .then(function (response) {
-                        if (response.data.message === "success") {
-                            if ($scope.files.length === 0) {
-                                // Close dialog and alert user that operation was successful
-                                $mdDialog.hide();
-                                $mdDialog.show(
-                                    $mdDialog.alert()
-                                        .parent(angular.element(document.body))
-                                        .clickOutsideToClose(true)
-                                        .title('Solicitud actualizada')
-                                        .textContent('La solicitud fue actualizada exitosamente.')
-                                        .ariaLabel('Successful request update dialog')
-                                        .ok('Ok')
-                                );
-                            } else {
-                                uploadFiles($scope.fetchId, $scope.request.id, response.data.historyId);
-                            }
+                        if (response.status == 200) {
+                            var updateContent = $scope.files.length > 0;
+                            updateRequestListUI(fetchId, selectedReq,
+                                'Solicitud actualizada',
+                                'La solicitud fue actualizada exitosamente.',
+                                updateContent, false);
                         } else {
-                            console.log("FAILED!");
+                            console.log(respnse.data);
                         }
                     });
-            };
+            }
 
             // Uploads each of selected documents to the server
             // and updates database
-            function uploadFiles(userId, requestId, historyId) {
+            function uploadFiles(userId) {
+                // Notifies whether all files were successfully uploaded.
                 var uploadedFiles = new Array($scope.files.length).fill(false);
+                // Will contain docs to create in DB
+                var docs = new Array();
+
                 angular.forEach($scope.files, function (file, index) {
                     file.upload = Upload.upload({
                         url: 'index.php/documents/NewRequestController/upload',
-                        data: {file: file, userId: userId, requestId: requestId}
+                        data: {
+                            file: file,
+                            userId: userId,
+                            // Req list UI is ordered from newest to oldest
+                            requestNumb: totalReq - selectedReq
+                        }
                     });
                     file.upload.then(function (response) {
-                        var fileData = {};
-                        fileData.lpath = response.data.lpath;
-                        fileData.requestId = requestId;
-                        fileData.historyId = historyId;
-                        fileData.description = file.description;
-                        // file.name is not passed through GET. Gotta create new property
-                        fileData.docName = file.name;
-                        // Doc successfully uploaded. Now create it on database.
-                        console.log(fileData);
-                        $http.post('index.php/documents/NewRequestController/createDocument', JSON.stringify(fileData))
-                            .then(function (response) {
-                                if (response.data.message == "success") {
-                                    uploadedFiles[index] = true;
-                                    if (uploadsFinished(uploadedFiles)) {
-                                        // Update interface
-                                        $http.get('index.php/home/AgentHomeController/getUserRequests', {params: {fetchId: $scope.fetchId}})
-                                            .then(function (response) {
-                                                if (response.data.message === "success") {
-                                                    updateContent(response.data.requests, $scope.selectedReq);
-                                                    console.log(response.data.requests);
-                                                    // Close dialog and alert user that operation was successful
-                                                    $mdDialog.hide();
-                                                    $mdDialog.show(
-                                                        $mdDialog.alert()
-                                                            .parent(angular.element(document.body))
-                                                            .clickOutsideToClose(true)
-                                                            .title('Solicitud actualizada')
-                                                            .textContent('La solicitud fue actualizada exitosamente.')
-                                                            .ariaLabel('Successful request update dialog')
-                                                            .ok('Ok')
-                                                    );
-                                                }
-                                            });
-                                    }
-                                }
-                            });
+                        // Register upload success
+                        uploadedFiles[index] = true;
+                        // Add document info
+                        docs.push({
+                            lpath: response.data.lpath,
+                            description: file.description,
+                            docName: file.name
+                        });
+                        if (uploadsFinished(uploadedFiles)) {
+                            // Perform database operation if all files
+                            // were successfully uploaded.
+                            $scope.request.newDocs = docs;
+                            console.log($scope.request);
+                            performEdition($scope.request);
+                        }
                     }, function (response) {
                         if (response.status > 0) {
                             // Show file error message
@@ -752,7 +764,9 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
     $scope.deleteDoc = function (ev, dKey) {
         var confirm = $mdDialog.confirm()
             .title('Confirmación de eliminación')
-            .textContent("El documento " + $scope.requests[$scope.selectedReq].docs[dKey].name + " será eliminado.")
+            .textContent("El documento " +
+                $scope.requests[$scope.selectedReq].docs[dKey].name +
+                " será eliminado.")
             .ariaLabel('Document removal warning')
             .targetEvent(ev)
             .ok('Continuar')
@@ -763,34 +777,15 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
                 .then(function (response) {
                     console.log(response)
                     if (response.data.message == "success") {
-                        // Update the view
-                        $http.get('index.php/home/AgentHomeController/getUserRequests', {params: {fetchId: $scope.fetchId}})
-                            .then(function (response) {
-                                if (response.data.message === "success") {
-                                    updateContent(response.data.requests, $scope.selectedReq);
-                                }
-                            });
-                        $mdDialog.show(
-                            $mdDialog.alert()
-                                .parent(angular.element(document.body))
-                                .clickOutsideToClose(true)
-                                .title('Documento eliminado')
-                                .textContent('El documento fue eliminado exitosamente.')
-                                .ariaLabel('Successful document removal dialog')
-                                .ok('Ok')
-                                .targetEvent(ev)
-                        );
+                        // Update interface
+                        updateRequestListUI($scope.fetchId, $scope.selectedReq,
+                            'Documento eliminado',
+                            'El documento fue eliminado exitosamente.',
+                            true, false);
                     } else {
-                        $mdDialog.show(
-                            $mdDialog.alert()
-                                .parent(angular.element(document.body))
-                                .clickOutsideToClose(true)
-                                .title('Oops!')
-                                .textContent('Ha ocurrido un error en el sistema. Por favor intente más tarde')
-                                .ariaLabel('Failed document removal dialog')
-                                .ok('Ok')
-                                .targetEvent(ev)
-                        );
+                        showAlertDialog('Oops!',
+                                        'Ha ocurrido un error en el sistema. ' +
+                                        'Por favor intente más tarde');
                     }
                 });
         });
@@ -799,7 +794,8 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
     $scope.deleteRequest = function (ev) {
         var confirm = $mdDialog.confirm()
             .title('Confirmación de eliminación')
-            .textContent('Al eliminar la solicitud, también eliminará todos sus documentos.')
+            .textContent('Al eliminar la solicitud, también eliminará ' +
+            'todos sus documentos.')
             .ariaLabel('Request removal warning')
             .targetEvent(ev)
             .ok('Continuar')
@@ -810,37 +806,16 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
                 .then(function (response) {
                     console.log(response)
                     if (response.data.message == "success") {
-                        // Update the view.
+                        // Update interface
                         $scope.docs = [];
-                        $http.get('index.php/home/AgentHomeController/getUserRequests', {params: {fetchId: $scope.fetchId}})
-                            .then(function (response) {
-                                if (response.data.message === "success") {
-                                    // Update content
-                                    updateContent(response.data.requests, -1);
-                                    toggleReqList();
-                                }
-                            });
-                        $mdDialog.show(
-                            $mdDialog.alert()
-                                .parent(angular.element(document.body))
-                                .clickOutsideToClose(true)
-                                .title('Solicitud eliminada')
-                                .textContent('La solicitud fue eliminada exitosamente.')
-                                .ariaLabel('Successful request removal dialog')
-                                .ok('Ok')
-                                .targetEvent(ev)
-                        );
+                        updateRequestListUI($scope.fetchId, -1,
+                            'Solicitud eliminada',
+                            'La solicitud fue eliminada exitosamente.',
+                            true, true);
                     } else {
-                        $mdDialog.show(
-                            $mdDialog.alert()
-                                .parent(angular.element(document.body))
-                                .clickOutsideToClose(true)
-                                .title('Oops!')
-                                .textContent('Ha ocurrido un error en el sistema. Por favor intente más tarde.')
-                                .ariaLabel('Failed request removal dialog')
-                                .ok('Ok')
-                                .targetEvent(ev)
-                        );
+                        showAlertDialog('Oops!',
+                                        'Ha ocurrido un error en el sistema. ' +
+                                        'Por favor intente más tarde');
                     }
                 });
         });
@@ -867,7 +842,9 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
             $scope.doc = doc;
 
             $scope.saveEdition = function () {
-                $http.post('index.php/documents/EditRequestController/updateDocDescription', JSON.stringify(doc));
+                $http.post('index.php/documents/EditRequestController/' +
+                    'updateDocDescription',
+                    JSON.stringify(doc));
                 $mdDialog.hide();
             }
         }

@@ -19,10 +19,12 @@ class NewRequestController extends CI_Controller {
 			// Only agents can upload documents that aren't their own
 			$this->load->view('errors/index.html');
 		} else {
-			$uploadfile = DropPath . $_POST['userId'] . '.' . $_POST['requestNumb'] . '.' . basename($_FILES['file']['name']);
+			$uploadfile = DropPath . $_POST['userId'] . '.' .
+				$_POST['requestNumb'] . '.' . basename($_FILES['file']['name']);
 	        move_uploaded_file($_FILES['file']['tmp_name'], $uploadfile);
 
-	        $result['lpath'] = $_POST['userId'] . '.' . $_POST['requestNumb'] . '.' . basename($_FILES['file']['name']);
+	        $result['lpath'] = $_POST['userId'] . '.' . $_POST['requestNumb'] .
+				'.' . basename($_FILES['file']['name']);
 
 	        echo json_encode($result);
 		}
@@ -49,7 +51,7 @@ class NewRequestController extends CI_Controller {
 				// Register it's corresponding actions
 				$action = new \Entity\HistoryAction();
 				$action->setSummary("Solicitud creada.");
-				$action->setDetail("Estado de la solicitud: Recibida.\n" +
+				$action->setDetail("Estado de la solicitud: Recibida.\n" .
 					"Monto solicitado: Bs " . number_format($data['reqAmount'], 2));
 				$action->setBelongingHistory($history);
 				$history->addAction($action);
@@ -78,7 +80,7 @@ class NewRequestController extends CI_Controller {
     }
 
 	// Helper function that creates a set of docs in database.
-	public function createDocuments($request, $historyId, $docs) {
+	private function createDocuments($request, $historyId, $docs) {
 		try {
 			$em = $this->doctrine->em;
 			foreach ($docs as $data) {
@@ -117,68 +119,13 @@ class NewRequestController extends CI_Controller {
 				$history->addAction($action);
 				$em->persist($action);
 				$em->merge($history);
-				$em->flush();
 			}
+			$em->flush();
 		} catch (Exception $e) {
 			\ChromePhp::log($e);
 			$result['message'] = "error";
 		}
 	}
-
-    public function createDocument() {
-		try {
-			$data = json_decode(file_get_contents('php://input'), true);
-			$em = $this->doctrine->em;
-			$request = $em->find('\Entity\Request', $data['requestId']);
-			if ($request->getUserOwner()->getId() != $_SESSION['id'] && $_SESSION['type'] > 1) {
-				// Only agents can create documents for other people
-				$this->load->view('errors/index.html');
-			} else {
-					$doc = $em->getRepository('\Entity\Document')->findOneBy(array(
-						"lpath"=>$data['lpath']
-					));
-					if ($doc !== null) {
-						// doc already exists, so just merge. Otherwise we'll have
-						// 'duplicates' in database, because document name is not unique
-						if (isset($data['description'])) {
-							$doc->setDescription($data['description']);
-							$em->merge($doc);
-						}
-					} else {
-			            // New document
-			            $doc = new \Entity\Document();
-			            $doc->setName($data['docName']);
-			            if (isset($data['description'])) {
-			                $doc->setDescription($data['description']);
-			            }
-			            $doc->setLpath($data['lpath']);
-			            $doc->setBelongingRequest($request);
-			            $request->addDocument($doc);
-
-			            $em->persist($doc);
-			            $em->merge($request);
-					}
-					// Set History action for this request's corresponding history
-					$history =  $em->find('\Entity\History', $data['historyId']);
-					$action = new \Entity\HistoryAction();
-					$action->setSummary("Adición del documento '" . $data['docName'] . "'.");
-					if (isset($data['description']) && $data['description'] !== "") {
-						$action->setDetail("Descripción: " . $data['description']);
-					}
-					$action->setBelongingHistory($history);
-					$history->addAction($action);
-					$em->persist($action);
-					$em->merge($history);
-					$em->flush();
-					$result['message'] = "success";
-
-			}
-		} catch (Exception $e) {
-			\ChromePhp::log($e);
-			$result['message'] = "error";
-		}
-		echo json_encode($result);
-    }
 
 	public function camera() {
 		if ($_SESSION['type'] != 1) {
@@ -194,13 +141,16 @@ class NewRequestController extends CI_Controller {
 		} else {
 			$data = json_decode(file_get_contents('php://input'), true);
 			$imageData = $data['imageData'];
-			$imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $imageData));
+			$imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i',
+			 	'', $imageData));
 
-			$filepath = DropPath . $data['userId'] . "." . $data['requestNumb'] . "." . $data['docName'] . ".png";
+			$filepath = DropPath . $data['userId'] . "." . $data['requestNumb'] .
+			 	"." . $data['docName'] . ".png";
 			file_put_contents($filepath, $imageData);
 
 			$result['message'] = "success";
-			$result['lpath'] = $data['userId'] . "." . $data['requestNumb'] . "." . $data['docName'] . ".png";
+			$result['lpath'] = $data['userId'] . "." . $data['requestNumb'] .
+			 	"." . $data['docName'] . ".png";
 			echo json_encode($result);
 		}
 	}
