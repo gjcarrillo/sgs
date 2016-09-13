@@ -32,7 +32,8 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
         $scope.searchInput = $scope.fetchId.replace('V', '');
         $scope.selectedReq = parseInt(sessionStorage.getItem("selectedReq"));
         $scope.docs = $scope.requests[$scope.selectedReq].docs;
-        $scope.showList = parseInt(sessionStorage.getItem("showList")) ? true : false;
+        $scope.showList =
+            parseInt(sessionStorage.getItem("showList")) ? true : false;
         $scope.contentAvailable = true;
         $scope.contentLoaded = true;
         // Got back what we wanted -- erase them from storage
@@ -94,7 +95,8 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
     $scope.pad = function (n, width, z) {
         z = z || '0';
         n = n + '';
-        return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+        return n.length >= width ? n :
+            new Array(width - n.length + 1).join(z) + n;
     };
 
 
@@ -133,7 +135,8 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
             };
 
             $scope.missingField = function () {
-                return !$scope.idPicTaken || typeof $scope.model.reqAmount === "undefined";
+                return !$scope.idPicTaken ||
+                    typeof $scope.model.reqAmount === "undefined";
             };
 
             function updateIdPic(dataURL) {
@@ -159,10 +162,11 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
             $scope.gatherFile = function (file, errFiles) {
                 if (file) {
                     $scope.file = file;
-                    $scope.file.description = "Documento explicativo de la solicitud";
+                    $scope.file.description = "Documento explicativo de la " +
+                        "solicitud";
                     $scope.docPicTaken = true;
-                    $scope.errFiles = errFiles;
                 }
+                $scope.errFiles = errFiles;
             };
 
             $scope.removeScannedDoc = function () {
@@ -172,15 +176,18 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
 
             $scope.showError = function (error, param) {
                 if (error === "pattern") {
-                    return "Archivo no aceptado. Por favor seleccione sólo documentos.";
+                    return "Archivo no aceptado. Por favor seleccione " +
+                        "sólo documentos.";
                 } else if (error === "maxSize") {
-                    return "El archivo es muy grande. Tamaño máximo es: " + param;
+                    return "El archivo es muy grande. Tamaño máximo es: " +
+                        param;
                 }
             };
 
             // Creates new request in database and uploads documents
             $scope.createNewRequest = function () {
-                uploadedFiles = new Array($scope.docPicTaken ? 2 : 1).fill(false);
+                uploadedFiles = new Array($scope.docPicTaken ? 2 : 1).
+                    fill(false);
 
                 $scope.uploading = true;
                 // Upload ID image.
@@ -201,7 +208,8 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
             // database.
             function uploadData(data, uploadIndex) {
                 var postData = generateImageData(data);
-                $http.post('index.php/documents/NewRequestController/uploadBase64Images',
+                $http.post('index.php/documents/NewRequestController/' +
+                    'uploadBase64Images',
                     JSON.stringify(postData))
                     .then(function (response) {
                         if (response.status == 200) {
@@ -280,7 +288,11 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
             function uploadFile(file, uploadIndex) {
                 file.upload = Upload.upload({
                     url: 'index.php/documents/NewRequestController/upload',
-                    data: {file: file, userId: fetchId, requestNumb: requestNumb}
+                    data: {
+                        file: file,
+                        userId: fetchId,
+                        requestNumb: requestNumb
+                    }
                 });
 
                 file.upload.then(function (response) {
@@ -514,7 +526,7 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
                             autoSelectIndex);
                     }
                     // Toggle request list only if requested.
-                    if (toggleList) { toggleReqList() };
+                    if (toggleList) { toggleReqList(); }
                     // Close dialog and alert user that operation was
                     // successful
                     $mdDialog.hide();

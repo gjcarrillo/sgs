@@ -42,6 +42,7 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
     $scope.docs = [];
     $scope.fetchError = '';
     $scope.approvalReportError = '';
+    $scope.pie = null;
     $scope.pieError = '';
     $scope.showList = false;
     $scope.showPendingReq = false;
@@ -57,9 +58,11 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
         recoverResult(parseInt(sessionStorage.getItem("showResult")));
         $scope.selectedReq = parseInt(sessionStorage.getItem("selectedReq"));
         $scope.docs = $scope.requests[$scope.selectedReq].docs;
-        $scope.showList = parseInt(sessionStorage.getItem("showList")) ? true : false;
+        $scope.showList =
+            parseInt(sessionStorage.getItem("showList")) ? true : false;
         $scope.showAdvSearch = true;
-        $scope.selectedQuery = parseInt(sessionStorage.getItem("selectedQuery"));
+        $scope.selectedQuery =
+            parseInt(sessionStorage.getItem("selectedQuery"));
         $scope.model.query = parseInt(sessionStorage.getItem("model.query"));
         $scope.showOptions = $scope.showResult == -1 ? true : false;
         // Got back what we wanted -- erase them from storage
@@ -68,14 +71,19 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
         sessionStorage.removeItem("selectedReq");
         sessionStorage.removeItem("showList");
     }
-    // Check if there is stored data for pendingRequests before we went to History
-    var pendingRequests = JSON.parse(sessionStorage.getItem("pendingRequests"));
+    // Check if there is stored data for pendingRequests before we
+    // went to History
+    var pendingRequests =
+        JSON.parse(sessionStorage.getItem("pendingRequests"));
     if (pendingRequests != null) {
         $scope.pendingRequests = pendingRequests;
-        $scope.selectedPendingReq = parseInt(sessionStorage.getItem("selectedPendingReq"));
-        $scope.showPendingReq = parseInt(sessionStorage.getItem("showPendingReq")) ? true : false;
+        $scope.selectedPendingReq =
+            parseInt(sessionStorage.getItem("selectedPendingReq"));
+        $scope.showPendingReq =
+            parseInt(sessionStorage.getItem("showPendingReq")) ? true : false;
         if ($scope.selectedPendingReq != -1) {
-            $scope.docs = $scope.pendingRequests[$scope.selectedPendingReq].docs;
+            $scope.docs =
+                $scope.pendingRequests[$scope.selectedPendingReq].docs;
             $scope.pendingRequests[$scope.selectedPendingReq].showList = (
                 parseInt(sessionStorage.getItem("showReq")) ? true : false
             );
@@ -89,7 +97,8 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
     // Fetch pending requests and automatically show first one to user (if any)
     if ($scope.selectedReq == -1 && $scope.selectedPendingReq == -1) {
         $scope.loadingContent = true;
-        $http.get('index.php/home/ManagerHomeController/fetchRequestsByStatus', {params:{status:"Recibida"}})
+        $http.get('index.php/home/ManagerHomeController/fetchRequestsByStatus',
+            {params:{status:"Recibida"}})
             .then(function (response) {
                 console.log(response);
                 if (response.data.message === "success") {
@@ -108,7 +117,8 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
     function recoverResult(index) {
         if (sessionStorage.getItem("fetchId")) {
             $scope.fetchId = sessionStorage.getItem("fetchId");
-            $scope.model.perform[0].id = parseInt($scope.fetchId.replace('V', ''));
+            $scope.model.perform[0].id =
+                parseInt($scope.fetchId.replace('V', ''));
             sessionStorage.removeItem("fetchId");
         }
         if (sessionStorage.getItem("status")) {
@@ -116,14 +126,26 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
             sessionStorage.removeItem("status");
         }
         if (sessionStorage.getItem("from")) {
-            $scope.model.perform[2].from = moment(sessionStorage.getItem("from"), 'DD/MM/YYYY', true).toDate();
-            $scope.model.perform[2].to = moment(sessionStorage.getItem("to"), 'DD/MM/YYYY', true).toDate();
+            $scope.model.perform[2].from =
+                moment(sessionStorage.getItem("from"),
+                'DD/MM/YYYY', true).toDate();
+            $scope.model.perform[2].to = moment(sessionStorage.getItem("to"),
+                'DD/MM/YYYY', true).toDate();
             sessionStorage.removeItem("from");
             sessionStorage.removeItem("to");
         }
         if (sessionStorage.getItem("date")) {
-            $scope.model.perform[3].date = moment(sessionStorage.getItem("date"), 'DD/MM/YYYY', true).toDate();
+            $scope.model.perform[3].date =
+                moment(sessionStorage.getItem("date"),
+                'DD/MM/YYYY', true).toDate();
             sessionStorage.removeItem("date");
+        }
+        if (sessionStorage.getItem("pie")) {
+            // Retrieve report data
+            $scope.pie = JSON.parse(sessionStorage.getItem("pie"));
+            $scope.report = JSON.parse(sessionStorage.getItem("reportData"));
+            // Re-draw the pie.
+            drawPie($scope.pie);
         }
         $scope.showResult = index;
     }
@@ -132,7 +154,8 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
         resetContent();
         $scope.loading = true;
         $scope.fetchId = $scope.idPrefix + $scope.model.perform[index].id;
-        $http.get('index.php/home/ManagerHomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
+        $http.get('index.php/home/ManagerHomeController/getUserRequests',
+            {params:{fetchId:$scope.fetchId}})
             .then(function (response) {
                 console.log(response);
                 if (response.data.message === "success") {
@@ -141,6 +164,7 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
                     $scope.showResult = index;
                     $scope.pieloaded = true;
                     $scope.report = response.data.report;
+                    $scope.pie = response.data.pie;
                     drawPie(response.data.pie);
                 } else {
                     $scope.fetchError = response.data.error;
@@ -153,7 +177,9 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
     $scope.fetchRequestsByStatus = function(status, index) {
         resetContent();
         $scope.loading = true;
-        $http.get('index.php/home/ManagerHomeController/fetchRequestsByStatus', {params:{status:status}})
+        $http.get('index.php/home/ManagerHomeController/' +
+            'fetchRequestsByStatus',
+            {params:{status:status}})
             .then(function (response) {
                 console.log(response);
                 if (response.data.message === "success") {
@@ -161,6 +187,7 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
                     $scope.showOptions = false;
                     $scope.showResult = index;
                     $scope.pieloaded = true;
+                    $scope.pie = response.data.pie;
                     drawPie(response.data.pie);
                     $scope.report = response.data.report;
                     $scope.report.status = status;
@@ -175,8 +202,10 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
     $scope.fetchRequestsByDateInterval = function(from, to, index) {
         resetContent();
         $scope.loading = true;
-        $http.get('index.php/home/ManagerHomeController/fetchRequestsByDateInterval',
-            {params:{from:moment(from).format('DD/MM/YYYY'), to:moment(to).format('DD/MM/YYYY')}})
+        $http.get('index.php/home/ManagerHomeController/' +
+            'fetchRequestsByDateInterval',
+            {params:{from:moment(from).format('DD/MM/YYYY'),
+                to:moment(to).format('DD/MM/YYYY')}})
             .then(function (response) {
                 console.log(response);
                 if (response.data.message === "success") {
@@ -184,6 +213,7 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
                     $scope.showOptions = false;
                     $scope.showResult = index;
                     $scope.pieloaded = true;
+                    $scope.pie = response.data.pie;
                     drawPie(response.data.pie);
                     $scope.report = response.data.report;
                 } else {
@@ -197,8 +227,10 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
     $scope.fetchRequestsByExactDate = function(date, index) {
         resetContent();
         $scope.loading = true;
-        $http.get('index.php/home/ManagerHomeController/fetchRequestsByDateInterval',
-            {params:{from:moment(date).format('DD/MM/YYYY'), to:moment(date).format('DD/MM/YYYY')}})
+        $http.get('index.php/home/ManagerHomeController/' +
+            'fetchRequestsByDateInterval',
+            {params:{from:moment(date).format('DD/MM/YYYY'),
+                to:moment(date).format('DD/MM/YYYY')}})
             .then(function (response) {
                 console.log(response);
                 if (response.data.message === "success") {
@@ -206,6 +238,7 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
                     $scope.showOptions = false;
                     $scope.showResult = index;
                     $scope.pieloaded = true;
+                    $scope.pie = response.data.pie;
                     drawPie(response.data.pie);
                     $scope.report = response.data.report;
                 } else {
@@ -220,13 +253,16 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
         $mdSidenav('left').toggle();
         resetContent();
         $scope.loadingContent = true;
-        $http.get('index.php/home/ManagerHomeController/getApprovedAmountByDateInterval',
-            {params:{from:moment(from).format('DD/MM/YYYY'), to:moment(to).format('DD/MM/YYYY')}})
+        $http.get('index.php/home/ManagerHomeController/' +
+            'getApprovedAmountByDateInterval',
+            {params:{from:moment(from).format('DD/MM/YYYY'),
+                to:moment(to).format('DD/MM/YYYY')}})
             .then(function (response) {
                 console.log(response);
                 if (response.data.message === "success") {
                     $scope.approvedAmount = response.data.approvedAmount;
-                    $scope.approvedAmountTitle = "Monto aprobado total para el intervalo de fecha especificado:";
+                    $scope.approvedAmountTitle = "Monto aprobado total " +
+                        "para el intervalo de fecha especificado:";
                     $scope.showApprovedAmount = true;
                 } else {
                     $scope.fetchError = response.data.error;
@@ -247,7 +283,8 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
                 console.log(response);
                 if (response.data.message === "success") {
                     $scope.approvedAmount = response.data.approvedAmount;
-                    $scope.approvedAmountTitle = "Monto aprobado total para " + response.data.username + ":";
+                    $scope.approvedAmountTitle = "Monto aprobado total para " +
+                        response.data.username + ":";
                     $scope.showApprovedAmount = true;
                 } else {
                     $scope.fetchError = response.data.error;
@@ -256,12 +293,12 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
             });
     };
 
-    //    console.log(moment().startOf('isoWeek').format('DD/MM/YYYY HH:mm:ss'));
     $scope.getApprovedReportByCurrentWeek = function() {
         $mdSidenav('left').toggle();
         resetContent();
         $scope.loadingReport = true;
-        $http.get('index.php/home/ManagerHomeController/getApprovedReportByCurrentWeek')
+        $http.get('index.php/home/ManagerHomeController/' +
+            'getApprovedReportByCurrentWeek')
             .then(function (response) {
                 console.log(response);
                 if (response.data.message === "success") {
@@ -278,8 +315,10 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
         $mdSidenav('left').toggle();
         resetContent();
         $scope.loadingReport = true;
-        $http.get('index.php/home/ManagerHomeController/getApprovedReportByDateInterval',
-            {params:{from:moment(from).format('DD/MM/YYYY'), to:moment(to).format('DD/MM/YYYY')}})
+        $http.get('index.php/home/ManagerHomeController/' +
+            'getApprovedReportByDateInterval',
+            {params:{from:moment(from).format('DD/MM/YYYY'),
+                to:moment(to).format('DD/MM/YYYY')}})
             .then(function (response) {
                 console.log(response);
                 if (response.data.message === "success") {
@@ -337,24 +376,37 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
     $scope.pad = function(n, width, z) {
         z = z || '0';
         n = n + '';
-        return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+        return n.length >= width ? n :
+            new Array(width - n.length + 1).join(z) + n;
     };
 
     $scope.loadHistory = function() {
         // Save data before going to history page
         if ($scope.selectedReq != -1) {
-            sessionStorage.setItem("requests", JSON.stringify($scope.requests));
+            sessionStorage.setItem("requests",
+                JSON.stringify($scope.requests));
             sessionStorage.setItem("selectedReq", $scope.selectedReq);
             sessionStorage.setItem("showResult", $scope.showResult);
             sessionStorage.setItem("selectedQuery", $scope.selectedQuery);
             sessionStorage.setItem("model.query", $scope.model.query);
             storeResult();
         }
-        sessionStorage.setItem("pendingRequests", JSON.stringify($scope.pendingRequests));
-        sessionStorage.setItem("selectedPendingReq", $scope.selectedPendingReq);
-        sessionStorage.setItem("showPendingReq", $scope.showPendingReq ? 1 : 0);
+        if ($scope.pie != null) {
+            // Save the pie
+            sessionStorage.setItem("pie", JSON.stringify($scope.pie));
+            sessionStorage.setItem("reportData",
+                JSON.stringify($scope.report));
+        }
+        sessionStorage.setItem("pendingRequests",
+            JSON.stringify($scope.pendingRequests));
+        sessionStorage.setItem("selectedPendingReq",
+            $scope.selectedPendingReq);
+        sessionStorage.setItem("showPendingReq", $scope.showPendingReq ?
+            1 : 0);
         if ($scope.selectedPendingReq != -1) {
-            sessionStorage.setItem("showReq", $scope.pendingRequests[$scope.selectedPendingReq].showList ? 1 : 0);
+            sessionStorage.setItem("showReq",
+                $scope.pendingRequests[$scope.selectedPendingReq].showList ?
+                1 : 0);
         }
 
         $state.go('history');
@@ -369,23 +421,30 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
 
         if ($scope.model.perform[1].status) {
             sessionStorage.setItem("status", $scope.model.perform[1].status);
-            sessionStorage.setItem("showList", $scope.requests[$scope.selectedReq].showList ? 1: 0);
+            sessionStorage.setItem("showList",
+                $scope.requests[$scope.selectedReq].showList ? 1: 0);
         }
 
         if ($scope.model.perform[2].from) {
-            sessionStorage.setItem("from", moment($scope.model.perform[2].from).format('DD/MM/YYYY'));
-            sessionStorage.setItem("to", moment($scope.model.perform[2].to).format('DD/MM/YYYY'));
-            sessionStorage.setItem("showList", $scope.requests[$scope.selectedReq].showList ? 1: 0);
+            sessionStorage.setItem("from",
+                moment($scope.model.perform[2].from).format('DD/MM/YYYY'));
+            sessionStorage.setItem("to",
+                moment($scope.model.perform[2].to).format('DD/MM/YYYY'));
+            sessionStorage.setItem("showList",
+                $scope.requests[$scope.selectedReq].showList ? 1: 0);
         }
 
         if ($scope.model.perform[3].date) {
-            sessionStorage.setItem("date", moment($scope.model.perform[3].date).format('DD/MM/YYYY'));
-            sessionStorage.setItem("showList", $scope.requests[$scope.selectedReq].showList ? 1: 0);
+            sessionStorage.setItem("date",
+                moment($scope.model.perform[3].date).format('DD/MM/YYYY'));
+            sessionStorage.setItem("showList",
+                $scope.requests[$scope.selectedReq].showList ? 1: 0);
         }
     }
 
     $scope.downloadDoc = function(doc) {
-        window.open('index.php/home/UserHomeController/download?lpath=' + doc.lpath, '_blank');
+        window.open('index.php/home/UserHomeController/download?lpath=' +
+            doc.lpath, '_blank');
     };
 
     $scope.downloadAll = function() {
@@ -394,7 +453,8 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
         angular.forEach($scope.docs, function(doc) {
             paths.push(doc.lpath);
         });
-        location.href = 'index.php/home/UserHomeController/downloadAll?docs=' + JSON.stringify(paths);
+        location.href = 'index.php/home/UserHomeController/downloadAll?docs=' +
+            JSON.stringify(paths);
     };
 
     /**
@@ -402,7 +462,8 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
     */
     $scope.openEditRequestDialog = function($event) {
         var parentEl = angular.element(document.body);
-        var req = ($scope.selectedPendingReq == -1 ? $scope.requests[$scope.selectedReq] :
+        var req = ($scope.selectedPendingReq == -1 ?
+            $scope.requests[$scope.selectedReq] :
             $scope.pendingRequests[$scope.selectedPendingReq]);
         $mdDialog.show({
             parent: parentEl,
@@ -436,7 +497,8 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
                 if ($scope.model.status == "Aprobada") {
                     return typeof $scope.model.approvedAmount === "undefined";
                 } else {
-                    return ($scope.model.status != "Rechazada" && (typeof $scope.model.comment === "undefined"
+                    return ($scope.model.status != "Rechazada" &&
+                        (typeof $scope.model.comment === "undefined"
                         || $scope.model.comment == ""
                         || $scope.model.comment == $scope.request.comment));
                 }
@@ -449,7 +511,9 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
                 $scope.request.comment = $scope.model.comment;
                 $scope.request.reunion = $scope.model.reunion;
                 $scope.request.approvedAmount = $scope.model.approvedAmount;
-                $http.post('index.php/documents/ManageRequestController/updateRequest', JSON.stringify($scope.request))
+                $http.post('index.php/documents/ManageRequestController/' +
+                    'updateRequest',
+                    JSON.stringify($scope.request))
                     .then(function (response) {
                         $scope.uploading = false;
                         console.log(response.data);
@@ -465,18 +529,21 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
                                 $scope.model.reunion,
                                 $scope.model.approvedAmount
                             );
-                            // Notify that data has changed, thus updating stats
-                            // when requested
+                            // Notify that data has changed, thus updating
+                            // stats when requested
                             setDataChanged(true);
-                            // Close dialog and alert user that operation was successful
+                            // Close dialog and alert user that operation
+                            // was successful
                             $mdDialog.hide();
                             $mdDialog.show(
                                 $mdDialog.alert()
                                     .parent(angular.element(document.body))
                                     .clickOutsideToClose(true)
                                     .title('Solicitud actualizada')
-                                    .textContent('La solicitud fue actualizada exitosamente.')
-                                    .ariaLabel('Successful request update dialog')
+                                    .textContent('La solicitud fue ' +
+                                        'actualizada exitosamente.')
+                                    .ariaLabel('Successful request update ' +
+                                        'dialog')
                                     .ok('Ok'));
                         } else {
                             console.log("FAILED!");
@@ -503,36 +570,43 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
              */
             function showFormHelp(options) {
                 var tripToShowNavigation = new Trip([], options);
-                if (typeof $scope.model.comment === "undefined" || $scope.model.comment == ""
-                    || $scope.model.comment == $scope.request.comment) {
+                if (typeof $scope.model.comment === "undefined" ||
+                    $scope.model.comment == "" ||
+                    $scope.model.comment == $scope.request.comment) {
                     var content = "Agregue un comentario (opcional) " +
                     "hacia la solicitud.";
                     appendFieldHelp(tripToShowNavigation, "#comment", content);
                 }
                 if ($scope.model.status == "Recibida") {
-                    var content = "Seleccione el nuevo estatus de la solicitud.";
+                    var content = "Seleccione el nuevo estatus de la " +
+                        "solicitud.";
                     appendFieldHelp(tripToShowNavigation, "#status", content);
                 }
                 if ($scope.model.status != "Recibida"
                     && typeof $scope.model.reunion === "undefined") {
                     var content = "Agrege el número de reunión (opcional).";
-                    appendFieldHelp(tripToShowNavigation, "#reunion", content);
+                    appendFieldHelp(tripToShowNavigation, "#reunion",
+                        content);
                 }
                 if ($scope.model.status == "Aprobada"
                     && typeof $scope.model.approvedAmount === "undefined") {
                     var content = "Agrege el monto aprobado en Bs.";
-                    appendFieldHelp(tripToShowNavigation, "#approved-amount", content);
+                    appendFieldHelp(tripToShowNavigation, "#approved-amount",
+                        content);
                 }
                 if (!$scope.missingField()) {
-                    var content = "Haga click en ACTUALIZAR para guardar los cambios."
-                    appendFieldHelp(tripToShowNavigation, "#edit-btn", content);
+                    var content = "Haga click en ACTUALIZAR para guardar " +
+                        "los cambios."
+                    appendFieldHelp(tripToShowNavigation, "#edit-btn",
+                        content);
                 }
                 tripToShowNavigation.start();
             }
 
             function appendFieldHelp(trip, id, content) {
                 trip.tripData.push(
-                    { sel : $(id), content: content, position: "s", animation: 'fadeInUp' }
+                    { sel : $(id), content: content, position: "s",
+                        animation: 'fadeInUp' }
                 );
             }
         }
@@ -620,18 +694,21 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
                 $scope.errorMsg = '';
                 $scope.uploading = true;
                 $scope.model.id = $scope.idPrefix + $scope.userId;
-                $http.post('index.php/users/ManageAgentUsers/createNewAgent', $scope.model)
+                $http.post('index.php/users/ManageAgentUsers/createNewAgent',
+                    $scope.model)
                     .then(function(response) {
                         console.log(response);
                         if (response.data.message == "success") {
-                            // Close dialog and alert user that operation was successful
+                            // Close dialog and alert user that operation
+                            // was successful
                             $mdDialog.hide();
                             $mdDialog.show(
                                 $mdDialog.alert()
                                     .parent(angular.element(document.body))
                                     .clickOutsideToClose(true)
                                     .title('Operación exitosa')
-                                    .textContent('El nuevo usuario Gestor ha sido registrado exitosamente')
+                                    .textContent('El nuevo usuario Gestor ' +
+                                    'ha sido registrado exitosamente')
                                     .ariaLabel('Successful operation dialog')
                                     .ok('Ok'));
                         } else {
@@ -671,18 +748,22 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
             $scope.deleteAgent = function() {
                 $scope.errorMsg = '';
                 $scope.uploading = true;
-                $http.post('index.php/users/ManageAgentUsers/deleteAgentUser', $scope.selectedUser.value)
+                $http.post('index.php/users/ManageAgentUsers/deleteAgentUser',
+                    $scope.selectedUser.value)
                     .then(function(response) {
                         console.log(response);
                         if (response.status == 200) {
-                            // Close dialog and alert user that operation was successful
+                            // Close dialog and alert user that operation
+                            // was successful
                             $mdDialog.hide();
                             $mdDialog.show(
                                 $mdDialog.alert()
                                     .parent(angular.element(document.body))
                                     .clickOutsideToClose(true)
                                     .title('Operación exitosa')
-                                    .textContent('El usuario elegido ha sido eliminado del sistema exitosamente')
+                                    .textContent('El usuario elegido ha ' +
+                                        'sido eliminado del sistema ' +
+                                        'exitosamente')
                                     .ariaLabel('Successful operation dialog')
                                     .ok('Ok'));
                         } else {
@@ -715,25 +796,33 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
              */
             function showFormHelp(options) {
                 var tripToShowNavigation = new Trip([], options);
-                var contentId = "Ingrese la cédula de identidad del nuevo gestor.";
-                var contentPsw = "Ingrese la contraseña con que el nuevo gestor ingresará al sistema.";
+                var contentId = "Ingrese la cédula de identidad del " +
+                "nuevo gestor.";
+                var contentPsw = "Ingrese la contraseña con que el nuevo " +
+                    "gestor ingresará al sistema.";
                 var contentName = "Ingrese el nombre del gestor.";
                 var contentLastName = "Ingrese el apellido del gestor.";
                 if (typeof $scope.userId === "undefined") {
-                    appendFieldHelp(tripToShowNavigation, "#user-id", contentId);
+                    appendFieldHelp(tripToShowNavigation, "#user-id",
+                        contentId);
                 }
                 if (typeof $scope.model.psw === "undefined") {
-                    appendFieldHelp(tripToShowNavigation, "#user-psw", contentPsw);
+                    appendFieldHelp(tripToShowNavigation, "#user-psw",
+                        contentPsw);
                 }
                 if (typeof $scope.model.name === "undefined") {
-                    appendFieldHelp(tripToShowNavigation, "#user-name", contentName);
+                    appendFieldHelp(tripToShowNavigation, "#user-name",
+                        contentName);
                 }
                 if (typeof $scope.model.lastname === "undefined") {
-                    appendFieldHelp(tripToShowNavigation, "#user-lastname", contentLastName);
+                    appendFieldHelp(tripToShowNavigation, "#user-lastname",
+                        contentLastName);
                 }
                 if (!$scope.missingField()) {
-                    var content = "Haga click en REGISTRAR para crear el nuevo gestor."
-                    appendFieldHelp(tripToShowNavigation, "#register-btn", content);
+                    var content = "Haga click en REGISTRAR para crear " +
+                        "el nuevo gestor."
+                    appendFieldHelp(tripToShowNavigation, "#register-btn",
+                        content);
                 }
                 tripToShowNavigation.start();
             }
@@ -741,22 +830,25 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
             function showUserSelectionHelp(options) {
                 var tripToShowNavigation = new Trip([], options);
                 if (!$scope.selectedUser) {
-                    var content = "Haga click para desplegar una lista con los " +
-                        "usuarios gestores registrados en el sistema y escoja " +
-                        "el usuario a eliminar."
-                    appendFieldHelp(tripToShowNavigation, "#select-agent", content);
+                    var content = "Haga click para desplegar una lista " +
+                        "con los usuarios gestores registrados en el " +
+                        "sistema y escoja el usuario a eliminar."
+                    appendFieldHelp(tripToShowNavigation, "#select-agent",
+                        content);
                 }
                 if ($scope.selectedUser) {
-                    var content = "Haga click en ELIMINAR para proceder con la eliminación " +
-                        "del usuario seleccionado."
-                    appendFieldHelp(tripToShowNavigation, "#remove-btn", content);
+                    var content = "Haga click en ELIMINAR para proceder " +
+                        "con la eliminación del usuario seleccionado."
+                    appendFieldHelp(tripToShowNavigation, "#remove-btn",
+                        content);
                 }
                 tripToShowNavigation.start();
             }
 
             function appendFieldHelp(trip, id, content) {
                 trip.tripData.push(
-                    { sel : $(id), content: content, position: "s", animation: 'fadeInUp' }
+                    { sel : $(id), content: content, position: "s",
+                        animation: 'fadeInUp' }
                 );
             }
         }
@@ -862,10 +954,12 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
         $scope.loadingContent = true;
         if ($scope.showResult == 0) {
             // update user's pie
-            $http.get('index.php/home/ManagerHomeController/getUserRequests', {params:{fetchId:$scope.fetchId}})
+            $http.get('index.php/home/ManagerHomeController/getUserRequests',
+                {params:{fetchId:$scope.fetchId}})
                 .then(function (response) {
                     if (response.data.message == "success") {
                         $scope.report = response.data.report;
+                        $scope.pie = response.data.pie;
                         drawPie(response.data.pie);
                         $scope.pieloaded = true;
                     } else {
@@ -874,12 +968,16 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
                     $scope.loadingContent = false;
 
                 });
-        } else if ($scope.showResult == 1 && $scope.model.perform[1].status == 'Recibida') {
+        } else if ($scope.showResult == 1 &&
+                $scope.model.perform[1].status == 'Recibida') {
             // update status pie
-            $http.get('index.php/home/ManagerHomeController/fetchRequestsByStatus', {params:{status:"Recibida"}})
+            $http.get('index.php/home/ManagerHomeController/' +
+                'fetchRequestsByStatus',
+                {params:{status:"Recibida"}})
                 .then(function (response) {
                     if (response.data.message == "success") {
                         $scope.report = response.data.report;
+                        $scope.pie = response.data.pie;
                         drawPie(response.data.pie);
                         $scope.pieloaded = true;
                     } else {
@@ -897,11 +995,14 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
                 var from = $scope.model.perform[3].date;
                 var to = from;
             }
-            $http.get('index.php/home/ManagerHomeController/fetchRequestsByDateInterval',
-                {params:{from:moment(from).format('DD/MM/YYYY'), to:moment(to).format('DD/MM/YYYY')}})
+            $http.get('index.php/home/ManagerHomeController/' +
+                'fetchRequestsByDateInterval',
+                {params:{from:moment(from).format('DD/MM/YYYY'),
+                    to:moment(to).format('DD/MM/YYYY')}})
                 .then(function (response) {
                     if (response.data.message == "success") {
                         $scope.report = response.data.report;
+                        $scope.pie = response.data.pie;
                         drawPie(response.data.pie);
                         $scope.pieloaded = true;
                     } else {
@@ -935,7 +1036,8 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
                 tooltips: {
                   callbacks: {
                     label: function(tooltipItem, data) {
-                        return data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index] + '%';
+                        return data.datasets[tooltipItem.datasetIndex].
+                            data[tooltipItem.index] + '%';
                     }
                   }
                 },
@@ -982,27 +1084,36 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
         options.showHeader = true;
         var tripToShowNavigation = new Trip([
             { sel : $("#piechart-tour"),
-                content : "Esta tarjeta muestra las estadísticas de las solicitudes " +
-                "del afiliado. Los datos aparecen al mover el ratón hacia alguna de las " +
-                "divisiones de la gráfica.",
-                position : "n", header: "Estadísticas", expose: true, animation: 'fadeInUp' },
+                content : "Esta tarjeta muestra las estadísticas de " +
+                    "las solicitudes del afiliado. Los datos aparecen al " +
+                    "mover el ratón hacia alguna de las divisiones de " +
+                    "la gráfica.",
+                position : "n", header: "Estadísticas", expose: true,
+                animation: 'fadeInUp' },
             { sel : $("#report-btn"),
-                content : "Puede generar un reporte detallado haciendo click aquí.",
-                position : "s", header: "Generación de reporte", expose: true, animation: 'fadeInDown' }
+                content : "Puede generar un reporte detallado haciendo " +
+                    "click aquí.",
+                position : "s", header: "Generación de reporte", expose: true,
+                animation: 'fadeInDown' }
         ], options);
         if ($mdSidenav('left').isLockedOpen()) {
             // Nav. panel information
             tripToShowNavigation.tripData.push(
                 { sel : $("#user-data"),
                     content : "Consulte datos del afiliado",
-                    position : "e", header: "Datos del afiliado", animation: 'fadeInLeft' },
+                    position : "e", header: "Datos del afiliado",
+                        animation: 'fadeInLeft' },
                 { sel : $("#result-data"),
-                    content : "Ésta es la lista de solicitudes del afiliado. Para facilitar " +
-                    "la elección, el estatus de cada una está identificada por un bombillo " +
-                    "amarillo, verde y rojo para Recibida, Aprobada y Rechazada, respectivamente.",
-                    position : "e", header: "Préstamos personales", animation: 'fadeInRight' },
+                    content : "Ésta es la lista de solicitudes del " +
+                        "afiliado. Para facilitar la elección, el " +
+                        "estatus de cada una está identificada por " +
+                        "un bombillo amarillo, verde y rojo para " +
+                        "Recibida, Aprobada y Rechazada, respectivamente.",
+                    position : "e", header: "Préstamos personales",
+                        animation: 'fadeInRight' },
                 { sel : $("#back-to-query"),
-                    content : "Para hacer otro tipo de consulta, haga click aquí.",
+                    content : "Para hacer otro tipo de consulta, haga " +
+                        "click aquí.",
                     position : "e", header: "Atrás", animation: 'fadeInRight' }
             );
         }
@@ -1017,34 +1128,43 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
         options.showHeader = true;
         var tripToShowNavigation = new Trip([
             { sel : $("#piechart-tour"),
-                content : "Esta tarjeta muestra las estadísticas de las solicitudes " +
-                "en cuestión. Los datos aparecen al mover el ratón hacia alguna de las " +
-                "divisiones de la gráfica.",
-                position : "n", header: "Estadísticas", expose: true, animation: 'fadeInTop' },
+                content : "Esta tarjeta muestra las estadísticas de las " +
+                    "solicitudes en cuestión. Los datos aparecen al mover" +
+                    " el ratón hacia alguna de las divisiones de la gráfica.",
+                position : "n", header: "Estadísticas", expose: true,
+                animation: 'fadeInTop' },
             { sel : $("#report-btn"),
-                content : "Puede generar un reporte detallado haciendo click aquí.",
-                position : "s", header: "Generación de reporte", expose: true, animation: 'fadeInDown' }
+                content : "Puede generar un reporte detallado haciendo " +
+                "click aquí.",
+                position : "s", header: "Generación de reporte", expose: true,
+                animation: 'fadeInDown' }
         ], options);
         if ($mdSidenav('left').isLockedOpen()) {
             // Nav. panel information
             if ($scope.showResult !== 1) {
-                var content = "Éstas son las solicitudes resultantes de la búsqueda. " +
-                "Al hacer click en alguna de ellas, podrá consultar los datos del afiliado " +
-                "o ver los detalles de la solicitud. Para facilitar " +
-                "la elección, el estatus de cada una está identificada por un bombillo " +
-                "amarillo, verde y rojo para Recibida, Aprobada y Rechazada, respectivamente.";
+                var content = "Éstas son las solicitudes resultantes de " +
+                    "la búsqueda. Al hacer click en alguna de ellas, podrá" +
+                    " consultar los datos del afiliado o ver los detalles " +
+                    "de la solicitud. Para facilitar la elección, el " +
+                    "estatus de cada una está identificada por un bombillo " +
+                    " amarillo, verde y rojo para Recibida, Aprobada y " +
+                    "Rechazada, respectivamente.";
             } else {
-                var content = "Éstas son las solicitudes resultantes de la búsqueda. " +
-                "Al hacer click en alguna de ellas, podrá consultar los datos del afiliado " +
-                "o ver los detalles de la solicitud.";
+                var content = "Éstas son las solicitudes resultantes de " +
+                "la búsqueda. Al hacer click en alguna de ellas, podrá " +
+                "consultar los datos del afiliado o ver los detalles " +
+                "de la solicitud.";
             }
             tripToShowNavigation.tripData.push(
                 { sel : $("#result-data"),
                     content : content,
-                    position : "e", header: "Solicitudes", animation: 'fadeInRight' },
+                    position : "e", header: "Solicitudes",
+                        animation: 'fadeInRight' },
                 { sel : $("#back-to-query"),
-                    content : "Para hacer otro tipo de consulta, haga click aquí.",
-                    position : "e", header: "Atrás", animation: 'fadeInRight' }
+                    content : "Para hacer otro tipo de consulta, haga " +
+                        "click aquí.",
+                    position : "e", header: "Atrás",
+                    animation: 'fadeInRight' }
             );
         }
         tripToShowNavigation.start();
@@ -1059,22 +1179,28 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
             options.showHeader = true;
             var tripToShowNavigation = new Trip([
                 { sel : $("#pending-req"),
-                    content : "Ésta es la lista de solicitudes por administrar. Al seleccionar " +
-                    "alguna, puede verificar los datos del solicitante o ver los detalles de " +
-                    "la solicitud para administrarla.",
-                    position : "e", header: "Solicitudes pendientes", animation: 'fadeInUp' },
+                    content : "Ésta es la lista de solicitudes por " +
+                        "administrar. Al seleccionar alguna, puede " +
+                        "verificar los datos del solicitante o ver " +
+                        "los detalles de la solicitud para administrarla.",
+                    position : "e", header: "Solicitudes pendientes",
+                    animation: 'fadeInUp' },
                 { sel : $("#adv-search"),
-                    content : "También puede realizar búsquedas más específicas de las solicitudes. " +
-                    "Sólo seleccione el tipo de consulta e ingrese los datos solicitados.",
-                    position : "e", header: "Búsqueda avanzada", animation: 'fadeInUp' }
+                    content : "También puede realizar búsquedas más " +
+                    "específicas de las solicitudes. Sólo seleccione" +
+                    " el tipo de consulta e ingrese los datos solicitados.",
+                    position : "e", header: "Búsqueda avanzada",
+                    animation: 'fadeInUp' }
 
             ], options);
             tripToShowNavigation.start();
         } else {
             var tripToShowNavigation = new Trip([
                 { sel : $("#nav-panel"),
-                    content : "Haga click en el ícono para abrir el panel de navegación," +
-                    " donde podrá elegir las solicitudes a administrar o realizar búsquedas avanzadas.",
+                    content : "Haga click en el ícono para abrir el " +
+                        "panel de navegación, donde podrá elegir las" +
+                        " solicitudes a administrar o realizar " +
+                        "búsquedas avanzadas.",
                     position : "e", animation: 'fadeInUp'}
             ], options);
             tripToShowNavigation.start();
@@ -1090,35 +1216,45 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
         // options.showSteps = true;
         var tripToShowNavigation = new Trip([
             // Request summary information
-            { sel : $("#request-summary"), content : "Aquí se muestra información acerca de " +
-                "la fecha de creación, monto solicitado, y un comentario de haberlo realizado.",
-                position : "s", header: "Resumen de la solicitud", expose : true },
+            { sel : $("#request-summary"), content : "Aquí se muestra " +
+                "información acerca de la fecha de creación, monto " +
+                "solicitado, y un comentario de haberlo realizado.",
+                position : "s", header: "Resumen de la solicitud",
+                expose : true },
             // Request status information
-            { sel : $("#request-status-summary"), content : "Esta sección provee información " +
-                "acerca del estatus de la solicitud.",
-                position : "s", header: "Resumen de estatus", expose : true, animation: 'fadeInDown' },
+            { sel : $("#request-status-summary"), content : "Esta sección " +
+                "provee información acerca del estatus de la solicitud.",
+                position : "s", header: "Resumen de estatus", expose : true,
+                animation: 'fadeInDown' },
             // Request documents information
-            { sel : $("#request-docs"), content : "Éste y los siguientes items contienen " +
-                "el nombre y, de existir, una descripción de cada documento en la solicitud. " +
-                "Puede verlos/descargarlos haciendo click encima de ellos.",
-                position : "s", header: "Documentos", expose : true, animation: 'fadeInDown' }
+            { sel : $("#request-docs"), content : "Éste y los siguientes " +
+                "items contienen el nombre y, de existir, una descripción " +
+                "de cada documento en la solicitud. Puede " +
+                "verlos/descargarlos haciendo click encima de ellos.",
+                position : "s", header: "Documentos", expose : true,
+                animation: 'fadeInDown' }
         ], options);
 
         if ($mdSidenav('left').isLockedOpen()) {
             tripToShowNavigation.tripData.push(
                 // Download as zip information
-                { sel : $("#request-summary-actions"), content : "Puede ver el historial de la solicitud, " +
-                    "editarla (si la solicitud no se ha cerrado), o descargar todos " +
+                { sel : $("#request-summary-actions"), content : "Puede ver " +
+                    "el historial de la solicitud, editarla " +
+                    "(si la solicitud no se ha cerrado), o descargar todos " +
                     "sus documentos presionando el botón correspondiente.",
-                    position : "w", header: "Acciones", expose : true, animation: 'fadeInLeft' }
+                    position : "w", header: "Acciones", expose : true,
+                    animation: 'fadeInLeft' }
             );
         } else {
             tripToShowNavigation.tripData.push(
                 // Download as zip information request-summary-actions-menu
-                { sel : $("#request-summary-actions-menu"), content : "Haga click en el botón de opciones para " +
-                    "ver el historial de la solicitud, editarla (si la solicitud no se ha cerrado)" +
-                    ", o descargar todos sus documentos.",
-                    position : "w", header: "Acciones", expose : true, animation: 'fadeInLeft' }
+                { sel : $("#request-summary-actions-menu"),
+                    content : "Haga click en el botón de opciones para " +
+                    "ver el historial de la solicitud, editarla " +
+                    "(si la solicitud no se ha cerrado), o descargar " +
+                    "todos sus documentos.",
+                    position : "w", header: "Acciones", expose : true,
+                    animation: 'fadeInLeft' }
             );
         }
         tripToShowNavigation.start();
@@ -1129,18 +1265,23 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
         $scope.loadingReport = true;
         var url = ''
         if ($scope.showResult == 0 || $scope.showResult > 1) {
-            $scope.report.sheetTitle = $scope.showResult > 1 ? "Reporte por fechas" : "Reporte de afiliado";
-            url = 'index.php/documents/DocumentGenerator/generateRequestsReport';
+            $scope.report.sheetTitle = $scope.showResult > 1 ?
+                "Reporte por fechas" : "Reporte de afiliado";
+            url = 'index.php/documents/DocumentGenerator/' +
+                'generateRequestsReport';
         } else if ($scope.showResult == 1) {
-            url = 'index.php/documents/DocumentGenerator/generateStatusRequestsReport';
+            url = 'index.php/documents/DocumentGenerator/' +
+                'generateStatusRequestsReport';
         } else {
             // Approved requests report
-            url = 'index.php/documents/DocumentGenerator/generateApprovedRequestsReport';
+            url = 'index.php/documents/DocumentGenerator/' +
+                'generateApprovedRequestsReport';
         }
         var report = JSON.stringify($scope.report);
         $http.post(url, report).then(function (response) {
             if (response.data.message == "success") {
-                location.href = 'index.php/documents/DocumentGenerator/downloadReport?lpath=' + response.data.lpath;
+                location.href = 'index.php/documents/DocumentGenerator/' +
+                    'downloadReport?lpath=' + response.data.lpath;
             }
             $scope.loadingReport = false;
         });
