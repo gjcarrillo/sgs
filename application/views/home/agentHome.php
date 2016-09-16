@@ -189,54 +189,82 @@
                                     <!-- Show only when screen width >= 960px -->
                                     <div
                                         id="request-summary-actions"
-                                        hide show-gt-sm
-                                        class="md-secondary">
-                                        <md-button ng-click="loadHistory()" class="md-icon-button">
-                                            <md-icon>history</md-icon>
+                                        hide show-gt-sm>
+                                        <md-button
+                                            ng-click="loadHistory()"
+                                            class="md-icon-button">
+                                            <md-icon class="md-secondary">
+                                                history
+                                            </md-icon>
                                             <md-tooltip>Historial</md-tooltip>
                                         </md-button>
                                         <md-button
                                             class="md-icon-button"
                                             ng-if="requests[selectedReq].status == 'Recibida'"
                                             ng-click="openEditRequestDialog($event)">
-                                            <md-icon>edit</md-icon>
-                                            <md-tooltip>Editar solicitud</md-tooltip>
+                                            <md-icon class="md-secondary">
+                                                edit
+                                            </md-icon>
+                                            <md-tooltip>
+                                                Editar solicitud
+                                            </md-tooltip>
                                         </md-button>
-                                        <md-button ng-click="downloadAll()" class="md-icon-button">
-                                            <md-icon>cloud_download</md-icon>
-                                            <md-tooltip>Descargar todo</md-tooltip>
+                                        <md-button
+                                            ng-click="downloadAll()"
+                                            class="md-icon-button">
+                                            <md-icon class="md-secondary">
+                                                cloud_download
+                                            </md-icon>
+                                            <md-tooltip>
+                                                Descargar todo
+                                            </md-tooltip>
                                         </md-button>
-                                        <md-button ng-click="deleteRequest($event)" class="md-icon-button">
-                                            <md-icon>delete</md-icon>
-                                            <md-tooltip>Eliminar solicitud</md-tooltip>
-                                        </md-button>
+                                        <!-- <md-button
+                                            ng-click="deleteRequest($event)"
+                                            class="md-icon-button">
+                                            <md-icon class="md-secondary">
+                                                delete
+                                            </md-icon>
+                                            <md-tooltip>
+                                                Eliminar solicitud
+                                            </md-tooltip>
+                                        </md-button> -->
                                     </div>
                                     <!-- Show when screen width < 960px -->
                                     <md-menu
                                         id="request-summary-actions-menu"
-                                        hide-gt-sm class="md-secondary">
+                                        hide-gt-sm>
                                        <md-button
                                             ng-click="$mdOpenMenu($event)"
                                             class="md-icon-button"
                                             aria-label="More">
-                                           <md-icon>more_vert</md-icon>
+                                           <md-icon class="md-secondary">
+                                               more_vert
+                                           </md-icon>
                                        </md-button>
                                        <md-menu-content>
                                            <md-menu-item>
                                                <md-button ng-click="loadHistory()">
-                                                   <md-icon>history</md-icon>
+                                                   <md-icon
+                                                        class="md-secondary">
+                                                        history
+                                                    </md-icon>
                                                    Historial
                                                </md-button>
                                            </md-menu-item>
                                            <md-menu-item ng-if="requests[selectedReq].status == 'Recibida'">
                                                <md-button ng-click="openEditRequestDialog($event)">
-                                                   <md-icon>edit</md-icon>
+                                                   <md-icon class="md-secondary">
+                                                       edit
+                                                   </md-icon>
                                                    Editar
                                                </md-button>
                                            </md-menu-item>
                                            <md-menu-item>
                                                <md-button ng-click="downloadAll()">
-                                                   <md-icon>cloud_download</md-icon>
+                                                   <md-icon class="md-secondary">
+                                                       cloud_download
+                                                   </md-icon>
                                                    Descargar todo
                                                </md-button>
                                            </md-menu-item>
@@ -274,7 +302,7 @@
                                             insert_drive_file
                                         </md-icon>
                                         <md-icon
-                                            ng-if="doc.name=='Identidad'"
+                                            ng-if="doc.name =='Identidad'"
                                             ng-style="{'color':'#2196F3', 'font-size':'36px'}">
                                             perm_identity
                                         </md-icon>
@@ -284,35 +312,44 @@
                                          </div>
                                          <md-button
                                             ng-if="doc.name =='Identidad'"
-                                            class="md-secondary md-icon-button">
-                                            <md-icon>file_download</md-icon>
+                                            class="md-icon-button">
+                                            <md-icon class="md-secondary">
+                                                file_download
+                                            </md-icon>
                                          </md-button>
                                          <md-menu
                                             id="request-docs-actions"
-                                            ng-if="doc.name !='Identidad'"
-                                            class="md-secondary">
+                                            ng-if="doc.name !='Identidad'">
                                             <md-button
                                                 ng-click="$mdOpenMenu($event)"
                                                 class="md-icon-button"
                                                 aria-label="More">
-                                                <md-icon>more_vert</md-icon>
+                                                <md-icon class="md-secondary">
+                                                    more_vert
+                                                </md-icon>
                                             </md-button>
                                             <md-menu-content>
                                                 <md-menu-item>
                                                     <md-button ng-click="editDescription($event, doc)">
-                                                        <md-icon>edit</md-icon>
+                                                        <md-icon class="md-secondary">
+                                                            edit
+                                                        </md-icon>
                                                         Descripción
                                                     </md-button>
                                                 </md-menu-item>
                                                 <md-menu-item>
                                                     <md-button ng-click="downloadDoc(doc)">
-                                                        <md-icon>file_download</md-icon>
+                                                        <md-icon class="md-secondary">
+                                                            file_download
+                                                        </md-icon>
                                                         Descargar
                                                     </md-button>
                                                 </md-menu-item>
                                                 <md-menu-item>
                                                     <md-button ng-click="deleteDoc($event, dKey)">
-                                                        <md-icon>delete</md-icon>
+                                                        <md-icon class="md-secondary">
+                                                            delete
+                                                        </md-icon>
                                                         Eliminar
                                                     </md-button>
                                                 </md-menu-item>

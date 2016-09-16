@@ -1,13 +1,9 @@
-main {
+main, body, .bg, .document-container {
   background-color: #EEEEEE;
 }
 
 footer {
   background-color:white;
-}
-
-.bg {
-    background-color: #EEEEEE;
 }
 
 .main-w-footer, .full-content-height {
@@ -151,7 +147,6 @@ md-list .md-button {
 }
 
 .document-container {
-    background-color: #EEEEEE;
     max-height: calc(100vh - 129px);
 }
 
@@ -175,15 +170,12 @@ md-list .md-button {
 }
 
 .search-input {
-    -webkit-appearance: none;
-    -webkit-tap-highlight-color: none;
     border: none;
     color: #212121;
     font-family: arial,sans-serif;
     font-size: 16px;
     height: 16px;
     outline: none;
-    padding: 8px 0;
     width: 100%;
 }
 
@@ -219,8 +211,21 @@ md-select.no-md-select .md-select-value {
     width: 128px;
 }
 
-.md-grid-item-content:hover .perspective-svg{
+.md-grid-item-content:hover .perspective-svg {
     color: #0D47A1;
+}
+
+md-list-item.md-2-line .md-list-item-text h3,
+md-list-item.md-2-line>.md-no-style .md-list-item-text h3,
+md-list-item.md-3-line .md-list-item-text h3,
+md-list-item.md-3-line>.md-no-style .md-list-item-text h3,
+md-list-item.md-2-line .md-list-item-text h4,
+md-list-item.md-2-line>.md-no-style .md-list-item-text h4,
+md-list-item.md-3-line .md-list-item-text h4,
+md-list-item.md-3-line>.md-no-style .md-list-item-text h4 {
+    /* text-overflow: ellipsis won't work unless
+    a width is assigned, so just wrap work to next line */
+    white-space: normal;
 }
 
 @media screen and (max-width: 959px) {
@@ -253,7 +258,7 @@ md-select.no-md-select .md-select-value {
 @media only screen and (max-width: 959px) and
     (min-width: 0) and
     (orientation: landscape) {
-    .main-w-footer, .full-content-height {
+    .main-w-footer, .full-content-height, .document-container {
         /*
          * Toolbar is now 64 px height
          * (for tablet/desktop it was 80px)
@@ -267,7 +272,7 @@ md-select.no-md-select .md-select-value {
 @media only screen and (max-width: 959px) and
     (min-width: 0) and
     (orientation: portrait) {
-    .main-w-footer, .full-content-height {
+    .main-w-footer, .full-content-height, .document-container {
         /*
          * Toolbar is now 72 px height
          * (for tablet/desktop it was 80px)

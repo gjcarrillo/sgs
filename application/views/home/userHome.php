@@ -106,12 +106,18 @@
                                     <md-button
                                         id="request-summary-actions"
                                         ng-click="downloadAll()"
-                                        class="md-icon-button md-secondary">
-                                        <md-icon>cloud_download</md-icon>
-                                        <md-tooltip>Descargar todo</md-tooltip>
+                                        class="md-icon-button">
+                                        <md-icon class="md-secondary">
+                                            cloud_download
+                                        </md-icon>
+                                        <md-tooltip>
+                                            Descargar todo
+                                        </md-tooltip>
                                     </md-button>
                                </md-list-item>
-                                <md-list-item id="request-status-summary" class="md-2-line" class="noright">
+                                <md-list-item
+                                    id="request-status-summary"
+                                    class="md-2-line noright">
                                     <md-icon  ng-style="{'font-size':'36px'}">info_outline</md-icon>
                                     <div class="md-list-item-text" layout="column">
                                        <h3>Estatus de la solicitud: {{requests[selectedReq].status}}</h3>
@@ -128,8 +134,7 @@
                                     <md-list-item
                                         id="request-docs"
                                         class="md-2-line"
-                                        ng-click="downloadDoc(doc)"
-                                        class="noright">
+                                        ng-click="downloadDoc(doc)">
                                         <md-icon
                                             ng-if="doc.name !='Identidad'"
                                             ng-style="{'color':'#2196F3', 'font-size':'36px'}">
@@ -145,8 +150,10 @@
                                            <p>{{doc.description}}</p>
                                          </div>
                                          <md-button
-                                            class="md-secondary md-icon-button">
-                                            <md-icon>file_download</md-icon>
+                                            class="md-icon-button">
+                                            <md-icon class="md-secondary">
+                                                file_download
+                                            </md-icon>
                                          </md-button>
                                      </md-list-item>
                                     <md-divider ng-if="!$last" md-inset></md-divider>
