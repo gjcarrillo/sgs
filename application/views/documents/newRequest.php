@@ -33,6 +33,7 @@
                         required
                         name="reqAmount"
                         placeholder="Ej: 300000.25"/>
+
                     <div ng-messages="agentForm.reqAmount.$error" ng-show="agentForm.reqAmount.$dirty">
                         <div ng-message="required">¡Este campo es obligatorio!</div>
                         <div ng-message="max">Monto máximo: Bs. {{maxReqAmount | number:2}}</div>
@@ -52,28 +53,28 @@
                 </div>
                 <div id="doc-pic" ng-hide="docPicTaken">
                     <md-menu>
-                       <md-button ng-click="$mdOpenMenu($event)" aria-label="Request doc">
-                           <md-icon>insert_drive_file</md-icon>
-                           Documento explicativo
-                       </md-button>
-                       <md-menu-content>
-                           <md-menu-item>
-                               <md-button ng-click="openDocCamera($event)">
-                                   <md-icon>photo_camera</md-icon>
-                                   Tomar foto
-                               </md-button>
-                           </md-menu-item>
-                           <md-menu-item>
-                               <md-button
-                                   ngf-select="gatherFile($file, $invalidFiles)"
-                                   ngf-pattern="'image/*,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheetapplication/vnd.openxmlformats-officedocument.spreadsheetml.template,,application/pdf,application/msword'"
-                                   ngf-max-size="4MB">
-                                   <md-icon>file_upload</md-icon>
-                                   Subir de la PC
-                               </md-button>
-                           </md-menu-item>
-                       </md-menu-content>
-                   </md-menu>
+                        <md-button ng-click="$mdOpenMenu($event)" aria-label="Request doc">
+                            <md-icon>insert_drive_file</md-icon>
+                            Documento explicativo
+                        </md-button>
+                        <md-menu-content>
+                            <md-menu-item>
+                                <md-button ng-click="openDocCamera($event)">
+                                    <md-icon>photo_camera</md-icon>
+                                    Tomar foto
+                                </md-button>
+                            </md-menu-item>
+                            <md-menu-item>
+                                <md-button
+                                    ngf-select="gatherFile($file, $invalidFiles)"
+                                    ngf-pattern="'image/*,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheetapplication/vnd.openxmlformats-officedocument.spreadsheetml.template,,application/pdf,application/msword'"
+                                    ngf-max-size="4MB">
+                                    <md-icon>file_upload</md-icon>
+                                    Subir de la PC
+                                </md-button>
+                            </md-menu-item>
+                        </md-menu-content>
+                    </md-menu>
                 </div>
             </div>
         </form>
@@ -111,14 +112,16 @@
             </md-card>
             <md-card id="doc-pic-selection" ng-show="docPicTaken && file">
                 <md-card-title>
-                <md-card-title-text>
-                    <span class="md-headline">{{file.name}}</span>
-                    <span class="md-subhead">{{file.description}}</span>
-                </md-card-title-text>
+                    <md-card-title-text>
+                        <span class="md-headline">{{file.name}}</span>
+                        <span class="md-subhead">{{file.description}}</span>
+                    </md-card-title-text>
                 </md-card-title>
                 <!-- Add description / Delete doc actions -->
                 <md-card-actions ng-hide="uploading" layout layout-align="end center">
-                    <md-button class="md-icon-button" ng-click="removeScannedDoc()"><md-icon>delete</md-icon></md-button>
+                    <md-button class="md-icon-button" ng-click="removeScannedDoc()">
+                        <md-icon>delete</md-icon>
+                    </md-button>
                 </md-card-actions>
                 <!-- Uploading progress -->
                 <md-card-actions ng-show="uploading">
@@ -152,6 +155,7 @@
                         name="reqAmount"
                         required
                         placeholder="Ej: 300000.25"/>
+
                     <div ng-messages="applicantForm.reqAmount.$error" ng-show="applicantForm.reqAmount.$dirty">
                         <div ng-message="required">¡Este campo es obligatorio!</div>
                         <div ng-message="max">Monto máximo: Bs. {{maxReqAmount | number:2}}</div>
@@ -187,14 +191,16 @@
             <!-- ID picture result -->
             <md-card id="id-pic-result" ng-show="idPicTaken">
                 <md-card-title>
-                <md-card-title-text>
-                    <span class="md-headline">{{idFile.name}}</span>
-                    <span class="md-subhead">{{idFile.description}}</span>
-                </md-card-title-text>
+                    <md-card-title-text>
+                        <span class="md-headline">{{idFile.name}}</span>
+                        <span class="md-subhead">{{idFile.description}}</span>
+                    </md-card-title-text>
                 </md-card-title>
                 <!-- Delete file action -->
                 <md-card-actions ng-hide="uploading" layout layout-align="end center">
-                    <md-button class="md-icon-button" ng-click="deleteIdPic()"><md-icon>delete</md-icon></md-button>
+                    <md-button class="md-icon-button" ng-click="deleteIdPic()">
+                        <md-icon>delete</md-icon>
+                    </md-button>
                 </md-card-actions>
                 <!-- Uploading progress -->
                 <md-card-actions ng-show="uploading">
@@ -206,14 +212,16 @@
             <!-- Doc pic result -->
             <md-card id="doc-pic-selection" ng-show="docPicTaken">
                 <md-card-title>
-                <md-card-title-text>
-                    <span class="md-headline">{{docFile.name}}</span>
-                    <span class="md-subhead">{{docFile.description}}</span>
-                </md-card-title-text>
+                    <md-card-title-text>
+                        <span class="md-headline">{{docFile.name}}</span>
+                        <span class="md-subhead">{{docFile.description}}</span>
+                    </md-card-title-text>
                 </md-card-title>
                 <!-- Delete file action -->
                 <md-card-actions ng-hide="uploading" layout layout-align="end center">
-                    <md-button class="md-icon-button" ng-click="deleteDocPic()"><md-icon>delete</md-icon></md-button>
+                    <md-button class="md-icon-button" ng-click="deleteDocPic()">
+                        <md-icon>delete</md-icon>
+                    </md-button>
                 </md-card-actions>
                 <!-- Uploading progress -->
                 <md-card-actions ng-show="uploading">

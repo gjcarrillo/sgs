@@ -17,7 +17,7 @@
 <main>
     <md-toolbar>
     </md-toolbar>
-    <md-content style="background-color:#F5F5F5" class="u-overflow-fix" layout layout-align="center center">
+    <md-content class="u-overflow-fix bg" layout layout-align="center center">
         <md-card id="info-card" class="user-info-card">
             <md-card-header>
                 <md-card-avatar>
@@ -187,92 +187,106 @@
             <md-card-content hide show-xs ng-if="!loading">
                 <div layout layout-padding>
                     <div flex="70">
-                        <span class="md-title user-info-title">Cédula</span>
-                        <br/><span>{{userData.cedula}}</span>
+                        <span class="md-title user-info-title">Cédula:</span>
+                        <span>{{userData.cedula}}</span>
                     </div>
                 </div>
+                <md-divider></md-divider>
                 <div layout layout-padding>
                     <div flex>
-                        <span class="md-title user-info-title">Ingreso</span>
-                        <br/><span>{{userData.ingreso}}</span>
+                        <span class="md-title user-info-title">Ingreso:</span>
+                        <span>{{userData.ingreso}}</span>
                     </div>
                 </div>
+                <md-divider></md-divider>
                 <div layout layout-padding>
                     <div flex>
-                        <span class="md-title user-info-title">Estado</span>
-                        <br/><span>{{userData.status}}</span>
+                        <span class="md-title user-info-title">Estado:</span>
+                        <span>{{userData.status}}</span>
                     </div>
                 </div>
+                <md-divider></md-divider>
                 <div layout layout-padding>
                     <div flex>
-                        <span class="md-title user-info-title">Sueldo</span>
-                        <br/><span>Bs {{userData.sueldo | number:2}}</span>
+                        <span class="md-title user-info-title">Sueldo:</span>
+                        <span>Bs {{userData.sueldo | number:2}}</span>
                     </div>
                 </div>
+                <md-divider></md-divider>
                 <div layout layout-padding>
                     <div flex>
-                        <span class="md-title user-info-title">Dependencia</span>
-                        <br/><span>Bs {{userData.dependencia | number:2}}</span>
+                        <span class="md-title user-info-title">Dependencia:</span>
+                        <span>Bs {{userData.dependencia | number:2}}</span>
                     </div>
                 </div>
+                <md-divider></md-divider>
                 <div layout layout-padding>
                     <div flex>
-                        <span class="md-title user-info-title">Fianzas</span>
-                        <br/><span>Bs {{userData.fianzas | number:2}}</span>
+                        <span class="md-title user-info-title">Fianzas:</span>
+                        <span>Bs {{userData.fianzas | number:2}}</span>
                     </div>
                 </div>
+                <md-divider></md-divider>
                 <div layout layout-padding>
                     <div flex>
-                        <span class="md-title user-info-title">Aporte</span>
-                        <br/><span>{{userData.pcj_aporte}}%</span>
+                        <span class="md-title user-info-title">Aporte:</span>
+                        <span>{{userData.pcj_aporte}}%</span>
                     </div>
                 </div>
+                <md-divider></md-divider>
                 <div layout layout-padding>
                     <div flex>
-                        <span class="md-title user-info-title">Concurrencia</span>
-                        <br/><span ng-style="getConcurranceWarn()"><b>{{userData.concurrencia}}%</b></span>
+                        <span class="md-title user-info-title">Concurrencia:</span>
+                        <span ng-style="getConcurranceWarn()"><b>{{userData.concurrencia}}%</b></span>
                     </div>
                 </div>
+                <md-divider></md-divider>
                 <div layout layout-padding>
                     <div flex>
-                        <span class="md-title user-info-title">Carga EGS</span>
-                        <br/><span>{{userData.carga_egs}}%</span>
+                        <span class="md-title user-info-title">Carga EGS:</span>
+                        <span>{{userData.carga_egs}}%</span>
                     </div>
                 </div>
+                <md-divider></md-divider>
                 <div layout layout-padding>
                     <div flex>
-                        <span class="md-title user-info-title">Carga EMI</span>
-                        <br/><span>{{userData.carga_emi}}%</span>
+                        <span class="md-title user-info-title">Carga EMI:</span>
+                        <span>{{userData.carga_emi}}%</span>
                     </div>
                 </div>
+                <md-divider></md-divider>
                 <div layout layout-padding>
                     <div flex>
-                        <span class="md-title user-info-title">Carga GMM</span>
-                        <br/><span>{{userData.carga_gmm}}%</span>
+                        <span class="md-title user-info-title">Carga GMM:</span>
+                        <span>{{userData.carga_gmm}}%</span>
                     </div>
                 </div>
+                <md-divider></md-divider>
                 <div layout layout-padding>
                     <div flex>
-                        <span class="md-title user-info-title">Carga GMS</span>
-                        <br/><span>{{userData.carga_gms}}%</span>
+                        <span class="md-title user-info-title">Carga GMS:</span>
+                        <span>{{userData.carga_gms}}%</span>
                     </div>
                 </div>
+                <md-divider></md-divider>
                 <div layout layout-padding>
                     <div flex>
-                        <span class="md-title user-info-title">Carga HCM</span>
-                        <br/><span>{{userData.carga_hcm}}%</span>
+                        <span class="md-title user-info-title">Carga HCM:</span>
+                        <span>{{userData.carga_hcm}}%</span>
                     </div>
                 </div>
+                <md-divider></md-divider>
                 <div layout layout-padding>
                     <div flex>
-                        <span class="md-title user-info-title">Carga SEM</span>
-                        <br/><span>{{userData.carga_sem}}%</span>
+                        <span class="md-title user-info-title">Carga SEM:</span>
+                        <span>{{userData.carga_sem}}%</span>
                     </div>
                 </div>
+                <md-divider></md-divider>
                 <div layout layout-padding>
                     <div flex>
-                        <span class="md-title user-info-title">Carga SF</span>
-                        <br/><span>{{userData.carga_sf}}%</span>
+                        <span class="md-title user-info-title">Carga SF:</span>
+                        <span>{{userData.carga_sf}}%</span>
                     </div>
                 </div>
             </md-card-content>

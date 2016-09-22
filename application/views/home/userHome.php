@@ -168,7 +168,7 @@
     </div>
 </div>
 <!-- FAB -->
-<di class="relative">
+<div class="relative">
     <md-button
         id="new-req-fab"
         ng-click="openNewRequestDialog($event)"

@@ -2,9 +2,9 @@ angular
     .module('sgdp')
     .controller('UserInfoController', info);
 
-info.$inject = ['$scope', '$rootScope', '$http'];
+info.$inject = ['$scope', '$http', '$mdMedia'];
 
-function info($scope, $rootScope, $http) {
+function info($scope, $http, $mdMedia) {
     'use strict';
 
     // If no data has been sent, show nothing.
@@ -48,11 +48,12 @@ function info($scope, $rootScope, $http) {
 
     function showUserInfoHelp(options) {
         options.showHeader = true;
+        var responsivePos = $mdMedia('xs') ? 's' : 'e';
         var tripToShowNavigation = new Trip([
             { sel : $("#info-card"),
                 content : "Esta tarjeta muestra información personal de interés del afiliado " +
                 $scope.userName,
-                position : "e", header: "Información del afiliado", expose: true, animation: 'fadeInUp' }
+                position : responsivePos, header: "Información del afiliado", expose: true, animation: 'fadeInUp' }
         ], options);
         tripToShowNavigation.start();
     }

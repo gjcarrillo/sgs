@@ -2,9 +2,9 @@ angular
     .module('sgdp')
     .controller('HistoryController', history);
 
-history.$inject = ['$scope', '$rootScope', '$http', '$mdBottomSheet', '$mdMedia'];
+history.$inject = ['$scope', '$http', '$mdBottomSheet', '$mdMedia'];
 
-function history($scope, $rootScope, $http, $mdBottomSheet, $mdMedia) {
+function history($scope, $http, $mdBottomSheet, $mdMedia) {
     'use strict';
     // This will enable / disable search bar in mobile screens
     $scope.searchEnabled = false;
@@ -67,6 +67,7 @@ function history($scope, $rootScope, $http, $mdBottomSheet, $mdMedia) {
                 " Para ver más detalles acerca de la acción realizada, haga click encima del item.",
                 position : "s", header: "Resumen de acciones", animation: 'fadeInUp' }
         ], options);
+
         if ($mdMedia('gt-xs')) {
             tripToShowNavigation.tripData.push(
                 { sel : $("#filter"),
@@ -80,7 +81,7 @@ function history($scope, $rootScope, $http, $mdBottomSheet, $mdMedia) {
                     content : "También puede hacer click en la lupa y " +
                     "filtrar la lista de acciones escribiendo contenido clave. " +
                     "Ej: 05/08/2016",
-                    position : "w", header: "Filtro de búsqueda", animation: 'fadeInUp' }
+                    position : "s", header: "Filtro de búsqueda", animation: 'fadeInUp' }
             );
         }
         tripToShowNavigation.start();

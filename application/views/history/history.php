@@ -63,7 +63,7 @@
 <main>
     <md-toolbar class="md-tall">
     </md-toolbar>
-    <md-content style="background-color:#F5F5F5" class="u-overflow-fix" layout layout-align="center center">
+    <md-content class="u-overflow-fix bg" layout layout-align="center center">
         <md-card class="history-card">
             <md-card-title>
                 <div class="md-toolbar-tools">

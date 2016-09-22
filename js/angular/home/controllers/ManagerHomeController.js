@@ -2,10 +2,10 @@ angular
     .module('sgdp')
     .controller('ManagerHomeController', managerHome);
 
-managerHome.$inject = ['$scope', '$mdDialog', '$cookies', '$http',
+managerHome.$inject = ['$scope', '$mdDialog', '$http',
     '$state', '$timeout', '$mdSidenav', '$mdMedia'];
 
-function managerHome($scope, $mdDialog, $cookies, $http, $state,
+function managerHome($scope, $mdDialog, $http, $state,
     $timeout, $mdSidenav, $mdMedia) {
     'use strict';
     $scope.model = {};
@@ -449,7 +449,7 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
 
     $scope.downloadAll = function() {
         // Bits of pre-processing before passing objects to URL
-        var paths = new Array();
+        var paths = [];
         angular.forEach($scope.docs, function(doc) {
             paths.push(doc.lpath);
         });
@@ -575,38 +575,40 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
                     $scope.model.comment == $scope.request.comment) {
                     var content = "Agregue un comentario (opcional) " +
                     "hacia la solicitud.";
-                    appendFieldHelp(tripToShowNavigation, "#comment", content);
+                    appendFieldHelp(tripToShowNavigation, "#comment", content, 's');
                 }
                 if ($scope.model.status == "Recibida") {
                     var content = "Seleccione el nuevo estatus de la " +
                         "solicitud.";
-                    appendFieldHelp(tripToShowNavigation, "#status", content);
+                    appendFieldHelp(tripToShowNavigation, "#status", content, 's');
                 }
                 if ($scope.model.status != "Recibida"
                     && typeof $scope.model.reunion === "undefined") {
                     var content = "Agrege el número de reunión (opcional).";
                     appendFieldHelp(tripToShowNavigation, "#reunion",
-                        content);
+                        content, 'n');
                 }
                 if ($scope.model.status == "Aprobada"
                     && typeof $scope.model.approvedAmount === "undefined") {
                     var content = "Agrege el monto aprobado en Bs.";
                     appendFieldHelp(tripToShowNavigation, "#approved-amount",
-                        content);
+                        content, 'n');
                 }
                 if (!$scope.missingField()) {
                     var content = "Haga click en ACTUALIZAR para guardar " +
                         "los cambios."
                     appendFieldHelp(tripToShowNavigation, "#edit-btn",
-                        content);
+                        content, 'n');
                 }
                 tripToShowNavigation.start();
             }
 
-            function appendFieldHelp(trip, id, content) {
+            function appendFieldHelp(trip, id, content, pos) {
                 trip.tripData.push(
-                    { sel : $(id), content: content, position: "s",
-                        animation: 'fadeInUp' }
+                    {
+                        sel : $(id), content: content, position: pos,
+                        animation: 'fadeInUp'
+                    }
                 );
             }
         }
@@ -795,7 +797,9 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
              * @param options: Obj containing tour.js options
              */
             function showFormHelp(options) {
+                var responsivePos = $mdMedia('xs') ? 'n' : 's';
                 var tripToShowNavigation = new Trip([], options);
+
                 var contentId = "Ingrese la cédula de identidad del " +
                 "nuevo gestor.";
                 var contentPsw = "Ingrese la contraseña con que el nuevo " +
@@ -804,50 +808,52 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
                 var contentLastName = "Ingrese el apellido del gestor.";
                 if (typeof $scope.userId === "undefined") {
                     appendFieldHelp(tripToShowNavigation, "#user-id",
-                        contentId);
+                        contentId, responsivePos);
                 }
                 if (typeof $scope.model.psw === "undefined") {
                     appendFieldHelp(tripToShowNavigation, "#user-psw",
-                        contentPsw);
+                        contentPsw, responsivePos);
                 }
                 if (typeof $scope.model.name === "undefined") {
                     appendFieldHelp(tripToShowNavigation, "#user-name",
-                        contentName);
+                        contentName, responsivePos);
                 }
                 if (typeof $scope.model.lastname === "undefined") {
                     appendFieldHelp(tripToShowNavigation, "#user-lastname",
-                        contentLastName);
+                        contentLastName, responsivePos);
                 }
                 if (!$scope.missingField()) {
                     var content = "Haga click en REGISTRAR para crear " +
-                        "el nuevo gestor."
+                        "el nuevo gestor.";
                     appendFieldHelp(tripToShowNavigation, "#register-btn",
-                        content);
+                        content, 'n');
                 }
                 tripToShowNavigation.start();
             }
 
             function showUserSelectionHelp(options) {
+                var responsivePos = $mdMedia('xs') ? 'n' : 's';
                 var tripToShowNavigation = new Trip([], options);
+
                 if (!$scope.selectedUser) {
                     var content = "Haga click para desplegar una lista " +
                         "con los usuarios gestores registrados en el " +
                         "sistema y escoja el usuario a eliminar."
                     appendFieldHelp(tripToShowNavigation, "#select-agent",
-                        content);
+                        content, responsivePos);
                 }
                 if ($scope.selectedUser) {
                     var content = "Haga click en ELIMINAR para proceder " +
                         "con la eliminación del usuario seleccionado."
                     appendFieldHelp(tripToShowNavigation, "#remove-btn",
-                        content);
+                        content, 'n');
                 }
                 tripToShowNavigation.start();
             }
 
-            function appendFieldHelp(trip, id, content) {
+            function appendFieldHelp(trip, id, content, pos) {
                 trip.tripData.push(
-                    { sel : $(id), content: content, position: "s",
+                    { sel : $(id), content: content, position: pos,
                         animation: 'fadeInUp' }
                 );
             }
@@ -1118,7 +1124,7 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
             );
         }
         tripToShowNavigation.start();
-    };
+    }
 
     /**
      * Shows tour-based help of multiple users result query
@@ -1178,19 +1184,31 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
         if ($mdSidenav('left').isLockedOpen()) {
             options.showHeader = true;
             var tripToShowNavigation = new Trip([
-                { sel : $("#pending-req"),
+                {
+                    sel : $("#pending-req"),
                     content : "Ésta es la lista de solicitudes por " +
                         "administrar. Al seleccionar alguna, puede " +
                         "verificar los datos del solicitante o ver " +
                         "los detalles de la solicitud para administrarla.",
                     position : "e", header: "Solicitudes pendientes",
-                    animation: 'fadeInUp' },
-                { sel : $("#adv-search"),
-                    content : "También puede realizar búsquedas más " +
-                    "específicas de las solicitudes. Sólo seleccione" +
-                    " el tipo de consulta e ingrese los datos solicitados.",
+                    animation: 'fadeInUp'
+                },
+                {
+                    sel : $("#adv-search"),
+                    content : "Puede realizar búsquedas más " +
+                        "específicas de las solicitudes. Sólo seleccione" +
+                        " el tipo de consulta e ingrese los datos solicitados.",
                     position : "e", header: "Búsqueda avanzada",
-                    animation: 'fadeInUp' }
+                    animation: 'fadeInUp'
+                },
+                {
+                    sel: $("#approval-report"),
+                    content : "También puede generar reportes de solicitudes " +
+                              "cerradas durante la semana vigente o en un" +
+                              " rango de fechas específico.",
+                    position : "e", header: "Reporte de solicitudes cerradas",
+                    animation: 'fadeInUp'
+                }
 
             ], options);
             tripToShowNavigation.start();
@@ -1201,7 +1219,7 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
                         "panel de navegación, donde podrá elegir las" +
                         " solicitudes a administrar o realizar " +
                         "búsquedas avanzadas.",
-                    position : "e", animation: 'fadeInUp'}
+                    position : "s", animation: 'fadeInUp'}
             ], options);
             tripToShowNavigation.start();
         }
@@ -1253,7 +1271,7 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
                     "ver el historial de la solicitud, editarla " +
                     "(si la solicitud no se ha cerrado), o descargar " +
                     "todos sus documentos.",
-                    position : "w", header: "Acciones", expose : true,
+                    position : "s", header: "Acciones", expose : true,
                     animation: 'fadeInLeft' }
             );
         }
@@ -1263,7 +1281,7 @@ function managerHome($scope, $mdDialog, $cookies, $http, $state,
 
     $scope.generateExcelReport = function() {
         $scope.loadingReport = true;
-        var url = ''
+        var url = '';
         if ($scope.showResult == 0 || $scope.showResult > 1) {
             $scope.report.sheetTitle = $scope.showResult > 1 ?
                 "Reporte por fechas" : "Reporte de afiliado";

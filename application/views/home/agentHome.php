@@ -24,6 +24,7 @@
                     <md-option value="E">E</md-option>
                 </md-select>
                 <input
+                    autofocus
                     class="search-input"
                     placeholder="Ingrese una cédula"
                     aria-label="Search"
@@ -83,6 +84,7 @@
                     <md-option value="E">E</md-option>
                 </md-select>
                 <input
+                    id="search-input"
                     class="search-input"
                     placeholder="Ingrese una cédula"
                     aria-label="Search"

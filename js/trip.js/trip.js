@@ -1004,6 +1004,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	    // In this way, we have to count these attributes at runtime.
 	    this.setTripBlockPosition(o, 'horizontal');
 	    this.setTripBlockPosition(o, 'vertical');
+
+		// CUSTOM behavior: Position the arrow to point at the center of the SEL.
+		// Default behavior: Position the arrow to point at the center of the
+		// tripBlock (not responsive)
+		var centeredSelOffset = o.sel.offset().left + o.sel.outerWidth() / 2;
+		// The arrow's left offset is based on the tripBlock's relative position.
+		// The centered sel left offset is based on screen's absolute position.
+		// Thus, we have to shift the sel centered offset by the tripBlock's left offset.
+		if (parseFloat($tripBlock.css('left')) < 0) {
+		  // Never allow tripBlock to be chopped off
+		  $tripBlock.css({'left': 0});
+		}
+		var arrowOffset = centeredSelOffset - parseFloat($tripBlock.css('left'));
+		$tripBlock.append(
+			'<style>' +
+				'.trip-block.n:before, .trip-block.s:before {' +
+					'left: ' + arrowOffset + 'px' +
+				'}' +
+			'</style>');
 	  },
 
 	  /**

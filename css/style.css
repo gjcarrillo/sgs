@@ -280,4 +280,8 @@ md-list-item.md-3-line>.md-no-style .md-list-item-text h4 {
          */
         min-height: calc(100vh - 121px);
     }
+
+    .user-info-card {
+        width: 85%;
+    }
 }

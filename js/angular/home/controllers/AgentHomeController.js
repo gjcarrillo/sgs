@@ -128,7 +128,7 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
             // Will notify whether all files were uploaded.
             var uploadedFiles;
             // Will contain docs to create in DB
-            var docs = new Array();
+            var docs = [];
 
             $scope.closeDialog = function () {
                 $mdDialog.hide();
@@ -464,9 +464,9 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
                 }
             }
 
-            function showFieldHelp(trip, id, content) {
+            function showFieldHelp(trip, id, content, pos) {
                 trip.tripData.push(
-                    {sel: $(id), content: content, position: "s", animation: 'fadeInUp'}
+                    {sel: $(id), content: content, position: pos, animation: 'fadeInUp'}
                 );
             }
 
@@ -474,36 +474,36 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
                 if (!$scope.model.reqAmount) {
                     // Requested amount field
                     var content = "Ingrese la cantidad de Bs. solicitado por el afiliado.";
-                    showFieldHelp(tripToShowNavigation, "#req-amount", content);
+                    showFieldHelp(tripToShowNavigation, "#req-amount", content, 's');
                 }
                 if (!$scope.idPicTaken) {
                     // Show id pic field help
                     var content = "Haga click para tomar una foto al afiliado.";
-                    showFieldHelp(tripToShowNavigation, "#id-pic", content);
+                    showFieldHelp(tripToShowNavigation, "#id-pic", content, 'n');
                 } else {
                     // Show pic result help
                     var content = "Resultado de la foto del afiliado. Si lo desea, " +
                         "puede eliminarla y volver a tomarla.";
-                    showFieldHelp(tripToShowNavigation, "#id-pic-result", content);
+                    showFieldHelp(tripToShowNavigation, "#id-pic-result", content, 'n');
                 }
                 if (!$scope.docPicTaken) {
                     // Show doc pic field help
-                    var content = "Haga click para opcionalmente proveer un documento" +
+                    var content = "Haga click para (opcionalmente) proveer un documento" +
                         " explicativo de la solicitud. Puede tomarle foto o subir el " +
                         "documento desde la computadora.";
-                    showFieldHelp(tripToShowNavigation, "#doc-pic", content);
+                    showFieldHelp(tripToShowNavigation, "#doc-pic", content, 'n');
                 } else {
                     if (!$scope.file) {
                         // Picture was taken, show pic result help
                         var content = "Resultado de la foto del documento " +
                             "explicativo de la solicitud. Si lo desea, puede eliminarla " +
                             "y volver a tomarla.";
-                        showFieldHelp(tripToShowNavigation, "#doc-pic-result", content);
+                        showFieldHelp(tripToShowNavigation, "#doc-pic-result", content, 'n');
                     } else {
                         // doc was uploaded instead
-                        var content = "Documento explicativo de la solicitud seleccionado." +
+                        var content = "Documento explicativo de la solicitud que ha seleccionado." +
                             " Si lo desea, puede eliminarlo y volver a seleccionarlo.";
-                        showFieldHelp(tripToShowNavigation, "#doc-pic-selection", content);
+                        showFieldHelp(tripToShowNavigation, "#doc-pic-selection", content, 'n');
                     }
                 }
                 tripToShowNavigation.start();
@@ -514,7 +514,7 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
     // Helper method that updates UI's request list.
     function updateRequestListUI(userId, autoSelectIndex,
                                 dialogTitle, dialogContent,
-                                updateUI = false, toggleList = false) {
+                                updateUI, toggleList) {
         // Update interface
         $http.get('index.php/home/AgentHomeController/getUserRequests',
             {params: {fetchId: userId}})
@@ -676,7 +676,7 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
                 // Notifies whether all files were successfully uploaded.
                 var uploadedFiles = new Array($scope.files.length).fill(false);
                 // Will contain docs to create in DB
-                var docs = new Array();
+                var docs = [];
 
                 angular.forEach($scope.files, function (file, index) {
                     file.upload = Upload.upload({
@@ -744,30 +744,30 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
                 var tripToShowNavigation = new Trip([], options);
                 if (typeof $scope.comment === "undefined" || $scope.comment == ""
                     || $scope.comment == $scope.request.comment) {
-                    var content = "Puede opcionalmente realizar algún comentario " +
+                    var content = "Puede (opcionalmente) realizar algún comentario " +
                         "hacia la solicitud.";
-                    appendFieldHelp(tripToShowNavigation, "#comment", content);
+                    appendFieldHelp(tripToShowNavigation, "#comment", content, 's');
                 }
                 if ($scope.files.length == 0) {
-                    var content = "Haga click para para agregar documentos " +
+                    var content = "Haga click para para (opcionalmente) agregar documentos " +
                         "adicionales a la solicitud.";
-                    appendFieldHelp(tripToShowNavigation, "#more-files", content);
+                    appendFieldHelp(tripToShowNavigation, "#more-files", content, 's');
                 } else {
                     content = "Estas tarjetas contienen el nombre y posible descripción " +
                         "de los documentos seleccionados. Puede eliminarla o proporcionar una descripción" +
                         " a través de los íconos en la parte inferior de la tarjeta."
-                    appendFieldHelp(tripToShowNavigation, "#file-card", content);
+                    appendFieldHelp(tripToShowNavigation, "#file-card", content, 'n');
                 }
                 if (!$scope.allFieldsMissing()) {
                     var content = "Haga click en ACTUALIZAR para guardar los cambios."
-                    appendFieldHelp(tripToShowNavigation, "#edit-btn", content);
+                    appendFieldHelp(tripToShowNavigation, "#edit-btn", content, 'n');
                 }
                 tripToShowNavigation.start();
             }
 
-            function appendFieldHelp(trip, id, content) {
+            function appendFieldHelp(trip, id, content, pos) {
                 trip.tripData.push(
-                    {sel: $(id), content: content, position: "s", animation: 'fadeInUp'}
+                    {sel: $(id), content: content, position: pos, animation: 'fadeInUp'}
                 );
             }
         }
@@ -942,12 +942,18 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
      * @param options: Obj containing tour.js options
      */
     function showMobileSearchbarHelp(options) {
+        var pos;
+        if ($mdMedia('xs')) {
+            pos = 's';
+        } else {
+            pos = 'w';
+        }
         var tripToShowNavigation = new Trip([
             {
                 sel: $("#toggle-search"),
                 content: "Haga click en la lupa e ingrese la cédula de identidad " +
-                "de algún afiliado para gestionar sus solicitudes.",
-                position: "w", animation: 'fadeInDown'
+                         "de algún afiliado para gestionar sus solicitudes.",
+                position: pos, animation: 'fadeInDown'
             }
         ], options);
         tripToShowNavigation.start();
@@ -993,6 +999,9 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
      */
     function showRequestHelp(options) {
         options.showHeader = true;
+        var resposiveNorthPos = $mdMedia('xs') ? 'n' : 'w';
+        var responsiveSouthPos = $mdMedia('xs') ? 's' : 'w';
+
         // options.showSteps = true;
         var tripToShowNavigation = new Trip([
             // Request summary information
@@ -1019,8 +1028,8 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
                 sel: $("#request-docs-actions"), content: "Siendo un documento adicional, " +
             "puede hacer click en el botón de opciones para proveer una descripción, " +
             "descargarlos o incluso eliminarlos.",
-                position: "w", header: "Documentos", expose: true, animation: 'fadeInLeft'
-            },
+                position: resposiveNorthPos, header: "Documentos", expose: true, animation: 'fadeInLeft'
+            }
         ], options);
         if ($scope.docs.length < 2) {
             // This request hasn't additional documents.
@@ -1028,22 +1037,22 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
         }
         if ($mdSidenav('left').isLockedOpen()) {
             tripToShowNavigation.tripData.push(
-                // Download as zip information
+                // Request-summary-actions-menu for desktops
                 {
                     sel: $("#request-summary-actions"), content: "Puede ver el historial de la solicitud, " +
                 "editarla (si la solicitud no se ha cerrado), o descargar todos " +
                 "sus documentos presionando el botón correspondiente.",
-                    position: "w", header: "Acciones", expose: true, animation: 'fadeInLeft'
+                    position: responsiveSouthPos, header: "Acciones", expose: true, animation: 'fadeInLeft'
                 }
             );
         } else {
             tripToShowNavigation.tripData.push(
-                // Download as zip information request-summary-actions-menu
+                // Request-summary-actions-menu for mobiles
                 {
                     sel: $("#request-summary-actions-menu"), content: "Haga click en el botón de opciones para " +
                 "ver el historial de la solicitud, editarla (si la solicitud no se ha cerrado)" +
                 ", o descargar todos sus documentos.",
-                    position: "w", header: "Acciones", expose: true, animation: 'fadeInLeft'
+                    position: responsiveSouthPos, header: "Acciones", expose: true, animation: 'fadeInLeft'
                 }
             );
         }
@@ -1053,5 +1062,8 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
     // Enables / disables search bar (for mobile screens)
     $scope.toggleSearch = function () {
         $scope.searchEnabled = !$scope.searchEnabled;
+        $timeout(function () {
+            $("#search-input").focus();
+        }, 300);
     };
 }
