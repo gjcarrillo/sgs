@@ -8,8 +8,9 @@
         <h2 style="padding-right:10px;" class="md-headline">
             <span>{{appName}}</span>
         </h2>
+        <span flex></span>
         <!-- Filter search bar -->
-        <div id="filter" hide-xs flex class="search-wrapper">
+        <div id="filter" hide show-gt-sm class="search-wrapper">
             <div layout layout-align="center center">
                 <input
                     class="search-input"
@@ -21,11 +22,10 @@
             </div>
             <md-tooltip md-direction="right">Puede buscar por nombre, acción o fecha</md-tooltip>
         </div>
-        <span hide-gt-xs flex></span>
         <md-button
             id="toggle-search"
             class="md-icon-button"
-            hide show-xs
+            hide-gt-sm
             ng-click="toggleSearch()"
             aria-label="Search">
             <md-icon>search</md-icon>
@@ -42,20 +42,19 @@
     </div>
     <!-- Mobile filter search bar -->
     <div class="md-toolbar-tools" ng-show="searchEnabled">
-        <md-button href="#/home" class="md-icon-button">
-            <md-icon>
-                arrow_back
-            </md-icon>
-        </md-button>
         <div class="search-wrapper-xs" flex>
             <div layout layout-align="center center">
+                <md-icon ng-click="toggleSearch()" class="toggle-search-icon">
+                    arrow_back
+                </md-icon>
                 <input
+                    id="filter-input"
                     class="search-input"
                     aria-label="Filter"
                     placeholder="Filtre su búsqueda"
                     ng-model="filterInput"
                     type="text" />
-                <md-icon ng-click="toggleSearch()" class="search-icon">close</md-icon>
+                <md-icon ng-click="clearInput()" class="search-icon">close</md-icon>
             </div>
         </div>
     </div>

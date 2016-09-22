@@ -152,10 +152,12 @@ md-list .md-button {
 
 
 .search-wrapper {
+    position: absolute;
+    left: calc(50vw - 180px);
     border-radius: 2px;
     box-shadow: 0 2px 4px 0 rgba(0,0,0,0.20);
     margin: 0 auto;
-    max-width: 280px;
+    width: 360px;
     background: #fff;
     padding: 8px 20px 8px 16px;
 }
@@ -197,6 +199,12 @@ md-select.no-md-select .md-select-value {
 .search-icon {
     color: grey !important;
     padding-left: 10px;
+    cursor: pointer;
+}
+
+.toggle-search-icon {
+    color: grey !important;
+    margin-right: 16px;
     cursor: pointer;
 }
 

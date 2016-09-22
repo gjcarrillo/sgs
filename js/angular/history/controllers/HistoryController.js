@@ -2,9 +2,9 @@ angular
     .module('sgdp')
     .controller('HistoryController', history);
 
-history.$inject = ['$scope', '$http', '$mdBottomSheet', '$mdMedia'];
+history.$inject = ['$scope', '$http', '$mdBottomSheet', '$mdMedia', '$timeout'];
 
-function history($scope, $http, $mdBottomSheet, $mdMedia) {
+function history($scope, $http, $mdBottomSheet, $mdMedia, $timeout) {
     'use strict';
     // This will enable / disable search bar in mobile screens
     $scope.searchEnabled = false;
@@ -68,7 +68,7 @@ function history($scope, $http, $mdBottomSheet, $mdMedia) {
                 position : "s", header: "Resumen de acciones", animation: 'fadeInUp' }
         ], options);
 
-        if ($mdMedia('gt-xs')) {
+        if ($mdMedia('gt-sm')) {
             tripToShowNavigation.tripData.push(
                 { sel : $("#filter"),
                     content : "También puede filtrar la lista de acciones escribiendo contenido clave. " +
@@ -90,5 +90,12 @@ function history($scope, $http, $mdBottomSheet, $mdMedia) {
     // Enables / disables search bar (for mobile screens)
     $scope.toggleSearch = function() {
         $scope.searchEnabled = !$scope.searchEnabled;
+        $timeout(function () {
+            $("#filter-input").focus();
+        }, 300);
+    };
+
+    $scope.clearInput = function() {
+        $scope.filterInput = '';
     };
 }

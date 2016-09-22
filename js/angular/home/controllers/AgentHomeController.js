@@ -879,7 +879,7 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
 
     $scope.downloadAll = function () {
         // Bits of pre-processing before passing objects to URL
-        var paths = new Array();
+        var paths = [];
         angular.forEach($scope.docs, function (doc) {
             paths.push(doc.lpath);
         });
@@ -907,7 +907,7 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
         };
         if (!$scope.contentAvailable) {
             // Indicate user to input another user's ID.
-            if ($mdMedia('gt-xs')) {
+            if ($mdMedia('gt-sm')) {
                 showSearchbarHelp(options);
             } else {
                 showMobileSearchbarHelp(options);
@@ -943,10 +943,10 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
      */
     function showMobileSearchbarHelp(options) {
         var pos;
-        if ($mdMedia('xs')) {
-            pos = 's';
-        } else {
+        if ($mdMedia('gt-sm')) {
             pos = 'w';
+        } else {
+            pos = 's';
         }
         var tripToShowNavigation = new Trip([
             {
@@ -1065,5 +1065,10 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
         $timeout(function () {
             $("#search-input").focus();
         }, 300);
+    };
+
+    $scope.clearSearch = function() {
+        $('#search-input').val('');
+        $scope.searchInput = '';
     };
 }
