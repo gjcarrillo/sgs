@@ -78,6 +78,7 @@ class UserHomeController extends CI_Controller {
         } else {
             // file information
             if ($parsed[3] === "pdf") {
+				// Don't force downloads on pdf files
                 header('Content-type: application/pdf');
                 header('Content-Disposition: inline; filename="' . $parsed[2] . '.' . $parsed[3] . '"');
             } else if ($parsed[3] === "png"
@@ -85,9 +86,11 @@ class UserHomeController extends CI_Controller {
                 || $parsed[3] === "jpeg"
                 || $parsed[3] === "gif"
                 || $parsed[3] === "tif") {
+				// Don't force downloads on image files
                 header('Content-type: image/' . $parsed[3]);
                 header('Content-Disposition: inline; filename="' . $parsed[2] . '.' . $parsed[3] . '"');
             } else {
+				// Force downloads on files that aren't pdf nor image files.
                 header('Content-Disposition: attachment; filename="' . $parsed[2] . '.' . $parsed[3] . '"');
             }
             // The document source

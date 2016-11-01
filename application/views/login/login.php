@@ -55,7 +55,7 @@
                             flex
                             class="md-block">
                             <input
-                                type="text"
+                                type="number"
                                 placeholder="Ej: 123456789"
                                 ng-model="model.login"
                                 ng-keyup="$event.keyCode == 13 && login()">

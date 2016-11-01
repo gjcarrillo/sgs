@@ -888,7 +888,7 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
 
     $scope.loadUserData = function () {
         sessionStorage.setItem("fetchId", $scope.fetchId);
-        window.open('http://localhost:8080/sgdp/#/userInfo', '_blank');
+        window.open('http://192.168.1.105:8080/sgdp/#/userInfo', '_blank');
     };
 
     $scope.openMenu = function () {
