@@ -84,7 +84,7 @@
                             </div>
                             <div layout layout-align="start start">
                                 <md-input-container
-                                    style="margin:0"
+                                    class="no-vertical-margin"
                                     md-no-float>
                                     <md-select
                                         md-on-open="onIdOpen()"
@@ -100,7 +100,7 @@
                                     </md-select>
                                 </md-input-container>
                                 <md-input-container
-                                    style="margin:0"
+                                    class="no-vertical-margin"
                                     md-no-float>
                                    <input
                                        placeholder="Ej: 123456789"
@@ -123,9 +123,10 @@
                         <!-- Query by state -->
                         <div ng-show="model.query == 1" layout="column" layout-padding>
                             <br/>
-                            <span>Elija el status</span>
+                            <span>Elija el estatus</span>
                             <md-input-container
-                                style="margin:0">
+                                class="no-vertical-margin"
+                                md-no-float>
                                 <md-select
                                     md-on-open="onStatusOpen()"
                                     md-on-close="onStatusClose()"
@@ -208,7 +209,7 @@
                             </div>
                             <div layout layout-align="start start">
                                 <md-input-container
-                                    style="margin:0"
+                                    class="no-vertical-margin"
                                     md-no-float>
                                     <md-select
                                         md-on-open="onIdOpen()"
@@ -224,7 +225,7 @@
                                     </md-select>
                                 </md-input-container>
                                 <md-input-container
-                                    style="margin:0"
+                                    class="no-vertical-margin"
                                     md-no-float>
                                    <input
                                        placeholder="Ej: 123456789"
@@ -318,6 +319,11 @@
                         </md-switch>
                     </md-list-item>
                     <md-divider></md-divider>
+                    <div layout layout-align="center center" layout-padding ng-if="loadingContent">
+                        <div layout="column" layout-align="center center">
+                            <md-progress-circular md-mode="indeterminate" md-diameter="60"></md-progress-circular>
+                        </div>
+                    </div>
                     <div ng-show="showPendingReq">
                         <div ng-if="pendingRequests.length == 0" layout layout-align="center center" class="md-padding">
                             <p style="color:#4CAF50; text-align:center">
@@ -473,7 +479,6 @@
                 class="full-content-height"
                 layout layout-align="center center"
                 ng-if="docs.length == 0 &&
-                    !loadingContent &&
                     !showApprovedAmount &&
                     !pieloaded &&
                     pieError == ''">
@@ -482,11 +487,11 @@
                 </div>
             </div>
             <!-- Content pre loader -->
-            <div layout layout-align="center center" class="full-content-height" ng-if="loadingContent">
+            <!-- <div layout layout-align="center center" class="full-content-height" ng-if="loadingContent">
                 <div layout="column" layout-align="center center">
                     <md-progress-circular md-mode="indeterminate" md-diameter="80"></md-progress-circular>
                 </div>
-            </div>
+            </div> -->
             <!-- Pie chart statistics result -->
             <div layout layout-align="center center" class="full-content-height"
                 ng-show="pieloaded && docs.length == 0 &&  pieError == ''">

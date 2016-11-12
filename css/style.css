@@ -112,6 +112,26 @@ md-list .md-button {
     text-align: left;
 }
 
+.pointer {
+    cursor: pointer !important;
+}
+
+.truncate {
+  max-width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wrap-text {
+    max-width: 250px;
+    word-wrap: break-word;;
+}
+
+.smaller-dialog-content {
+    max-width: 50%;
+}
+
 .requestItems {
     padding-left:25px;
     font-weight: 500;
@@ -201,6 +221,10 @@ md-select.no-md-select .md-select-value {
     cursor: pointer;
 }
 
+.grey-color {
+    color: grey !important;
+}
+
 .toggle-search-icon {
     color: grey !important;
     margin-right: 16px;
@@ -210,6 +234,16 @@ md-select.no-md-select .md-select-value {
 .full-screen-dialog {
     max-width: 100%;
     max-height: 100%;
+}
+
+.amount-wrapper {
+    padding-top: 16px;
+    background-color: #F5F5F6;
+}
+
+.no-vertical-margin {
+    margin-top: 0;
+    margin-bottom: 0;
 }
 
 .perspective-svg {
@@ -273,6 +307,10 @@ md-list-item.md-3-line>.md-no-style .md-list-item-text h4 {
          */
         min-height: calc(100vh - 113px);
     }
+
+    .statistics-card {
+        margin: 16px;
+    }
 }
 
 /** Mobile portrait **/
@@ -290,5 +328,21 @@ md-list-item.md-3-line>.md-no-style .md-list-item-text h4 {
 
     .user-info-card {
         width: 85%;
+    }
+
+    .smaller-dialog-content {
+        max-width: 80%;
+    }
+
+    .statistics-card {
+        margin: 16px;
+    }
+
+    .truncate {
+        max-width: 175px;
+    }
+
+    .wrap-text {
+        max-width: 175px;
     }
 }

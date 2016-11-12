@@ -19,33 +19,57 @@
             layout-padding
             layout-align-gt-xs="space-around center">
             <!-- Optional comment input -->
-            <div flex-xs="100">
-                <md-input-container id="comment" class="md-block" md-no-float>
-                    <label>Comentario</label>
+            <div layout="column">
+                <div
+                    class="grey-color">
+                    Comentario
+                </div>
+                <md-input-container
+                        id="comment"
+                        class="no-vertical-margin"
+                        md-no-float>
                     <textarea type="text" ng-model="comment" placeholder="Sin comentario"></textarea>
                 </md-input-container>
             </div>
-            <!-- File(s) input -->
-            <div style="padding-bottom:25px;">
-                <md-button
-                    id="more-files"
-                    ngf-select="gatherFiles($files, $invalidFiles)"
-                    multiple
-                    ngf-pattern="'image/*,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheetapplication/vnd.openxmlformats-officedocument.spreadsheetml.template,,application/pdf,application/msword'"
-                    ngf-max-size="4MB">
+            <div layout="column">
+                <div
+                    class="grey-color">
                     Documentos adicionales
-                    <md-icon>file_upload</md-icon>
-               </md-button>
+                </div>
+                <div layout class="pointer">
+                    <md-input-container
+                        id="more-files"
+                        ngf-select="gatherFiles($files, $invalidFiles)"
+                        multiple
+                        ngf-pattern="'image/*,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheetapplication/vnd.openxmlformats-officedocument.spreadsheetml.template,,application/pdf,application/msword'"
+                        ngf-max-size="4MB"
+                        md-no-float
+                        class="md-icon-left no-vertical-margin">
+                        <input type="text" readonly ng-model="selectedFiles"
+                            class="pointer" placeholder="Clic para subir"/>
+                        <md-icon
+                            ng-show="files.length == 0"
+                            class="pointer grey-icon">
+                            file_upload
+                        </md-icon>
+                        <md-icon
+                            ng-show="files.length > 0"
+                            ng-click="deleteFiles($event)"
+                            class="grey-icon">
+                            delete
+                        </md-icon>
+                    </md-input-container>
+                </div>
             </div>
         </div>
-        <div layout layout-xs="column">
+        <div layout layout-xs="column" layout-padding>
             <!-- Files cards. One card for each file. Allows adding a description or individual removal for each one -->
-            <div  ng-repeat="(dKey, doc) in files">
+            <div ng-repeat="(dKey, doc) in files">
                 <md-card id="file-card">
                     <md-card-title>
                     <md-card-title-text>
-                        <span class="md-headline">{{doc.name}}</span>
-                        <span class="md-subhead">{{doc.description}}</span>
+                        <span class="md-headline truncate">{{doc.name}}</span>
+                        <span class="md-subhead wrap-text">{{doc.description}}</span>
                     </md-card-title-text>
                     </md-card-title>
                     <!-- Add description / Delete doc actions -->
@@ -59,13 +83,13 @@
                         layout="row"
                         layout-align="center center">
                         <md-input-container md-no-float>
-                            <input
+                            <textarea
                                 id="{{dKey}}"
                                 type="text"
                                 ng-model="doc.description"
                                 placeholder="Descripción"
                                 ng-keyup="$event.keyCode == 13 && enableDescription(-1)">
-                            </input>
+                            </textarea>
                         </md-input-container>
                         <md-button class="md-icon-button" ng-click="enableDescription(-1)"><md-icon>send</md-icon></md-button>
                     </md-card-actions>

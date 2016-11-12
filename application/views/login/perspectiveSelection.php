@@ -49,7 +49,7 @@
         <br />
         <!-- HELP -->
         <div layout layout-align="center center">
-            <md-card md-theme="help-card" class="gelp-card">
+            <md-card md-theme="help-card" class="help-card">
                 <md-card-title>
                     <div layout layout-align="center center">
                         <md-icon style="color:#827717">info_outline</md-icon>

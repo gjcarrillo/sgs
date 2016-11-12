@@ -21,7 +21,7 @@
                         <div layout layout-xs="column" layout-padding>
                             <div layout="column" flex="45" flex-xs="100">
                                 <br/>
-                                <div style="color:grey">
+                                <div class="grey-color">
                                     Cédula de identidad
                                 </div>
                                 <div layout layout-align-gt-xs="start start" flex-xs="100">
@@ -60,7 +60,7 @@
                             </div>
                             <div layout="column" flex="45" flex-xs="100" flex-offset="10" flex-offset-xs="0">
                                 <br/>
-                                <div style="color:grey">
+                                <div class="grey-color">
                                     Contraseña
                                 </div>
                                 <md-input-container id="user-psw" style="margin:0" class="md-block" md-no-float>
@@ -78,7 +78,7 @@
                         </div>
                         <div layout layout-xs="column" layout-padding>
                             <div layout="column" flex="45" flex-xs="100">
-                                <div style="color:grey">
+                                <div class="grey-color">
                                     Nombre
                                 </div>
                                 <md-input-container id="user-name" style="margin:0" class="md-block" md-no-float>
@@ -89,7 +89,7 @@
                                 </md-input-container>
                             </div>
                             <div layout="column" flex="45" flex-xs="100" flex-offset="10" flex-offset-xs="0">
-                                <div style="color:grey">
+                                <div class="grey-color">
                                     Apellido
                                 </div>
                                 <md-input-container id="user-lastname" style="margin:0" class="md-block" md-no-float>
@@ -115,7 +115,7 @@
             <md-tab label="Eliminar" md-on-select="selectedTab = 2">
                 <md-content>
                     <div layout="column" layout-padding>
-                        <span style="color:grey">
+                        <span class="grey-color">
                             Por favor escoja el usuario a eliminar
                         </span>
                         <md-input-container

@@ -100,7 +100,7 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
     };
 
 
-    $scope.openNewRequestDialog = function ($event) {
+    $scope.openNewRequestDialog = function ($event, obj) {
         var parentEl = angular.element(document.body);
         $mdDialog.show({
             parent: parentEl,
@@ -112,23 +112,41 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
             locals: {
                 fetchId: $scope.fetchId,
                 maxReqAmount: $scope.maxReqAmount,
-                requestNumb: $scope.requests.length + 1
+                requestNumb: $scope.requests.length + 1,
+                obj: obj,
+                parentScope: $scope
             },
             controller: DialogController
         });
         // Isolated dialog controller for the new request dialog
         function DialogController($scope, $mdDialog, fetchId, maxReqAmount,
-                                  requestNumb) {
+                                  requestNumb, parentScope, obj) {
             $scope.idPicTaken = false;
             $scope.docPicTaken = false;
             $scope.uploading = false;
             $scope.maxReqAmount = maxReqAmount;
+            // obj could have a reference to user data, saved
+            // before confirmation dialog was opened.
+            $scope.model = obj || {due: 24, type: 'pp', tel: {operator:'0412'}};
+            // if user data exists, it means the ID was
+            // already given, so we must show it.
+            if (obj && obj.idFile) {
+                updateIdPic(obj.idData);
+            } else {
+                $scope.idPicTaken = false;
+            }
+
             $scope.uploadErr = '';
-            $scope.model = {};
             // Will notify whether all files were uploaded.
             var uploadedFiles;
             // Will contain docs to create in DB
             var docs = [];
+
+            // if user came back to this dialog after confirming operation..
+            if ($scope.model.confirmed) {
+                // Go ahead and proceed with creation
+                createNewRequest();
+            }
 
             $scope.closeDialog = function () {
                 $mdDialog.hide();
@@ -136,13 +154,30 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
 
             $scope.missingField = function () {
                 return !$scope.idPicTaken ||
-                    typeof $scope.model.reqAmount === "undefined";
+                    typeof $scope.model.reqAmount === "undefined" ||
+                    !$scope.model.tel.value;
+            };
+
+            // TODO: Try to implement this onSelectOpen and onSelectClose
+            // fix as a DIRECTIVE! Used un multiple views...
+            var backup;
+            $scope.onSelectOpen = function() {
+                backup = $scope.model.tel.operator;
+                $scope.model.tel.operator = null;
+            };
+
+            $scope.onSelectClose = function() {
+                if ($scope.model.tel.operator === null) {
+                    $scope.model.tel.operator = backup;
+                }
             };
 
             function updateIdPic(dataURL) {
-                $("#idThumbnail").attr("src", dataURL);
+                // $("#idThumbnail").attr("src", dataURL);
+                $scope.model.idData = dataURL;
                 $scope.idPicTaken = true;
-                $scope.idData = dataURL;
+                // Upate dd pic input
+                $scope.model.idFile = "Foto del afiliado";
             }
 
             function updateDocPic(dataURL) {
@@ -151,8 +186,12 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
                 $scope.docData = dataURL;
             }
 
-            $scope.deleteIdPic = function () {
+            $scope.deleteIdPic = function (event) {
                 $scope.idPicTaken = false;
+                $scope.model.idFile = null;
+                // Stops click propagation (which would open)
+                // the camera again.
+                event.stopPropagation();
             };
 
             $scope.deleteDocPic = function () {
@@ -185,23 +224,48 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
             };
 
             // Creates new request in database and uploads documents
-            $scope.createNewRequest = function () {
+            function createNewRequest() {
                 uploadedFiles = new Array($scope.docPicTaken ? 2 : 1).
                     fill(false);
 
                 $scope.uploading = true;
                 // Upload ID image.
                 uploadData(1, 0);
-                // Upload optional document if provided.
-                if ($scope.docPicTaken) {
-                    if (!$scope.file) {
-                        // Document file was provided.
-                        uploadData(2, 1);
-                    } else {
-                        // Document picture was provided.
-                        uploadFile($scope.file, 1);
-                    }
-                }
+                // // Upload optional document if provided.
+                // if ($scope.docPicTaken) {
+                //     if (!$scope.file) {
+                //         // Document file was provided.
+                //         uploadData(2, 1);
+                //     } else {
+                //         // Document picture was provided.
+                //         uploadFile($scope.file, 1);
+                //     }
+                // }
+            };
+
+            // Shows a dialog asking user to confirm the request creation.
+            $scope.confirmCreation = function (ev) {
+                // Appending dialog to document.body to cover sidenav in docs app
+                var confirm = $mdDialog.confirm()
+                .title('Confirmación de creación de solicitud')
+                .textContent('El sistema generará el documento ' +
+                    'correspondiente a esta solicitud y será' +
+                    ' atendida a la mayor brevedad posible. ¿Desea proceder' +
+                    ' con la solicitud?')
+                .css('smaller-dialog-content')
+                .ariaLabel('Confirmación de creación de solicitud')
+                .targetEvent(ev)
+                .ok('Sí')
+                .cancel('Cancelar');
+                $mdDialog.show(confirm).then(function() {
+                    // Re-open parent dialog and perform request creation
+                    $scope.model.confirmed = true;
+                    parentScope.openNewRequestDialog(null, $scope.model);
+                }, function() {
+                    // Re-open parent dialog and do nothing
+                    parentScope.openNewRequestDialog(null, $scope.model);
+
+                });
             };
 
             // Uploads selected image data to server and updates
@@ -214,18 +278,15 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
                     .then(function (response) {
                         if (response.status == 200) {
                             // Register upload success
-                            uploadedFiles[uploadIndex] = true;
+                            // uploadedFiles[uploadIndex] = true;
                             // Add doc info
                             docs.push ({
                                 lpath: response.data.lpath,
                                 docName: postData.docName,
                                 description: postData.description
                             });
-                            if (uploadsFinished(uploadedFiles)) {
-                                // If all files were uploaded, proceed to
-                                // database entry creation.
-                                performCreation(0);
-                            }
+                            // Proceed to database entry creation.
+                            performCreation(0);
                         } else {
                             console.log("Image upload error!")
                             console.log(response);
@@ -240,7 +301,7 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
                 var docName = "";
                 var description = "";
                 if (type == 1) {
-                    imageData = $scope.idData;
+                    imageData = $scope.model.idData;
                     docName = "Identidad";
                     description = "Comprobación de autorización"
                 } else {
@@ -256,6 +317,11 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
                     description: description
                 };
             }
+
+            // Sets the bound input to the max possibe request amount
+            $scope.setMax = function() {
+                $scope.model.reqAmount = $scope.maxReqAmount;
+            };
 
             // Helper function that performs the document's creation.
             function performCreation(autoSelectIndex) {
@@ -329,11 +395,10 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
                     templateUrl: 'index.php/documents/NewRequestController/camera',
                     clickOutsideToClose: true,
                     escapeToClose: true,
-                    preserveScope: true,
                     autoWrap: true,
-                    skipHide: true,
                     locals: {
-                        sendTo: 1 // 1 = camera result will be sent to id's variables
+                        sendTo: 1, // 1 = camera result will be sent to id's variables
+                        obj: $scope.model // Will retain the user data.
                     },
                     controller: CameraController
                 });
@@ -359,7 +424,7 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
             };
 
             //Controller for camera dialog
-            function CameraController($scope, $mdDialog, sendTo) {
+            function CameraController($scope, $mdDialog, sendTo, obj) {
                 // Setup a channel to receive a video property
                 // with a reference to the video element
                 $scope.channel = {
@@ -382,6 +447,8 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
                 };
                 $scope.closeDialog = function () {
                     $mdDialog.hide();
+                    // Re-open parent dialog
+                    parentScope.openNewRequestDialog(null, obj);
                 };
 
                 $scope.deletePic = function () {
@@ -395,6 +462,8 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
                         updateDocPic(document.querySelector('#snapshot').toDataURL());
                     }
                     $mdDialog.hide();
+                    // Re-open parent dialog
+                    parentScope.openNewRequestDialog(null, obj);
                 };
 
                 $scope.takePicture = function () {
@@ -608,6 +677,8 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
 
             $scope.removeDoc = function (index) {
                 $scope.files.splice(index, 1);
+                $scope.selectedFiles = $scope.files.length > 0 ?
+                    $scope.files.length + ' archivo(s)' : null;
             };
 
             $scope.isDescriptionEnabled = function (dKey) {
@@ -638,8 +709,19 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
             // Gathers the files whenever the file input's content is updated
             $scope.gatherFiles = function (files, errFiles) {
                 $scope.files = files;
+                $scope.selectedFiles = $scope.files.length > 0 ?
+                    $scope.files.length + ' archivo(s)' : null;
                 $scope.errFiles = errFiles;
             };
+
+            // Deletes all selected files
+            $scope.deleteFiles = function(ev) {
+                $scope.files = [];
+                $scope.selectedFiles = null;
+                // Stop click event propagation, otherwise file chooser will
+                // also be opened.
+                ev.stopPropagation();
+            }
 
             // Creates new request in database and uploads documents
             $scope.updateRequest = function () {

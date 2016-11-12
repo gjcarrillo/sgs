@@ -104,8 +104,12 @@ function managerHome($scope, $mdDialog, $http, $state,
                 if (response.data.message === "success") {
                     $scope.pendingRequests = response.data.requests;
                     if ($scope.pendingRequests.length > 0) {
-                        $scope.showPendingReq = true;
-                        $mdSidenav('left').open();
+                        // Give 500ms to render the list in the view
+                        // Otherwise 'Empty list' msg will appear briefly.
+                        $timeout(function() {
+                            $scope.showPendingReq = true;
+                            $mdSidenav('left').open();
+                        }, 500);
                     }
                 }
                 $scope.loadingContent = false;

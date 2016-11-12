@@ -57,7 +57,7 @@ function userHome($scope, $http, $cookies, $timeout,
         $mdSidenav('left').toggle();
     };
 
-    $scope.openNewRequestDialog = function ($event) {
+    $scope.openNewRequestDialog = function ($event, obj) {
         var parentEl = angular.element(document.body);
         $mdDialog.show({
             parent: parentEl,
@@ -69,23 +69,35 @@ function userHome($scope, $http, $cookies, $timeout,
             locals: {
                 fetchId: fetchId,
                 maxReqAmount: $scope.maxReqAmount,
-                requestNumb: $scope.requests.length + 1
+                requestNumb: $scope.requests.length + 1,
+                obj: obj,
+                parentScope: $scope
             },
             controller: DialogController
         });
         // Isolated dialog controller for the new request dialog
         function DialogController($scope, $mdDialog, fetchId, maxReqAmount,
-                                  requestNumb) {
-            $scope.idPicTaken = false;
+                                  requestNumb, parentScope, obj) {
             $scope.docPicTaken = false;
             $scope.uploading = false;
             $scope.maxReqAmount = maxReqAmount;
-            $scope.model = {};
+            // obj could have a reference to user data, saved
+            // before confirmation dialog was opened.
+            $scope.model = obj || {due: 24, type: 'pp', tel: {operator: '0412'}};
+            // if user data exists, it means the ID was
+            // already given, so we must show it.
+            $scope.idPicTaken = obj && obj.idFile ? true : false;
             $scope.uploadErr = '';
             // Will notify whether all files were uploaded.
             var uploadedFiles;
             // Will contain docs to create in DB
             var docs = [];
+
+            // if user came back to this dialog after confirming operation..
+            if ($scope.model.confirmed) {
+                // Go ahead and proceed with creation
+                createNewRequest();
+            }
 
             $scope.closeDialog = function () {
                 $mdDialog.hide();
@@ -93,11 +105,16 @@ function userHome($scope, $http, $cookies, $timeout,
 
             $scope.missingField = function () {
                 return !$scope.idPicTaken ||
-                       typeof $scope.model.reqAmount === "undefined";
+                       typeof $scope.model.reqAmount === "undefined" ||
+                       !$scope.model.tel.value;
             };
 
-            $scope.deleteIdPic = function () {
+            $scope.deleteIdPic = function (event) {
                 $scope.idPicTaken = false;
+                $scope.model.idFile = {};
+                // Stops click propagation (which would open)
+                // the camera again.
+                event.stopPropagation();
             };
 
             $scope.deleteDocPic = function () {
@@ -106,9 +123,9 @@ function userHome($scope, $http, $cookies, $timeout,
 
             $scope.gatherIDFile = function (file, errFiles) {
                 if (file) {
-                    $scope.idFile = file;
-                    $scope.idFile.description = "Comprobación de autorización";
-                    $scope.idFile.docName = "Identidad";
+                    $scope.model.idFile = file;
+                    $scope.model.idFile.description = "Comprobación de autorización";
+                    $scope.model.idFile.docName = "Identidad";
                     $scope.idPicTaken = true;
                 }
                 $scope.errFiles = errFiles;
@@ -125,6 +142,17 @@ function userHome($scope, $http, $cookies, $timeout,
                 $scope.errFiles = errFiles;
             };
 
+            $scope.showIdError = function (error, param) {
+                if (error === "pattern") {
+                    return "Archivo no aceptado. Por favor seleccione " +
+                        "imágenes o archivos PDF.";
+                } else if (error === "maxSize") {
+                    return "El archivo es muy grande. Tamaño máximo es: " +
+                        param;
+                }
+                console.log(error);
+            };
+
             $scope.showError = function (error, param) {
                 if (error === "pattern") {
                     return "Archivo no aceptado. Por favor seleccione " +
@@ -136,17 +164,17 @@ function userHome($scope, $http, $cookies, $timeout,
             };
 
             // Creates new request in database and uploads documents
-            $scope.createNewRequest = function () {
+            function createNewRequest() {
                 $scope.uploading = true;
-                uploadedFiles = new Array($scope.docPicTaken ? 2 : 1).
-                    fill(false);
+                // uploadedFiles = new Array($scope.docPicTaken ? 2 : 1).
+                //     fill(false);
 
                 // Upload ID document.
-                uploadFile($scope.idFile, 0);
-                if ($scope.docPicTaken) {
-                    // Upload the optional document.
-                    uploadFile($scope.docFile, 1);
-                }
+                uploadFile($scope.model.idFile, 0);
+                // if ($scope.docPicTaken) {
+                //     // Upload the optional document.
+                //     uploadFile($scope.docFile, 1);
+                // }
             };
 
             // Determines whether all files were uploaded
@@ -170,7 +198,7 @@ function userHome($scope, $http, $cookies, $timeout,
 
                 file.upload.then(function (response) {
                     // Register upload success
-                    uploadedFiles[uploadIndex] = true;
+                    // uploadedFiles[uploadIndex] = true;
                     // Add doc info
                     docs.push({
                         lpath: response.data.lpath,
@@ -178,11 +206,14 @@ function userHome($scope, $http, $cookies, $timeout,
                         description: file.description
                     });
 
-                    if (uploadsFinished(uploadedFiles)) {
-                        // If all files were uploaded, proceed to
-                        // database entry creation.
-                        performCreation(0);
-                    }
+                    // if (uploadsFinished(uploadedFiles)) {
+                    //     // If all files were uploaded, proceed to
+                    //     // database entry creation.
+                    //     performCreation(0);
+                    // }
+
+                    // Proceed to database entry creation.
+                    performCreation(0);
                 }, function (response) {
                     // Show upload error
                     if (response.status > 0)
@@ -217,6 +248,36 @@ function userHome($scope, $http, $cookies, $timeout,
             // logged user's type
             $scope.userType = function (type) {
                 return type === $cookies.getObject('session').type;
+            };
+
+            // Sets the bound input to the max possibe request amount
+            $scope.setMax = function() {
+                $scope.model.reqAmount = $scope.maxReqAmount;
+            };
+
+            // Shows a dialog asking user to confirm the request creation.
+            $scope.confirmCreation = function (ev) {
+                // Appending dialog to document.body to cover sidenav in docs app
+                var confirm = $mdDialog.confirm()
+                .title('Confirmación de creación de solicitud')
+                .textContent('El sistema generará el documento ' +
+                    'correspondiente a su solicitud y será' +
+                    ' atendida a la mayor brevedad posible. ¿Desea proceder' +
+                    ' con su solicitud?')
+                .css('smaller-dialog-content')
+                .ariaLabel('Confirmación de creación de solicitud')
+                .targetEvent(ev)
+                .ok('Sí')
+                .cancel('Cancelar');
+                $mdDialog.show(confirm).then(function() {
+                    // Re-open parent dialog and perform request creation
+                    $scope.model.confirmed = true;
+                    parentScope.openNewRequestDialog(null, $scope.model);
+                }, function() {
+                    // Re-open parent dialog and do nothing
+                    parentScope.openNewRequestDialog(null, $scope.model);
+
+                });
             };
 
             $scope.showHelp = function () {
@@ -254,7 +315,7 @@ function userHome($scope, $http, $cookies, $timeout,
                 }
             }
 
-            function showFieldHelp(trip, id, content, pos) {
+            function addFieldHelp(trip, id, content, pos) {
                 trip.tripData.push(
                     {
                         sel: $(id), content: content, position: pos,
@@ -264,25 +325,34 @@ function userHome($scope, $http, $cookies, $timeout,
             }
 
             function showAllFieldsHelp(tripToShowNavigation) {
+                var content = '';
                 if (!$scope.model.reqAmount) {
                     // Requested amount field
-                    var content = "Ingrese la cantidad de Bs. que " +
+                    content = "Ingrese la cantidad de Bs. que " +
                                   "desea solicitar.";
-                    showFieldHelp(tripToShowNavigation, "#req-amount",
+                    addFieldHelp(tripToShowNavigation, "#req-amount",
                                   content, 's');
+                }
+                if (!$scope.model.phone) {
+                    // Requested amount field
+                    content = "Ingrese su número telefónico, a través " +
+                                  "del cual nos estaremos comunicando con usted.";
+                    addFieldHelp(tripToShowNavigation, "#phone-numb",
+                                  content, 'n');
                 }
                 if (!$scope.idPicTaken) {
                     // Show id pic field help
-                    var content = "Haga click para subir su cédula de " +
+                    content = "Haga click para subir su cédula de " +
                                   "identidad en digital.";
-                    showFieldHelp(tripToShowNavigation, "#id-pic", content, 'n');
+                    addFieldHelp(tripToShowNavigation, "#id-pic", content, 'n');
                 }
-                if (!$scope.docPicTaken) {
-                    // Show doc pic field help
-                    var content = "Haga click para opcionalmente proveer " +
-                                  "un documento explicativo de la solicitud.";
-                    showFieldHelp(tripToShowNavigation, "#doc-pic", content, 'n');
-                }
+                // Add payment due help.
+                content = "Escoja el plazo (en meses) en el que desea " +
+                                "pagar su deuda.";
+                addFieldHelp(tripToShowNavigation, "#payment-due", content, 'n');
+                // Add loan type help.
+                content = "Escoja el tipo de préstamo que desea solicitar.";
+                addFieldHelp(tripToShowNavigation, "#loan-type", content, 'n');
                 tripToShowNavigation.start();
             }
         }

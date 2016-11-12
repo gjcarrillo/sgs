@@ -9,7 +9,7 @@
 <!-- Content -->
 <main class="main-w-footer">
     <div ng-hide="recovery.recoveryView" layout="column" layout-align="center center" layout-padding>
-        <h1 class="md-title" style="font-weight:300; text-align:center">Todos tus documentos. Un solo lugar.</h1>
+        <!-- <h1 class="md-title" style="font-weight:300; text-align:center">Todos tus documentos. Un solo lugar.</h1> -->
         <span class="md-subhead">Inicie sesión para ingresar al sistema</span>
     </div>
     <md-content>
