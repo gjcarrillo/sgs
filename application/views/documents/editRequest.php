@@ -49,13 +49,13 @@
                             class="pointer" placeholder="Clic para subir"/>
                         <md-icon
                             ng-show="files.length == 0"
-                            class="pointer grey-icon">
+                            class="pointer grey-color">
                             file_upload
                         </md-icon>
                         <md-icon
                             ng-show="files.length > 0"
                             ng-click="deleteFiles($event)"
-                            class="grey-icon">
+                            class="grey-color">
                             delete
                         </md-icon>
                     </md-input-container>
