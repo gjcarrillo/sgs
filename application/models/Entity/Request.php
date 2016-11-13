@@ -88,6 +88,27 @@ class Request
     private $userOwner;
 
     /**
+     * @var integer
+     *
+     * @ORM\Column(name="paymentDue", type="smallint", precision=2, scale=0, nullable=false, unique=false)
+     */
+    private $paymentDue;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="loanType", type="smallint", precision=2, scale=0, nullable=false, unique=false)
+     */
+    private $loanType;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="contactNumb", type="integer", scale=0, nullable=false, unique=false)
+     */
+    private $contactNumber;
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -350,5 +371,74 @@ class Request
     public function getUserOwner()
     {
         return $this->userOwner;
+    }
+
+    /**
+     * Set paymentDue
+     *
+     * @param integer $paymentDue
+     * @return Request
+     */
+    public function setPaymentDue($paymentDue)
+    {
+        $this->paymentDue = $paymentDue;
+    
+        return $this;
+    }
+
+    /**
+     * Get paymentDue
+     *
+     * @return integer 
+     */
+    public function getPaymentDue()
+    {
+        return $this->paymentDue;
+    }
+
+    /**
+     * Set loanType
+     *
+     * @param integer $loanType
+     * @return Request
+     */
+    public function setLoanType($loanType)
+    {
+        $this->loanType = $loanType;
+    
+        return $this;
+    }
+
+    /**
+     * Get loanType
+     *
+     * @return integer 
+     */
+    public function getLoanType()
+    {
+        return $this->loanType;
+    }
+
+    /**
+     * Set contactNumber
+     *
+     * @param integer $contactNumber
+     * @return Request
+     */
+    public function setContactNumber($contactNumber)
+    {
+        $this->contactNumber = $contactNumber;
+    
+        return $this;
+    }
+
+    /**
+     * Get contactNumber
+     *
+     * @return integer 
+     */
+    public function getContactNumber()
+    {
+        return $this->contactNumber;
     }
 }

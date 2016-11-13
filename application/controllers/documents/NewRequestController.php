@@ -61,6 +61,9 @@ class NewRequestController extends CI_Controller {
 	            $request->setStatus(1);
 	            $request->setCreationDate(new DateTime('now', new DateTimeZone('America/Barbados')));
 				$request->setRequestedAmount($data['reqAmount']);
+				$request->setLoanType($data['loanType']);
+				$request->setPaymentDue($data['due']);
+				$request->setContactNumber($data['tel']);
 	            $user = $em->find('\Entity\User', $data['userId']);
 	            $request->setUserOwner($user);
 	            $user->addRequest($request);

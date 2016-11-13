@@ -127,7 +127,7 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
             $scope.maxReqAmount = maxReqAmount;
             // obj could have a reference to user data, saved
             // before confirmation dialog was opened.
-            $scope.model = obj || {due: 24, type: 'pp', tel: {operator:'0412'}};
+            $scope.model = obj || {due: 24, type: 40, tel: {operator:'0412'}};
             // if user data exists, it means the ID was
             // already given, so we must show it.
             if (obj && obj.idFile) {
@@ -328,8 +328,12 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
                 var postData = {
                     userId: fetchId,
                     reqAmount: $scope.model.reqAmount,
+                    tel: parseInt($scope.model.tel.operator + $scope.model.tel.value, 10),
+                    due: $scope.model.due,
+                    loanType: $scope.model.type,
                     docs: docs
                 };
+                console.log(postData);
                 $http.post('index.php/documents/NewRequestController/createRequest',
                     JSON.stringify(postData))
                     .then(function (response) {
@@ -533,7 +537,7 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
                 }
             }
 
-            function showFieldHelp(trip, id, content, pos) {
+            function addFieldHelp(trip, id, content, pos) {
                 trip.tripData.push(
                     {sel: $(id), content: content, position: pos, animation: 'fadeInUp'}
                 );
@@ -543,36 +547,43 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
                 if (!$scope.model.reqAmount) {
                     // Requested amount field
                     var content = "Ingrese la cantidad de Bs. solicitado por el afiliado.";
-                    showFieldHelp(tripToShowNavigation, "#req-amount", content, 's');
+                    addFieldHelp(tripToShowNavigation, "#req-amount", content, 's');
+                }
+                if (!$scope.model.phone) {
+                    // Requested amount field
+                    content = "Ingrese el número telefónico del afiliado, a través " +
+                                  "del cual se le estará contactando.";
+                    addFieldHelp(tripToShowNavigation, "#phone-numb",
+                                  content, 'n');
                 }
                 if (!$scope.idPicTaken) {
                     // Show id pic field help
                     var content = "Haga click para tomar una foto al afiliado.";
-                    showFieldHelp(tripToShowNavigation, "#id-pic", content, 'n');
+                    addFieldHelp(tripToShowNavigation, "#id-pic", content, 'n');
                 } else {
                     // Show pic result help
                     var content = "Resultado de la foto del afiliado. Si lo desea, " +
                         "puede eliminarla y volver a tomarla.";
-                    showFieldHelp(tripToShowNavigation, "#id-pic-result", content, 'n');
+                    addFieldHelp(tripToShowNavigation, "#id-pic-result", content, 'n');
                 }
                 if (!$scope.docPicTaken) {
                     // Show doc pic field help
                     var content = "Haga click para (opcionalmente) proveer un documento" +
                         " explicativo de la solicitud. Puede tomarle foto o subir el " +
                         "documento desde la computadora.";
-                    showFieldHelp(tripToShowNavigation, "#doc-pic", content, 'n');
+                    addFieldHelp(tripToShowNavigation, "#doc-pic", content, 'n');
                 } else {
                     if (!$scope.file) {
                         // Picture was taken, show pic result help
                         var content = "Resultado de la foto del documento " +
                             "explicativo de la solicitud. Si lo desea, puede eliminarla " +
                             "y volver a tomarla.";
-                        showFieldHelp(tripToShowNavigation, "#doc-pic-result", content, 'n');
+                        addFieldHelp(tripToShowNavigation, "#doc-pic-result", content, 'n');
                     } else {
                         // doc was uploaded instead
                         var content = "Documento explicativo de la solicitud que ha seleccionado." +
                             " Si lo desea, puede eliminarlo y volver a seleccionarlo.";
-                        showFieldHelp(tripToShowNavigation, "#doc-pic-selection", content, 'n');
+                        addFieldHelp(tripToShowNavigation, "#doc-pic-selection", content, 'n');
                     }
                 }
                 tripToShowNavigation.start();

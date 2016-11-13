@@ -185,8 +185,8 @@
                         <b>Tipo de préstamo</b>:
                     </p>
                     <md-radio-group ng-model="model.type">
-                        <md-radio-button value="pp">Préstamo Personal</md-radio-button>
-                        <md-radio-button value="vc">Vale de Caja</md-radio-button>
+                        <md-radio-button value="40">Préstamo Personal</md-radio-button>
+                        <md-radio-button value="31">Vale de Caja</md-radio-button>
                     </md-radio-group>
                 </div>
             </div>
@@ -204,7 +204,9 @@
         <md-button ng-hide="uploading" ng-click="closeDialog()" class="md-primary">
             Cancelar
         </md-button>
-        <md-progress-linear ng-show="uploading" md-mode="determinate"
+        <md-progress-linear ng-show="uploading && userType(3)" md-mode="determinate"
             value="{{model.idFile.progress}}"></md-progress-linear>
+        <md-progress-linear ng-show="uploading && userType(1)" md-mode="indeterminate">
+        </md-progress-linear>
     </md-dialog-actions>
 </md-dialog>

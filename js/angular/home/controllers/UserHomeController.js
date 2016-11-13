@@ -9,15 +9,21 @@ function userHome($scope, $http, $cookies, $timeout,
                   $mdSidenav, $mdDialog, Upload, $mdMedia) {
     'use strict';
     $scope.loading = true;
-    $scope.selectedReq = -1;
-    $scope.requests = [];
+    $scope.selectedReq = '';
+    $scope.selectedLoan = -1;
+    $scope.requests = {};
     $scope.docs = [];
-    $scope.showList = false;
+    $scope.showList = {pp: false, vc: false};
     $scope.fetchError = '';
     // contentAvailable will indicate whether sidenav can be visible
     $scope.contentAvailable = false;
     // contentLoaded will indicate whether sidenav can be locked open
     $scope.contentLoaded = false;
+    $scope.listTitle = {
+        pp: 'préstamos personales',
+        vc: 'vales de caja'
+    };
+    var totalLoans = 0;
 
     var fetchId = $cookies.getObject('session').id;
     $http.get('index.php/home/UserHomeController/getUserRequests',
@@ -26,18 +32,12 @@ function userHome($scope, $http, $cookies, $timeout,
                   $scope.maxReqAmount = response.data.maxReqAmount;
                   if (response.data.message === "success") {
                       if (typeof response.data.requests !== "undefined") {
-                          $scope.requests = response.data.requests;
+                          filterRequests(response.data.requests);
                       }
                       $scope.contentAvailable = true;
                       $timeout(function () {
                           $scope.contentLoaded = true;
                           $mdSidenav('left').open();
-                          $timeout(function () {
-                              if ($scope.requests.length > 0) {
-                                  $scope.showList = true;
-                                  // $scope.selectRequest(0);
-                              }
-                          }, 600);
                       }, 600);
                   } else {
                       $scope.fetchError = response.data.message;
@@ -45,17 +45,42 @@ function userHome($scope, $http, $cookies, $timeout,
                   $scope.loading = false;
               });
 
-    $scope.toggleList = function () {
-        $scope.showList = !$scope.showList;
+    $scope.toggleList = function (index) {
+        $scope.showList[index] = !$scope.showList[index];
     };
 
-    $scope.selectRequest = function (req) {
-        $scope.selectedReq = req;
-        if (req != -1) {
-            $scope.docs = $scope.requests[req].docs;
+    /**
+     * Selects the specified request.
+     *
+     * @param i - row index of the selected request in $scope.requests
+     * @param j - column index of the selected request in $scope.requests
+     */
+    $scope.selectRequest = function (i, j) {
+        if (i != -1 && j != -1) {
+            $scope.selectedReq = i;
+            $scope.selectedLoan = j;
+            console.log(i);
+            console.log(j);
+            $scope.docs = $scope.requests[i][j].docs;
         }
         $mdSidenav('left').toggle();
     };
+
+    /**
+     * Filters all requests by type and assigns to the scope.
+     * @param requests - Requests array.
+     */
+    function filterRequests(requests) {
+        totalLoans = 0;
+        $scope.requests.pp = requests.filter(function (loan) {
+            totalLoans++;
+            return loan.type == 40;
+        });
+        $scope.requests.vc = requests.filter(function(loan) {
+            totalLoans++;
+            return loan.type == 31;
+        });
+    }
 
     $scope.openNewRequestDialog = function ($event, obj) {
         var parentEl = angular.element(document.body);
@@ -69,7 +94,7 @@ function userHome($scope, $http, $cookies, $timeout,
             locals: {
                 fetchId: fetchId,
                 maxReqAmount: $scope.maxReqAmount,
-                requestNumb: $scope.requests.length + 1,
+                requestNumb: totalLoans + 1,
                 obj: obj,
                 parentScope: $scope
             },
@@ -83,7 +108,7 @@ function userHome($scope, $http, $cookies, $timeout,
             $scope.maxReqAmount = maxReqAmount;
             // obj could have a reference to user data, saved
             // before confirmation dialog was opened.
-            $scope.model = obj || {due: 24, type: 'pp', tel: {operator: '0412'}};
+            $scope.model = obj || {due: 24, type: 40, tel: {operator: '0412'}};
             // if user data exists, it means the ID was
             // already given, so we must show it.
             $scope.idPicTaken = obj && obj.idFile ? true : false;
@@ -230,6 +255,9 @@ function userHome($scope, $http, $cookies, $timeout,
                 var postData = {
                     userId: fetchId,
                     reqAmount: $scope.model.reqAmount,
+                    tel: parseInt($scope.model.tel.operator + $scope.model.tel.value, 10),
+                    due: $scope.model.due,
+                    loanType: $scope.model.type,
                     docs: docs
                 };
                 $http.post('index.php/documents/NewRequestController/createRequest',
@@ -239,7 +267,8 @@ function userHome($scope, $http, $cookies, $timeout,
                                   updateRequestListUI(fetchId, autoSelectIndex,
                                                       'Solicitud creada',
                                                       'La solicitud ha sido creada exitosamente.',
-                                                      true, true);
+                                                      true, true,
+                                                      parseInt(postData.loanType, 10));
                               }
                           });
             }
@@ -361,20 +390,24 @@ function userHome($scope, $http, $cookies, $timeout,
     // Helper method that updates UI's request list.
     function updateRequestListUI(userId, autoSelectIndex,
                                  dialogTitle, dialogContent,
-                                 updateUI, toggleList) {
+                                 updateUI, toggleList, type) {
         // Update interface
         $http.get('index.php/home/AgentHomeController/getUserRequests',
             {params: {fetchId: userId}})
             .then(function (response) {
                       if (response.status == 200) {
                           // Update UI only if needed
+                          var loanType = mapReqTypes(type);
+                          console.log(type);
+                          console.log(loanType);
                           if (updateUI) {
                               updateContent(response.data.requests,
+                                            loanType, //TODO: Utils.mapReqTypes(type)
                                             autoSelectIndex);
                           }
                           // Toggle request list only if requested.
                           if (toggleList) {
-                              toggleReqList();
+                              toggleReqList(loanType);
                           }
                           // Close dialog and alert user that operation was
                           // successful
@@ -386,6 +419,19 @@ function userHome($scope, $http, $cookies, $timeout,
                           console.log(response);
                       }
                   });
+    }
+
+    function mapReqTypes(type) {
+        switch (type) {
+            case 40:
+                return 'pp';
+                break;
+            case 31:
+                return 'vc';
+                break;
+            default:
+                return 'unknown';
+        }
     }
 
     // Helper function that shows an alert dialog message
@@ -403,23 +449,38 @@ function userHome($scope, $http, $cookies, $timeout,
     }
 
     // Helper function that updates content with new request
-    function updateContent(requests, selection) {
+    function updateContent(requests, req, selection) {
         $scope.contentLoaded = true;
         $scope.contentAvailable = true;
         $scope.fetchError = '';
-        $scope.requests = requests;
+        // Filter the result.
+        filterRequests(requests);
+        console.log(req);
+        console.log(selection);
         // Automatically select created request
-        $scope.selectRequest(selection);
+        $scope.selectRequest(req, selection);
     }
 
-    function toggleReqList() {
-        // Toggle list
-        $scope.showList = false;
+    /**
+     * Automatically toggles the requests list.
+     *
+     * @param index - Request list's index
+     */
+    function toggleReqList(index) {
+        // Close the list
+        // $scope.showList[index] = false;
+        closeAllReqList();
         $timeout(function () {
-            // Toggle list again
-            $scope.showList = true;
+            // Open the list
+            $scope.showList[index] = true;
         }, 1000);
 
+    }
+
+    function closeAllReqList() {
+        angular.forEach($scope.showList, function(show, index) {
+            $scope.showList[index] = false;
+        });
     }
 
     // Helper function for formatting numbers with leading zeros
@@ -474,8 +535,7 @@ function userHome($scope, $http, $cookies, $timeout,
      */
     function showSidenavHelp(options) {
         var responsivePos = $mdMedia('xs') ? 'n' : 'w';
-
-        if ($mdSidenav('left').isLockedOpen() && $scope.requests.length > 0) {
+        if ($mdSidenav('left').isLockedOpen() && totalLoans > 0) {
             options.showHeader = true;
             var tripToShowNavigation = new Trip([
                 {
@@ -494,7 +554,7 @@ function userHome($scope, $http, $cookies, $timeout,
                 }
             ], options);
             tripToShowNavigation.start();
-        } else if ($scope.requests.length > 0) {
+        } else if ($scope.contentLoaded && totalLoans > 0) {
             var tripToShowNavigation = new Trip([
                 {
                     sel: $("#nav-panel"),

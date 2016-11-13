@@ -53,6 +53,7 @@ class AgentHomeController extends CI_Controller {
                         $result['requests'][$rKey]['approvedAmount'] = $request->getApprovedAmount();
                         $result['requests'][$rKey]['reunion'] = $request->getReunion();
                         $result['requests'][$rKey]['status'] = $request->getStatusByText();
+						$result['requests'][$rKey]['type'] = $request->getLoanType();
                         $docs = $request->getDocuments();
                         foreach ($docs as $dKey => $doc) {
                             $result['requests'][$rKey]['docs'][$dKey]['id'] = $doc->getId();
