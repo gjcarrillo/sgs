@@ -180,7 +180,7 @@
                         <md-radio-button value="60">60 meses</md-radio-button>
                     </md-radio-group>
                 </div>
-                <div class="md-padding" style="padding-top:0"id="loan-type">
+                <div class="md-padding" style="padding-top:0" id="loan-type">
                     <p class="grey-color">
                         <b>Tipo de préstamo</b>:
                     </p>

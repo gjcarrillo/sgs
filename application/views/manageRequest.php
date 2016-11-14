@@ -63,7 +63,7 @@
                         id="reunion"
                         class="md-block no-vertical-margin"
                         md-no-float>
-                    <input type="number" min="0" ng-model="model.reunion" placeholder="Ej: 325"></input>
+                    <input type="number" min="0" ng-model="model.reunion" placeholder="Ej: 325"/>
                 </md-input-container>
             </div>
             <div
@@ -79,7 +79,7 @@
                         id="approved-amount"
                         class="md-block no-vertical-margin"
                         md-no-float>
-                    <input type="number" required min="0" ng-model="model.approvedAmount" placeholder="Ej: 150000"></input>
+                    < type="number" required min="0" ng-model="model.approvedAmount" placeholder="Ej: 150000"/>
                 </md-input-container>
             </div>
         </div>

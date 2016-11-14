@@ -59,12 +59,12 @@
                 <div layout>
                     <div flex="30">
                         <md-input-container md-no-float class="md-block">
-                            <input type="text" placeholder="C.I."ng-model="id"/>
+                            <input type="text" placeholder="C.I." ng-model="id"/>
                         </md-input-container>
                     </div>
                     <div flex="30" flex-offset="5">
                         <md-input-container md-no-float class="md-block">
-                            <input type="text" placeholder="Fecha"ng-model="model.date"/>
+                            <input type="text" placeholder="Fecha" ng-model="model.date"/>
                         </md-input-container>
                     </div>
                     <div flex="30" flex-offset="5">

@@ -76,9 +76,8 @@
                     <div ng-repeat="(hKey, hist) in history | filter:filterInput">
                         <md-list-item
                             id="action-summary"
-                            class="md-3-line"
-                            ng-click="showListBottomSheet(hist)"
-                            class="noright">
+                            class="md-3-line noright"
+                            ng-click="showListBottomSheet(hist)">
                             <md-icon  ng-style="{'color':'#2196F3', 'font-size':'36px'}">account_circle</md-icon>
                             <div class="md-list-item-text" layout="column">
                                <h3>{{hist.userResponsable}}</h3>

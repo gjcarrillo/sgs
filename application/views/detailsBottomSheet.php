@@ -3,8 +3,7 @@
   <md-list>
       <div ng-repeat="(aKey, action) in actions">
           <md-list-item
-              class="md-2-line"
-              class="noright">
+              class="md-2-line noright">
               <div class="md-list-item-text" layout="column">
                  <h3>{{aKey+1}} - {{action.summary}}</h3>
                  <p>{{action.detail}}</p>

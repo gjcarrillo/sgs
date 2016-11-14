@@ -152,10 +152,9 @@
         <main class="main-w-footer">
             <!-- Search error -->
             <div
-                class="full-content-height"
+                class="full-content-height md-padding"
                 ng-if="fetchError != ''"
-                layout layout-align="center center"
-                class="md-padding">
+                layout layout-align="center center">
                 <div layout="column" layout-align="center center" class="md-whiteframe-z2 error-card">
                     <span style="color:red">{{fetchError}}</span>
                 </div>
@@ -177,7 +176,7 @@
                     <md-card class="documents-card">
                         <md-card-content>
                             <md-list>
-                                <md-list-item id="request-summary" class="md-3-line" class="noright">
+                                <md-list-item id="request-summary" class="md-3-line noright">
                                     <div class="md-list-item-text request-details-wrapper" layout="column">
                                         <h3 hide-xs class="request-details-title">
                                             Préstamo solicitado el {{requests[selectedReq].creationDate}}
@@ -285,7 +284,7 @@
                                         </md-menu-content>
                                     </md-menu>
                                 </md-list-item>
-                                <md-list-item id="request-status-summary" class="md-2-line" class="noright">
+                                <md-list-item id="request-status-summary" class="md-2-line noright">
                                     <md-icon ng-style="{'font-size':'36px'}">info_outline</md-icon>
                                     <div class="md-list-item-text" layout="column">
                                         <h3>Estatus de la solicitud: {{requests[selectedReq].status}}</h3>
@@ -302,9 +301,8 @@
                                 <div ng-repeat="(dKey, doc) in docs">
                                     <md-list-item
                                         id="request-docs"
-                                        class="md-2-line"
-                                        ng-click="downloadDoc(doc)"
-                                        class="noright">
+                                        class="md-2-line noright"
+                                        ng-click="downloadDoc(doc)">
                                         <md-icon
                                             ng-if="doc.name !='Identidad'"
                                             ng-style="{'color':'#2196F3', 'font-size':'36px'}">
