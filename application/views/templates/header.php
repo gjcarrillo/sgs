@@ -6,47 +6,50 @@
         <!-- Import Google Roboto Font Family -->
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic">
         <!-- Import jQuery -->
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/jquery-2.2.4.js"></script>
-        <!-- Angular Material css -->
-        <link rel="stylesheet" href="<?php echo base_url(); ?>css/angular/angular-material.min.css">
-        <!-- Angular Material requires Angular.js Libraries -->
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/angular.min.js"></script>
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/angular-animate.min.js"></script>
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/angular-aria.min.js"></script>
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/angular-messages.min.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/jquery/dist/jquery.min.js"></script>
+
+        <!-- Angular libraries -->
+        <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/angular/angular.min.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/angular-animate/angular-animate.min.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/angular-aria/angular-aria.min.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/angular-messages/angular-messages.min.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/angular-cookies/angular-cookies.min.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/angular-ui-router/release/angular-ui-router.min.js"></script>
+
         <!-- Angular Material Library -->
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/angular-material.min.js"></script>
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/angular-ui-router.min.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/angular-material/angular-material.min.js"></script>
+        <link rel="stylesheet" href="<?php echo base_url(); ?>node_modules/angular-material/angular-material.min.css">
+
         <!-- App module, controllers & utilities -->
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/myApp.module.js"></script>
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/cookies.min.js"></script>
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/login/login.module.js"></script>
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/login/authenticate.factory.js"></script>
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/login/controllers/LoginController.js"></script>
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/home/controllers/UserHomeController.js"></script>
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/home/controllers/AgentHomeController.js"></script>
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/home/controllers/ManagerHomeController.js"></script>
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/history/controllers/HistoryController.js"></script>
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/users/controllers/UserInfoController.js"></script>
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/generator/controllers/DocumentGenerator.js"></script>
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/login/controllers/PerspectiveSelectionController.js"></script>
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/angular/angular-ui-router.min.js"></script>
-        <!-- Utilities -->
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/webcam.min.js"></script>
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/moment/moment.js"></script>
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/chart.js/dist/Chart.js"></script>
-        <!-- Import Angular File Upload -->
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/ng-file-upload/ng-file-upload.min.js"></script>
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/ng-file-upload-shim/ng-file-upload-shim.min.js"></script>
-        <!-- Import trip.js for HELPS -->
-        <link type="text/css" rel="stylesheet" href="<?php echo base_url(); ?>css/trip.js/trip.css"/>
-        <script type="text/javascript" src="<?php echo base_url(); ?>js/trip.js/trip.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>js/app.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>js/services/service-auth.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-login.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-home-applicant.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-home-agent.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-home-manager.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-history.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-user-info.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-document-generator.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-perspective.js"></script>
+
+        <!-- Plugins -->
+        <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/webcam/dist/webcam.min.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/moment/min/moment.min.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/chart.js/dist/Chart.min.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/ng-file-upload/dist/ng-file-upload.min.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/ng-file-upload/dist/ng-file-upload-shim.min.js"></script>
+
+        <!-- Modified version of trip js plugin. Fixed for truly responsive design :) -->
+        <script type="text/javascript" src="<?php echo base_url(); ?>lib/trip.js/trip.js"></script>
+        <link type="text/css" rel="stylesheet" href="<?php echo base_url(); ?>lib/trip.js/trip.css"/>
+
         <!--Import custom style.css -->
         <link type="text/css" rel="stylesheet" href="<?php echo base_url(); ?>css/style.css"/>
+
         <!--Let browser know website is optimized for mobile-->
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <meta charset="utf-8">
-        <title>SGDP</title>
+        <title>{{pageTitle}}</title>
 </head>
 <body>
     <ui-view autoscroll="false"></ui-view>

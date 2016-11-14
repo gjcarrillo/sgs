@@ -1,2 +1,2 @@
-application/libraries/Doctrine.php
-application/libraries/Doctrine.php
+node_modules/
+.idea/

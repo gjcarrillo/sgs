@@ -1,0 +1,42 @@
+{
+  "name": "sgdp",
+  "version": "1.0.0",
+  "description": "Sistema de Gestión de Documentos de Préstamo (SGDP) is a Financial Documents Management System, specifically designed to cover the needs of the Instituto de Previsión Social para el Personal Docente y Administrativo de la Universidad de Carabobo (IPAPEDI)\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001bde Investigación\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[C\u001b[Social del Personal Docente y de Investigación de la Universidad de Carabobo (IPAPEDI)",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kperdomo1/sgdp.git"
+  },
+  "keywords": [
+    "document",
+    "management",
+    "system",
+    "finantial",
+    "web",
+    "information",
+    "automatization"
+  ],
+  "author": "Kristopher M. Perdomo Ch.",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/kperdomo1/sgdp/issues"
+  },
+  "homepage": "https://github.com/kperdomo1/sgdp#readme",
+  "dependencies": {
+    "angular": "^1.5.8",
+    "angular-animate": "^1.5.8",
+    "angular-aria": "^1.5.8",
+    "angular-cookies": "^1.5.8",
+    "angular-material": "http://github.com/angular/bower-material/tarball/v1.0.9",
+    "angular-messages": "^1.5.8",
+    "angular-ui-router": "^0.3.2",
+    "chart.js": "^2.4.0",
+    "jquery": "^3.1.1",
+    "moment": "^2.16.0",
+    "ng-file-upload": "^12.2.13",
+    "webcam": "^3.1.1"
+  }
+}
