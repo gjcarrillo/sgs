@@ -103,8 +103,8 @@
                         </md-input-container>
                     </div>
                 </div>
-                <!-- Upload for agent users -->
-                <div ng-if="userType(3)" layout="column">
+                <!-- Upload for applicant users -->
+                <div ng-if="userType(APPLICANT)" layout="column">
                     <div
                         class="grey-color">
                         <b>Cédula de identidad</b>
@@ -134,7 +134,7 @@
                     </div>
                 </div>
                 <!-- Uploads for agent users -->
-                <div ng-if="userType(1)" layout="column">
+                <div ng-if="userType(AGENT)" layout="column">
                     <div
                         class="grey-color">
                         <b>Foto del afiliado</b>
@@ -185,8 +185,8 @@
                         <b>Tipo de préstamo</b>:
                     </p>
                     <md-radio-group ng-model="model.type">
-                        <md-radio-button value="40">Préstamo Personal</md-radio-button>
-                        <md-radio-button value="31">Vale de Caja</md-radio-button>
+                        <md-radio-button ng-value="PERSONAL">Préstamo Personal</md-radio-button>
+                        <md-radio-button ng-value="CASH_VOUCHER">Vale de Caja</md-radio-button>
                     </md-radio-group>
                 </div>
             </div>
@@ -204,9 +204,9 @@
         <md-button ng-hide="uploading" ng-click="closeDialog()" class="md-primary">
             Cancelar
         </md-button>
-        <md-progress-linear ng-show="uploading && userType(3)" md-mode="determinate"
+        <md-progress-linear ng-show="uploading && userType(APPLICANT)" md-mode="determinate"
             value="{{model.idFile.progress}}"></md-progress-linear>
-        <md-progress-linear ng-show="uploading && userType(1)" md-mode="indeterminate">
+        <md-progress-linear ng-show="uploading && userType(AGENT)" md-mode="indeterminate">
         </md-progress-linear>
     </md-dialog-actions>
 </md-dialog>
