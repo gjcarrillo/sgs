@@ -170,10 +170,10 @@ function userHome($scope, $http, $cookies, $timeout, FileUpload, Helps,
                 var docs = [];
 
                 // Upload ID document.
-                FileUpload.uploadFile($scope.model.idFile).then(
+                FileUpload.uploadFile($scope.model.idFile, fetchId, requestNumb).then(
                     function (uploadedDoc) {
                         docs.push(uploadedDoc);
-                        performCreation(0)
+                        performCreation(docs, 0)
                     },
                     function (errorMsg) {
                         $scope.errorMsg = errorMsg;
@@ -182,7 +182,7 @@ function userHome($scope, $http, $cookies, $timeout, FileUpload, Helps,
             }
 
             // Helper function that performs the document's creation.
-            function performCreation(autoSelectIndex) {
+            function performCreation(docs, autoSelectIndex) {
                 var postData = {
                     userId: fetchId,
                     reqAmount: $scope.model.reqAmount,
@@ -435,7 +435,7 @@ function userHome($scope, $http, $cookies, $timeout, FileUpload, Helps,
         // Request summary information
         content = "Aquí se muestra información acerca de la fecha de creación, monto solicitado " +
                   "por usted, y un posible comentario.";
-        Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-summary', content, responsivePos,
+        Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-summary', content, 's',
                                      'Resumen de la solicitud', true);
         // Request status information
         content = "Esta sección provee información acerca del estatus de su solicitud.";
@@ -446,7 +446,7 @@ function userHome($scope, $http, $cookies, $timeout, FileUpload, Helps,
                   "items contienen el nombre y una posible descripción de " +
                   "cada documento en su solicitud. Puede verlos/descargarlos " +
                   "haciendo click encima de ellos.";
-        Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-docs', content, 's',
+        Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-docs', content, 'n',
                                      'Documentos', true);
         // Download as zip information
         content = "También puede descargar todos los documentos haciendo click aquí.";

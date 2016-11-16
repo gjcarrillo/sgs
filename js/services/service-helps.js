@@ -12,23 +12,21 @@ function helps() {
 
     var self = this;
 
-    var dialogOptions = {
-        showNavigation: true,
-        showCloseBox: true,
-        delay: -1,
-        tripTheme: "dark",
-        prevLabel: "Anterior",
-        nextLabel: "Siguiente",
-        finishLabel: "Entendido"
-    };
-
     /**
      * Returns the pre-configure help dialogs options.
      * @returns {{showNavigation: boolean, showCloseBox: boolean, delay: number, tripTheme: string, prevLabel: string,
      *     nextLabel: string, finishLabel: string}}
      */
     self.getDialogsHelpOpt = function() {
-        return dialogOptions;
+        return {
+            showNavigation: true,
+            showCloseBox: true,
+            delay: -1,
+            tripTheme: "dark",
+            prevLabel: "Anterior",
+            nextLabel: "Siguiente",
+            finishLabel: "Entendido"
+        };
     };
 
     /**
