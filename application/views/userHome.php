@@ -25,8 +25,19 @@
     </div>
 </md-toolbar>
 <div layout>
-    <!-- Pre-loader -->
-    <md-progress-linear md-mode="query" ng-if="loading"></md-progress-linear>
+    <!-- Loader -->
+    <div>
+        <div
+            ng-if="loading"
+            class="full-content-height center-vertical">
+            <div layout layout-align="center" md-padding>
+                <md-button class="md-fab md-raised" aria-label="Loading...">
+                    <md-progress-circular md-mode="indeterminate" md-diameter="45"></md-progress-circular>
+                </md-button>
+            </div>
+        </div>
+        <md-divider></md-divider>
+    </div>
     <!-- Sidenav -->
     <md-sidenav
         id="requests-list"
@@ -82,8 +93,8 @@
             <div
                 ng-if="fetchError == '' && docs.length == 0"
                 class="full-content-height"
-                layout layout-align="center center">
-                <div class="watermark" layout="column" layout-align="center center">
+                layout="column" layout-align="center center">
+                <div ng-if="!loading" class="watermark" layout="column" layout-align="center center">
                     <img src="images/ipapedi.png" alt="Ipapedi logo"/>
                 </div>
             </div>
@@ -98,7 +109,7 @@
                                 <md-list-item id="request-summary" class="md-3-line noright">
                                     <div class="md-list-item-text request-details-wrapper" layout="column">
                                         <h3 hide-xs class="request-details-title">
-                                            Préstamo solicitado el {{requests[selectedReq][selectedLoan].creationDate}}
+                                            Solicitado al {{requests[selectedReq][selectedLoan].creationDate}}
                                         </h3>
                                         <h3 hide-gt-xs class="request-details-title">
                                             Fecha: {{requests[selectedReq][selectedLoan].creationDate}}

@@ -2,11 +2,11 @@ angular
     .module('sgdp')
     .controller('ApplicantHomeController', userHome);
 
-userHome.$inject = ['$scope', '$http', '$cookies', '$timeout', 'FileUpload', 'Helps',
-                    '$mdSidenav', '$mdDialog', 'Upload', '$mdMedia', 'Constants', 'Requests', 'Utils'];
+userHome.$inject = ['$scope', '$cookies', '$timeout', 'FileUpload', 'Helps',
+                    '$mdSidenav', '$mdDialog', '$mdMedia', 'Constants', 'Requests', 'Utils'];
 
-function userHome($scope, $http, $cookies, $timeout, FileUpload, Helps,
-                  $mdSidenav, $mdDialog, Upload, $mdMedia, Constants, Requests, Utils) {
+function userHome($scope, $cookies, $timeout, FileUpload, Helps,
+                  $mdSidenav, $mdDialog, $mdMedia, Constants, Requests, Utils) {
     'use strict';
     $scope.loading = true;
     $scope.selectedReq = '';
@@ -40,6 +40,11 @@ function userHome($scope, $http, $cookies, $timeout, FileUpload, Helps,
         }
     );
 
+    /**
+     * Toggles the selected request type list.
+     *
+     * @param index - selected request type index.
+     */
     $scope.toggleList = function (index) {
         $scope.showList[index] = !$scope.showList[index];
     };
@@ -51,11 +56,11 @@ function userHome($scope, $http, $cookies, $timeout, FileUpload, Helps,
      * @param j - column index of the selected request in $scope.requests
      */
     $scope.selectRequest = function (i, j) {
-        if (i != -1 && j != -1) {
-            $scope.selectedReq = i;
-            $scope.selectedLoan = j;
-            console.log(i);
-            console.log(j);
+        $scope.selectedReq = i;
+        $scope.selectedLoan = j;
+        console.log(i);
+        console.log(j);
+        if (i != '' && j != -1) {
             $scope.docs = $scope.requests[i][j].docs;
         }
         $mdSidenav('left').toggle();
@@ -78,7 +83,7 @@ function userHome($scope, $http, $cookies, $timeout, FileUpload, Helps,
             autoWrap: false,
             locals: {
                 fetchId: fetchId,
-                requestNumb: Requests.getTotalLoans($scope.requests),
+                requests: $scope.requests,
                 obj: obj,
                 parentScope: $scope
             },
@@ -86,7 +91,7 @@ function userHome($scope, $http, $cookies, $timeout, FileUpload, Helps,
         });
         // Isolated dialog controller for the new request dialog
         function DialogController($scope, $mdDialog, fetchId,
-                                  requestNumb, parentScope, obj) {
+                                  requests, parentScope, obj) {
             $scope.docPicTaken = false;
             $scope.uploading = false;
             $scope.maxReqAmount = Requests.getMaxAmount();
@@ -102,10 +107,6 @@ function userHome($scope, $http, $cookies, $timeout, FileUpload, Helps,
             // obj could have a reference to user data, saved
             // before confirmation dialog was opened.
             $scope.model = obj || {due: 24, type: $scope.PERSONAL, tel: {operator: '0412'}};
-            // Will notify whether all files were uploaded.
-            var uploadedFiles;
-            // Will contain docs to create in DB
-            var docs = [];
 
             // if user came back to this dialog after confirming operation..
             if ($scope.model.confirmed) {
@@ -160,20 +161,18 @@ function userHome($scope, $http, $cookies, $timeout, FileUpload, Helps,
                 FileUpload.showIdUploadError(error, param);
             };
 
-            $scope.showError = function (error, param) {
-                FileUpload.showDocUploadError(error, param)
-            };
-
             // Creates new request in database and uploads documents
             function createNewRequest() {
                 $scope.uploading = true;
                 var docs = [];
 
                 // Upload ID document.
+                var type = Requests.mapLoanTypes($scope.model.type);
+                var requestNumb = type + '.' + (requests[type].length + 1);
                 FileUpload.uploadFile($scope.model.idFile, fetchId, requestNumb).then(
                     function (uploadedDoc) {
                         docs.push(uploadedDoc);
-                        performCreation(docs, 0)
+                        performCreation(docs);
                     },
                     function (errorMsg) {
                         $scope.errorMsg = errorMsg;
@@ -182,7 +181,7 @@ function userHome($scope, $http, $cookies, $timeout, FileUpload, Helps,
             }
 
             // Helper function that performs the document's creation.
-            function performCreation(docs, autoSelectIndex) {
+            function performCreation(docs) {
                 var postData = {
                     userId: fetchId,
                     reqAmount: $scope.model.reqAmount,
@@ -193,8 +192,7 @@ function userHome($scope, $http, $cookies, $timeout, FileUpload, Helps,
                 };
                 Requests.createRequest(postData).then(
                     function() {
-                        updateRequestListUI(fetchId, autoSelectIndex,
-                                            'Solicitud creada',
+                        updateRequestListUI(fetchId, 0, 'Solicitud creada',
                                             'La solicitud ha sido creada exitosamente.',
                                             true, true,
                                             parseInt(postData.loanType, 10));
@@ -242,21 +240,12 @@ function userHome($scope, $http, $cookies, $timeout, FileUpload, Helps,
              * @param options: Obj containing tour.js options
              */
             function showFormHelp(options) {
-                var tripToShowNavigation;
+                var tripToShowNavigation = new Trip([], options);
                 if (!$scope.missingField()) {
-                    tripToShowNavigation = new Trip([
-                        // Tell user to hit the create button
-                        {
-                            sel: $("#create-btn"),
-                            content: "Haga click en CREAR para generar " +
-                                     "la solicitud.",
-                            position: "n", animation: 'fadeInLeft'
-                        }
-
-                    ], options);
+                    Helps.addFieldHelp(tripToShowNavigation, '#create-btn',
+                                       'Haga clic en CREAR para generar la solicitud', 'n');
                     tripToShowNavigation.start();
                 } else {
-                    tripToShowNavigation = new Trip([], options);
                     showAllFieldsHelp(tripToShowNavigation);
                 }
             }
@@ -335,6 +324,8 @@ function userHome($scope, $http, $cookies, $timeout, FileUpload, Helps,
         $scope.contentAvailable = true;
         $scope.fetchError = '';
         $scope.requests = newRequests;
+        // Close the list
+        closeAllReqList();
         // Automatically select created request
         $scope.selectRequest(req, selection);
     }
@@ -345,9 +336,6 @@ function userHome($scope, $http, $cookies, $timeout, FileUpload, Helps,
      * @param index - Request list's index
      */
     function toggleReqList(index) {
-        // Close the list
-        // $scope.showList[index] = false;
-        closeAllReqList();
         $timeout(function () {
             // Open the list
             $scope.showList[index] = true;
@@ -356,6 +344,8 @@ function userHome($scope, $http, $cookies, $timeout, FileUpload, Helps,
     }
 
     function closeAllReqList() {
+        $scope.selectedReq = '';
+        $scope.selectedLoan = -1;
         angular.forEach($scope.showList, function(show, index) {
             $scope.showList[index] = false;
         });

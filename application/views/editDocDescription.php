@@ -5,7 +5,7 @@
                 type="text"
                 md-auto-focus
                 ng-keyup="$event.keyCode == 13 && saveEdition()"
-                ng-model="doc.description"
+                ng-model="description"
                 placeholder="Descripción"/>
         </md-input-container>
         <md-button class="md-icon-button" ng-click="saveEdition()"><md-icon>send</md-icon></md-button>

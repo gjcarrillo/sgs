@@ -12,7 +12,13 @@ var obj = {
     LoanTypes: {
         PERSONAL: 40,
         CASH_VOUCHER: 31
-    }
+    },
+    Statuses: {
+        RECEIVED: 1,
+        APPROVED: 2,
+        REJECTED: 3
+    },
+    BASEURL: 'http://localhost:8080/sgdp/'
 };
 
 constants.constant('Constants', obj);

@@ -162,7 +162,12 @@
                 </div>
             </div>
             <div ng-repeat="f in errFiles" style="color:red">
-                Error en archivo {{f.name}}: {{showIdError(f.$error, f.$errorParam)}}
+                <span ng-if="userType(APPLICANT)">
+                    Error en archivo {{f.name}}: {{showIdError(f.$error, f.$errorParam)}}
+                </span>
+                <span ng-if="userType(AGENT)">
+                    Error en archivo {{f.name}}: {{showError(f.$error, f.$errorParam)}}
+                </span>
             </div>
             <!-- Payment due & Type of transaction-->
             <div

@@ -2,19 +2,21 @@ angular
     .module('sgdp')
     .controller('AgentHomeController', agentHome);
 
-agentHome.$inject = ['$scope', '$mdDialog', 'Upload', '$cookies',
-    '$http', '$state', '$timeout', '$mdSidenav', '$mdMedia'];
+agentHome.$inject = ['$scope', '$mdDialog', '$cookies', 'FileUpload', 'Constants',
+                     '$http', '$state', '$timeout', '$mdSidenav', '$mdMedia', 'Requests', 'Utils', 'Helps'];
 
-function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
-                   $timeout, $mdSidenav, $mdMedia) {
+function agentHome($scope, $mdDialog, $cookies, FileUpload, Constants,
+                   $http, $state, $timeout, $mdSidenav, $mdMedia, Requests, Utils, Helps) {
     'use strict';
     $scope.loading = false;
-    $scope.selectedReq = -1;
-    $scope.requests = [];
+    $scope.selectedReq = '';
+    $scope.selectedLoan = -1;
+    $scope.requests = {};
     $scope.docs = [];
     $scope.fetchError = "";
-    $scope.showList = false;
+    $scope.showList = {pp: false, vc: false};
     $scope.idPrefix = "V";
+    $scope.listTitle = Requests.getTypeTitles();
     // contentAvailable will indicate whether sidenav can be visible
     $scope.contentAvailable = false;
     // contentLoaded will indicate whether sidenav can be locked open
@@ -30,73 +32,81 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
         // fetchId is used for several database queries.
         // that is why we don't use searchInput value, which is bind to search input.
         $scope.searchInput = $scope.fetchId.replace('V', '');
-        $scope.selectedReq = parseInt(sessionStorage.getItem("selectedReq"));
-        $scope.docs = $scope.requests[$scope.selectedReq].docs;
-        $scope.showList =
-            parseInt(sessionStorage.getItem("showList")) ? true : false;
+        $scope.selectedReq = sessionStorage.getItem("selectedReq");
+        $scope.selectedLoan = parseInt(sessionStorage.getItem("selectedLoan"));
+        $scope.docs = $scope.requests[$scope.selectedReq][$scope.selectedLoan].docs;
+        $scope.showList = JSON.parse(sessionStorage.getItem("showList"));
         $scope.contentAvailable = true;
         $scope.contentLoaded = true;
         // Got back what we wanted -- erase them from storage
         sessionStorage.removeItem("requests");
         sessionStorage.removeItem("fetchId");
         sessionStorage.removeItem("selectedReq");
+        sessionStorage.removeItem("selectedLoan");
         sessionStorage.removeItem("showList");
     }
 
     $scope.generatePdfDoc = function () {
         $http.get('index.php/DocumentGenerator/generatePdf')
             .then(function (response) {
-                console.log(response);
-            });
+                      console.log(response);
+                  });
     };
 
-    $scope.toggleList = function () {
-        $scope.showList = !$scope.showList;
+    /**
+     * Toggles the selected request type list.
+     *
+     * @param index - selected request type index.
+     */
+    $scope.toggleList = function (index) {
+        $scope.showList[index] = !$scope.showList[index];
     };
 
-    $scope.selectRequest = function (req) {
-        $scope.selectedReq = req;
-        if (req != -1) {
-            $scope.docs = $scope.requests[req].docs;
+    /**
+     * Selects the specified request.
+     *
+     * @param i - row index of the selected request in $scope.requests
+     * @param j - column index of the selected request in $scope.requests
+     */
+    $scope.selectRequest = function (i, j) {
+        $scope.selectedReq = i;
+        $scope.selectedLoan = j;
+        console.log(i);
+        console.log(j);
+        if (i != '' && j != -1) {
+            $scope.docs = $scope.requests[i][j].docs;
         }
         $mdSidenav('left').toggle();
     };
 
     $scope.fetchRequests = function (searchInput) {
-        $scope.showList = false;
         $scope.contentAvailable = false;
         $scope.fetchId = $scope.idPrefix + searchInput;
         $scope.requests = [];
-        $scope.selectedReq = -1;
+        closeAllReqList();
         $scope.loading = true;
         $scope.docs = [];
         $scope.fetchError = "";
-        $http.get('index.php/AgentHomeController/getUserRequests',
-            {params: {fetchId: $scope.fetchId}})
-            .then(function (response) {
-                $scope.maxReqAmount = response.data.maxReqAmount;
-                if (response.data.message === "success") {
-                    if (typeof response.data.requests !== "undefined") {
-                        $scope.requests = response.data.requests;
-                    }
-                    $scope.contentAvailable = true;
-                    $timeout(function () {
-                        $scope.contentLoaded = true;
-                        $mdSidenav('left').open();
-                    }, 300);
-                } else {
-                    $scope.fetchError = response.data.error;
-                }
+        Requests.getUserRequests($scope.fetchId).then(
+            function (data) {
+                $scope.requests = data;
+                $scope.contentAvailable = true;
                 $scope.loading = false;
-            });
+                $timeout(function () {
+                    $scope.contentLoaded = true;
+                    $mdSidenav('left').open();
+                }, 300);
+            },
+            function (errorMsg) {
+                $scope.fetchError = errorMsg;
+                $scope.loading = false;
+            }
+        );
     };
 
     // Helper function for formatting numbers with leading zeros
     $scope.pad = function (n, width, z) {
-        z = z || '0';
-        n = n + '';
-        return n.length >= width ? n :
-            new Array(width - n.length + 1).join(z) + n;
+        return Utils.pad(n, width, z);
     };
 
 
@@ -111,23 +121,26 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
             autoWrap: false,
             locals: {
                 fetchId: $scope.fetchId,
-                maxReqAmount: $scope.maxReqAmount,
-                requestNumb: $scope.requests.length + 1,
-                obj: obj,
-                parentScope: $scope
+                requests: $scope.requests,
+                parentScope: $scope,
+                obj: obj
             },
             controller: DialogController
         });
         // Isolated dialog controller for the new request dialog
-        function DialogController($scope, $mdDialog, fetchId, maxReqAmount,
-                                  requestNumb, parentScope, obj) {
+        function DialogController($scope, $mdDialog, fetchId,
+                                  requests, parentScope, obj) {
             $scope.idPicTaken = false;
             $scope.docPicTaken = false;
             $scope.uploading = false;
-            $scope.maxReqAmount = maxReqAmount;
+            $scope.maxReqAmount = Requests.getMaxAmount();
+            $scope.APPLICANT = Constants.Users.APPLICANT;
+            $scope.AGENT = Constants.Users.AGENT;
+            $scope.PERSONAL = Constants.LoanTypes.PERSONAL;
+            $scope.CASH_VOUCHER = Constants.LoanTypes.CASH_VOUCHER;
             // obj could have a reference to user data, saved
             // before confirmation dialog was opened.
-            $scope.model = obj || {due: 24, type: 40, tel: {operator:'0412'}};
+            $scope.model = obj || {due: 24, type: $scope.PERSONAL, tel: {operator: '0412'}};
             // if user data exists, it means the ID was
             // already given, so we must show it.
             if (obj && obj.idFile) {
@@ -137,10 +150,6 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
             }
 
             $scope.uploadErr = '';
-            // Will notify whether all files were uploaded.
-            var uploadedFiles;
-            // Will contain docs to create in DB
-            var docs = [];
 
             // if user came back to this dialog after confirming operation..
             if ($scope.model.confirmed) {
@@ -154,36 +163,28 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
 
             $scope.missingField = function () {
                 return !$scope.idPicTaken ||
-                    typeof $scope.model.reqAmount === "undefined" ||
-                    !$scope.model.tel.value;
+                       typeof $scope.model.reqAmount === "undefined" || !$scope.model.tel.value;
             };
 
             // TODO: Try to implement this onSelectOpen and onSelectClose
             // fix as a DIRECTIVE! Used un multiple views...
             var backup;
-            $scope.onSelectOpen = function() {
+            $scope.onSelectOpen = function () {
                 backup = $scope.model.tel.operator;
                 $scope.model.tel.operator = null;
             };
 
-            $scope.onSelectClose = function() {
+            $scope.onSelectClose = function () {
                 if ($scope.model.tel.operator === null) {
                     $scope.model.tel.operator = backup;
                 }
             };
 
             function updateIdPic(dataURL) {
-                // $("#idThumbnail").attr("src", dataURL);
                 $scope.model.idData = dataURL;
                 $scope.idPicTaken = true;
                 // Upate dd pic input
                 $scope.model.idFile = "Foto del afiliado";
-            }
-
-            function updateDocPic(dataURL) {
-                $("#docThumbnail").attr("src", dataURL);
-                $scope.docPicTaken = true;
-                $scope.docData = dataURL;
             }
 
             $scope.deleteIdPic = function (event) {
@@ -194,137 +195,55 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
                 event.stopPropagation();
             };
 
-            $scope.deleteDocPic = function () {
-                $scope.docPicTaken = false;
-            };
-
-            $scope.gatherFile = function (file, errFiles) {
-                if (file) {
-                    $scope.file = file;
-                    $scope.file.description = "Documento explicativo de la " +
-                        "solicitud";
-                    $scope.docPicTaken = true;
-                }
-                $scope.errFiles = errFiles;
-            };
-
-            $scope.removeScannedDoc = function () {
-                $scope.docPicTaken = false;
-                $scope.file = null;
-            };
-
             $scope.showError = function (error, param) {
-                if (error === "pattern") {
-                    return "Archivo no aceptado. Por favor seleccione " +
-                        "sólo documentos.";
-                } else if (error === "maxSize") {
-                    return "El archivo es muy grande. Tamaño máximo es: " +
-                        param;
-                }
+                FileUpload.showDocUploadError(error, param)
             };
 
             // Creates new request in database and uploads documents
             function createNewRequest() {
-                uploadedFiles = new Array($scope.docPicTaken ? 2 : 1).
-                    fill(false);
-
                 $scope.uploading = true;
-                // Upload ID image.
-                uploadData(1, 0);
-                // // Upload optional document if provided.
-                // if ($scope.docPicTaken) {
-                //     if (!$scope.file) {
-                //         // Document file was provided.
-                //         uploadData(2, 1);
-                //     } else {
-                //         // Document picture was provided.
-                //         uploadFile($scope.file, 1);
-                //     }
-                // }
-            };
+                var docs = [];
+
+                // Upload ID photo.
+                var type = Requests.mapLoanTypes($scope.model.type);
+                var requestNumb = type + '.' + (requests[type].length + 1);
+                FileUpload.uploadImage($scope.model.idData, fetchId, requestNumb).then(
+                    function (uploadedDoc) {
+                        docs.push(uploadedDoc);
+                        performCreation(docs);
+                    },
+                    function (errorMsg) {
+                        $scope.errorMsg = errorMsg;
+                    }
+                );
+            }
 
             // Shows a dialog asking user to confirm the request creation.
             $scope.confirmCreation = function (ev) {
-                // Appending dialog to document.body to cover sidenav in docs app
-                var confirm = $mdDialog.confirm()
-                .title('Confirmación de creación de solicitud')
-                .textContent('El sistema generará el documento ' +
-                    'correspondiente a esta solicitud y será' +
-                    ' atendida a la mayor brevedad posible. ¿Desea proceder' +
-                    ' con la solicitud?')
-                .css('smaller-dialog-content')
-                .ariaLabel('Confirmación de creación de solicitud')
-                .targetEvent(ev)
-                .ok('Sí')
-                .cancel('Cancelar');
-                $mdDialog.show(confirm).then(function() {
-                    // Re-open parent dialog and perform request creation
-                    $scope.model.confirmed = true;
-                    parentScope.openNewRequestDialog(null, $scope.model);
-                }, function() {
-                    // Re-open parent dialog and do nothing
-                    parentScope.openNewRequestDialog(null, $scope.model);
-
-                });
+                Utils.showConfirmDialog(
+                    'Confirmación de creación de solicitud',
+                    'El sistema generará el documento correspondiente a esta solicitud. ¿Desea proceder?',
+                    'Sí', 'Cancelar', ev, true
+                ).then(
+                    function () {
+                        // Re-open parent dialog and perform request creation
+                        $scope.model.confirmed = true;
+                        parentScope.openNewRequestDialog(null, $scope.model);
+                    },
+                    function () {
+                        // Re-open parent dialog and do nothing
+                        parentScope.openNewRequestDialog(null, $scope.model);
+                    }
+                );
             };
 
-            // Uploads selected image data to server and updates
-            // database.
-            function uploadData(data, uploadIndex) {
-                var postData = generateImageData(data);
-                $http.post('index.php/NewRequestController/' +
-                    'uploadBase64Images',
-                    JSON.stringify(postData))
-                    .then(function (response) {
-                        if (response.status == 200) {
-                            // Register upload success
-                            // uploadedFiles[uploadIndex] = true;
-                            // Add doc info
-                            docs.push ({
-                                lpath: response.data.lpath,
-                                docName: postData.docName,
-                                description: postData.description
-                            });
-                            // Proceed to database entry creation.
-                            performCreation(0);
-                        } else {
-                            console.log("Image upload error!")
-                            console.log(response);
-                        }
-                    });
-            }
-
-            // Helper function that generates image data upon
-            // specified type of data.
-            function generateImageData(type) {
-                var imageData = "";
-                var docName = "";
-                var description = "";
-                if (type == 1) {
-                    imageData = $scope.model.idData;
-                    docName = "Identidad";
-                    description = "Comprobación de autorización"
-                } else {
-                    imageData = $scope.docData;
-                    docName = "Solicitud";
-                    description = "Documento explicativo de la solicitud"
-                }
-                return {
-                    imageData: imageData,
-                    userId: fetchId,
-                    requestNumb: requestNumb,
-                    docName: docName,
-                    description: description
-                };
-            }
-
             // Sets the bound input to the max possibe request amount
-            $scope.setMax = function() {
+            $scope.setMax = function () {
                 $scope.model.reqAmount = $scope.maxReqAmount;
             };
 
             // Helper function that performs the document's creation.
-            function performCreation(autoSelectIndex) {
+            function performCreation(docs) {
                 var postData = {
                     userId: fetchId,
                     reqAmount: $scope.model.reqAmount,
@@ -333,102 +252,35 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
                     loanType: $scope.model.type,
                     docs: docs
                 };
-                console.log(postData);
-                $http.post('index.php/NewRequestController/createRequest',
-                    JSON.stringify(postData))
-                    .then(function (response) {
-                        if (response.status == 200) {
-                            updateRequestListUI(fetchId, autoSelectIndex,
-                                'Solicitud creada',
-                                'La solicitud ha sido creada exitosamente.',
-                                true, true);
-                        }
-                    });
-            }
-
-            // Determines whether all files were uploaded
-            function uploadsFinished(uploadedFiles) {
-                return (uploadedFiles.filter(function (bool) {
-                    return !bool;
-                }).length == 0);
-            }
-
-            // Uploads each of selected documents to the server
-            // and updates database
-            function uploadFile(file, uploadIndex) {
-                file.upload = Upload.upload({
-                    url: 'index.php/NewRequestController/upload',
-                    data: {
-                        file: file,
-                        userId: fetchId,
-                        requestNumb: requestNumb
+                Requests.createRequest(postData).then(
+                    function () {
+                        updateRequestListUI(fetchId, 0, 'Solicitud creada',
+                                            'La solicitud ha sido creada exitosamente.',
+                                            true, true,
+                                            parseInt(postData.loanType, 10));
                     }
-                });
-
-                file.upload.then(function (response) {
-                    // Register upload success
-                    uploadedFiles[uploadIndex] = true;
-                    // Add doc info
-                    docs.push ({
-                        lpath: response.data.lpath,
-                        docName: "Solicitud",
-                        description: file.description
-                    });
-
-                    if (uploadsFinished(uploadedFiles)) {
-                        // If all files were uploaded, proceed to
-                        // database entry creation.
-                        performCreation(0);
-                    }
-                }, function (response) {
-                    // Show upload error
-                    if (response.status > 0)
-                        $scope.errorMsg = response.status + ': ' + response.data;
-                }, function (evt) {
-                    // Upload file upload progress
-                    file.progress = Math.min(100, parseInt(100.0 *
-                        evt.loaded / evt.total));
-                });
+                );
             }
 
             $scope.openIdentityCamera = function (ev) {
                 var parentEl = angular.element(document.body);
                 $mdDialog.show({
                     parent: parentEl,
-                    targetEvent: $event,
+                    targetEvent: ev,
                     templateUrl: 'index.php/NewRequestController/camera',
                     clickOutsideToClose: true,
                     escapeToClose: true,
                     autoWrap: true,
                     locals: {
-                        sendTo: 1, // 1 = camera result will be sent to id's variables
                         obj: $scope.model // Will retain the user data.
                     },
                     controller: CameraController
                 });
             };
 
-            $scope.openDocCamera = function (ev) {
-                var parentEl = angular.element(document.body);
-                $mdDialog.show({
-                    parent: parentEl,
-                    targetEvent: $event,
-                    templateUrl: 'index.php/NewRequestController/camera',
-                    clickOutsideToClose: true,
-                    escapeToClose: true,
-                    preserveScope: true,
-                    autoWrap: true,
-                    skipHide: true,
-                    locals: {
-                        sendTo: 2 // 2 = camera result will be sent to doc's variables
-                    },
-                    controller: CameraController
-                });
-
-            };
 
             //Controller for camera dialog
-            function CameraController($scope, $mdDialog, sendTo, obj) {
+            function CameraController($scope, $mdDialog, obj) {
                 // Setup a channel to receive a video property
                 // with a reference to the video element
                 $scope.channel = {
@@ -460,11 +312,7 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
                 };
 
                 $scope.savePic = function () {
-                    if (sendTo == 1) {
-                        updateIdPic(document.querySelector('#snapshot').toDataURL());
-                    } else {
-                        updateDocPic(document.querySelector('#snapshot').toDataURL());
-                    }
+                    updateIdPic(document.querySelector('#snapshot').toDataURL());
                     $mdDialog.hide();
                     // Re-open parent dialog
                     parentScope.openNewRequestDialog(null, obj);
@@ -480,10 +328,6 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
 
                         var idata = getVideoData(0, 0, _video.width, _video.height);
                         ctxPat.putImageData(idata, 0, 0);
-
-                        // sendSnapshotToServer(patCanvas.toDataURL());
-
-                        // window.open(patCanvas.toDataURL(), '_blank');
                         $scope.picTaken = true;
                     }
                 };
@@ -498,94 +342,56 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
                 }
             }
 
-            // Determines wether the specified userType matches logged user's type
+            // Determines whether the specified userType matches logged user's type
             $scope.userType = function (type) {
                 return type === $cookies.getObject('session').type;
             };
 
             $scope.showHelp = function () {
-                var options = {
-                    showNavigation: true,
-                    showCloseBox: true,
-                    delay: -1,
-                    tripTheme: "dark",
-                    prevLabel: "Anterior",
-                    nextLabel: "Siguiente",
-                    finishLabel: "Entendido"
-                };
-                showFormHelp(options);
+                showFormHelp(Helps.getDialogsHelpOpt());
             };
             /**
              * Shows tour-based help of all input fields.
              * @param options: Obj containing tour.js options
              */
             function showFormHelp(options) {
+                var trip = new Trip([], options);
                 if (!$scope.missingField()) {
-                    var tripToShowNavigation = new Trip([
-                        // Tell user to hit the create button
-                        {
-                            sel: $("#create-btn"),
-                            content: "Haga click en CREAR para generar la solicitud.",
-                            position: "n", animation: 'fadeInLeft'
-                        }
-
-                    ], options);
-                    tripToShowNavigation.start();
+                    // Tell user to hit the create button
+                    Helps.addFieldHelp(trip, '#create-btn',
+                                       'Haga clic en CREAR para generar la solicitud.', 'n');
+                    trip.start();
                 } else {
-                    var tripToShowNavigation = new Trip([], options);
-                    showAllFieldsHelp(tripToShowNavigation);
+                    showAllFieldsHelp(trip);
                 }
             }
 
-            function addFieldHelp(trip, id, content, pos) {
-                trip.tripData.push(
-                    {sel: $(id), content: content, position: pos, animation: 'fadeInUp'}
-                );
-            }
-
             function showAllFieldsHelp(tripToShowNavigation) {
+                var content;
                 if (!$scope.model.reqAmount) {
                     // Requested amount field
-                    var content = "Ingrese la cantidad de Bs. solicitado por el afiliado.";
-                    addFieldHelp(tripToShowNavigation, "#req-amount", content, 's');
+                    content = "Ingrese la cantidad de Bs. solicitado por el afiliado.";
+                    Helps.addFieldHelp(tripToShowNavigation, "#req-amount", content, 's');
                 }
                 if (!$scope.model.phone) {
                     // Requested amount field
                     content = "Ingrese el número telefónico del afiliado, a través " +
-                                  "del cual se le estará contactando.";
-                    addFieldHelp(tripToShowNavigation, "#phone-numb",
-                                  content, 'n');
+                              "del cual se le estará contactando.";
+                    Helps.addFieldHelp(tripToShowNavigation, "#phone-numb",
+                                       content, 'n');
                 }
                 if (!$scope.idPicTaken) {
                     // Show id pic field help
-                    var content = "Haga click para tomar una foto al afiliado.";
-                    addFieldHelp(tripToShowNavigation, "#id-pic", content, 'n');
-                } else {
-                    // Show pic result help
-                    var content = "Resultado de la foto del afiliado. Si lo desea, " +
-                        "puede eliminarla y volver a tomarla.";
-                    addFieldHelp(tripToShowNavigation, "#id-pic-result", content, 'n');
+                    content = "Haga click para tomar una foto al afiliado.";
+                    Helps.addFieldHelp(tripToShowNavigation, "#id-pic", content, 'n');
                 }
-                if (!$scope.docPicTaken) {
-                    // Show doc pic field help
-                    var content = "Haga click para (opcionalmente) proveer un documento" +
-                        " explicativo de la solicitud. Puede tomarle foto o subir el " +
-                        "documento desde la computadora.";
-                    addFieldHelp(tripToShowNavigation, "#doc-pic", content, 'n');
-                } else {
-                    if (!$scope.file) {
-                        // Picture was taken, show pic result help
-                        var content = "Resultado de la foto del documento " +
-                            "explicativo de la solicitud. Si lo desea, puede eliminarla " +
-                            "y volver a tomarla.";
-                        addFieldHelp(tripToShowNavigation, "#doc-pic-result", content, 'n');
-                    } else {
-                        // doc was uploaded instead
-                        var content = "Documento explicativo de la solicitud que ha seleccionado." +
-                            " Si lo desea, puede eliminarlo y volver a seleccionarlo.";
-                        addFieldHelp(tripToShowNavigation, "#doc-pic-selection", content, 'n');
-                    }
-                }
+                // Add payment due help.
+                content = "Escoja el plazo (en meses) en el que desea " +
+                                "pagar su deuda.";
+                Helps.addFieldHelp(tripToShowNavigation, "#payment-due", content, 'n');
+                // Add loan type help.
+                content = "Escoja el tipo de préstamo que desea solicitar.";
+                Helps.addFieldHelp(tripToShowNavigation, "#loan-type", content, 'n');
                 tripToShowNavigation.start();
             }
         }
@@ -593,62 +399,70 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
 
     // Helper method that updates UI's request list.
     function updateRequestListUI(userId, autoSelectIndex,
-                                dialogTitle, dialogContent,
-                                updateUI, toggleList) {
+                                 dialogTitle, dialogContent,
+                                 updateUI, toggleList, type) {
         // Update interface
-        $http.get('index.php/AgentHomeController/getUserRequests',
-            {params: {fetchId: userId}})
-            .then(function (response) {
-                if (response.status == 200) {
-                    // Update UI only if needed
-                    if (updateUI) {
-                        updateContent(response.data.requests,
-                            autoSelectIndex);
-                    }
-                    // Toggle request list only if requested.
-                    if (toggleList) { toggleReqList(); }
-                    // Close dialog and alert user that operation was
-                    // successful
-                    $mdDialog.hide();
-                    showAlertDialog(dialogTitle, dialogContent);
-
-                } else {
-                    console.log("REFRESHING ERROR!");
-                    console.log(response);
+        Requests.getUserRequests(userId).then(
+            function (data) {
+                // Update UI only if needed
+                var loanType = Requests.mapLoanTypes(type);
+                if (updateUI) {
+                    updateContent(data, loanType, autoSelectIndex);
                 }
-            });
-    }
-
-    // Helper function that shows an alert dialog message
-    // to user.
-    function showAlertDialog(dialogTitle, dialogContent) {
-        $mdDialog.show(
-            $mdDialog.alert()
-                .parent(angular.element(document.body))
-                .clickOutsideToClose(true)
-                .title(dialogTitle)
-                .textContent(dialogContent)
-                .ariaLabel(dialogTitle)
-                .ok('Ok')
+                // Toggle request list only if requested.
+                if (toggleList) {
+                    toggleReqList(loanType);
+                }
+                // Close dialog and alert user that operation was
+                // successful
+                $mdDialog.hide();
+                Utils.showAlertDialog(dialogTitle, dialogContent);
+            },
+            function (errorMsg) {
+                console.log("REFRESHING ERROR!");
+                console.log(errorMsg);
+            }
         );
     }
 
-    // Helper function that updates content with new request
-    function updateContent(requests, selection) {
-        $scope.requests = typeof requests !== "undefined" ?
-            requests : [];
-        // Automatically select specified request
-        $scope.selectRequest(selection);
+    /**
+     * Helper function that updates content with new request.
+     *
+     * @param newRequests - the updated requests obj.
+     * @param req - New request's type.
+     * @param selection - Specific request's index.
+     * @param toggleList - Whether list should be toggled or not.
+     */
+    function updateContent(newRequests, req, selection, toggleList) {
+        $scope.contentLoaded = true;
+        $scope.contentAvailable = true;
+        $scope.fetchError = '';
+        $scope.requests = newRequests;
+        // Close the list
+        if (toggleList) closeAllReqList();
+        // Automatically select created request
+        $scope.selectRequest(req, selection);
     }
 
-    function toggleReqList() {
-        // Toggle list
-        $scope.showList = false;
+    /**
+     * Automatically toggles the requests list.
+     *
+     * @param index - Request list's index
+     */
+    function toggleReqList(index) {
         $timeout(function () {
-            // Toggle list again
-            $scope.showList = true;
+            // Open the list
+            $scope.showList[index] = true;
         }, 1000);
 
+    }
+
+    function closeAllReqList() {
+        $scope.selectedReq = '';
+        $scope.selectedLoan = -1;
+        angular.forEach($scope.showList, function (show, index) {
+            $scope.showList[index] = false;
+        });
     }
 
     /**
@@ -664,22 +478,19 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
             escapeToClose: false,
             locals: {
                 fetchId: $scope.fetchId,
-                request: $scope.requests[$scope.selectedReq],
-                selectedReq: $scope.selectedReq,
-                totalReq: $scope.requests.length
+                request: $scope.requests[$scope.selectedReq][$scope.selectedLoan],
+                // Request lists are ordered from newest to oldest!
+                loanNumb: $scope.requests[$scope.selectedReq].length - $scope.selectedLoan
             },
             controller: DialogController
         });
         // Isolated dialog controller
-        function DialogController($scope, $mdDialog, fetchId, request,
-                selectedReq, totalReq) {
+        function DialogController($scope, $mdDialog, fetchId, request, loanNumb) {
             $scope.files = [];
-            $scope.selectedReq = selectedReq;
             $scope.fetchId = fetchId;
             $scope.uploading = false;
             $scope.request = request;
             $scope.enabledDescription = -1;
-            $scope.statuses = ["Recibida", "Aprobada", "Rechazada"];
             $scope.comment = $scope.request.comment;
 
             $scope.closeDialog = function () {
@@ -689,7 +500,7 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
             $scope.removeDoc = function (index) {
                 $scope.files.splice(index, 1);
                 $scope.selectedFiles = $scope.files.length > 0 ?
-                    $scope.files.length + ' archivo(s)' : null;
+                $scope.files.length + ' archivo(s)' : null;
             };
 
             $scope.isDescriptionEnabled = function (dKey) {
@@ -705,34 +516,31 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
 
             $scope.allFieldsMissing = function () {
                 return $scope.files.length == 0 &&
-                    (typeof $scope.comment === "undefined"
-                    || $scope.comment == ""
-                    || $scope.comment == $scope.request.comment);
+                       (typeof $scope.comment === "undefined"
+                        || $scope.comment == ""
+                        || $scope.comment == $scope.request.comment);
             };
 
             $scope.showError = function (error, param) {
-                if (error === "pattern") {
-                    return "Archivo no aceptado. Por favor seleccione sólo documentos.";
-                } else if (error === "maxSize") {
-                    return "El archivo es muy grande. Tamaño máximo es: " + param;
-                }
+                return FileUpload.showDocUploadError(error, param);
             };
+
             // Gathers the files whenever the file input's content is updated
             $scope.gatherFiles = function (files, errFiles) {
                 $scope.files = files;
                 $scope.selectedFiles = $scope.files.length > 0 ?
-                    $scope.files.length + ' archivo(s)' : null;
+                $scope.files.length + ' archivo(s)' : null;
                 $scope.errFiles = errFiles;
             };
 
             // Deletes all selected files
-            $scope.deleteFiles = function(ev) {
+            $scope.deleteFiles = function (ev) {
                 $scope.files = [];
                 $scope.selectedFiles = null;
                 // Stop click event propagation, otherwise file chooser will
                 // also be opened.
                 ev.stopPropagation();
-            }
+            };
 
             // Creates new request in database and uploads documents
             $scope.updateRequest = function () {
@@ -742,91 +550,43 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
                     performEdition($scope.request);
                 } else {
                     // Add additional files to this request.
-                    uploadFiles($scope.fetchId);
+                    var requestNumb = Requests.mapLoanTypes($scope.request.type) + '.' + loanNumb;
+                    uploadFiles($scope.files, fetchId, requestNumb);
                 }
             };
 
             // Performs the request edition update in DB
             function performEdition(postData) {
-                $http.post('index.php/EditRequestController/updateRequest',
-                    JSON.stringify(postData))
-                    .then(function (response) {
-                        if (response.status == 200) {
-                            var updateContent = $scope.files.length > 0;
-                            updateRequestListUI(fetchId, selectedReq,
-                                'Solicitud actualizada',
-                                'La solicitud fue actualizada exitosamente.',
-                                updateContent, false);
-                        } else {
-                            console.log(respnse.data);
-                        }
-                    });
+                Requests.updateRequest(postData).then(
+                    function () {
+                        var updateContent = $scope.files.length > 0;
+                        updateRequestListUI(fetchId, loanNumb - 1,
+                                            'Solicitud actualizada',
+                                            'La solicitud fue actualizada exitosamente.',
+                                            updateContent, false, parseInt(postData.type, 10));
+                    },
+                    function (errorMsg) {
+                        console.log(errorMsg);
+                    }
+                );
             }
 
             // Uploads each of selected documents to the server
-            // and updates database
-            function uploadFiles(userId) {
-                // Notifies whether all files were successfully uploaded.
-                var uploadedFiles = new Array($scope.files.length).fill(false);
-                // Will contain docs to create in DB
-                var docs = [];
-
-                angular.forEach($scope.files, function (file, index) {
-                    file.upload = Upload.upload({
-                        url: 'index.php/NewRequestController/upload',
-                        data: {
-                            file: file,
-                            userId: userId,
-                            // Req list UI is ordered from newest to oldest
-                            requestNumb: totalReq - selectedReq
-                        }
-                    });
-                    file.upload.then(function (response) {
-                        // Register upload success
-                        uploadedFiles[index] = true;
-                        // Add document info
-                        docs.push({
-                            lpath: response.data.lpath,
-                            description: file.description,
-                            docName: file.name
-                        });
-                        if (uploadsFinished(uploadedFiles)) {
-                            // Perform database operation if all files
-                            // were successfully uploaded.
-                            $scope.request.newDocs = docs;
-                            console.log($scope.request);
-                            performEdition($scope.request);
-                        }
-                    }, function (response) {
-                        if (response.status > 0) {
-                            // Show file error message
-                            $scope.errorMsg = response.status + ': ' + response.data;
-                        }
-                    }, function (evt) {
-                        // Fetch file updating progress
-                        file.progress = Math.min(100, parseInt(100.0 *
-                            evt.loaded / evt.total));
-                    });
-                });
-            }
-
-            function uploadsFinished(uploadedFiles) {
-                return (uploadedFiles.filter(function (bool) {
-                    return !bool;
-                }).length == 0);
+            function uploadFiles(files, userId, loanNumb) {
+                FileUpload.uploadFiles(files, userId, loanNumb).then(
+                    function (docs) {
+                        $scope.request.newDocs = docs;
+                        performEdition($scope.request)
+                    },
+                    function (errorMsg) {
+                        // Show file error message
+                        $scope.errorMsg = errorMsg;
+                    }
+                );
             }
 
             $scope.showHelp = function () {
-                var options = {
-                    showNavigation: true,
-                    showCloseBox: true,
-                    delay: -1,
-                    tripTheme: "dark",
-                    prevLabel: "Anterior",
-                    nextLabel: "Siguiente",
-                    finishLabel: "Entendido"
-                };
-                showFormHelp(options);
+                showFormHelp(Helps.getDialogsHelpOpt());
             };
 
             /**
@@ -834,96 +594,84 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
              * @param options: Obj containing tour.js options
              */
             function showFormHelp(options) {
+                var content;
                 var tripToShowNavigation = new Trip([], options);
                 if (typeof $scope.comment === "undefined" || $scope.comment == ""
                     || $scope.comment == $scope.request.comment) {
-                    var content = "Puede (opcionalmente) realizar algún comentario " +
-                        "hacia la solicitud.";
-                    appendFieldHelp(tripToShowNavigation, "#comment", content, 's');
+                    content = "Puede (opcionalmente) realizar algún comentario " +
+                              "hacia la solicitud.";
+                    Helps.addFieldHelp(tripToShowNavigation, "#comment", content, 's');
                 }
                 if ($scope.files.length == 0) {
-                    var content = "Haga click para para (opcionalmente) agregar documentos " +
-                        "adicionales a la solicitud.";
-                    appendFieldHelp(tripToShowNavigation, "#more-files", content, 's');
+                    content = "Haga click para para (opcionalmente) agregar documentos " +
+                              "adicionales a la solicitud.";
+                    Helps.addFieldHelp(tripToShowNavigation, "#more-files", content, 's');
                 } else {
                     content = "Estas tarjetas contienen el nombre y posible descripción " +
-                        "de los documentos seleccionados. Puede eliminarla o proporcionar una descripción" +
-                        " a través de los íconos en la parte inferior de la tarjeta."
-                    appendFieldHelp(tripToShowNavigation, "#file-card", content, 'n');
+                              "de los documentos seleccionados. Puede eliminarla o proporcionar una descripción" +
+                              " a través de los íconos en la parte inferior de la tarjeta.";
+                    Helps.addFieldHelp(tripToShowNavigation, "#file-card", content, 'n');
                 }
                 if (!$scope.allFieldsMissing()) {
-                    var content = "Haga click en ACTUALIZAR para guardar los cambios."
-                    appendFieldHelp(tripToShowNavigation, "#edit-btn", content, 'n');
+                    content = "Haga click en ACTUALIZAR para guardar los cambios.";
+                    Helps.addFieldHelp(tripToShowNavigation, "#edit-btn", content, 'n');
                 }
                 tripToShowNavigation.start();
-            }
-
-            function appendFieldHelp(trip, id, content, pos) {
-                trip.tripData.push(
-                    {sel: $(id), content: content, position: pos, animation: 'fadeInUp'}
-                );
             }
         }
     };
 
     $scope.deleteDoc = function (ev, dKey) {
-        var confirm = $mdDialog.confirm()
-            .title('Confirmación de eliminación')
-            .textContent("El documento " +
-                $scope.requests[$scope.selectedReq].docs[dKey].name +
-                " será eliminado.")
-            .ariaLabel('Document removal warning')
-            .targetEvent(ev)
-            .ok('Continuar')
-            .cancel('Cancelar');
-        $mdDialog.show(confirm).then(function () {
-            $http.post('index.php/AgentHomeController/deleteDocument',
-                JSON.stringify($scope.requests[$scope.selectedReq].docs[dKey]))
-                .then(function (response) {
-                    console.log(response)
-                    if (response.data.message == "success") {
+        Utils.showConfirmDialog(
+            'Confirmación de eliminación',
+            "El documento " +
+            $scope.requests[$scope.selectedReq][$scope.selectedLoan].docs[dKey].name +
+            " será eliminado.",
+            'Continuar',
+            'Cancelar',
+            ev, true).then(
+            function() {
+                Requests.deleteDocument(
+                    $scope.requests[$scope.selectedReq][$scope.selectedLoan].docs[dKey]
+                ).then(
+                    function () {
                         // Update interface
-                        updateRequestListUI($scope.fetchId, $scope.selectedReq,
-                            'Documento eliminado',
-                            'El documento fue eliminado exitosamente.',
-                            true, false);
-                    } else {
-                        showAlertDialog('Oops!',
-                                        'Ha ocurrido un error en el sistema. ' +
-                                        'Por favor intente más tarde');
+                        updateRequestListUI($scope.fetchId, $scope.selectedLoan,
+                                            'Documento eliminado',
+                                            'El documento fue eliminado exitosamente.',
+                                            true, false, $scope.selectedReq);
+                    },
+                    function (errorMsg) {
+                        Utils.showAlertDialog('Oops!', errorMsg);
                     }
-                });
-        });
+                )
+            }
+        );
     };
 
     $scope.deleteRequest = function (ev) {
-        var confirm = $mdDialog.confirm()
-            .title('Confirmación de eliminación')
-            .textContent('Al eliminar la solicitud, también eliminará ' +
-            'todos sus documentos.')
-            .ariaLabel('Request removal warning')
-            .targetEvent(ev)
-            .ok('Continuar')
-            .cancel('Cancelar');
-        $mdDialog.show(confirm).then(function () {
-            $http.post('index.php/AgentHomeController/deleteRequest',
-                JSON.stringify($scope.requests[$scope.selectedReq]))
-                .then(function (response) {
-                    console.log(response)
-                    if (response.data.message == "success") {
+        Utils.showConfirmDialog(
+            'Confirmación de eliminación',
+            'Al eliminar la solicitud, también eliminará ' +
+            'todos sus documentos.',
+            'Continuar',
+            'Cancelar',
+            ev, true).then(
+            function() {
+                Requests.deleteRequest($scope.requests[$scope.selectedReq][$scope.selectedLoan]).then(
+                    function () {
                         // Update interface
                         $scope.docs = [];
-                        updateRequestListUI($scope.fetchId, -1,
-                            'Solicitud eliminada',
-                            'La solicitud fue eliminada exitosamente.',
-                            true, true);
-                    } else {
-                        showAlertDialog('Oops!',
-                                        'Ha ocurrido un error en el sistema. ' +
-                                        'Por favor intente más tarde');
+                        updateRequestListUI($scope.fetchId, -1, 'Solicitud eliminada',
+                                            'La solicitud fue eliminada exitosamente.',
+                                            true, true, -1);
+                    },
+                    function (errorMsg) {
+                        Utils.showAlertDialog('Oops!', errorMsg);
                     }
-                });
-        });
+                );
+            }
+        );
     };
 
     /*
@@ -944,12 +692,15 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
         });
 
         function DialogController($scope, $mdDialog, doc) {
-            $scope.doc = doc;
-
+            $scope.description = '';
             $scope.saveEdition = function () {
-                $http.post('index.php/EditRequestController/' +
-                    'updateDocDescription',
-                    JSON.stringify(doc));
+                doc.description = $scope.description;
+                Requests.updateDocDescription(doc).then(
+                    function () {},
+                    function (errorMsg) {
+                        Utils.showAlertDialog('Oops!', errorMsg);
+                    }
+                );
                 $mdDialog.hide();
             }
         }
@@ -960,28 +711,24 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
         sessionStorage.setItem("requests", JSON.stringify($scope.requests));
         sessionStorage.setItem("fetchId", $scope.fetchId);
         sessionStorage.setItem("selectedReq", $scope.selectedReq);
-        sessionStorage.setItem("showList", $scope.showList ? 1 : 0);
+        sessionStorage.setItem("selectedLoan", $scope.selectedLoan);
+        sessionStorage.setItem("showList", JSON.stringify($scope.showList));
 
         $state.go('history');
 
     };
 
     $scope.downloadDoc = function (doc) {
-        window.open('index.php/ApplicantHomeController/download?lpath=' + doc.lpath, '_blank');
+        window.open(Requests.getDocDownloadUrl(doc.lpath));
     };
 
     $scope.downloadAll = function () {
-        // Bits of pre-processing before passing objects to URL
-        var paths = [];
-        angular.forEach($scope.docs, function (doc) {
-            paths.push(doc.lpath);
-        });
-        location.href = 'index.php/ApplicantHomeController/downloadAll?docs=' + JSON.stringify(paths);
+        location.href = Requests.getAllDocsDownloadUrl($scope.docs);
     };
 
     $scope.loadUserData = function () {
         sessionStorage.setItem("fetchId", $scope.fetchId);
-        window.open('http://localhost:8080/sgdp/#/userInfo', '_blank');
+        window.open(Utils.getUserDataUrl(), '_blank');
     };
 
     $scope.openMenu = function () {
@@ -989,28 +736,19 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
     };
 
     $scope.showHelp = function () {
-        var options = {
-            showNavigation: true,
-            showCloseBox: true,
-            delay: -1,
-            tripTheme: "dark",
-            prevLabel: "Anterior",
-            nextLabel: "Siguiente",
-            finishLabel: "Entendido"
-        };
         if (!$scope.contentAvailable) {
             // Indicate user to input another user's ID.
             if ($mdMedia('gt-sm')) {
-                showSearchbarHelp(options);
+                showSearchbarHelp(Helps.getDialogsHelpOpt());
             } else {
-                showMobileSearchbarHelp(options);
+                showMobileSearchbarHelp(Helps.getDialogsHelpOpt());
             }
         } else if ($scope.docs.length == 0) {
             // User has not selected any request yet, tell him to do it.
-            showSidenavHelp(options);
+            showSidenavHelp(Helps.getDialogsHelpOpt());
         } else {
             // Guide user through request selection's possible actions.
-            showRequestHelp(options);
+            showRequestHelp(Helps.getDialogsHelpOpt());
         }
     };
 
@@ -1019,14 +757,9 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
      * @param options: Obj containing tour.js options
      */
     function showSearchbarHelp(options) {
-        var tripToShowNavigation = new Trip([
-            {
-                sel: $("#search"),
-                content: "Ingrese la cédula de identidad de algún afiliado para " +
-                "gestionar sus solicitudes.",
-                position: "s", animation: 'fadeInDown'
-            }
-        ], options);
+        var tripToShowNavigation = new Trip([], options);
+        Helps.addFieldHelp(tripToShowNavigation, '#search',
+                           'Ingrese la cédula de identidad de algún afiliado para gestionar sus solicitudes.', 's');
         tripToShowNavigation.start();
     }
 
@@ -1035,20 +768,11 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
      * @param options: Obj containing tour.js options
      */
     function showMobileSearchbarHelp(options) {
-        var pos;
-        if ($mdMedia('gt-sm')) {
-            pos = 'w';
-        } else {
-            pos = 's';
-        }
-        var tripToShowNavigation = new Trip([
-            {
-                sel: $("#toggle-search"),
-                content: "Haga click en la lupa e ingrese la cédula de identidad " +
-                         "de algún afiliado para gestionar sus solicitudes.",
-                position: pos, animation: 'fadeInDown'
-            }
-        ], options);
+        var pos = $mdMedia('gt-sm') ? 'w' : 's';
+        var tripToShowNavigation = new Trip([], options);
+        Helps.addFieldHelp(tripToShowNavigation, '#toggle-search',
+                           'Haga click en la lupa e ingrese la cédula de identidad ' +
+                            'de algún afiliado para gestionar sus solicitudes.', pos);
         tripToShowNavigation.start();
     }
 
@@ -1057,31 +781,21 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
      * @param options: Obj containing tour.js options
      */
     function showSidenavHelp(options) {
+        var tripToShowNavigation = new Trip([], options);
         if ($mdSidenav('left').isLockedOpen()) {
             options.showHeader = true;
-            var tripToShowNavigation = new Trip([
-                {
-                    sel: $("#requests-list"),
-                    content: "Consulte datos de interés del afiliado, o seleccione " +
-                    "alguna de sus solicitudes en la lista para ver más detalles.",
-                    position: "e", expose: true, header: "Panel de navegación", animation: 'fadeInUp'
-                },
-                {
-                    sel: $("#new-req-fab"),
-                    content: "También puede abrir una solicitud haciendo click aquí",
-                    position: "w", expose: true, header: "Nueva solicitud", animation: 'fadeInUp'
-                }
-            ], options);
+            Helps.addFieldHelpWithHeader(tripToShowNavigation, '#requests-list',
+                               'Consulte datos de interés del afiliado, o seleccione ' +
+                               'alguna de sus solicitudes en la lista para ver más detalles.', 'e',
+                                         'Panel de navegación', true);
+            Helps.addFieldHelpWithHeader(tripToShowNavigation, '#new-req-fab',
+                               'También puede abrir una solicitud haciendo click aquí', 'w',
+                               'Nueva solicitud', true);
             tripToShowNavigation.start();
         } else {
-            var tripToShowNavigation = new Trip([
-                {
-                    sel: $("#nav-panel"),
-                    content: "Haga click en el ícono para abrir el panel de navegación," +
-                    " donde podrá consultar datos del afiliado o gestionar sus solicitudes.",
-                    position: "e", animation: 'fadeInUp'
-                }
-            ], options);
+            Helps.addFieldHelp(tripToShowNavigation, '#nav-panel',
+                               'Haga click en el ícono para abrir el panel de navegación,' +
+                               ' donde podrá consultar datos del afiliado o gestionar sus solicitudes.', 'e');
             tripToShowNavigation.start();
         }
     }
@@ -1092,62 +806,49 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
      */
     function showRequestHelp(options) {
         options.showHeader = true;
-        var resposiveNorthPos = $mdMedia('xs') ? 'n' : 'w';
+        var responsiveNorthPos = $mdMedia('xs') ? 'n' : 'w';
         var responsiveSouthPos = $mdMedia('xs') ? 's' : 'w';
+        var tripToShowNavigation = new Trip([], options);
+        var content;
 
-        // options.showSteps = true;
-        var tripToShowNavigation = new Trip([
-            // Request summary information
-            {
-                sel: $("#request-summary"), content: "Aquí se muestra información acerca de " +
-            "la fecha de creación, monto solicitado, y un comentario de haberlo realizado.",
-                position: "s", header: "Resumen de la solicitud", expose: true
-            },
-            // Request status information
-            {
-                sel: $("#request-status-summary"), content: "Esta sección provee información " +
-            "acerca del estatus de la solicitud.",
-                position: "s", header: "Resumen de estatus", expose: true, animation: 'fadeInDown'
-            },
-            // Request documents information
-            {
-                sel: $("#request-docs"), content: "Éste y los siguientes items contienen " +
-            "el nombre y, de existir, una descripción de cada documento en la solicitud. " +
-            "Puede verlos/descargarlos haciendo click encima de ellos.",
-                position: "s", header: "Documentos", expose: true, animation: 'fadeInDown'
-            },
-            // Request documents actions
-            {
-                sel: $("#request-docs-actions"), content: "Siendo un documento adicional, " +
-            "puede hacer click en el botón de opciones para proveer una descripción, " +
-            "descargarlos o incluso eliminarlos.",
-                position: resposiveNorthPos, header: "Documentos", expose: true, animation: 'fadeInLeft'
-            }
-        ], options);
+        // Request summary information
+        content = "Aquí se muestra información acerca de la fecha de creación, monto solicitado " +
+                  "por usted, y un comentario de haberlo realizado.";
+        Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-summary', content, 's',
+                                     'Resumen de la solicitud', true);
+        // Request status information
+        content = "Esta sección provee información acerca del estatus de la solicitud.";
+        Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-status-summary', content, 's',
+                                     'Resumen de estatus', true);
+        // Request documents information
+        content = "Éste y los siguientes items contienen " +
+                  "el nombre y, de existir, una descripción de cada documento en la solicitud. " +
+                  "Puede verlos/descargarlos haciendo click encima de ellos.";
+        Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-docs', content, 'n',
+                                     'Documentos', true);
+        // Additional documents.
+        content = "Siendo un documento adicional, " +
+                  "puede hacer click en el botón de opciones para proveer una descripción, " +
+                  "descargarlos o incluso eliminarlos.";
+        Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-docs-actions', content, responsiveNorthPos,
+                                     'Documentos', true, 'fadeInLeft');
         if ($scope.docs.length < 2) {
             // This request hasn't additional documents.
             tripToShowNavigation.tripData.splice(3, 1);
         }
         if ($mdSidenav('left').isLockedOpen()) {
-            tripToShowNavigation.tripData.push(
-                // Request-summary-actions-menu for desktops
-                {
-                    sel: $("#request-summary-actions"), content: "Puede ver el historial de la solicitud, " +
-                "editarla (si la solicitud no se ha cerrado), o descargar todos " +
-                "sus documentos presionando el botón correspondiente.",
-                    position: responsiveSouthPos, header: "Acciones", expose: true, animation: 'fadeInLeft'
-                }
-            );
+            content = "Puede ver el historial de la solicitud, " +
+                      "editarla (si la solicitud no se ha cerrado), o descargar todos " +
+                      "sus documentos presionando el botón correspondiente.";
+            Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-summary-actions', content, responsiveSouthPos,
+                                         'Acciones', true, 'fadeInLeft');
         } else {
-            tripToShowNavigation.tripData.push(
-                // Request-summary-actions-menu for mobiles
-                {
-                    sel: $("#request-summary-actions-menu"), content: "Haga click en el botón de opciones para " +
-                "ver el historial de la solicitud, editarla (si la solicitud no se ha cerrado)" +
-                ", o descargar todos sus documentos.",
-                    position: responsiveSouthPos, header: "Acciones", expose: true, animation: 'fadeInLeft'
-                }
-            );
+            content = "Haga click en el botón de opciones para " +
+                      "ver el historial de la solicitud, editarla (si la solicitud no se ha cerrado)" +
+                      ", o descargar todos sus documentos.";
+            Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-summary-actions-menu',
+                                         content, responsiveSouthPos,
+                                         'Acciones', true, 'fadeInLeft');
         }
         tripToShowNavigation.start();
     }
@@ -1160,7 +861,7 @@ function agentHome($scope, $mdDialog, Upload, $cookies, $http, $state,
         }, 300);
     };
 
-    $scope.clearSearch = function() {
+    $scope.clearSearch = function () {
         $('#search-input').val('');
         $scope.searchInput = '';
     };

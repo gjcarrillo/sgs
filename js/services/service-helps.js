@@ -38,11 +38,11 @@ function helps() {
      * @param pos - dialog's position (n, s, e, w)
      * @param expose - whether to expose the view.
      */
-    self.addFieldHelp = function(trip, id, content, pos, expose) {
+    self.addFieldHelp = function(trip, id, content, pos, expose, animation) {
         trip.tripData.push(
             {
                 sel: $(id), content: content, position: pos,
-                animation: 'fadeInUp', expose: expose ? true : false
+                animation: animation ? animation : 'fadeInUp', expose: expose ? true : false
             }
         );
     };
@@ -57,12 +57,13 @@ function helps() {
      * @param pos - dialog's position (n, s, e, w)
      * @param header - help dialog's header text.
      * @param expose - whether to expose the view.
+     * @param animation - dialog's pop-up animation.
      */
-    self.addFieldHelpWithHeader = function(trip, id, content, pos, header, expose) {
+    self.addFieldHelpWithHeader = function(trip, id, content, pos, header, expose, animation) {
         trip.tripData.push(
             {
                 sel: $(id), content: content, position: pos,
-                animation: 'fadeInUp', header: header, expose: expose ? true : false
+                animation: animation ? animation : 'fadeInUp', header: header, expose: expose ? true : false
             }
         );
     };

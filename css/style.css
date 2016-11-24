@@ -256,6 +256,10 @@ md-select.no-md-select .md-select-value {
     color: #0D47A1;
 }
 
+.center-vertical {
+    width: calc(100vw);
+}
+
 md-list-item.md-2-line .md-list-item-text h3,
 md-list-item.md-2-line>.md-no-style .md-list-item-text h3,
 md-list-item.md-3-line .md-list-item-text h3,

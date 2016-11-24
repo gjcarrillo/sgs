@@ -38,7 +38,7 @@ class ApplicantHomeController extends CI_Controller {
                 $user = $em->find('\Entity\User', $_GET['fetchId']);
                 $requests = $user->getRequests();
                 if ($requests->isEmpty()) {
-                    $result['message'] = "Usted aún no posee solicitudes";
+                    $result['message'] = "No se han encontrado solicitudes";
                 } else {
                     $requests = array_reverse($requests->getValues());
                     foreach ($requests as $rKey => $request) {
@@ -69,7 +69,7 @@ class ApplicantHomeController extends CI_Controller {
     }
 
     public function download() {
-        // [0] = userId, [1] = requestId, [2] = filename, [3] = file extension
+        // [0] = userId, [1] = request type, [2] = loan number, [3] = filename, [4] = file extension
         $parsed = explode('.', $_GET['lpath']);
         // Get the Id of the document's owner.
         $userOwner = $parsed[0];
@@ -78,21 +78,21 @@ class ApplicantHomeController extends CI_Controller {
             $this->load->view('errors/index.html');
         } else {
             // file information
-            if ($parsed[3] === "pdf") {
+            if ($parsed[4] === "pdf") {
 				// Don't force downloads on pdf files
                 header('Content-type: application/pdf');
-                header('Content-Disposition: inline; filename="' . $parsed[2] . '.' . $parsed[3] . '"');
-            } else if ($parsed[3] === "png"
-                || $parsed[3] === "jpg"
-                || $parsed[3] === "jpeg"
-                || $parsed[3] === "gif"
-                || $parsed[3] === "tif") {
+                header('Content-Disposition: inline; filename="' . $parsed[3] . '.' . $parsed[4] . '"');
+            } else if ($parsed[4] === "png"
+                || $parsed[4] === "jpg"
+                || $parsed[4] === "jpeg"
+                || $parsed[4] === "gif"
+                || $parsed[4] === "tif") {
 				// Don't force downloads on image files
-                header('Content-type: image/' . $parsed[3]);
-                header('Content-Disposition: inline; filename="' . $parsed[2] . '.' . $parsed[3] . '"');
+                header('Content-type: image/' . $parsed[4]);
+                header('Content-Disposition: inline; filename="' . $parsed[3] . '.' . $parsed[4] . '"');
             } else {
 				// Force downloads on files that aren't pdf nor image files.
-                header('Content-Disposition: attachment; filename="' . $parsed[2] . '.' . $parsed[3] . '"');
+                header('Content-Disposition: attachment; filename="' . $parsed[3] . '.' . $parsed[4] . '"');
             }
             // The document source
             readfile(DropPath . $_GET['lpath']);
@@ -102,7 +102,7 @@ class ApplicantHomeController extends CI_Controller {
     public function downloadAll() {
         // At least 2 documents will always be available for download.
         $docs = json_decode($_GET['docs']);
-        // [0] = userId, [1] = requestId, [2] = filename, [3] = file extension
+		// [0] = userId, [1] = request type, [2] = loan number, [3] = filename, [4] = file extension
         $parsed = explode('.', $docs[0]);
         // Get the Id of the document's owner.
         $userOwner = $parsed[0];
@@ -114,7 +114,7 @@ class ApplicantHomeController extends CI_Controller {
             if ($userOwner == $_SESSION['id'] || $_SESSION['type'] <= 2) {
                 // Only agents & managers can download documents that are not their own.
                 $tmp = explode('.', $doc);
-                $filename = $tmp[2] . "." . $tmp[3];
+                $filename = $tmp[3] . "." . $tmp[4];
                 $zip->addFromString(basename($filename),  file_get_contents(DropPath . $doc));
             }
         }

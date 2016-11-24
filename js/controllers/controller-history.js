@@ -16,13 +16,16 @@ function history($scope, $http, $mdBottomSheet, $mdMedia, $timeout) {
     $scope.loading = true;
     // Take the stored data of interest
     var requests = JSON.parse(sessionStorage.getItem("requests"));
-    var selectedReq = parseInt(sessionStorage.getItem("selectedReq"));
+    var selectedReq = sessionStorage.getItem("selectedReq");
+    var selectedLoan = parseInt(sessionStorage.getItem("selectedLoan"), 10);
     if (requests === null) {
         requests = JSON.parse(sessionStorage.getItem("pendingRequests"));
-        selectedReq = parseInt(sessionStorage.getItem("selectedPendingReq"));
+        selectedReq = parseInt(sessionStorage.getItem("selectedPendingReq"), 10);
     }
-
-    $http.get('index.php/HistoryController/fetchRequestHistory', {params:requests[selectedReq]})
+    console.log(requests);
+    console.log(selectedReq);
+    console.log(selectedLoan);
+    $http.get('index.php/HistoryController/fetchRequestHistory', {params:requests[selectedReq][selectedLoan]})
         .then(function (response) {
             if (response.data.message === "success") {
                 $scope.history = response.data.history;

@@ -101,8 +101,19 @@
     </div>
 </md-toolbar>
 <div layout>
-    <!-- Pre-loader -->
-    <md-progress-linear md-mode="query" ng-if="loading"></md-progress-linear>
+    <!-- Loader -->
+    <div>
+        <div
+            ng-if="loading"
+            class="full-content-height center-vertical">
+            <div layout layout-align="center" md-padding>
+                <md-button class="md-fab md-raised" aria-label="Loading...">
+                    <md-progress-circular md-mode="indeterminate" md-diameter="45"></md-progress-circular>
+                </md-button>
+            </div>
+        </div>
+        <md-divider></md-divider>
+    </div>
     <!-- Sidenav -->
     <md-sidenav
         id="requests-list"
@@ -118,32 +129,34 @@
                     </p>
                 </md-list-item>
                 <md-divider></md-divider>
-                <md-list-item ng-click="toggleList()">
-                    <p class="sidenavTitle">
-                        Préstamos Personales
-                    </p>
-                    <md-icon ng-class="md-secondary" ng-if="!showList">keyboard_arrow_down</md-icon>
-                    <md-icon ng-class="md-secondary" ng-if="showList">keyboard_arrow_up</md-icon>
-                </md-list-item>
-                <md-divider></md-divider>
-                <div class="slide-toggle" ng-show="showList">
-                    <div ng-if="requests.length == 0" layout layout-align="center center" class="md-padding">
-                        <p style="color:#F44336">
-                            Este afiliado no posee solicitudes de préstamos personales
-                        </p>
+                <md-list class="sidenavList">
+                    <div ng-repeat="(rKey, request) in requests">
+                        <md-list-item ng-click="toggleList(rKey)">
+                            <p class="sidenavTitle">
+                                {{listTitle[rKey]}}
+                            </p>
+                            <md-icon ng-class="md-secondary" ng-if="!showList[rKey]">keyboard_arrow_down</md-icon>
+                            <md-icon ng-class="md-secondary" ng-if="showList[rKey]">keyboard_arrow_up</md-icon>
+                        </md-list-item>
+                        <md-divider></md-divider>
+                        <div class="slide-toggle" ng-show="showList[rKey]">
+                            <div ng-if="request.length == 0" layout layout-align="center center" class="md-padding">
+                                <p style="color:#F44336">
+                                    Este afiliado no posee solicitudes de {{listTitle[rKey]}}
+                                </p>
+                            </div>
+                            <div layout="column" layout-align="center" ng-repeat="(lKey, loan) in request">
+                                <md-button
+                                    ng-click="selectRequest(rKey, lKey)"
+                                    class="requestItems"
+                                    ng-class="{'md-primary md-raised' : selectedReq === rKey && selectedLoan === lKey }">
+                                    Solicitud ID &#8470; {{pad(loan.id, 6)}}
+                                </md-button>
+                                <md-divider ng-if="$last"></md-divider>
+                            </div>
+                        </div>
                     </div>
-                    <div
-                        layout="column"
-                        layout-align="center"
-                        ng-repeat="(rKey, request) in requests">
-                        <md-button
-                            ng-click="selectRequest(rKey)"
-                            class="requestItems"
-                            ng-class="{'md-primary md-raised' : selectedReq === rKey }">
-                            Solicitud ID &#8470; {{pad(request.id, 6)}}
-                        </md-button>
-                    </div>
-                </div>
+                </md-list>
             </md-list>
         </md-content>
     </md-sidenav>
@@ -164,7 +177,7 @@
                 ng-if="fetchError == '' && docs.length == 0"
                 class="full-content-height"
                 layout="column" layout-align="center center">
-                <div class="watermark" layout="column" layout-align="center center">
+                <div ng-if="!loading" class="watermark" layout="column" layout-align="center center">
                     <img src="images/ipapedi.png" alt="Ipapedi logo"/>
                 </div>
             </div>
@@ -179,18 +192,17 @@
                                 <md-list-item id="request-summary" class="md-3-line noright">
                                     <div class="md-list-item-text request-details-wrapper" layout="column">
                                         <h3 hide-xs class="request-details-title">
-                                            Préstamo solicitado el {{requests[selectedReq].creationDate}}
+                                            Solicitado al {{requests[selectedReq][selectedLoan].creationDate}}
                                         </h3>
-
                                         <h3 hide-gt-xs class="request-details-title">
-                                            Fecha: {{requests[selectedReq].creationDate}}
+                                            Fecha: {{requests[selectedReq][selectedLoan].creationDate}}
                                         </h3>
                                         <h4>
-                                            Monto solicitado: Bs {{requests[selectedReq].reqAmount | number:2}}
+                                            Monto solicitado: Bs {{requests[selectedReq][selectedLoan].reqAmount | number:2}}
                                         </h4>
 
                                         <p>
-                                            {{requests[selectedReq].comment}}
+                                            {{requests[selectedReq][selectedLoan].comment}}
                                         </p>
                                     </div>
                                     <!-- Show only when screen width >= 960px -->
@@ -207,7 +219,7 @@
                                         </md-button>
                                         <md-button
                                             class="md-icon-button"
-                                            ng-if="requests[selectedReq].status == 'Recibida'"
+                                            ng-if="requests[selectedReq][selectedLoan].status == 'Recibida'"
                                             ng-click="openEditRequestDialog($event)">
                                             <md-icon class="md-secondary">
                                                 edit
@@ -259,7 +271,7 @@
                                                     Historial
                                                 </md-button>
                                             </md-menu-item>
-                                            <md-menu-item ng-if="requests[selectedReq].status == 'Recibida'">
+                                            <md-menu-item ng-if="requests[selectedReq][selectedLoan].status == 'Recibida'">
                                                 <md-button ng-click="openEditRequestDialog($event)">
                                                     <md-icon class="md-secondary">
                                                         edit
@@ -287,13 +299,13 @@
                                 <md-list-item id="request-status-summary" class="md-2-line noright">
                                     <md-icon ng-style="{'font-size':'36px'}">info_outline</md-icon>
                                     <div class="md-list-item-text" layout="column">
-                                        <h3>Estatus de la solicitud: {{requests[selectedReq].status}}</h3>
-                                        <h4 ng-if="requests[selectedReq].reunion">
-                                            Reunión &#8470; {{requests[selectedReq].reunion}}
+                                        <h3>Estatus de la solicitud: {{requests[selectedReq][selectedLoan].status}}</h3>
+                                        <h4 ng-if="requests[selectedReq][selectedLoan].reunion">
+                                            Reunión &#8470; {{requests[selectedReq][selectedLoan].reunion}}
                                         </h4>
 
-                                        <p ng-if="requests[selectedReq].approvedAmount">
-                                            Monto aprobado: Bs {{requests[selectedReq].approvedAmount | number:2}}
+                                        <p ng-if="requests[selectedReq][selectedLoan].approvedAmount">
+                                            Monto aprobado: Bs {{requests[selectedReq][selectedLoan].approvedAmount | number:2}}
                                         </p>
                                     </div>
                                 </md-list-item>
@@ -314,8 +326,7 @@
                                             perm_identity
                                         </md-icon>
                                         <div class="md-list-item-text" layout="column">
-                                            <h3>{{doc.name}}</h3>
-
+                                            <h3 style="max-width:400px">{{doc.name}}</h3>
                                             <p>{{doc.description}}</p>
                                         </div>
                                         <md-button

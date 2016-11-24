@@ -5,9 +5,9 @@ angular
     .module('sgdp.service-utils', [])
     .factory('Utils', utils);
 
-utils.$inject = ['$mdDialog'];
+utils.$inject = ['$mdDialog', 'Constants'];
 
-function utils($mdDialog) {
+function utils($mdDialog, Constants) {
     'use strict';
 
     var self = this;
@@ -67,6 +67,15 @@ function utils($mdDialog) {
         n = n + '';
         return n.length >= width ? n :
         new Array(width - n.length + 1).join(z) + n;
+    };
+
+    /**
+     * Returns the formed URL linking to user data.
+     *
+     * @returns {string} - containing the user info url.
+     */
+    self.getUserDataUrl = function() {
+        return Constants.BASEURL + '#/userInfo';
     };
 
     return self;

@@ -27,7 +27,7 @@ function reqService($q, $http, Constants) {
      */
     self.getUserRequests = function (fetchId) {
         var qReq = $q.defer();
-        $http.get('index.php/ApplicantHomeController/getUserRequests',
+        $http.get('index.php/AgentHomeController/getUserRequests',
             {params: {fetchId: fetchId}})
             .then(
             function (response) {
@@ -36,13 +36,93 @@ function reqService($q, $http, Constants) {
                     if (typeof response.data.requests !== "undefined") {
                         qReq.resolve(filterRequests(response.data.requests));
                     } else {
-                        qReq.resolve([]);
+                        qReq.resolve(filterRequests([]));
                     }
                 } else {
-                    qReq.reject(response.data.message);
+                    qReq.reject(response.data.error);
                 }
             });
         return qReq.promise;
+    };
+
+    /**
+     * Updates the given request.
+     *
+     * @param postData - data to be sent to the server for updating the request.
+     */
+    self.updateRequest = function (postData) {
+        var qUpdate = $q.defer();
+        $http.post('index.php/EditRequestController/updateRequest',
+                   JSON.stringify(postData))
+            .then(function (response) {
+                      if (response.status == 200) {
+                          qUpdate.resolve();
+                      } else {
+                          qUpdate.reject('Ha ocurrido un problema al actualizar la solicitud. ' +
+                                         'Por favor intente más tarde.');
+                      }
+                  });
+        return qUpdate.promise;
+    };
+
+    /**
+     * Deletes the specified document from database.
+     *
+     * @param doc - doc obj to erase from database.
+     * @returns {*} - promise with the operation's result.
+     */
+    self.deleteDocument = function (doc) {
+        var qDelete = $q.defer();
+        $http.post('index.php/AgentHomeController/deleteDocument',
+                   JSON.stringify(doc)).then(
+            function (response) {
+                if (response.data.message == "success") {
+                    // Update interface
+                    qDelete.resolve();
+                } else {
+                    qDelete.reject('Ha ocurrido un error en el sistema. ' +
+                                   'Por favor intente más tarde');
+                }
+            }
+        );
+        return qDelete.promise;
+    };
+
+    /**
+     * Deletes the specified request (and it's documents) from database.
+     *
+     * @param request - the request obj to erase from database.
+     * @returns {*} - promise with the operation's result.
+     */
+    self.deleteRequest = function (request) {
+        var qDelReq = $q.defer();
+        $http.post('index.php/AgentHomeController/deleteRequest',
+                   JSON.stringify(request))
+            .then(function (response) {
+                      if (response.data.message == "success") {
+                          qDelReq.resolve();
+                      } else {
+                          qDelReq.reject('Ha ocurrido un error en el sistema. ' +
+                                         'Por favor intente más tarde');
+                      }
+                  });
+        return qDelReq.promise;
+    };
+
+    self.updateDocDescription = function (doc) {
+        var updateDoc = $q.defer();
+        $http.post('index.php/EditRequestController/' +
+                   'updateDocDescription', JSON.stringify(doc)).then(
+            function (response) {
+                if (response.status == 200) {
+                    updateDoc.resolve();
+                } else {
+                    updateDoc.reject('Ha ocurrido un error al intentar actualizar la descripción del documento.' +
+                                     'Por favor intente más tarde.');
+                }
+            }
+        );
+        return updateDoc.promise;
     };
 
     /**
@@ -50,7 +130,7 @@ function reqService($q, $http, Constants) {
      *
      * @returns {number} - containing the max. amount the applicant can request.
      */
-    self.getMaxAmount = function() {
+    self.getMaxAmount = function () {
         return maxAmount;
     };
 
@@ -65,7 +145,7 @@ function reqService($q, $http, Constants) {
         req.pp = requests.filter(function (loan) {
             return loan.type == Constants.LoanTypes.PERSONAL;
         });
-        req.vc = requests.filter(function(loan) {
+        req.vc = requests.filter(function (loan) {
             return loan.type == Constants.LoanTypes.CASH_VOUCHER;
         });
         return req;
@@ -76,7 +156,7 @@ function reqService($q, $http, Constants) {
      *
      * @returns {*} - a string corresponding to the loan type's title.
      */
-    self.getTypeTitles = function() {
+    self.getTypeTitles = function () {
         return loanTitles;
     };
 
@@ -86,7 +166,7 @@ function reqService($q, $http, Constants) {
      * @param type - loan type's code.
      * @returns {*} - string containing the corresponding mapped type.
      */
-    self.mapLoanTypes = function(type) {
+    self.mapLoanTypes = function (type) {
         switch (type) {
             case Constants.LoanTypes.PERSONAL:
                 return 'pp';
@@ -95,7 +175,7 @@ function reqService($q, $http, Constants) {
                 return 'vc';
                 break;
             default:
-                return 'unknown';
+                return type;
         }
     };
 
@@ -106,9 +186,9 @@ function reqService($q, $http, Constants) {
      * the different loans.
      * @returns {number} - containing the total amount of loans in the array obj.
      */
-    self.getTotalLoans = function(filteredRequests) {
+    self.getTotalLoans = function (filteredRequests) {
         var total = 0;
-        angular.forEach(filteredRequests, function(loan) {
+        angular.forEach(filteredRequests, function (loan) {
             total += loan.length;
         });
         return total;
@@ -120,7 +200,7 @@ function reqService($q, $http, Constants) {
      * @param postData - Data to be sent to the server for the request creation.
      * @returns {*} - promise containing the operation's result.
      */
-    self.createRequest = function(postData) {
+    self.createRequest = function (postData) {
         var qReqCreation = $q.defer();
         $http.post('index.php/NewRequestController/createRequest',
                    JSON.stringify(postData))
@@ -129,7 +209,7 @@ function reqService($q, $http, Constants) {
                           qReqCreation.resolve();
                       } else {
                           qReqCreation.reject('Ha ocurrido un error al crear su solicitud. ' +
-                                              'Por favor intente m�s tarde');
+                                              'Por favor intente más tarde');
                       }
                   });
         return qReqCreation.promise;
@@ -141,7 +221,7 @@ function reqService($q, $http, Constants) {
      * @param docPath - Doc's name on disk.
      * @returns {string} - Formed URL containing link to download doc.
      */
-    self.getDocDownloadUrl = function(docPath) {
+    self.getDocDownloadUrl = function (docPath) {
         return 'index.php/ApplicantHomeController/download?lpath=' + docPath;
     };
 
@@ -151,7 +231,7 @@ function reqService($q, $http, Constants) {
      * @param docs - Array containing all docs.
      * @returns {string} - Formed URL containing link to download doc.
      */
-    self.getAllDocsDownloadUrl = function(docs) {
+    self.getAllDocsDownloadUrl = function (docs) {
         // Bits of pre-processing before passing objects to URL
         var paths = [];
         angular.forEach(docs, function (doc) {
