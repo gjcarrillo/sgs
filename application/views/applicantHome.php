@@ -105,11 +105,11 @@
             <md-content
                 ng-hide="!req.docs"
                 class="document-container">
-                <div layout layout-align="center center">
+                <div layout="column" layout-align="center center">
                     <md-card class="documents-card">
                         <md-card-content>
                             <md-list>
-                                <md-list-item id="request-summary" class="md-3-line noright">
+                                <md-list-item id="request-summary" class="md-2-line noright">
                                     <div class="md-list-item-text request-details-wrapper" layout="column">
                                         <h3 hide-xs class="request-details-title">
                                             Solicitado al {{req.creationDate}}
@@ -140,7 +140,7 @@
                                 <md-list-item
                                     id="request-status-summary"
                                     class="md-2-line noright">
-                                    <md-icon  ng-style="{'font-size':'36px'}">info_outline</md-icon>
+                                    <md-icon style="padding-top: 10px">info_outline</md-icon>
                                     <div class="md-list-item-text" layout="column">
                                         <h3>Estatus de la solicitud: {{req.status}}</h3>
                                        <h4 ng-if="req.reunion">
@@ -155,7 +155,7 @@
                                 <md-divider md-inset></md-divider>
                                 <md-list-item class="md-2-line noright"
                                               id="request-payment-due">
-                                    <md-icon  ng-style="{'font-size':'36px'}">payment</md-icon>
+                                    <md-icon style="color: #546E7A">payment</md-icon>
                                     <div class="md-list-item-text" layout="column">
                                         <h3>
                                             Cuotas a pagar
@@ -171,7 +171,7 @@
                                 <md-divider md-inset></md-divider>
                                 <md-list-item class="md-2-line noright"
                                               id="request-contact-number">
-                                    <md-icon  ng-style="{'font-size':'36px'}">phone</md-icon>
+                                    <md-icon style="color: #009688">phone</md-icon>
                                     <div class="md-list-item-text" layout="column">
                                         <h3>
                                             Número de contacto
@@ -188,14 +188,8 @@
                                         class="md-2-line"
                                         ng-click="downloadDoc(doc)">
                                         <md-icon
-                                            ng-if="doc.name !='Identidad'"
-                                            ng-style="{'color':'#2196F3', 'font-size':'36px'}">
+                                            class="docs-icon">
                                             insert_drive_file
-                                        </md-icon>
-                                        <md-icon
-                                            ng-if="doc.name=='Identidad'"
-                                            ng-style="{'color':'#2196F3', 'font-size':'36px'}">
-                                            perm_identity
                                         </md-icon>
                                         <div class="md-list-item-text" layout="column">
                                            <h3>{{doc.name}}</h3>

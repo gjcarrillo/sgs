@@ -201,6 +201,10 @@ md-list .md-button {
     width: 100%;
 }
 
+.docs-icon {
+    color: #2196F3;
+}
+
 md-select.no-md-select {
     border-bottom-color: white !important;
     color: black;

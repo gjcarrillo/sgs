@@ -348,14 +348,8 @@
                                         class="md-2-line noright"
                                         ng-click="downloadDoc(doc)">
                                         <md-icon
-                                            ng-if="doc.name !='Identidad'"
                                             ng-style="{'color':'#2196F3', 'font-size':'36px'}">
                                             insert_drive_file
-                                        </md-icon>
-                                        <md-icon
-                                            ng-if="doc.name =='Identidad'"
-                                            ng-style="{'color':'#2196F3', 'font-size':'36px'}">
-                                            perm_identity
                                         </md-icon>
                                         <div class="md-list-item-text" layout="column">
                                             <h3 style="max-width:400px">{{doc.name}}</h3>

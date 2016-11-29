@@ -669,7 +669,7 @@
                                    </md-menu>
                                </md-list-item>
                                 <md-list-item id="request-status-summary" class="md-2-line noright">
-                                    <md-icon  ng-style="{'font-size':'36px'}">info_outline</md-icon>
+                                    <md-icon style="padding-top: 10px">info_outline</md-icon>
                                     <div class="md-list-item-text" layout="column">
                                        <h3>
                                            Estatus de la solicitud: {{req.status}}
@@ -687,7 +687,7 @@
                                 <md-divider md-inset></md-divider>
                                 <md-list-item class="md-2-line noright"
                                               id="request-payment-due">
-                                    <md-icon  ng-style="{'font-size':'36px'}">payment</md-icon>
+                                    <md-icon>payment</md-icon>
                                     <div class="md-list-item-text" layout="column">
                                         <h3>
                                             Cuotas a pagar
@@ -703,7 +703,7 @@
                                 <md-divider md-inset></md-divider>
                                 <md-list-item class="md-2-line noright"
                                               id="request-contact-number">
-                                    <md-icon  ng-style="{'font-size':'36px'}">phone</md-icon>
+                                    <md-icon>phone</md-icon>
                                     <div class="md-list-item-text" layout="column">
                                         <h3>
                                             Número de contacto
@@ -713,20 +713,15 @@
                                         </h4>
                                     </div>
                                 </md-list-item>
+                                <md-divider></md-divider>
                                 <div ng-repeat="(dKey, doc) in req.docs">
                                     <md-list-item
                                         id="request-docs"
                                         class="md-2-line noright"
                                         ng-click="downloadDoc(doc)">
                                         <md-icon
-                                            ng-if="doc.name !='Identidad'"
-                                            ng-style="{'color':'#2196F3', 'font-size':'36px'}">
+                                            class="docs-icon">
                                             insert_drive_file
-                                        </md-icon>
-                                        <md-icon
-                                            ng-if="doc.name=='Identidad'"
-                                            ng-style="{'color':'#2196F3', 'font-size':'36px'}">
-                                            perm_identity
                                         </md-icon>
                                         <div class="md-list-item-text" layout="column">
                                            <h3>{{doc.name}}</h3>
