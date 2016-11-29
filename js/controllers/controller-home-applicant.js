@@ -185,7 +185,7 @@ function userHome($scope, $cookies, $timeout, FileUpload, Helps,
                 var postData = {
                     userId: fetchId,
                     reqAmount: $scope.model.reqAmount,
-                    tel: parseInt($scope.model.tel.operator + $scope.model.tel.value, 10),
+                    tel: $scope.model.tel.operator + '-' + $scope.model.tel.value,
                     due: $scope.model.due,
                     loanType: $scope.model.type,
                     docs: docs
@@ -431,6 +431,15 @@ function userHome($scope, $cookies, $timeout, FileUpload, Helps,
         content = "Esta sección provee información acerca del estatus de su solicitud.";
         Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-status-summary', content, 's',
                                      'Resumen de estatus', true);
+        // Request payment due information
+        content = "Acá puede apreciar las cuotas a pagar, indicando el monto por mes y el plazo del pago en meses.";
+        Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-payment-due', content, 's',
+                                     'Cuotas a pagar', true);
+        // Request contact number
+        content = "Aquí se muestra el número de teléfono que ingresó al crear la solicitud, a través del cual " +
+                  "nos estaremos comunicando con usted.";
+        Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-contact-number', content, 'n',
+                                     'Número de contacto', true);
         // Request documents information
         content = "Éste y los siguientes " +
                   "items contienen el nombre y una posible descripción de " +

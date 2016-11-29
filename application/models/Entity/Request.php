@@ -104,7 +104,7 @@ class Request
     /**
      * @var integer
      *
-     * @ORM\Column(name="contactNumb", type="integer", scale=0, nullable=false, unique=false)
+     * @ORM\Column(name="contactNumb", type="string", length=15, precision=0, scale=0, nullable=false, unique=false)
      */
     private $contactNumber;
 

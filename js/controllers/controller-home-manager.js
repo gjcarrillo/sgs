@@ -1029,6 +1029,15 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
          content = "Esta sección provee información acerca del estatus de la solicitud.";
          Helps.addFieldHelpWithHeader(trip, '#request-status-summary', content, 's', 'Resumen de estatus', true,
                                       'fadeInDown');
+         // Request payment due information
+         content = "Acá puede apreciar las cuotas a pagar, indicando el monto por mes y el plazo del pago en meses.";
+         Helps.addFieldHelpWithHeader(trip, '#request-payment-due', content, 's',
+                                      'Cuotas a pagar', true);
+         // Request contact number
+         content = "Aquí se muestra el número de teléfono que ingresó al crear la solicitud, a través del cual " +
+                   "nos estaremos comunicando con usted.";
+         Helps.addFieldHelpWithHeader(trip, '#request-contact-number', content, 'n',
+                                      'Número de contacto', true);
          // Request documents information
          content = "Éste y los siguientes " +
                    "items contienen el nombre y, de existir, una descripción " +

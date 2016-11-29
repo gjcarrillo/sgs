@@ -811,6 +811,15 @@ function agentHome($scope, $mdDialog, $cookies, FileUpload, Constants, Agent,
         content = "Esta sección provee información acerca del estatus de la solicitud.";
         Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-status-summary', content, 's',
                                      'Resumen de estatus', true);
+        // Request payment due information
+        content = "Acá puede apreciar las cuotas a pagar, indicando el monto por mes y el plazo del pago en meses.";
+        Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-payment-due', content, 's',
+                                     'Cuotas a pagar', true);
+        // Request contact number
+        content = "Aquí se muestra el número de teléfono que ingresó al crear la solicitud, a través del cual " +
+                  "nos estaremos comunicando con usted.";
+        Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-contact-number', content, 'n',
+                                     'Número de contacto', true);
         // Request documents information
         content = "Éste y los siguientes items contienen " +
                   "el nombre y, de existir, una descripción de cada documento en la solicitud. " +
@@ -825,7 +834,7 @@ function agentHome($scope, $mdDialog, $cookies, FileUpload, Constants, Agent,
                                      'Documentos', true, 'fadeInLeft');
         if ($scope.req.docs.length < 2) {
             // This request hasn't additional documents.
-            tripToShowNavigation.tripData.splice(3, 1);
+            tripToShowNavigation.tripData.splice(tripToShowNavigation.tripData.length - 1, 1);
         }
         if ($mdSidenav('left').isLockedOpen()) {
             content = "Puede ver el historial de la solicitud, " +

@@ -312,6 +312,35 @@
                                         </p>
                                     </div>
                                 </md-list-item>
+                                <md-divider md-inset></md-divider>
+                                <md-list-item class="md-2-line noright"
+                                              id="request-payment-due">
+                                    <md-icon  ng-style="{'font-size':'36px'}">payment</md-icon>
+                                    <div class="md-list-item-text" layout="column">
+                                        <h3>
+                                            Cuotas a pagar
+                                        </h3>
+                                        <h4>
+                                            Bs 12,000.00
+                                        </h4>
+                                        <p>
+                                            Por {{req.due}} meses
+                                        </p>
+                                    </div>
+                                </md-list-item>
+                                <md-divider md-inset></md-divider>
+                                <md-list-item class="md-2-line noright"
+                                              id="request-contact-number">
+                                    <md-icon  ng-style="{'font-size':'36px'}">phone</md-icon>
+                                    <div class="md-list-item-text" layout="column">
+                                        <h3>
+                                            Número de contacto
+                                        </h3>
+                                        <h4>
+                                            {{req.phone}}
+                                        </h4>
+                                    </div>
+                                </md-list-item>
                                 <md-divider></md-divider>
                                 <div ng-repeat="(dKey, doc) in req.docs">
                                     <md-list-item
