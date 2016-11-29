@@ -2,278 +2,198 @@ angular
     .module('sgdp')
     .controller('ManagerHomeController', managerHome);
 
-managerHome.$inject = ['$scope', '$mdDialog', '$http',
-    '$state', '$timeout', '$mdSidenav', '$mdMedia'];
+managerHome.$inject = ['$scope', '$mdDialog', '$state', '$timeout', '$mdSidenav',
+                       '$mdMedia', 'Utils', 'Requests', 'Helps', 'Constants', 'Manager'];
 
-function managerHome($scope, $mdDialog, $http, $state,
-    $timeout, $mdSidenav, $mdMedia) {
+function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
+                     Utils, Requests, Helps, Constants, Manager) {
     'use strict';
-    $scope.model = {};
-    $scope.model.query = -1;
-    $scope.selectedQuery = -1;
+    $scope.model = Manager.data.model;
+    $scope.selectedQuery = Manager.data.selectedQuery;
+    $scope.showApprovedAmount = Manager.data.showApprovedAmount;
+    $scope.showOptions = Manager.data.showOptions;
+    $scope.showResult = Manager.data.showResult;
+    $scope.chart = Manager.data.chart;
+    $scope.queries = Manager.data.queries;
+    $scope.selectedReq = Manager.data.selectedReq;
+    $scope.selectedLoan = Manager.data.selectedLoan;
+    $scope.selectedPendingReq = Manager.data.selectedPendingReq;
+    $scope.selectedPendingLoan = Manager.data.selectedPendingLoan;
+    $scope.req = Manager.data.req; // Will contain the selected request object.
+    $scope.requests = Manager.data.requests;
+    $scope.pendingRequests = Manager.data.pendingRequests;
+    $scope.fetchError = Manager.data.fetchError;
+    $scope.approvalReportError = Manager.data.approvalReportError ;
+    $scope.pie = Manager.data.pie;
+    $scope.pieError = Manager.data.pieError;
+    $scope.showList = Manager.data.showList;
+    $scope.showPendingList = Manager.data.showPendingList;
+    $scope.showPendingReq = Manager.data.showPendingReq;
+    $scope.showAdvSearch = Manager.data.showAdvSearch;
+    // Re-draw the pie if necessary.
+    if ($scope.pie) {
+        drawPie($scope.pie);
+    }
+
+    $scope.statuses = [
+        Constants.Statuses.RECEIVED,
+        Constants.Statuses.APPROVED,
+        Constants.Statuses.REJECTED
+    ];
+    $scope.APPROVED_STRING = Requests.mapStatus(Constants.Statuses.APPROVED);
+    $scope.REJECTED_STRING = Requests.mapStatus(Constants.Statuses.REJECTED);
+    $scope.RECEIVED_STRING = Requests.mapStatus(Constants.Statuses.RECEIVED);
+    $scope.listTitle = Requests.getTypeTitles();
+    $scope.mappedStatuses = Requests.getStatusesTitles();
+
+    $scope.loadingContent = false;
     $scope.idPrefix = "V";
     $scope.loading = false;
-    $scope.showApprovedAmount = false;
-    $scope.loadingContent = false;
-    $scope.showOptions = true;
-    $scope.showResult = -1;
-    $scope.chart = null;
     $scope.loadingReport = false;
-    $scope.statuses = ["Recibida", "Aprobada", "Rechazada"];
-    $scope.queries = [
-        { category: 'req', name: 'Por cédula', id: 0},
-        { category: 'req', name: 'Por estatus', id: 1},
-        { category: 'date', name: 'Intervalo de fecha', id: 2},
-        { category: 'date', name: 'Fecha exacta', id: 3},
-        { category: 'money', name: 'Intervalo de fecha', id: 4},
-        { category: 'money', name: 'Por cédula', id: 5},
-        { category: 'report', name: 'Intervalo de fecha', id: 6},
-        { category: 'report', name: 'Semana actual', id: 7}
-    ];
-    $scope.model.perform = new Array($scope.queries.length);
-    // initialize all ng-model variables.
-    for(var i=0; i<$scope.queries.length; i++) {
-        $scope.model.perform[i] = {};
-    }
-    $scope.selectedReq = -1;
-    $scope.selectedPendingReq = -1;
-    $scope.requests = [];
-    $scope.pendingRequests = [];
-    $scope.docs = [];
-    $scope.fetchError = '';
-    $scope.approvalReportError = '';
-    $scope.pie = null;
-    $scope.pieError = '';
-    $scope.showList = false;
-    $scope.showPendingReq = false;
-    $scope.showAdvSearch = false;
+
     // dataChanged notifies whether data changed through user interaction,
     // thus needing to update pie and report data
     var dataChanged = false;
 
-    // Check if there is stored data for requests before we went to History
-    var requests = JSON.parse(sessionStorage.getItem("requests"));
-    if (requests != null) {
-        $scope.requests = requests;
-        recoverResult(parseInt(sessionStorage.getItem("showResult")));
-        $scope.selectedReq = parseInt(sessionStorage.getItem("selectedReq"));
-        $scope.docs = $scope.requests[$scope.selectedReq].docs;
-        $scope.showList =
-            parseInt(sessionStorage.getItem("showList")) ? true : false;
-        $scope.showAdvSearch = true;
-        $scope.selectedQuery =
-            parseInt(sessionStorage.getItem("selectedQuery"));
-        $scope.model.query = parseInt(sessionStorage.getItem("model.query"));
-        $scope.showOptions = $scope.showResult == -1 ? true : false;
-        // Got back what we wanted -- erase them from storage
-        sessionStorage.removeItem("requests");
-        sessionStorage.removeItem("fetchId");
-        sessionStorage.removeItem("selectedReq");
-        sessionStorage.removeItem("showList");
-    }
-    // Check if there is stored data for pendingRequests before we
-    // went to History
-    var pendingRequests =
-        JSON.parse(sessionStorage.getItem("pendingRequests"));
-    if (pendingRequests != null) {
-        $scope.pendingRequests = pendingRequests;
-        $scope.selectedPendingReq =
-            parseInt(sessionStorage.getItem("selectedPendingReq"));
-        $scope.showPendingReq =
-            parseInt(sessionStorage.getItem("showPendingReq")) ? true : false;
-        if ($scope.selectedPendingReq != -1) {
-            $scope.docs =
-                $scope.pendingRequests[$scope.selectedPendingReq].docs;
-            $scope.pendingRequests[$scope.selectedPendingReq].showList = (
-                parseInt(sessionStorage.getItem("showReq")) ? true : false
-            );
-        }
-        // Got back what we wanted -- erase them from storage
-        sessionStorage.removeItem("pendingRequests");
-        sessionStorage.removeItem("selectedPendingReq");
-        sessionStorage.removeItem("showReq");
-    }
 
     // Fetch pending requests and automatically show first one to user (if any)
-    if ($scope.selectedReq == -1 && $scope.selectedPendingReq == -1) {
-        $scope.loadingContent = true;
-        $http.get('index.php/ManagerHomeController/fetchRequestsByStatus',
-            {params:{status:"Recibida"}})
-            .then(function (response) {
-                console.log(response);
-                if (response.data.message === "success") {
-                    $scope.pendingRequests = response.data.requests;
-                    if ($scope.pendingRequests.length > 0) {
-                        // Give 500ms to render the list in the view
-                        // Otherwise 'Empty list' msg will appear briefly.
-                        $timeout(function() {
-                            $scope.showPendingReq = true;
-                            $mdSidenav('left').open();
-                        }, 500);
-                    }
-                }
-                $scope.loadingContent = false;
-
-            });
+    if ($scope.selectedReq == '' && $scope.selectedPendingReq == '') {
+        loadPendingRequests();
     }
 
-    // Retrieval and clean up of stored values
-    function recoverResult(index) {
-        if (sessionStorage.getItem("fetchId")) {
-            $scope.fetchId = sessionStorage.getItem("fetchId");
-            $scope.model.perform[0].id =
-                parseInt($scope.fetchId.replace('V', ''));
-            sessionStorage.removeItem("fetchId");
-        }
-        if (sessionStorage.getItem("status")) {
-            $scope.model.perform[1].status = sessionStorage.getItem("status");
-            sessionStorage.removeItem("status");
-        }
-        if (sessionStorage.getItem("from")) {
-            $scope.model.perform[2].from =
-                moment(sessionStorage.getItem("from"),
-                'DD/MM/YYYY', true).toDate();
-            $scope.model.perform[2].to = moment(sessionStorage.getItem("to"),
-                'DD/MM/YYYY', true).toDate();
-            sessionStorage.removeItem("from");
-            sessionStorage.removeItem("to");
-        }
-        if (sessionStorage.getItem("date")) {
-            $scope.model.perform[3].date =
-                moment(sessionStorage.getItem("date"),
-                'DD/MM/YYYY', true).toDate();
-            sessionStorage.removeItem("date");
-        }
-        if (sessionStorage.getItem("pie")) {
-            // Retrieve report data
-            $scope.pie = JSON.parse(sessionStorage.getItem("pie"));
-            $scope.report = JSON.parse(sessionStorage.getItem("reportData"));
-            // Re-draw the pie.
-            drawPie($scope.pie);
-        }
-        $scope.showResult = index;
+    /**
+     * Helper function that loads pending requests.
+     */
+    function loadPendingRequests() {
+        $scope.loadingContent = true;
+        Manager.fetchRequestsByStatus(Requests.mapStatus(Constants.Statuses.RECEIVED))
+            .then(
+            function (data) {
+                $scope.pendingRequests = data.requests;
+                if (!Utils.isObjEmpty(data.requests)) {
+                    // Give 500ms to render the list in the view
+                    // Otherwise 'Empty list' msg will appear briefly.
+                    $timeout(function() {
+                        $scope.showPendingReq = true;
+                        $mdSidenav('left').open();
+                    }, 500);
+                }
+                $scope.loadingContent = false;
+            }, function () {
+                $scope.loadingContent = false;
+            });
     }
 
     $scope.fetchUserRequests = function(index) {
         resetContent();
         $scope.loading = true;
         $scope.fetchId = $scope.idPrefix + $scope.model.perform[index].id;
-        $http.get('index.php/ManagerHomeController/getUserRequests',
-            {params:{fetchId:$scope.fetchId}})
-            .then(function (response) {
-                console.log(response);
-                if (response.data.message === "success") {
-                    $scope.requests = response.data.requests;
-                    $scope.showOptions = false;
-                    $scope.showResult = index;
-                    $scope.pieloaded = true;
-                    $scope.report = response.data.report;
-                    $scope.pie = response.data.pie;
-                    drawPie(response.data.pie);
-                } else {
-                    $scope.fetchError = response.data.error;
-                }
+        Manager.getUserRequests($scope.fetchId)
+            .then(
+            function (data) {
+                $scope.requests = data.requests;
+                $scope.showOptions = false;
+                $scope.showResult = index;
+                console.log($scope.showResult);
+                $scope.pieloaded = true;
+                $scope.report = data.report;
+                $scope.pie = data.pie;
+                $scope.pieloaded = true;
+                drawPie(data.pie);
                 $scope.loading = false;
-
-            });
+            },
+            function (error) {
+                $scope.fetchError = error;
+                $scope.loading = false;
+            }
+        );
     };
 
     $scope.fetchRequestsByStatus = function(status, index) {
         resetContent();
         $scope.loading = true;
-        $http.get('index.php/ManagerHomeController/' +
-            'fetchRequestsByStatus',
-            {params:{status:status}})
-            .then(function (response) {
-                console.log(response);
-                if (response.data.message === "success") {
-                    $scope.requests = response.data.requests;
-                    $scope.showOptions = false;
-                    $scope.showResult = index;
-                    $scope.pieloaded = true;
-                    $scope.pie = response.data.pie;
-                    drawPie(response.data.pie);
-                    $scope.report = response.data.report;
-                    $scope.report.status = status;
-                } else {
-                    $scope.fetchError = response.data.error;
-                }
+        Manager.fetchRequestsByStatus(Requests.mapStatus(status))
+            .then(
+            function (data) {
+                $scope.requests = data.requests;
+                $scope.showOptions = false;
+                $scope.showResult = index;
+                $scope.pieloaded = true;
+                $scope.pie = data.pie;
+                drawPie(data.pie);
+                $scope.report = data.report;
+                $scope.report.status = Requests.mapStatus(status);
                 $scope.loading = false;
-
-            });
+            },
+            function (error) {
+                $scope.fetchError = error;
+                $scope.loading = false;
+            }
+        );
     };
 
     $scope.fetchRequestsByDateInterval = function(from, to, index) {
         resetContent();
         $scope.loading = true;
-        $http.get('index.php/ManagerHomeController/' +
-            'fetchRequestsByDateInterval',
-            {params:{from:moment(from).format('DD/MM/YYYY'),
-                to:moment(to).format('DD/MM/YYYY')}})
-            .then(function (response) {
-                console.log(response);
-                if (response.data.message === "success") {
-                    $scope.requests = response.data.requests;
-                    $scope.showOptions = false;
-                    $scope.showResult = index;
-                    $scope.pieloaded = true;
-                    $scope.pie = response.data.pie;
-                    drawPie(response.data.pie);
-                    $scope.report = response.data.report;
-                } else {
-                    $scope.fetchError = response.data.error;
-                }
+        Manager.fetchRequestsByDateInterval (from, to)
+            .then(
+            function (data) {
+                $scope.requests = data.requests;
+                $scope.showOptions = false;
+                $scope.showResult = index;
+                $scope.pieloaded = true;
+                $scope.pie = data.pie;
+                drawPie(data.pie);
+                $scope.report = data.report;
                 $scope.loading = false;
-
-            });
+            },
+            function (error) {
+                $scope.fetchError = error;
+                $scope.loading = false;
+            }
+        );
     };
 
     $scope.fetchRequestsByExactDate = function(date, index) {
         resetContent();
         $scope.loading = true;
-        $http.get('index.php/ManagerHomeController/' +
-            'fetchRequestsByDateInterval',
-            {params:{from:moment(date).format('DD/MM/YYYY'),
-                to:moment(date).format('DD/MM/YYYY')}})
-            .then(function (response) {
-                console.log(response);
-                if (response.data.message === "success") {
-                    $scope.requests = response.data.requests;
-                    $scope.showOptions = false;
-                    $scope.showResult = index;
-                    $scope.pieloaded = true;
-                    $scope.pie = response.data.pie;
-                    drawPie(response.data.pie);
-                    $scope.report = response.data.report;
-                } else {
-                    $scope.fetchError = response.data.error;
-                }
+        Manager.fetchRequestsByExactDate(date)
+            .then(
+            function (data) {
+                $scope.requests = data.requests;
+                $scope.showOptions = false;
+                $scope.showResult = index;
+                $scope.pieloaded = true;
+                $scope.pie = data.pie;
+                drawPie(data.pie);
+                $scope.report = data.report;
                 $scope.loading = false;
-
-            });
+            },
+            function (error) {
+                $scope.fetchError = error;
+                $scope.loading = false;
+            }
+        );
     };
 
     $scope.getApprovedAmountByDateInterval = function(from, to) {
         $mdSidenav('left').toggle();
         resetContent();
         $scope.loadingContent = true;
-        $http.get('index.php/ManagerHomeController/' +
-            'getApprovedAmountByDateInterval',
-            {params:{from:moment(from).format('DD/MM/YYYY'),
-                to:moment(to).format('DD/MM/YYYY')}})
-            .then(function (response) {
-                console.log(response);
-                if (response.data.message === "success") {
-                    $scope.approvedAmount = response.data.approvedAmount;
-                    $scope.approvedAmountTitle = "Monto aprobado total " +
-                        "para el intervalo de fecha especificado:";
-                    $scope.showApprovedAmount = true;
-                } else {
-                    $scope.fetchError = response.data.error;
-                }
+        Manager.getApprovedAmountByDateInterval(from, to)
+            .then(
+            function (amount) {
+                $scope.approvedAmount = amount;
+                $scope.approvedAmountTitle = "Monto aprobado total " +
+                                             "para el intervalo de fecha especificado:";
+                $scope.showApprovedAmount = true;
                 $scope.loadingContent = false;
-
-            });
+            },
+            function (error) {
+                $scope.fetchError = error;
+                $scope.loadingContent = false;
+            }
+        );
     };
 
     $scope.getApprovedAmountById = function(index) {
@@ -281,80 +201,79 @@ function managerHome($scope, $mdDialog, $http, $state,
         resetContent();
         $scope.loadingContent = true;
         var userId = $scope.idPrefix + $scope.model.perform[index].id;
-        $http.get('index.php/ManagerHomeController/getApprovedAmountById',
-            {params:{userId:userId}})
-            .then(function (response) {
-                console.log(response);
-                if (response.data.message === "success") {
-                    $scope.approvedAmount = response.data.approvedAmount;
-                    $scope.approvedAmountTitle = "Monto aprobado total para " +
-                        response.data.username + ":";
-                    $scope.showApprovedAmount = true;
-                } else {
-                    $scope.fetchError = response.data.error;
-                }
+        Manager.getApprovedAmountById(userId)
+            .then(
+            function (data) {
+                $scope.approvedAmount = data.approvedAmount;
+                $scope.approvedAmountTitle = "Monto aprobado total para " +
+                                             data.username + ":";
+                $scope.showApprovedAmount = true;
                 $scope.loadingContent = false;
-            });
+            },
+            function (error) {
+                $scope.fetchError = error;
+                $scope.loadingContent = false;
+            }
+        );
     };
 
     $scope.getApprovedReportByCurrentWeek = function() {
         $mdSidenav('left').toggle();
         resetContent();
         $scope.loadingReport = true;
-        $http.get('index.php/ManagerHomeController/' +
-            'getApprovedReportByCurrentWeek')
-            .then(function (response) {
-                console.log(response);
-                if (response.data.message === "success") {
-                    $scope.report = response.data.report;
-                    $scope.generateExcelReport();
-                } else {
-                    $scope.approvalReportError = response.data.error;
-                    $scope.loadingReport = false;
-                }
-            });
+        Manager.getApprovedReportByCurrentWeek()
+            .then(
+            function (report) {
+                $scope.report = report;
+                $scope.generateExcelReport();
+            },
+            function (error) {
+                $scope.approvalReportError = error;
+                $scope.loadingReport = false;
+            }
+        );
     };
 
     $scope.getApprovedReportByDateInterval = function(from, to) {
         $mdSidenav('left').toggle();
         resetContent();
         $scope.loadingReport = true;
-        $http.get('index.php/ManagerHomeController/' +
-            'getApprovedReportByDateInterval',
-            {params:{from:moment(from).format('DD/MM/YYYY'),
-                to:moment(to).format('DD/MM/YYYY')}})
-            .then(function (response) {
-                console.log(response);
-                if (response.data.message === "success") {
-                    $scope.report = response.data.report;
-                    $scope.generateExcelReport();
-                } else {
-                    $scope.approvalReportError = response.data.error;
-                    $scope.loadingReport = false;
-                }
-            });
-    };
-    $scope.toggleList = function() {
-        $scope.showList = !$scope.showList;
+        Manager.getApprovedReportByDateInterval(from, to)
+            .then(
+            function (report) {
+                $scope.report = report;
+                $scope.generateExcelReport();
+            },
+            function (error) {
+                $scope.approvalReportError = error;
+                $scope.loadingReport = false;
+            }
+        );
     };
 
-    $scope.toggleReqList = function(req) {
-        req.showList = !req.showList;
+    $scope.toggleList = function(index) {
+        $scope.showList[index] = !$scope.showList[index];
+    };
+
+    $scope.togglePendingList = function(index) {
+        $scope.showPendingList[index] = !$scope.showPendingList[index];
     };
 
     $scope.loadUserData = function(userId) {
         sessionStorage.setItem("fetchId", userId);
-        window.open('http://localhost:8080/sgdp/#/userInfo', '_blank');
+        window.open(Utils.getUserDataUrl(), '_blank');
         // Data not being changed so far - don't request data again if
         // user clicks on Stats
         setDataChanged(false);
     };
 
-    $scope.selectRequest = function(req) {
-        $scope.selectedPendingReq = -1;
+    $scope.selectRequest = function(req, loan) {
+        $scope.selectedPendingReq = '';
+        $scope.selectedPendingLoan = -1;
         $scope.selectedReq = req;
-        if (req != -1) {
-            $scope.docs = $scope.requests[req].docs;
+        $scope.selectedLoan = loan;
+        if (req != '' && loan != -1) {
+            $scope.req = $scope.requests[req][loan];
         }
         // Data not being changed so far - don't request data again if
         // user clicks on Stats
@@ -363,11 +282,13 @@ function managerHome($scope, $mdDialog, $http, $state,
         $mdSidenav('left').toggle();
     };
 
-    $scope.selectPendingReq = function(req) {
-        $scope.selectedReq = -1;
+    $scope.selectPendingReq = function(req, loan) {
+        $scope.selectedReq = '';
+        $scope.selectedLoan = -1;
         $scope.selectedPendingReq = req;
-        if (req != -1) {
-            $scope.docs = $scope.pendingRequests[req].docs;
+        $scope.selectedPendingLoan = loan;
+        if (req != '' && loan != -1) {
+            $scope.req = $scope.pendingRequests[req][loan];
         }
         // Data not being changed so far - don't request data again if
         // user clicks on Stats
@@ -378,97 +299,57 @@ function managerHome($scope, $mdDialog, $http, $state,
 
     // Helper function for formatting numbers with leading zeros
     $scope.pad = function(n, width, z) {
-        z = z || '0';
-        n = n + '';
-        return n.length >= width ? n :
-            new Array(width - n.length + 1).join(z) + n;
+        return Utils.pad(n, width, z);
     };
 
     $scope.loadHistory = function() {
-        // Save data before going to history page
-        if ($scope.selectedReq != -1) {
-            sessionStorage.setItem("requests",
-                JSON.stringify($scope.requests));
-            sessionStorage.setItem("selectedReq", $scope.selectedReq);
-            sessionStorage.setItem("showResult", $scope.showResult);
-            sessionStorage.setItem("selectedQuery", $scope.selectedQuery);
-            sessionStorage.setItem("model.query", $scope.model.query);
-            storeResult();
-        }
-        if ($scope.pie != null) {
-            // Save the pie
-            sessionStorage.setItem("pie", JSON.stringify($scope.pie));
-            sessionStorage.setItem("reportData",
-                JSON.stringify($scope.report));
-        }
-        sessionStorage.setItem("pendingRequests",
-            JSON.stringify($scope.pendingRequests));
-        sessionStorage.setItem("selectedPendingReq",
-            $scope.selectedPendingReq);
-        sessionStorage.setItem("showPendingReq", $scope.showPendingReq ?
-            1 : 0);
-        if ($scope.selectedPendingReq != -1) {
-            sessionStorage.setItem("showReq",
-                $scope.pendingRequests[$scope.selectedPendingReq].showList ?
-                1 : 0);
-        }
-
+        // Save necessary data before changing views.
+        preserveState();
+        // Send required data to history
+        sessionStorage.setItem("req", JSON.stringify($scope.req));
         $state.go('history');
-
     };
 
-    function storeResult() {
-        if ($scope.fetchId) {
-            sessionStorage.setItem("fetchId", $scope.fetchId);
-            sessionStorage.setItem("showList", $scope.showList ? 1 : 0);
-        }
-
-        if ($scope.model.perform[1].status) {
-            sessionStorage.setItem("status", $scope.model.perform[1].status);
-            sessionStorage.setItem("showList",
-                $scope.requests[$scope.selectedReq].showList ? 1: 0);
-        }
-
-        if ($scope.model.perform[2].from) {
-            sessionStorage.setItem("from",
-                moment($scope.model.perform[2].from).format('DD/MM/YYYY'));
-            sessionStorage.setItem("to",
-                moment($scope.model.perform[2].to).format('DD/MM/YYYY'));
-            sessionStorage.setItem("showList",
-                $scope.requests[$scope.selectedReq].showList ? 1: 0);
-        }
-
-        if ($scope.model.perform[3].date) {
-            sessionStorage.setItem("date",
-                moment($scope.model.perform[3].date).format('DD/MM/YYYY'));
-            sessionStorage.setItem("showList",
-                $scope.requests[$scope.selectedReq].showList ? 1: 0);
-        }
-    }
-
     $scope.downloadDoc = function(doc) {
-        window.open('index.php/ApplicantHomeController/download?lpath=' +
-            doc.lpath, '_blank');
+        window.open(Requests.getDocDownloadUrl(doc.lpath));
     };
 
     $scope.downloadAll = function() {
-        // Bits of pre-processing before passing objects to URL
-        var paths = [];
-        angular.forEach($scope.docs, function(doc) {
-            paths.push(doc.lpath);
-        });
-        location.href = 'index.php/ApplicantHomeController/downloadAll?docs=' +
-            JSON.stringify(paths);
+        location.href = Requests.getAllDocsDownloadUrl($scope.docs);
     };
+
+    function preserveState() {
+        var data = {};
+        data.model = $scope.model;
+        data.selectedQuery = $scope.selectedQuery;
+        data.showApprovedAmount = $scope.showApprovedAmount;
+        data.showOptions = $scope.showOptions;
+        data.showResult = $scope.showResult;
+        data.chart = $scope.chart;
+        data.queries = $scope.queries;
+        data.selectedReq = $scope.selectedReq;
+        data.selectedLoan = $scope.selectedLoan;
+        data.selectedPendingReq = $scope.selectedPendingReq;
+        data.selectedPendingLoan = $scope.selectedPendingLoan;
+        data.req = $scope.req; // Will contain the selected request object.
+        data.requests = $scope.requests;
+        data.pendingRequests = $scope.pendingRequests;
+        data.fetchError = $scope.fetchError;
+        data.approvalReportError = $scope.approvalReportError ;
+        data.pie = $scope.pie;
+        data.pieError = $scope.pieError;
+        data.showList = $scope.showList;
+        data.showPendingList = $scope.showPendingList;
+        data.showPendingReq = $scope.showPendingReq;
+        data.showAdvSearch = $scope.showAdvSearch;
+        Manager.updateData(data);
+    }
 
     /**
     * Custom dialog for updating an existing request
     */
-    $scope.openEditRequestDialog = function($event) {
+    $scope.openEditRequestDialog = function($event, obj) {
         var parentEl = angular.element(document.body);
-        var req = ($scope.selectedPendingReq == -1 ?
-            $scope.requests[$scope.selectedReq] :
-            $scope.pendingRequests[$scope.selectedPendingReq]);
         $mdDialog.show({
             parent: parentEl,
             targetEvent: $event,
@@ -477,95 +358,116 @@ function managerHome($scope, $mdDialog, $http, $state,
             escapeToClose: false,
             locals: {
                 fetchId: $scope.fetchId,
-                request: req
+                request: $scope.req,
+                parentScope: $scope,
+                obj: obj
             },
             controller: DialogController
         });
+
         // Isolated dialog controller
-        function DialogController($scope, $mdDialog, fetchId, request) {
+        function DialogController($scope, $mdDialog, fetchId, request, parentScope, obj) {
             $scope.files = [];
             $scope.fetchId = fetchId;
             $scope.uploading = false;
             $scope.request = request;
-            $scope.statuses = ["Recibida", "Aprobada", "Rechazada"];
-            $scope.model = {};
-            $scope.model.status = $scope.statuses[0];
-            $scope.model.comment = $scope.request.comment;
-            $scope.model.approvedAmount = $scope.request.reqAmount;
+            $scope.mappedStatuses = Requests.getStatusesTitles();
+            $scope.APPROVED_STRING = Requests.mapStatus(Constants.Statuses.APPROVED);
+            $scope.REJECTED_STRING = Requests.mapStatus(Constants.Statuses.REJECTED);
+            $scope.RECEIVED_STRING = Requests.mapStatus(Constants.Statuses.RECEIVED);
+
+            if (obj) {
+                $scope.model = obj;
+                if (obj.confirmed) updateRequest();
+            } else {
+                $scope.model = {};
+                $scope.model.status = request.status;
+                $scope.model.comment = $scope.request.comment;
+                $scope.model.approvedAmount = $scope.request.reqAmount;
+            }
 
             $scope.closeDialog = function() {
                 $mdDialog.hide();
             };
 
             $scope.missingField = function() {
-                if ($scope.model.status == "Aprobada") {
+                if ($scope.model.status == $scope.APPROVED_STRING) {
                     return typeof $scope.model.approvedAmount === "undefined";
                 } else {
-                    return ($scope.model.status != "Rechazada" &&
+                    return ($scope.model.status != $scope.REJECTED_STRING &&
                         (typeof $scope.model.comment === "undefined"
                         || $scope.model.comment == ""
                         || $scope.model.comment == $scope.request.comment));
                 }
             };
 
-            // Creates new request in database and uploads documents
-            $scope.updateRequest = function() {
+            /**
+             * Verifies if this request is being closed. If so, warn user that
+             * no more edition will be available after closure.
+             *
+             * @param ev - user event.
+             */
+            $scope.verifyEdition = function(ev) {
+                if ($scope.model.status === $scope.APPROVED_STRING ||
+                    $scope.model.status === $scope.REJECTED_STRING) {
+                    confirmClosure(ev);
+                } else {
+                    updateRequest();
+                }
+            };
+
+            // Shows a dialog asking user to confirm the request closure.
+            function confirmClosure(ev) {
+                Utils.showConfirmDialog(
+                    'Advertencia',
+                    'Al cambiar el estatus de la solicitud a ' + $scope.model.status +
+                    ' se cerrará la solicitud y no se podrán realizar más cambios. ¿Desea proceder?',
+                    'Sí', 'Cancelar', ev, true
+                ).then(
+                    function () {
+                        // Re-open parent dialog and perform request creation
+                        $scope.model.confirmed = true;
+                        parentScope.openEditRequestDialog(null, $scope.model);
+                    },
+                    function () {
+                        // Re-open parent dialog and do nothing
+                        parentScope.openEditRequestDialog(null, $scope.model);
+                    }
+                );
+            }
+
+            // Updates the request.
+            function updateRequest() {
                 $scope.uploading = true;
                 $scope.request.status = $scope.model.status;
                 $scope.request.comment = $scope.model.comment;
                 $scope.request.reunion = $scope.model.reunion;
                 $scope.request.approvedAmount = $scope.model.approvedAmount;
-                $http.post('index.php/ManageRequestController/' +
-                    'updateRequest',
-                    JSON.stringify($scope.request))
-                    .then(function (response) {
+                Manager.updateRequest($scope.request)
+                    .then(
+                    function () {
+                        // Update data on the pending request list so that changes would reflect
+                        // even when updating from advanced query lists.
+                        updatePendingList($scope.request.id, $scope.model.status,
+                                          $scope.model.comment, $scope.model.reunion,
+                                          $scope.model.approvedAmount);
+                        // Notify that data has changed, thus updating stats when requested
+                        setDataChanged(true);
+                        // Close dialog and alert user that operation was successful
+                        $mdDialog.hide();
                         $scope.uploading = false;
-                        console.log(response.data);
-                        if (response.status == 200) {
-                            console.log("Request update succeded...");
-                            // Update data on the pending request list so that
-                            // changes would reflect even when updating from
-                            // advanced query lists
-                            updatePendingList(
-                                $scope.request.id,
-                                $scope.model.status,
-                                $scope.model.comment,
-                                $scope.model.reunion,
-                                $scope.model.approvedAmount
-                            );
-                            // Notify that data has changed, thus updating
-                            // stats when requested
-                            setDataChanged(true);
-                            // Close dialog and alert user that operation
-                            // was successful
-                            $mdDialog.hide();
-                            $mdDialog.show(
-                                $mdDialog.alert()
-                                    .parent(angular.element(document.body))
-                                    .clickOutsideToClose(true)
-                                    .title('Solicitud actualizada')
-                                    .textContent('La solicitud fue ' +
-                                        'actualizada exitosamente.')
-                                    .ariaLabel('Successful request update ' +
-                                        'dialog')
-                                    .ok('Ok'));
-                        } else {
-                            console.log("FAILED!");
-                        }
-                    });
-            };
+                        Utils.showAlertDialog('Solicitud actualizada',
+                                              'La solicitud fue actualizada exitosamente.');
+                    },
+                    function (error) {
+                        $scope.uploading = false;
+                        Utils.showAlertDialog('Oops!', error);
+                    }
+                );
+            }
 
             $scope.showHelp = function() {
-                var options = {
-                    showNavigation : true,
-                    showCloseBox : true,
-                    delay : -1,
-                    tripTheme: "dark",
-                    prevLabel: "Anterior",
-                    nextLabel: "Siguiente",
-                    finishLabel: "Entendido"
-                };
-                showFormHelp(options);
+                showFormHelp(Helps.getDialogsHelpOpt());
             };
 
             /**
@@ -573,54 +475,48 @@ function managerHome($scope, $mdDialog, $http, $state,
              * @param options: Obj containing tour.js options
              */
             function showFormHelp(options) {
-                var tripToShowNavigation = new Trip([], options);
+                var trip = new Trip([], options);
+                var content = '';
                 if (typeof $scope.model.comment === "undefined" ||
                     $scope.model.comment == "" ||
                     $scope.model.comment == $scope.request.comment) {
-                    var content = "Agregue un comentario (opcional) " +
+                    content = "Agregue un comentario (opcional) " +
                     "hacia la solicitud.";
-                    appendFieldHelp(tripToShowNavigation, "#comment", content, 's');
+
+                    Helps.addFieldHelp(trip, "#comment", content, 's');
                 }
-                if ($scope.model.status == "Recibida") {
-                    var content = "Seleccione el nuevo estatus de la " +
+                if ($scope.model.status == $scope.RECEIVED_STRING) {
+                    content = "Seleccione el nuevo estatus de la " +
                         "solicitud.";
-                    appendFieldHelp(tripToShowNavigation, "#status", content, 's');
+                    Helps.addFieldHelp(trip, "#status", content, 's');
                 }
-                if ($scope.model.status != "Recibida"
+                if ($scope.model.status != $scope.RECEIVED_STRING
                     && typeof $scope.model.reunion === "undefined") {
-                    var content = "Agrege el número de reunión (opcional).";
-                    appendFieldHelp(tripToShowNavigation, "#reunion",
+                    content = "Agrege el número de reunión (opcional).";
+                    Helps.addFieldHelp(trip, "#reunion",
                         content, 'n');
                 }
-                if ($scope.model.status == "Aprobada"
+                if ($scope.model.status == $scope.APPROVED_STRING
                     && typeof $scope.model.approvedAmount === "undefined") {
-                    var content = "Agrege el monto aprobado en Bs.";
-                    appendFieldHelp(tripToShowNavigation, "#approved-amount",
+                    content = "Agrege el monto aprobado en Bs.";
+                    Helps.addFieldHelp(trip, "#approved-amount",
                         content, 'n');
                 }
                 if (!$scope.missingField()) {
-                    var content = "Haga click en ACTUALIZAR para guardar " +
-                        "los cambios."
-                    appendFieldHelp(tripToShowNavigation, "#edit-btn",
+                    content = "Haga click en ACTUALIZAR para guardar " +
+                        "los cambios.";
+                    Helps.addFieldHelp(trip, "#edit-btn",
                         content, 'n');
                 }
-                tripToShowNavigation.start();
-            }
-
-            function appendFieldHelp(trip, id, content, pos) {
-                trip.tripData.push(
-                    {
-                        sel : $(id), content: content, position: pos,
-                        animation: 'fadeInUp'
-                    }
-                );
+                trip.start();
             }
         }
     };
 
     /**
-     * Helper function that updates the pending requests list by deleting the
-     * selected request from the list.
+     * Helper function that updates the pending requests list by reflecting updates
+     * from the selected request.
+     *
      * @param id - unique id of the request to update.
      * @param status - new status
      * @param comment - new comment
@@ -628,27 +524,12 @@ function managerHome($scope, $mdDialog, $http, $state,
      * @param approvedAmount - request's approved amount
      */
     function updatePendingList(id, status, comment, reunion, approvedAmount) {
-        var index = getPendingIndex(id);
-        console.log(index);
-        $scope.pendingRequests[index].status = status;
-        $scope.pendingRequests[index].comment = comment;
-        $scope.pendingRequests[index].reunion = reunion;
-        $scope.pendingRequests[index].approvedAmount = approvedAmount;
-    }
+        var index = Requests.findRequest($scope.pendingRequests, id);
 
-    /**
-     * Helper function that returns the index of the specified pending request
-     * @param id - unique id of the request
-     * @return index of the specified request within pendingRequests array
-     */
-    function getPendingIndex(id) {
-        var i = 0;
-        while (i < $scope.pendingRequests.length &&
-            id != $scope.pendingRequests[i].id) {
-            i++;
-        }
-        // Updating request should always exist here, so no need to valdiate
-        return i;
+        $scope.pendingRequests[index.request][index.loan].status = status;
+        $scope.pendingRequests[index.request][index.loan].comment = comment;
+        $scope.pendingRequests[index.request][index.loan].reunion = reunion;
+        $scope.pendingRequests[index.request][index.loan].approvedAmount = approvedAmount;
     }
 
     /**
@@ -700,28 +581,19 @@ function managerHome($scope, $mdDialog, $http, $state,
                 $scope.errorMsg = '';
                 $scope.uploading = true;
                 $scope.model.id = $scope.idPrefix + $scope.userId;
-                $http.post('index.php/ManageAgentUsers/createNewAgent',
-                    $scope.model)
-                    .then(function(response) {
-                        console.log(response);
-                        if (response.data.message == "success") {
-                            // Close dialog and alert user that operation
-                            // was successful
-                            $mdDialog.hide();
-                            $mdDialog.show(
-                                $mdDialog.alert()
-                                    .parent(angular.element(document.body))
-                                    .clickOutsideToClose(true)
-                                    .title('Operación exitosa')
-                                    .textContent('El nuevo usuario Gestor ' +
-                                    'ha sido registrado exitosamente')
-                                    .ariaLabel('Successful operation dialog')
-                                    .ok('Ok'));
-                        } else {
-                            $scope.errorMsg = response.data.message;
-                        }
+                Manager.createNewAgent($scope.model)
+                    .then(
+                    function () {
+                        $mdDialog.hide();
                         $scope.uploading = false;
-                    });
+                        Utils.showAlertDialog('Operación exitosa',
+                                              'El nuevo usuario Gestor ha sido registrado exitosamente');
+                    },
+                    function (error) {
+                        $scope.uploading = false;
+                        Utils.showAlertDialog('Oops!', error);
+                    }
+                );
             };
 
             /**
@@ -729,17 +601,17 @@ function managerHome($scope, $mdDialog, $http, $state,
              */
             $scope.selectedUser = null;
 
-            $http.get('index.php/ManageAgentUsers/fetchAllAgents')
-                .then(function(response) {
-                    var allAgents = response.data.agents;
-                    $scope.userAgents = allAgents.map(function(agent) {
-                        return {
-                            value: agent.split('(')[0].trim(),
-                            display: agent
-                        };
-                    });
-                });
+            Manager.fetchAllAgents()
+                .then(
+                function (agents) {
+                    $scope.userAgents = agents;
+                },
+                function (error) {
+                    Utils.showAlertDialog('Oops!', error);
+                }
+            );
 
+            // TODO: Implement directive.
             $scope.onUsersOpen = function() {
                 $scope.userBackup = $scope.selectedUser;
                 $scope.selectedUser = null;
@@ -754,45 +626,27 @@ function managerHome($scope, $mdDialog, $http, $state,
             $scope.deleteAgent = function() {
                 $scope.errorMsg = '';
                 $scope.uploading = true;
-                $http.post('index.php/ManageAgentUsers/deleteAgentUser',
-                    $scope.selectedUser.value)
-                    .then(function(response) {
-                        console.log(response);
-                        if (response.status == 200) {
-                            // Close dialog and alert user that operation
-                            // was successful
-                            $mdDialog.hide();
-                            $mdDialog.show(
-                                $mdDialog.alert()
-                                    .parent(angular.element(document.body))
-                                    .clickOutsideToClose(true)
-                                    .title('Operación exitosa')
-                                    .textContent('El usuario elegido ha ' +
-                                        'sido eliminado del sistema ' +
-                                        'exitosamente')
-                                    .ariaLabel('Successful operation dialog')
-                                    .ok('Ok'));
-                        } else {
-                            $scope.errorMsg = response.data.message;
-                        }
+                Manager.deleteAgentUser($scope.selectedUser.value)
+                    .then(
+                    function () {
+                        // Close dialog and alert user that operation was successful.
+                        $mdDialog.hide();
                         $scope.uploading = false;
-                    });
+                        Utils.showAlertDialog('Operación exitosa',
+                                              'El usuario elegido ha sido eliminado del sistema exitosamente');
+                    },
+                    function (error) {
+                        $scope.uploading = false;
+                        Utils.showAlertDialog('Oops!', error);
+                    }
+                );
             };
 
             $scope.showHelp = function() {
-                var options = {
-                    showNavigation : true,
-                    showCloseBox : true,
-                    delay : -1,
-                    tripTheme: "dark",
-                    prevLabel: "Anterior",
-                    nextLabel: "Siguiente",
-                    finishLabel: "Entendido"
-                };
                 if ($scope.selectedTab == 1) {
-                    showFormHelp(options);
+                    showFormHelp(Helps.getDialogsHelpOpt());
                 } else {
-                    showUserSelectionHelp(options);
+                    showUserSelectionHelp(Helps.getDialogsHelpOpt());
                 }
             };
 
@@ -802,7 +656,7 @@ function managerHome($scope, $mdDialog, $http, $state,
              */
             function showFormHelp(options) {
                 var responsivePos = $mdMedia('xs') ? 'n' : 's';
-                var tripToShowNavigation = new Trip([], options);
+                var trip = new Trip([], options);
 
                 var contentId = "Ingrese la cédula de identidad del " +
                 "nuevo gestor.";
@@ -811,55 +665,49 @@ function managerHome($scope, $mdDialog, $http, $state,
                 var contentName = "Ingrese el nombre del gestor.";
                 var contentLastName = "Ingrese el apellido del gestor.";
                 if (typeof $scope.userId === "undefined") {
-                    appendFieldHelp(tripToShowNavigation, "#user-id",
+                    Helps.addFieldHelp(trip, "#user-id",
                         contentId, responsivePos);
                 }
                 if (typeof $scope.model.psw === "undefined") {
-                    appendFieldHelp(tripToShowNavigation, "#user-psw",
+                    Helps.addFieldHelp(trip, "#user-psw",
                         contentPsw, responsivePos);
                 }
                 if (typeof $scope.model.name === "undefined") {
-                    appendFieldHelp(tripToShowNavigation, "#user-name",
+                    Helps.addFieldHelp(trip, "#user-name",
                         contentName, responsivePos);
                 }
                 if (typeof $scope.model.lastname === "undefined") {
-                    appendFieldHelp(tripToShowNavigation, "#user-lastname",
+                    Helps.addFieldHelp(trip, "#user-lastname",
                         contentLastName, responsivePos);
                 }
                 if (!$scope.missingField()) {
                     var content = "Haga click en REGISTRAR para crear " +
                         "el nuevo gestor.";
-                    appendFieldHelp(tripToShowNavigation, "#register-btn",
+                    Helps.addFieldHelp(trip, "#register-btn",
                         content, 'n');
                 }
-                tripToShowNavigation.start();
+                trip.start();
             }
 
             function showUserSelectionHelp(options) {
                 var responsivePos = $mdMedia('xs') ? 'n' : 's';
-                var tripToShowNavigation = new Trip([], options);
+                var trip = new Trip([], options);
+                var content = '';
 
                 if (!$scope.selectedUser) {
-                    var content = "Haga click para desplegar una lista " +
+                    content = "Haga click para desplegar una lista " +
                         "con los usuarios gestores registrados en el " +
-                        "sistema y escoja el usuario a eliminar."
-                    appendFieldHelp(tripToShowNavigation, "#select-agent",
+                        "sistema y escoja el usuario a eliminar.";
+                    Helps.addFieldHelp(trip, "#select-agent",
                         content, responsivePos);
                 }
                 if ($scope.selectedUser) {
-                    var content = "Haga click en ELIMINAR para proceder " +
-                        "con la eliminación del usuario seleccionado."
-                    appendFieldHelp(tripToShowNavigation, "#remove-btn",
+                    content = "Haga click en ELIMINAR para proceder " +
+                        "con la eliminación del usuario seleccionado.";
+                    Helps.addFieldHelp(trip, "#remove-btn",
                         content, 'n');
                 }
-                tripToShowNavigation.start();
-            }
-
-            function appendFieldHelp(trip, id, content, pos) {
-                trip.tripData.push(
-                    { sel : $(id), content: content, position: pos,
-                        animation: 'fadeInUp' }
-                );
+                trip.start();
             }
         }
     };
@@ -868,7 +716,7 @@ function managerHome($scope, $mdDialog, $http, $state,
      *  Will show result pane if any of the following queries were executed
      */
     $scope.fetchedRequests = function() {
-        return $scope.showResult == 1||
+        return $scope.showResult == 1 ||
             $scope.showResult == 2 ||
             $scope.showResult == 3;
     };
@@ -877,6 +725,7 @@ function managerHome($scope, $mdDialog, $http, $state,
      * onOpen & onClose select helpers which
      * 'fixes' selection usability problem (selection menu translation)
      */
+    // TODO: Implement directive.
     $scope.onQueryOpen = function() {
         $scope.backup = $scope.selectedQuery;
         $scope.selectedQuery = -1;
@@ -917,9 +766,6 @@ function managerHome($scope, $mdDialog, $http, $state,
      * Goes back to query selection options
      */
     $scope.goBack = function() {
-        // $scope.requests = [];
-        // $scope.docs = [];
-        // $scope.selectedReq = -1;
         $scope.showResult = -1;
         $scope.showOptions = true;
     };
@@ -928,21 +774,25 @@ function managerHome($scope, $mdDialog, $http, $state,
        $mdSidenav('left').toggle();
     };
 
-    $scope.getBulbColor = function(status, index) {
-        // Requests by specific ID won't have coloured bulbs when selected ..
-        // .. looks ugly
-        if ($scope.showResult === 0 && $scope.selectedReq === index) {
+    $scope.getBulbColor = function(status, typeIndex, loanIndex) {
+        // Selected loans won't have coloured bulbs ... looks ugly.
+        if ($scope.selectedReq === typeIndex
+            && $scope.selectedLoan === loanIndex) {
             return;
         }
-        if (status === "Recibida") {
+        if (status === $scope.RECEIVED_STRING) {
             return {'color':'#FFC107'}; // 500 amber
         }
-        if (status === "Aprobada") {
+        if (status === $scope.APPROVED_STRING) {
             return {'color':'#4CAF50'}; // 500 green
         }
-        if (status === "Rechazada") {
+        if (status === $scope.REJECTED_STRING) {
             return {'color':'#F44336'}; // 500 red
         }
+    };
+
+    $scope.isObjEmpty = function(obj) {
+        return Utils.isObjEmpty(obj);
     };
 
     $scope.showPie = function() {
@@ -951,76 +801,74 @@ function managerHome($scope, $mdDialog, $http, $state,
             updatePie();
             setDataChanged(false);
         } else {
-            console.log($scope.pieError);
-            $scope.docs = [];
+            $scope.req = {};
             if ($scope.pieError == '') { $scope.pieloaded = true; }
         }
         // Un-select requests
-        $scope.selectedReq = -1;
+        $scope.selectedReq = '';
+        $scope.selectedLoan = -1;
     };
 
     function updatePie() {
-        $scope.docs = [];
+        $scope.req = {};
         $scope.loadingContent = true;
         if ($scope.showResult == 0) {
             // update user's pie
-            $http.get('index.php/ManagerHomeController/getUserRequests',
-                {params:{fetchId:$scope.fetchId}})
-                .then(function (response) {
-                    if (response.data.message == "success") {
-                        $scope.report = response.data.report;
-                        $scope.pie = response.data.pie;
-                        drawPie(response.data.pie);
-                        $scope.pieloaded = true;
-                    } else {
-                        $scope.pieError = response.data.error;
-                    }
+            Manager.getUserRequests($scope.fetchId)
+                .then(
+                function (data) {
+                    $scope.report = data.report;
+                    $scope.pie = data.pie;
+                    drawPie(data.pie);
                     $scope.loadingContent = false;
-
-                });
+                    $scope.pieloaded = true;
+                },
+                function (error) {
+                    $scope.loadingContent = false;
+                    $scope.pieError = error;
+                }
+            );
         } else if ($scope.showResult == 1 &&
-                $scope.model.perform[1].status == 'Recibida') {
+                $scope.model.perform[1].status == $scope.RECEIVED_STRING) {
             // update status pie
-            $http.get('index.php/ManagerHomeController/' +
-                'fetchRequestsByStatus',
-                {params:{status:"Recibida"}})
-                .then(function (response) {
-                    if (response.data.message == "success") {
-                        $scope.report = response.data.report;
-                        $scope.pie = response.data.pie;
-                        drawPie(response.data.pie);
-                        $scope.pieloaded = true;
-                    } else {
-                        $scope.pieError = response.data.error;
-                    }
+            Manager.fetchRequestsByStatus($scope.RECEIVED_STRING)
+                .then(
+                function (data) {
+                    $scope.report = data.report;
+                    $scope.pie = data.pie;
+                    drawPie(data.pie);
                     $scope.loadingContent = false;
-
-                });
+                    $scope.pieloaded = true;
+                },
+                function (error) {
+                    $scope.loadingContent = false;
+                    $scope.pieError = error;
+                }
+            );
         } else if ($scope.showResult == 2 || $scope.showResult == 3) {
             // update date interval pie
+            var from, to;
             if ($scope.showResult == 2) {
-                var from = $scope.model.perform[2].from;
-                var to = $scope.model.perform[2].to;
+                from = $scope.model.perform[2].from;
+                to = $scope.model.perform[2].to;
             } else {
-                var from = $scope.model.perform[3].date;
-                var to = from;
+                from = $scope.model.perform[3].date;
+                to = from;
             }
-            $http.get('index.php/ManagerHomeController/' +
-                'fetchRequestsByDateInterval',
-                {params:{from:moment(from).format('DD/MM/YYYY'),
-                    to:moment(to).format('DD/MM/YYYY')}})
-                .then(function (response) {
-                    if (response.data.message == "success") {
-                        $scope.report = response.data.report;
-                        $scope.pie = response.data.pie;
-                        drawPie(response.data.pie);
-                        $scope.pieloaded = true;
-                    } else {
-                        $scope.pieError = response.data.error;
-                    }
+            Manager.fetchRequestsByDateInterval(from, to)
+                .then(
+                function (data) {
+                    $scope.report = data.report;
+                    $scope.pie = data.pie;
+                    drawPie(data.pie);
                     $scope.loadingContent = false;
-
-                });
+                    $scope.pieloaded = true;
+                },
+                function (error) {
+                    $scope.loadingContent = false;
+                    $scope.pieError = error;
+                }
+            );
         }
     }
 
@@ -1062,27 +910,18 @@ function managerHome($scope, $mdDialog, $http, $state,
     }
 
     $scope.showHelp = function() {
-        var options = {
-            showNavigation : true,
-            showCloseBox : true,
-            delay : -1,
-            tripTheme: "dark",
-            prevLabel: "Anterior",
-            nextLabel: "Siguiente",
-            finishLabel: "Entendido"
-        };
-        if ($scope.pieloaded && $scope.docs.length == 0) {
+        if ($scope.pieloaded && Utils.isObjEmpty($scope.req)) {
             if ($scope.showResult == 0) {
-                showSingleUserResultHelp(options);
+                showSingleUserResultHelp(Helps.getDialogsHelpOpt());
             } else if ($scope.fetchedRequests()) {
-                showMultipleUsersResultHelp(options);
+                showMultipleUsersResultHelp(Helps.getDialogsHelpOpt());
             }
-        } else if ($scope.docs.length == 0) {
+        } else if (Utils.isObjEmpty($scope.req)) {
             // User has not selected any request yet, tell him to do it.
-            showSidenavHelp(options);
+            showSidenavHelp(Helps.getDialogsHelpOpt());
         } else {
             // Guide user through request selection's possible actions.
-            showRequestHelp(options);
+            showRequestHelp(Helps.getDialogsHelpOpt());
         }
     };
 
@@ -1092,42 +931,26 @@ function managerHome($scope, $mdDialog, $http, $state,
      */
     function showSingleUserResultHelp(options) {
         options.showHeader = true;
-        var tripToShowNavigation = new Trip([
-            { sel : $("#piechart-tour"),
-                content : "Esta tarjeta muestra las estadísticas de " +
-                    "las solicitudes del afiliado. Los datos aparecen al " +
-                    "mover el ratón hacia alguna de las divisiones de " +
-                    "la gráfica.",
-                position : "n", header: "Estadísticas", expose: true,
-                animation: 'fadeInUp' },
-            { sel : $("#report-btn"),
-                content : "Puede generar un reporte detallado haciendo " +
-                    "click aquí.",
-                position : "s", header: "Generación de reporte", expose: true,
-                animation: 'fadeInDown' }
-        ], options);
+        var trip = new Trip([], options);
+        var content = "Esta tarjeta muestra las estadísticas de " +
+                      "las solicitudes del afiliado. Los datos aparecen al " +
+                      "mover el ratón hacia alguna de las divisiones de la gráfica.";
+        Helps.addFieldHelpWithHeader(trip, '#piechart-tour', content, 'n', 'Estadísticas', true);
+        content = "Puede generar un reporte detallado haciendo click aquí.";
+        Helps.addFieldHelpWithHeader(trip, '#report-btn', content, 's', 'Generación de reporte', true, 'fadeInDown');
         if ($mdSidenav('left').isLockedOpen()) {
             // Nav. panel information
-            tripToShowNavigation.tripData.push(
-                { sel : $("#user-data"),
-                    content : "Consulte datos del afiliado",
-                    position : "e", header: "Datos del afiliado",
-                        animation: 'fadeInLeft' },
-                { sel : $("#result-data"),
-                    content : "Ésta es la lista de solicitudes del " +
-                        "afiliado. Para facilitar la elección, el " +
-                        "estatus de cada una está identificada por " +
-                        "un bombillo amarillo, verde y rojo para " +
-                        "Recibida, Aprobada y Rechazada, respectivamente.",
-                    position : "e", header: "Préstamos personales",
-                        animation: 'fadeInRight' },
-                { sel : $("#back-to-query"),
-                    content : "Para hacer otro tipo de consulta, haga " +
-                        "click aquí.",
-                    position : "e", header: "Atrás", animation: 'fadeInRight' }
-            );
+            content = "Consulte datos del afiliado";
+            Helps.addFieldHelpWithHeader(trip, '#user-data', content, 'e', 'Datos del afiliado', false, 'fadeInLeft');
+            content = "Ésta es la lista de solicitudes del afiliado. Haga click en el tipo de solicitud de " +
+                      "su elección para ver sus solicitudes de préstamo. <br/>Para facilitar " +
+                      "la elección, el estatus de cada una está identificada por un bombillo amarillo, verde " +
+                      "y rojo para Recibida, Aprobada y Rechazada, respectivamente.";
+            Helps.addFieldHelpWithHeader(trip, '#result-data', content, 'e', 'Préstamos', false, 'fadeInRight');
+            content = "Para hacer otro tipo de consulta, haga click aquí.";
+            Helps.addFieldHelpWithHeader(trip, '#back-to-query', content, 'e', 'Atrás', false, 'fadeInRight');
         }
-        tripToShowNavigation.start();
+        trip.start();
     }
 
     /**
@@ -1136,48 +959,29 @@ function managerHome($scope, $mdDialog, $http, $state,
      */
     function showMultipleUsersResultHelp(options) {
         options.showHeader = true;
-        var tripToShowNavigation = new Trip([
-            { sel : $("#piechart-tour"),
-                content : "Esta tarjeta muestra las estadísticas de las " +
-                    "solicitudes en cuestión. Los datos aparecen al mover" +
-                    " el ratón hacia alguna de las divisiones de la gráfica.",
-                position : "n", header: "Estadísticas", expose: true,
-                animation: 'fadeInTop' },
-            { sel : $("#report-btn"),
-                content : "Puede generar un reporte detallado haciendo " +
-                "click aquí.",
-                position : "s", header: "Generación de reporte", expose: true,
-                animation: 'fadeInDown' }
-        ], options);
+        var trip = new Trip([], options);
+        var content = "Esta tarjeta muestra las estadísticas de las " +
+                      "solicitudes en cuestión. Los datos aparecen al mover" +
+                      " el ratón hacia alguna de las divisiones de la gráfica.";
+        Helps.addFieldHelpWithHeader(trip, '#piechart-tour', content, 'n', 'Estadísticas', true);
+        content = "Puede generar un reporte detallado haciendo click aquí.";
+        Helps.addFieldHelpWithHeader(trip, '#report-btn', content, 's', 'Generación de reporte', true, 'fadeInDown');
         if ($mdSidenav('left').isLockedOpen()) {
             // Nav. panel information
             if ($scope.showResult !== 1) {
-                var content = "Éstas son las solicitudes resultantes de " +
-                    "la búsqueda. Al hacer click en alguna de ellas, podrá" +
-                    " consultar los datos del afiliado o ver los detalles " +
-                    "de la solicitud. Para facilitar la elección, el " +
-                    "estatus de cada una está identificada por un bombillo " +
-                    " amarillo, verde y rojo para Recibida, Aprobada y " +
-                    "Rechazada, respectivamente.";
+                content = "Éstas son las solicitudes resultantes de la búsqueda. Haga click en el tipo de " +
+                          "solicitud de su elección para ver las solicitudes de préstamo.<br/>Para facilitar " +
+                          "la elección, el estatus de cada una está identificada por un bombillo " +
+                          "amarillo, verde y rojo para Recibida, Aprobada y Rechazada, respectivamente.";
             } else {
-                var content = "Éstas son las solicitudes resultantes de " +
-                "la búsqueda. Al hacer click en alguna de ellas, podrá " +
-                "consultar los datos del afiliado o ver los detalles " +
-                "de la solicitud.";
+                content = "Éstas son las solicitudes resultantes de la búsqueda. Haga click en el tipo de solicitud " +
+                          "de su elección para ver las solicitudes de préstamo.";
             }
-            tripToShowNavigation.tripData.push(
-                { sel : $("#result-data"),
-                    content : content,
-                    position : "e", header: "Solicitudes",
-                        animation: 'fadeInRight' },
-                { sel : $("#back-to-query"),
-                    content : "Para hacer otro tipo de consulta, haga " +
-                        "click aquí.",
-                    position : "e", header: "Atrás",
-                    animation: 'fadeInRight' }
-            );
+            Helps.addFieldHelpWithHeader(trip, '#result-data', content, 'e', 'Solicitudes', false, 'fadeInRight');
+            content = "Para hacer otro tipo de consulta, haga click aquí.";
+            Helps.addFieldHelpWithHeader(trip, '#back-to-query', content, 'e', 'Atrás', false, 'fadeInRight');
         }
-        tripToShowNavigation.start();
+        trip.start();
     }
 
     /**
@@ -1185,47 +989,28 @@ function managerHome($scope, $mdDialog, $http, $state,
      * @param options: Obj containing tour.js options
      */
     function showSidenavHelp(options) {
+        var trip;
+        var content;
         if ($mdSidenav('left').isLockedOpen()) {
             options.showHeader = true;
-            var tripToShowNavigation = new Trip([
-                {
-                    sel : $("#pending-req"),
-                    content : "Ésta es la lista de solicitudes por " +
-                        "administrar. Al seleccionar alguna, puede " +
-                        "verificar los datos del solicitante o ver " +
-                        "los detalles de la solicitud para administrarla.",
-                    position : "e", header: "Solicitudes pendientes",
-                    animation: 'fadeInUp'
-                },
-                {
-                    sel : $("#adv-search"),
-                    content : "Puede realizar búsquedas más " +
-                        "específicas de las solicitudes. Sólo seleccione" +
-                        " el tipo de consulta e ingrese los datos solicitados.",
-                    position : "e", header: "Búsqueda avanzada",
-                    animation: 'fadeInUp'
-                },
-                {
-                    sel: $("#approval-report"),
-                    content : "También puede generar reportes de solicitudes " +
-                              "cerradas durante la semana vigente o en un" +
-                              " rango de fechas específico.",
-                    position : "e", header: "Reporte de solicitudes cerradas",
-                    animation: 'fadeInUp'
-                }
-
-            ], options);
-            tripToShowNavigation.start();
+            trip = new Trip([], options);
+            content = "Éstas son las listas de solicitudes por administrar. Haga click en el tipo de solicitud " +
+                          "de su elección para ver las solicitudes de préstamo. Al seleccionar alguna, puede " +
+                          "ver los detalles de la solicitud para administrarla.";
+            Helps.addFieldHelpWithHeader(trip, '#pending-req', content, 'e', 'Solicitudes pendientes');
+            content = "Puede realizar búsquedas más específicas de las solicitudes. Sólo seleccione" +
+                      " el tipo de consulta e ingrese los datos solicitados.";
+            Helps.addFieldHelpWithHeader(trip, '#adv-search', content, 'e', 'Búsqueda avanzada');
+            content = "También puede generar reportes de solicitudes cerradas durante la " +
+                      "semana vigente o en un rango de fechas específico.";
+            Helps.addFieldHelpWithHeader(trip, '#approval-report', content, 'e', 'Reporte de solicitudes cerradas');
+            trip.start();
         } else {
-            var tripToShowNavigation = new Trip([
-                { sel : $("#nav-panel"),
-                    content : "Haga click en el ícono para abrir el " +
-                        "panel de navegación, donde podrá elegir las" +
-                        " solicitudes a administrar o realizar " +
-                        "búsquedas avanzadas.",
-                    position : "s", animation: 'fadeInUp'}
-            ], options);
-            tripToShowNavigation.start();
+            trip = new Trip([], options);
+            content = "Haga click en el ícono para abrir el panel de navegación, donde podrá elegir las" +
+                      " solicitudes a administrar o realizar búsquedas avanzadas.";
+            Helps.addFieldHelp(trip, '#nav-panel', content, 's');
+            trip.start();
         }
     }
 
@@ -1235,78 +1020,52 @@ function managerHome($scope, $mdDialog, $http, $state,
       */
     function showRequestHelp(options) {
         options.showHeader = true;
-        // options.showSteps = true;
-        var tripToShowNavigation = new Trip([
-            // Request summary information
-            { sel : $("#request-summary"), content : "Aquí se muestra " +
-                "información acerca de la fecha de creación, monto " +
-                "solicitado, y un comentario de haberlo realizado.",
-                position : "s", header: "Resumen de la solicitud",
-                expose : true },
-            // Request status information
-            { sel : $("#request-status-summary"), content : "Esta sección " +
-                "provee información acerca del estatus de la solicitud.",
-                position : "s", header: "Resumen de estatus", expose : true,
-                animation: 'fadeInDown' },
-            // Request documents information
-            { sel : $("#request-docs"), content : "Éste y los siguientes " +
-                "items contienen el nombre y, de existir, una descripción " +
-                "de cada documento en la solicitud. Puede " +
-                "verlos/descargarlos haciendo click encima de ellos.",
-                position : "s", header: "Documentos", expose : true,
-                animation: 'fadeInDown' }
-        ], options);
+         var trip = new Trip([], options);
+         // Request summary information
+         var content = "Aquí se muestra información acerca de la fecha de creación, monto " +
+                       "solicitado, y un comentario de haberlo realizado.";
+         Helps.addFieldHelpWithHeader(trip, '#request-summary', content, 's', 'Resumen de la solicitud', true);
+         // Request status information
+         content = "Esta sección provee información acerca del estatus de la solicitud.";
+         Helps.addFieldHelpWithHeader(trip, '#request-status-summary', content, 's', 'Resumen de estatus', true,
+                                      'fadeInDown');
+         // Request documents information
+         content = "Éste y los siguientes " +
+                   "items contienen el nombre y, de existir, una descripción " +
+                   "de cada documento en la solicitud. Puede " +
+                   "verlos/descargarlos haciendo click encima de ellos.";
+         Helps.addFieldHelpWithHeader(trip, '#request-docs', content, 'n', 'Documentos', true, 'fadeInDown');
 
         if ($mdSidenav('left').isLockedOpen()) {
-            tripToShowNavigation.tripData.push(
-                // Download as zip information
-                { sel : $("#request-summary-actions"), content : "Puede ver " +
-                    "el historial de la solicitud, editarla " +
-                    "(si la solicitud no se ha cerrado), o descargar todos " +
-                    "sus documentos presionando el botón correspondiente.",
-                    position : "w", header: "Acciones", expose : true,
-                    animation: 'fadeInLeft' }
-            );
+            content = "Puede ver los datos del creador de la solicitud, ver el historial de la solicitud, editarla " +
+                      "(si la solicitud no se ha cerrado), o descargar todos sus documentos presionando " +
+                      "el botón correspondiente.";
+            Helps.addFieldHelpWithHeader(trip, '#request-summary-actions', content, 'w', 'Acciones', true,
+                                         'fadeInLeft');
         } else {
-            tripToShowNavigation.tripData.push(
-                // Download as zip information request-summary-actions-menu
-                { sel : $("#request-summary-actions-menu"),
-                    content : "Haga click en el botón de opciones para " +
-                    "ver el historial de la solicitud, editarla " +
-                    "(si la solicitud no se ha cerrado), o descargar " +
-                    "todos sus documentos.",
-                    position : "s", header: "Acciones", expose : true,
-                    animation: 'fadeInLeft' }
-            );
+            content = "Haga click en el botón de opciones para ver los datos del creador de la solicitud, " +
+                      "ver el historial de la solicitud, editarla (si la solicitud no se ha cerrado), " +
+                      "o descargar todos sus documentos.";
+            Helps.addFieldHelpWithHeader(trip, '#request-summary-actions-menu', content, 's', 'Acciones', true,
+                                         'fadeInLeft');
         }
-        tripToShowNavigation.start();
+        trip.start();
     }
 
 
     $scope.generateExcelReport = function() {
         $scope.loadingReport = true;
-        var url = '';
-        if ($scope.showResult == 0 || $scope.showResult > 1) {
-            $scope.report.sheetTitle = $scope.showResult > 1 ?
-                "Reporte por fechas" : "Reporte de afiliado";
-            url = 'index.php/DocumentGenerator/' +
-                'generateRequestsReport';
-        } else if ($scope.showResult == 1) {
-            url = 'index.php/DocumentGenerator/' +
-                'generateStatusRequestsReport';
-        } else {
-            // Approved requests report
-            url = 'index.php/DocumentGenerator/' +
-                'generateApprovedRequestsReport';
-        }
-        var report = JSON.stringify($scope.report);
-        $http.post(url, report).then(function (response) {
-            if (response.data.message == "success") {
-                location.href = 'index.php/DocumentGenerator/' +
-                    'downloadReport?lpath=' + response.data.lpath;
+        Manager.generateExcelReport($scope.showResult, $scope.report)
+            .then(
+            function (downloadURL) {
+                $scope.loadingReport = false;
+                location.href = downloadURL;
+            },
+            function (error) {
+                Utils.showAlertDialog('Oops!', error);
+                $scope.loadingReport = false;
             }
-            $scope.loadingReport = false;
-        });
+        );
     };
 
     /**
@@ -1321,10 +1080,10 @@ function managerHome($scope, $mdDialog, $http, $state,
      * Helper function that resets UI for all query results
      */
     function resetContent() {
-        $scope.requests = [];
+        $scope.requests = {};
         $scope.selectedReq = -1;
-        $scope.docs = [];
-        $scope.showList = false;
+        $scope.req = {};
+        $scope.showList = Requests.initializeListType();
         $scope.showApprovedAmount = false;
         $scope.fetchError = '';
         $scope.approvalReportError = '';

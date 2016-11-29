@@ -2,49 +2,28 @@ angular
     .module('sgdp')
     .controller('AgentHomeController', agentHome);
 
-agentHome.$inject = ['$scope', '$mdDialog', '$cookies', 'FileUpload', 'Constants',
+agentHome.$inject = ['$scope', '$mdDialog', '$cookies', 'FileUpload', 'Constants', 'Agent',
                      '$http', '$state', '$timeout', '$mdSidenav', '$mdMedia', 'Requests', 'Utils', 'Helps'];
 
-function agentHome($scope, $mdDialog, $cookies, FileUpload, Constants,
+function agentHome($scope, $mdDialog, $cookies, FileUpload, Constants, Agent,
                    $http, $state, $timeout, $mdSidenav, $mdMedia, Requests, Utils, Helps) {
     'use strict';
-    $scope.loading = false;
-    $scope.selectedReq = '';
-    $scope.selectedLoan = -1;
-    $scope.requests = {};
-    $scope.docs = [];
-    $scope.fetchError = "";
-    $scope.showList = {pp: false, vc: false};
-    $scope.idPrefix = "V";
-    $scope.listTitle = Requests.getTypeTitles();
+    $scope.selectedReq = Agent.data.selectedReq;
+    $scope.selectedLoan = Agent.data.selectedLoan;
+    $scope.requests = Agent.data.requests;
+    $scope.req = Agent.data.req;
+    $scope.fetchError = Agent.data.fetchError;
+    $scope.showList = Agent.data.showList;
     // contentAvailable will indicate whether sidenav can be visible
-    $scope.contentAvailable = false;
+    $scope.contentAvailable = Agent.data.contentAvailable;
     // contentLoaded will indicate whether sidenav can be locked open
-    $scope.contentLoaded = false;
+    $scope.contentLoaded = Agent.data.contentLoaded;
     // This will enable / disable search bar in mobile screens
-    $scope.searchEnabled = false;
+    $scope.searchEnabled = Agent.data.searchEnabled;
 
-    // Check if there is stored data before we went to History
-    var requests = JSON.parse(sessionStorage.getItem("requests"));
-    if (requests != null) {
-        $scope.requests = requests;
-        $scope.fetchId = sessionStorage.getItem("fetchId");
-        // fetchId is used for several database queries.
-        // that is why we don't use searchInput value, which is bind to search input.
-        $scope.searchInput = $scope.fetchId.replace('V', '');
-        $scope.selectedReq = sessionStorage.getItem("selectedReq");
-        $scope.selectedLoan = parseInt(sessionStorage.getItem("selectedLoan"));
-        $scope.docs = $scope.requests[$scope.selectedReq][$scope.selectedLoan].docs;
-        $scope.showList = JSON.parse(sessionStorage.getItem("showList"));
-        $scope.contentAvailable = true;
-        $scope.contentLoaded = true;
-        // Got back what we wanted -- erase them from storage
-        sessionStorage.removeItem("requests");
-        sessionStorage.removeItem("fetchId");
-        sessionStorage.removeItem("selectedReq");
-        sessionStorage.removeItem("selectedLoan");
-        sessionStorage.removeItem("showList");
-    }
+    $scope.listTitle = Requests.getTypeTitles();
+    $scope.idPrefix = 'V';
+    $scope.loading = false;
 
     $scope.generatePdfDoc = function () {
         $http.get('index.php/DocumentGenerator/generatePdf')
@@ -74,7 +53,7 @@ function agentHome($scope, $mdDialog, $cookies, FileUpload, Constants,
         console.log(i);
         console.log(j);
         if (i != '' && j != -1) {
-            $scope.docs = $scope.requests[i][j].docs;
+            $scope.req = $scope.requests[i][j];
         }
         $mdSidenav('left').toggle();
     };
@@ -85,7 +64,7 @@ function agentHome($scope, $mdDialog, $cookies, FileUpload, Constants,
         $scope.requests = [];
         closeAllReqList();
         $scope.loading = true;
-        $scope.docs = [];
+        $scope.req = {};
         $scope.fetchError = "";
         Requests.getUserRequests($scope.fetchId).then(
             function (data) {
@@ -205,7 +184,7 @@ function agentHome($scope, $mdDialog, $cookies, FileUpload, Constants,
                 var docs = [];
 
                 // Upload ID photo.
-                var type = Requests.mapLoanTypes($scope.model.type);
+                var type = Requests.mapLoanType($scope.model.type);
                 var requestNumb = type + '.' + (requests[type].length + 1);
                 FileUpload.uploadImage($scope.model.idData, fetchId, requestNumb).then(
                     function (uploadedDoc) {
@@ -405,7 +384,7 @@ function agentHome($scope, $mdDialog, $cookies, FileUpload, Constants,
         Requests.getUserRequests(userId).then(
             function (data) {
                 // Update UI only if needed
-                var loanType = Requests.mapLoanTypes(type);
+                var loanType = Requests.mapLoanType(type);
                 if (updateUI) {
                     updateContent(data, loanType, autoSelectIndex);
                 }
@@ -478,7 +457,7 @@ function agentHome($scope, $mdDialog, $cookies, FileUpload, Constants,
             escapeToClose: false,
             locals: {
                 fetchId: $scope.fetchId,
-                request: $scope.requests[$scope.selectedReq][$scope.selectedLoan],
+                request: $scope.req,
                 // Request lists are ordered from newest to oldest!
                 loanNumb: $scope.requests[$scope.selectedReq].length - $scope.selectedLoan
             },
@@ -550,7 +529,7 @@ function agentHome($scope, $mdDialog, $cookies, FileUpload, Constants,
                     performEdition($scope.request);
                 } else {
                     // Add additional files to this request.
-                    var requestNumb = Requests.mapLoanTypes($scope.request.type) + '.' + loanNumb;
+                    var requestNumb = Requests.mapLoanType($scope.request.type) + '.' + loanNumb;
                     uploadFiles($scope.files, fetchId, requestNumb);
                 }
             };
@@ -624,15 +603,13 @@ function agentHome($scope, $mdDialog, $cookies, FileUpload, Constants,
     $scope.deleteDoc = function (ev, dKey) {
         Utils.showConfirmDialog(
             'Confirmación de eliminación',
-            "El documento " +
-            $scope.requests[$scope.selectedReq][$scope.selectedLoan].docs[dKey].name +
-            " será eliminado.",
+            "El documento " + $scope.req.docs[dKey].name + " será eliminado.",
             'Continuar',
             'Cancelar',
             ev, true).then(
             function() {
                 Requests.deleteDocument(
-                    $scope.requests[$scope.selectedReq][$scope.selectedLoan].docs[dKey]
+                    $scope.req.docs[dKey]
                 ).then(
                     function () {
                         // Update interface
@@ -661,7 +638,7 @@ function agentHome($scope, $mdDialog, $cookies, FileUpload, Constants,
                 Requests.deleteRequest($scope.requests[$scope.selectedReq][$scope.selectedLoan]).then(
                     function () {
                         // Update interface
-                        $scope.docs = [];
+                        $scope.req = {};
                         updateRequestListUI($scope.fetchId, -1, 'Solicitud eliminada',
                                             'La solicitud fue eliminada exitosamente.',
                                             true, true, -1);
@@ -707,23 +684,37 @@ function agentHome($scope, $mdDialog, $cookies, FileUpload, Constants,
     };
 
     $scope.loadHistory = function () {
-        // Save data before going to history page
-        sessionStorage.setItem("requests", JSON.stringify($scope.requests));
-        sessionStorage.setItem("fetchId", $scope.fetchId);
-        sessionStorage.setItem("selectedReq", $scope.selectedReq);
-        sessionStorage.setItem("selectedLoan", $scope.selectedLoan);
-        sessionStorage.setItem("showList", JSON.stringify($scope.showList));
-
+        // Save necessary data before changing views.
+        preserveState();
+        // Send required data to history
+        sessionStorage.setItem("req", JSON.stringify($scope.req));
         $state.go('history');
-
     };
+
+    function preserveState() {
+        var data = {};
+        data.selectedReq = $scope.selectedReq;
+        data.selectedLoan = $scope.selectedLoan;
+        data.requests = $scope.requests;
+        data.req = $scope.req;
+        data.fetchError = $scope.fetchError;
+        data.showList = $scope.showList;
+        // contentAvailable will indicate whether sidenav can be visible
+        data.contentAvailable = $scope.contentAvailable;
+        // contentLoaded will indicate whether sidenav can be locked open
+        data.contentLoaded = $scope.contentLoaded;
+        // This will enable / disable search bar in mobile screens
+        data.searchEnabled = $scope.searchEnabled;
+
+        Agent.updateData(data);
+    }
 
     $scope.downloadDoc = function (doc) {
         window.open(Requests.getDocDownloadUrl(doc.lpath));
     };
 
     $scope.downloadAll = function () {
-        location.href = Requests.getAllDocsDownloadUrl($scope.docs);
+        location.href = Requests.getAllDocsDownloadUrl($scope.req.docs);
     };
 
     $scope.loadUserData = function () {
@@ -743,7 +734,7 @@ function agentHome($scope, $mdDialog, $cookies, FileUpload, Constants,
             } else {
                 showMobileSearchbarHelp(Helps.getDialogsHelpOpt());
             }
-        } else if ($scope.docs.length == 0) {
+        } else if (!$scope.req.docs) {
             // User has not selected any request yet, tell him to do it.
             showSidenavHelp(Helps.getDialogsHelpOpt());
         } else {
@@ -832,7 +823,7 @@ function agentHome($scope, $mdDialog, $cookies, FileUpload, Constants,
                   "descargarlos o incluso eliminarlos.";
         Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-docs-actions', content, responsiveNorthPos,
                                      'Documentos', true, 'fadeInLeft');
-        if ($scope.docs.length < 2) {
+        if ($scope.req.docs.length < 2) {
             // This request hasn't additional documents.
             tripToShowNavigation.tripData.splice(3, 1);
         }

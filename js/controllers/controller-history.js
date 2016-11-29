@@ -10,26 +10,16 @@ function history($scope, $http, $mdBottomSheet, $mdMedia, $timeout) {
     $scope.searchEnabled = false;
 
     // If no data has been sent, show nothing.
-    if (sessionStorage.getItem("requests") === null &&
-        sessionStorage.getItem("pendingRequests") === null) { return; }
+    if (sessionStorage.getItem("req") === null) { return; }
 
     $scope.loading = true;
     // Take the stored data of interest
-    var requests = JSON.parse(sessionStorage.getItem("requests"));
-    var selectedReq = sessionStorage.getItem("selectedReq");
-    var selectedLoan = parseInt(sessionStorage.getItem("selectedLoan"), 10);
-    if (requests === null) {
-        requests = JSON.parse(sessionStorage.getItem("pendingRequests"));
-        selectedReq = parseInt(sessionStorage.getItem("selectedPendingReq"), 10);
-    }
-    console.log(requests);
-    console.log(selectedReq);
-    console.log(selectedLoan);
-    $http.get('index.php/HistoryController/fetchRequestHistory', {params:requests[selectedReq][selectedLoan]})
+    var request = JSON.parse(sessionStorage.getItem("req"));
+
+    $http.get('index.php/HistoryController/fetchRequestHistory', {params:request})
         .then(function (response) {
             if (response.data.message === "success") {
                 $scope.history = response.data.history;
-                console.log($scope.history);
             }
             $scope.loading = false;
         });
@@ -43,7 +33,7 @@ function history($scope, $http, $mdBottomSheet, $mdMedia, $timeout) {
             controller: ListBottomSheetCtrl
         });
 
-        function ListBottomSheetCtrl($mdBottomSheet, $scope, actions) {
+        function ListBottomSheetCtrl($scope, actions) {
             $scope.actions = actions;
         }
     };

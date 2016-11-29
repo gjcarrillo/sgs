@@ -58,10 +58,13 @@
                     </md-list-item>
                     <md-divider></md-divider>
                     <div class="slide-toggle" ng-show="showList[rKey]">
-                        <div ng-if="request.length == 0" layout layout-align="center center" class="md-padding">
-                            <p style="color:#F44336">
-                                Usted no posee solicitudes de {{listTitle[rKey]}}
-                            </p>
+                        <div ng-if="request.length == 0">
+                            <div layout layout-align="center center" class="md-padding">
+                                <p style="color:#F44336">
+                                    Usted no posee solicitudes de {{listTitle[rKey]}}
+                                </p>
+                            </div>
+                            <md-divider></md-divider>
                         </div>
                         <div layout="column" layout-align="center" ng-repeat="(lKey, loan) in request">
                             <md-button
@@ -91,7 +94,7 @@
             </div>
             <!-- Watermark -->
             <div
-                ng-if="fetchError == '' && docs.length == 0"
+                ng-if="fetchError == '' && !req.docs"
                 class="full-content-height"
                 layout="column" layout-align="center center">
                 <div ng-if="!loading" class="watermark" layout="column" layout-align="center center">
@@ -100,7 +103,7 @@
             </div>
             <!-- The actual content -->
             <md-content
-                ng-hide="docs.length == 0"
+                ng-hide="!req.docs"
                 class="document-container">
                 <div layout layout-align="center center">
                     <md-card class="documents-card">
@@ -109,17 +112,17 @@
                                 <md-list-item id="request-summary" class="md-3-line noright">
                                     <div class="md-list-item-text request-details-wrapper" layout="column">
                                         <h3 hide-xs class="request-details-title">
-                                            Solicitado al {{requests[selectedReq][selectedLoan].creationDate}}
+                                            Solicitado al {{req.creationDate}}
                                         </h3>
                                         <h3 hide-gt-xs class="request-details-title">
-                                            Fecha: {{requests[selectedReq][selectedLoan].creationDate}}
+                                            Fecha: {{req.creationDate}}
                                         </h3>
                                         <h4>
                                             Monto solicitado: Bs
-                                            {{requests[selectedReq][selectedLoan].reqAmount | number:2}}
+                                            {{req.reqAmount | number:2}}
                                         </h4>
                                         <p>
-                                            {{requests[selectedReq][selectedLoan].comment}}
+                                            {{req.comment}}
                                         </p>
                                     </div>
                                     <md-button
@@ -139,18 +142,18 @@
                                     class="md-2-line noright">
                                     <md-icon  ng-style="{'font-size':'36px'}">info_outline</md-icon>
                                     <div class="md-list-item-text" layout="column">
-                                        <h3>Estatus de la solicitud: {{requests[selectedReq][selectedLoan].status}}</h3>
-                                       <h4 ng-if="requests[selectedReq][selectedLoan].reunion">
-                                           Reunión &#8470; {{requests[selectedReq][selectedLoan].reunion}}
+                                        <h3>Estatus de la solicitud: {{req.status}}</h3>
+                                       <h4 ng-if="req.reunion">
+                                           Reunión &#8470; {{req.reunion}}
                                        </h4>
-                                       <p ng-if="requests[selectedReq][selectedLoan].approvedAmount">
+                                       <p ng-if="req.approvedAmount">
                                            Monto aprobado: Bs
-                                           {{requests[selectedReq][selectedLoan].approvedAmount | number:2}}
+                                           {{req.approvedAmount | number:2}}
                                        </p>
                                      </div>
                                 </md-list-item>
                                 <md-divider></md-divider>
-                                <div ng-repeat="(dKey, doc) in docs">
+                                <div ng-repeat="(dKey, doc) in req.docs">
                                     <md-list-item
                                         id="request-docs"
                                         class="md-2-line"

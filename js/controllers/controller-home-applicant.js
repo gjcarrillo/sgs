@@ -12,8 +12,8 @@ function userHome($scope, $cookies, $timeout, FileUpload, Helps,
     $scope.selectedReq = '';
     $scope.selectedLoan = -1;
     $scope.requests = {};
-    $scope.docs = [];
-    $scope.showList = {pp: false, vc: false};
+    $scope.req = {};
+    $scope.showList = Requests.initializeListType();
     $scope.fetchError = '';
     // contentAvailable will indicate whether sidenav can be visible
     $scope.contentAvailable = false;
@@ -61,7 +61,7 @@ function userHome($scope, $cookies, $timeout, FileUpload, Helps,
         console.log(i);
         console.log(j);
         if (i != '' && j != -1) {
-            $scope.docs = $scope.requests[i][j].docs;
+            $scope.req = $scope.requests[i][j];
         }
         $mdSidenav('left').toggle();
     };
@@ -158,7 +158,7 @@ function userHome($scope, $cookies, $timeout, FileUpload, Helps,
             };
 
             $scope.showIdError = function (error, param) {
-                FileUpload.showIdUploadError(error, param);
+                return FileUpload.showIdUploadError(error, param);
             };
 
             // Creates new request in database and uploads documents
@@ -167,7 +167,7 @@ function userHome($scope, $cookies, $timeout, FileUpload, Helps,
                 var docs = [];
 
                 // Upload ID document.
-                var type = Requests.mapLoanTypes($scope.model.type);
+                var type = Requests.mapLoanType($scope.model.type);
                 var requestNumb = type + '.' + (requests[type].length + 1);
                 FileUpload.uploadFile($scope.model.idFile, fetchId, requestNumb).then(
                     function (uploadedDoc) {
@@ -292,7 +292,7 @@ function userHome($scope, $cookies, $timeout, FileUpload, Helps,
         Requests.getUserRequests(userId).then(
             function (data) {
                 // Update UI only if needed
-                var loanType = Requests.mapLoanTypes(type);
+                var loanType = Requests.mapLoanType(type);
                 if (updateUI) {
                     updateContent(data, loanType, autoSelectIndex);
                 }
@@ -361,7 +361,7 @@ function userHome($scope, $cookies, $timeout, FileUpload, Helps,
     };
 
     $scope.downloadAll = function () {
-        location.href = Requests.getAllDocsDownloadUrl($scope.docs);
+        location.href = Requests.getAllDocsDownloadUrl($scope.req.docs);
     };
 
     $scope.openMenu = function () {
@@ -370,7 +370,7 @@ function userHome($scope, $cookies, $timeout, FileUpload, Helps,
 
 
     $scope.showHelp = function () {
-        if ($scope.docs.length == 0) {
+        if (!$scope.req.docs) {
             // User has not selected any request yet, tell him to do it.
             showSidenavHelp(Helps.getDialogsHelpOpt());
         } else {

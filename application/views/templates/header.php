@@ -28,6 +28,8 @@
         <script type="text/javascript" src="<?php echo base_url(); ?>js/services/service-requests.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/services/service-file-upload.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/services/service-helps.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>js/services/service-manager.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>js/services/service-agent.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-login.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-home-applicant.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-home-agent.js"></script>

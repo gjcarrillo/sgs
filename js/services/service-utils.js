@@ -78,5 +78,20 @@ function utils($mdDialog, Constants) {
         return Constants.BASEURL + '#/userInfo';
     };
 
+    /**
+     * Determines whether an object is empty.
+     *
+     * @param obj - Object to be tested.
+     * @returns {boolean} true if obj is empty, false otherwise.
+     */
+    self.isObjEmpty = function (obj) {
+        for(var prop in obj) {
+            if(obj.hasOwnProperty(prop))
+                return false;
+        }
+
+        return true;
+    };
+
     return self;
 }

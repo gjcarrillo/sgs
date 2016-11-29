@@ -17,6 +17,7 @@ function reqService($q, $http, Constants) {
         vc: 'vales de caja'
     };
 
+
     var maxAmount = 0;
 
     /**
@@ -34,9 +35,9 @@ function reqService($q, $http, Constants) {
                 maxAmount = response.data.maxReqAmount;
                 if (response.data.message === "success") {
                     if (typeof response.data.requests !== "undefined") {
-                        qReq.resolve(filterRequests(response.data.requests));
+                        qReq.resolve(self.filterRequests(response.data.requests));
                     } else {
-                        qReq.resolve(filterRequests([]));
+                        qReq.resolve(self.filterRequests([]));
                     }
                 } else {
                     qReq.reject(response.data.error);
@@ -140,16 +141,16 @@ function reqService($q, $http, Constants) {
      * @param requests - Requests array returned by the server.
      * @returns {{}} - Obj containing arrays of different types of loans.
      */
-    function filterRequests(requests) {
+    self.filterRequests = function (requests) {
         var req = {};
-        req.pp = requests.filter(function (loan) {
-            return loan.type == Constants.LoanTypes.PERSONAL;
-        });
-        req.vc = requests.filter(function (loan) {
-            return loan.type == Constants.LoanTypes.CASH_VOUCHER;
+        var codes = Constants.LoanTypes;
+        angular.forEach(codes, function(code) {
+            req[self.mapLoanType(code)] = requests.filter(function (loan) {
+                return loan.type == code;
+            });
         });
         return req;
-    }
+    };
 
     /**
      * Gets the different kind of requests' title.
@@ -161,12 +162,27 @@ function reqService($q, $http, Constants) {
     };
 
     /**
+     * Gets the different request status types as strings.
+     *
+     * @returns {Array} containing all the statuses mapped as strings.
+     */
+    self.getStatusesTitles = function () {
+        var codes = Constants.Statuses;
+        var titles = [];
+        angular.forEach(codes, function(code) {
+            titles.push(self.mapStatus(code));
+        });
+
+        return titles;
+    };
+
+    /**
      * Maps the specified (int) type to it's corresponding string type.
      *
      * @param type - loan type's code.
      * @returns {*} - string containing the corresponding mapped type.
      */
-    self.mapLoanTypes = function (type) {
+    self.mapLoanType = function (type) {
         switch (type) {
             case Constants.LoanTypes.PERSONAL:
                 return 'pp';
@@ -177,6 +193,40 @@ function reqService($q, $http, Constants) {
             default:
                 return type;
         }
+    };
+
+    /**
+     * Maps the specified (int) statusCode to it's corresponding string type.
+     *
+     * @param statusCode - request's status code.
+     * @returns {*} - string contaning the corresponding mapped type.
+     */
+    self.mapStatus = function (statusCode) {
+        switch (statusCode) {
+            case Constants.Statuses.RECEIVED:
+                return 'Recibida';
+                break;
+            case Constants.Statuses.APPROVED:
+                return 'Aprobada';
+                break;
+            case Constants.Statuses.REJECTED:
+                return 'Rechazada';
+                break;
+            default:
+                return statusCode;
+        }
+    };
+
+    /**
+     * Initializes a list type as false.
+     */
+    self.initializeListType = function () {
+        var list = {};
+        var codes = Constants.LoanTypes;
+        angular.forEach(codes, function(code) {
+            list[self.mapLoanType(code)] = false;
+        });
+        return list;
     };
 
     /**
@@ -192,6 +242,29 @@ function reqService($q, $http, Constants) {
             total += loan.length;
         });
         return total;
+    };
+
+    /**
+     * Finds the specified loan within the requests obj.
+     * @param requests - object containing all the requests.
+     * @param id - corresponding loan's id.
+     */
+    self.findRequest = function (requests, id) {
+        var index = {};
+        var found = false;
+
+        angular.forEach (requests, function (request, rKey) {
+            var i = 0;
+            while (i < request.length && !found) {
+                if (request[i].id === id) {
+                    index.request = rKey;
+                    index.loan = i;
+                    found = true;
+                }
+                i++;
+            }
+        });
+        return index;
     };
 
     /**

@@ -37,6 +37,7 @@ function helps() {
      * @param content - help dialog's body text.
      * @param pos - dialog's position (n, s, e, w)
      * @param expose - whether to expose the view.
+     * @param animation - dialog's animation ([n][s][e][w]).
      */
     self.addFieldHelp = function(trip, id, content, pos, expose, animation) {
         trip.tripData.push(

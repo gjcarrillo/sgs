@@ -42,8 +42,9 @@
                             class="md-block no-vertical-margin"
                             md-no-float>
                         <md-select
+                            aria-label="Nuevo Estatus"
                             ng-model="model.status">
-                            <md-option ng-value="status" ng-repeat="status in statuses">{{status}}</md-option>
+                            <md-option ng-value="status" ng-repeat="status in mappedStatuses">{{status}}</md-option>
                         </md-select>
                     </md-input-container>
                 </div>
@@ -51,7 +52,7 @@
         </div>
         <div layout layout-xs="column" layout-padding layout-align-gt-xs="center center">
             <div
-                ng-show="model.status != 'Recibida'"
+                ng-show="model.status != RECEIVED_STRING"
                 layout-align-gt-xs="center center"
                 flex-xs="100">
                 <div>
@@ -67,7 +68,7 @@
                 </md-input-container>
             </div>
             <div
-                ng-show="model.status == 'Aprobada'"
+                ng-show="model.status == APPROVED_STRING"
                 layout-align-gt-xs="center center"
                 flex-xs="100">
                 <div>
@@ -79,7 +80,7 @@
                         id="approved-amount"
                         class="md-block no-vertical-margin"
                         md-no-float>
-                    < type="number" required min="0" ng-model="model.approvedAmount" placeholder="Ej: 150000"/>
+                    <input type="number" required min="0" ng-model="model.approvedAmount" placeholder="Ej: 150000"/>
                 </md-input-container>
             </div>
         </div>
@@ -89,13 +90,13 @@
             id="edit-btn"
             ng-hide="uploading"
             ng-disabled="missingField()"
-            ng-click="updateRequest()"
+            ng-click="verifyEdition()"
             class="md-primary">
             Actualizar
         </md-button>
-        <md-progress-circular ng-show="uploading" md-mode="indeterminate" md-diameter="60"></md-progress-circular>
-        <md-button ng-disabled="uploading" ng-click="closeDialog()" class="md-primary">
+        <md-button ng-hide="uploading" ng-click="closeDialog()" class="md-primary">
             Cancelar
         </md-button>
+        <md-progress-linear ng-show="uploading" md-mode="indeterminate"></md-progress-linear>
     </md-dialog-actions>
 </md-dialog>

@@ -1,10 +1,23 @@
-var sgdp = angular.module("sgdp", ["sgdp.login", "sgdp.constants", "sgdp.service-requests", "sgdp.service-utils",
-                                   "sgdp.service-file-upload", "sgdp.service-helps",
-                                   "ui.router", "ngMaterial", "ngFileUpload", "webcam", "ngMessages"]);
+var sgdp = angular.module("sgdp",
+    [
+        "sgdp.login",
+        "sgdp.constants",
+        "sgdp.service-requests",
+        "sgdp.service-utils",
+        "sgdp.service-file-upload",
+        "sgdp.service-helps",
+        "sgdp.service-manager",
+        "sgdp.service-agent",
+        "ui.router",
+        "ngMaterial",
+        "ngFileUpload",
+        "webcam",
+        "ngMessages"
+    ]);
 
 
 sgdp.config(function ($stateProvider, $urlRouterProvider, $mdThemingProvider,
-                      $mdDateLocaleProvider, $locationProvider) {
+                      $mdDateLocaleProvider) {
     $urlRouterProvider.otherwise('login');
     $stateProvider
         .state('login', {
@@ -12,8 +25,8 @@ sgdp.config(function ($stateProvider, $urlRouterProvider, $mdThemingProvider,
             templateUrl: 'index.php/LoginController',
             controller: 'LoginController'
         })
-        .state('userHome', {
-            url: '/userHome',
+        .state('applicantHome', {
+            url: '/applicantHome',
             templateUrl: 'index.php/ApplicantHomeController',
             controller: 'ApplicantHomeController'
         })
@@ -169,7 +182,7 @@ sgdp.run(['$rootScope', '$location', '$state', 'Auth', '$cookies', '$http',
 
               function userHasPermission(userType, url) {
                   switch (url) {
-                      case '/userHome':
+                      case '/applicantHome':
                           // Anyone can access user home page
                           return true;
                       case '/agentHome':

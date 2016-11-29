@@ -36,7 +36,7 @@ function auth($cookies, $location, $http, $rootScope, $timeout) {
                           // });
                           if (response.data.type == 3) {
                               // if applicant then redirect to home
-                              $location.path("userHome");
+                              $location.path("applicantHome");
                           } else {
                               // if agent or manager, allow perspective selection
                               $location.path("perspective");
@@ -73,7 +73,7 @@ function auth($cookies, $location, $http, $rootScope, $timeout) {
         } else if ($cookies.getObject('session').type == 2) {
             $location.path("/managerHome");
         } else {
-            $location.path("/userHome");
+            $location.path("/applicantHome");
         }
     };
 
@@ -83,18 +83,7 @@ function auth($cookies, $location, $http, $rootScope, $timeout) {
 
     // Clears possible data stored on browser
     function cleanBrowser() {
-        sessionStorage.removeItem("requests");
-        sessionStorage.removeItem("fetchId");
-        sessionStorage.removeItem("selectedReq");
-        sessionStorage.removeItem("showList");
-        sessionStorage.removeItem("pendingRequests");
-        sessionStorage.removeItem("selectedPendingReq");
-        sessionStorage.removeItem("showReq");
-        sessionStorage.removeItem("status");
-        sessionStorage.removeItem("from");
-        sessionStorage.removeItem("to");
-        sessionStorage.removeItem("date");
-
+        sessionStorage.removeItem("req");
     }
 
     return self;

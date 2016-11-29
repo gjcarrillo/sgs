@@ -115,9 +115,9 @@
             class="md-primary">
             Actualizar
         </md-button>
-        <md-progress-circular ng-show="uploading" md-mode="indeterminate" md-diameter="60"></md-progress-circular>
-        <md-button ng-disabled="uploading" ng-click="closeDialog()" class="md-primary">
+        <md-button ng-hide="uploading" ng-click="closeDialog()" class="md-primary">
             Cancelar
         </md-button>
+        <md-progress-linear ng-show="uploading" md-mode="indeterminate"></md-progress-linear>
     </md-dialog-actions>
 </md-dialog>

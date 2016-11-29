@@ -10,7 +10,7 @@ class ApplicantHomeController extends CI_Controller {
     }
 
 	public function index() {
-        $this->load->view('userHome');
+        $this->load->view('applicantHome');
 	}
 
     // Obtain all requests with with all their documents.

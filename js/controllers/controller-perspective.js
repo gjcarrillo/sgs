@@ -34,7 +34,7 @@ function selection($scope, $rootScope, $state, $cookies) {
         }, {
             expires : timeToExpire
         });
-        $state.go("userHome");
+        $state.go("applicantHome");
     };
 
     $scope.goAgent = function() {
