@@ -468,6 +468,10 @@
                                     class="requestItems"
                                     ng-class="{'md-primary md-raised' : selectedReq === rKey &&
                                             selectedLoan === lKey }">
+                                    <md-icon ng-if="showResult !== 1"
+                                             ng-style="getBulbColor(loan.status, rKey, lKey)">
+                                        lightbulb_outline
+                                    </md-icon>
                                     Solicitud ID &#8470; {{pad(loan.id, 6)}}
                                     <md-icon
                                         ng-if="loan.status === APPROVED_STRING && showResult == 1 &&
