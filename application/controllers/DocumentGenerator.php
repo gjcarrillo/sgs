@@ -32,6 +32,7 @@ class DocumentGenerator extends CI_Controller {
     }
 
 	public function generateRequestsReport() {
+		$result = null;
 		if ($_SESSION['type'] != 2) {
 			$this->load->view('errors/index.html');
 		} else {
@@ -60,9 +61,9 @@ class DocumentGenerator extends CI_Controller {
 			// data offset
 			$offset += count($data['data']);
 			// Extend table for total amounts
-			$this->excel->getActiveSheet()->fromArray((array)$data['total'], NULL, 'F' . $offset);
-			$this->excel->getActiveSheet()->setCellValue('G' . $offset, '=SUM(F7:F' . ($offset-1) . ')');
-			$this->excel->getActiveSheet()->setCellValue('G' . ($offset+1), '=SUM(G7:G' . ($offset-1) . ')');
+			$this->excel->getActiveSheet()->fromArray((array)$data['total'], NULL, 'G' . $offset);
+			$this->excel->getActiveSheet()->setCellValue('H' . $offset, '=SUM(G7:G' . ($offset-1) . ')');
+			$this->excel->getActiveSheet()->setCellValue('H' . ($offset+1), '=SUM(H7:H' . ($offset-1) . ')');
 			// Add extended table portion's offset and an empty row
 			$offset += 2;
 			// Add stats table
@@ -74,21 +75,21 @@ class DocumentGenerator extends CI_Controller {
 			$offset++;
 			$this->excel->getActiveSheet()->fromArray((array)$data['stats']['data'], NULL, 'A' . $offset);
 			// Add count stat formula
-			$this->excel->getActiveSheet()->setCellValue('B' . $offset, '=COUNTIF(D7:D'. ($offset-6) . ',"Recibida")');
-			$this->excel->getActiveSheet()->setCellValue('B' . ($offset+1), '=COUNTIF(D7:D'. ($offset-6) . ',"Aprobada")');
-			$this->excel->getActiveSheet()->setCellValue('B' . ($offset+2), '=COUNTIF(D7:D'. ($offset-6) . ',"Rechazada")');
-			// Add porcentage stat formula
+			$this->excel->getActiveSheet()->setCellValue('B' . $offset, '=COUNTIF(E7:E'. ($offset-6) . ',"Recibida")');
+			$this->excel->getActiveSheet()->setCellValue('B' . ($offset+1), '=COUNTIF(E7:E'. ($offset-6) . ',"Aprobada")');
+			$this->excel->getActiveSheet()->setCellValue('B' . ($offset+2), '=COUNTIF(E7:E'. ($offset-6) . ',"Rechazada")');
+			// Add percentage stat formula
 			$this->excel->getActiveSheet()
-				->setCellValue('C' . $offset, '=ROUND(B'. $offset .' * 100 / ROWS(D7:D' . ($offset-6) . '), 2)');
+				->setCellValue('C' . $offset, '=ROUND(B'. $offset .' * 100 / ROWS(E7:E' . ($offset-6) . '), 2)');
 			$this->excel->getActiveSheet()
-				->setCellValue('C' . ($offset+1), '=ROUND(B'. ($offset+1) .' * 100 / ROWS(D7:D' . ($offset-6) . '), 2)');
+				->setCellValue('C' . ($offset+1), '=ROUND(B'. ($offset+1) .' * 100 / ROWS(E7:E' . ($offset-6) . '), 2)');
 			$this->excel->getActiveSheet()
-				->setCellValue('C' . ($offset+2), '=ROUND(B'. ($offset+2) .' * 100 / ROWS(D7:D' . ($offset-6) . '), 2)');
+				->setCellValue('C' . ($offset+2), '=ROUND(B'. ($offset+2) .' * 100 / ROWS(E7:E' . ($offset-6) . '), 2)');
 
 			// Merge header and dataTitle cells
-			$this->excel->getActiveSheet()->mergeCells('A1:H1');
-			$this->excel->getActiveSheet()->mergeCells('A2:H2');
-			$this->excel->getActiveSheet()->mergeCells('A4:H4');
+			$this->excel->getActiveSheet()->mergeCells('A1:I1');
+			$this->excel->getActiveSheet()->mergeCells('A2:I2');
+			$this->excel->getActiveSheet()->mergeCells('A4:I4');
 			$this->excel->getActiveSheet()->mergeCells('A' . ($offset-3) . ':C' . ($offset-3));
 			// Align horizontally, as a title is supposed to be.
 			$this->excel->getActiveSheet()->getStyle('A4')->getAlignment()
@@ -112,18 +113,18 @@ class DocumentGenerator extends CI_Controller {
 			$tableOffset = 6 + count($data['data']);
 			$statTableOffset = $offset + 2;
 			// Add table style
-			$this->excel->getActiveSheet()->getStyle('A6:H' . $tableOffset)->applyFromArray($tableBorders);
+			$this->excel->getActiveSheet()->getStyle('A6:I' . $tableOffset)->applyFromArray($tableBorders);
 			$this->excel->getActiveSheet()->getStyle('A' . ($offset-1) . ':C' . $statTableOffset)
 				->applyFromArray($tableBorders);
 			// Extend table style for requested & approved total amount
-			$this->excel->getActiveSheet()->getStyle('F' . ($tableOffset+1) . ':G' . ($tableOffset+2))
+			$this->excel->getActiveSheet()->getStyle('G' . ($tableOffset+1) . ':H' . ($tableOffset+2))
 				->applyFromArray($tableBorders);
 			// Add table header style
-			$this->excel->getActiveSheet()->getStyle('A6:H6')->applyFromArray($headerStyle);
+			$this->excel->getActiveSheet()->getStyle('A6:I6')->applyFromArray($headerStyle);
 			$this->excel->getActiveSheet()->getStyle('A' . ($offset-1) . ':C' . ($offset-1))
 				->applyFromArray($headerStyle);
 			// Add table data numbers separator
-			$this->excel->getActiveSheet()->getStyle('F7:G' . ($tableOffset+2))->getNumberFormat()
+			$this->excel->getActiveSheet()->getStyle('G7:H' . ($tableOffset+2))->getNumberFormat()
 				->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
 			// Configure columns width
 			$this->excel->getActiveSheet()->getColumnDimension('A')->setWidth(10);
@@ -134,6 +135,7 @@ class DocumentGenerator extends CI_Controller {
 			$this->excel->getActiveSheet()->getColumnDimension('F')->setAutoSize(true);
 			$this->excel->getActiveSheet()->getColumnDimension('G')->setAutoSize(true);
 			$this->excel->getActiveSheet()->getColumnDimension('H')->setAutoSize(true);
+			$this->excel->getActiveSheet()->getColumnDimension('I')->setAutoSize(true);
 			// (PATCH) Initialize cell selection, otherwise might get a bit crazy
 			$this->excel->getActiveSheet()->setSelectedCells('A1');
 			// Save our workbook as this file name
@@ -150,6 +152,7 @@ class DocumentGenerator extends CI_Controller {
 	}
 
 	public function generateStatusRequestsReport() {
+		$result = null;
 		if ($_SESSION['type'] != 2) {
 			$this->load->view('errors/index.html');
 		} else {
@@ -180,26 +183,26 @@ class DocumentGenerator extends CI_Controller {
 			// Extend table for total amounts
 			if ($data['status'] == "Recibida") {
 				// Don't take reunion number into account
-				$this->excel->getActiveSheet()->fromArray((array)$data['total'], NULL, 'C' . $offset);
-				$totalStartCell = 'C';
-				$requestedCell = $totalValCell = 'D';
-				$lastCell = 'E';
-			} else if ($data['status'] == "Rechazada") {
-				// Take reunion number into account
 				$this->excel->getActiveSheet()->fromArray((array)$data['total'], NULL, 'D' . $offset);
 				$totalStartCell = 'D';
 				$requestedCell = $totalValCell = 'E';
 				$lastCell = 'F';
-			} else {
+			} else if ($data['status'] == "Rechazada") {
+				// Take reunion number into account
 				$this->excel->getActiveSheet()->fromArray((array)$data['total'], NULL, 'E' . $offset);
-				$totalStartCell = $requestedCell = 'E';
-				$totalValCell = 'F';
+				$totalStartCell = 'E';
+				$requestedCell = $totalValCell = 'F';
 				$lastCell = 'G';
+			} else {
+				$this->excel->getActiveSheet()->fromArray((array)$data['total'], NULL, 'F' . $offset);
+				$totalStartCell = $requestedCell = 'F';
+				$totalValCell = 'G';
+				$lastCell = 'H';
 			}
 			$this->excel->getActiveSheet()
 				->setCellValue($totalValCell . $offset, '=SUM(' . $requestedCell . '7:' . $requestedCell . ($offset-1) . ')');
 			if ($data['status'] == "Aprobada") {
-				$this->excel->getActiveSheet()->setCellValue($totalValCell . ($offset+1), '=SUM(F7:F' . ($offset-1) . ')');
+				$this->excel->getActiveSheet()->setCellValue($totalValCell . ($offset+1), '=SUM(G7:G' . ($offset-1) . ')');
 			}
 			// Merge header and dataTitle cells
 			$this->excel->getActiveSheet()->mergeCells('A1:' . $lastCell .'1');
@@ -234,6 +237,7 @@ class DocumentGenerator extends CI_Controller {
 			// Add table header style
 			$this->excel->getActiveSheet()->getStyle('A6:' . $lastCell . '6')->applyFromArray($headerStyle);
 			// Add table data numbers separator
+			$totalStartCell = $data['status'] == "Rechazada" ? chr(ord($totalStartCell) + 1): $totalStartCell;
 			$this->excel->getActiveSheet()->getStyle($totalStartCell . 	'7:' . $totalValCell . ($tableOffset+2))->getNumberFormat()
 				->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
 			// Configure columns width
@@ -242,11 +246,12 @@ class DocumentGenerator extends CI_Controller {
 			$this->excel->getActiveSheet()->getColumnDimension('C')->setAutoSize(true);
 			$this->excel->getActiveSheet()->getColumnDimension('D')->setAutoSize(true);
 			$this->excel->getActiveSheet()->getColumnDimension('E')->setAutoSize(true);
-			if ($lastCell >= 'F') {
-				$this->excel->getActiveSheet()->getColumnDimension('F')->setAutoSize(true);
-			}
+			$this->excel->getActiveSheet()->getColumnDimension('F')->setAutoSize(true);
 			if ($lastCell >= 'G') {
 				$this->excel->getActiveSheet()->getColumnDimension('G')->setAutoSize(true);
+			}
+			if ($lastCell >= 'H') {
+				$this->excel->getActiveSheet()->getColumnDimension('H')->setAutoSize(true);
 			}
 			// (PATCH) Initialize cell selection, otherwise might get a bit crazy
 			$this->excel->getActiveSheet()->setSelectedCells('A1');
@@ -264,6 +269,7 @@ class DocumentGenerator extends CI_Controller {
 	}
 
 	public function generateApprovedRequestsReport() {
+		$result = null;
 		if ($_SESSION['type'] != 2) {
 			$this->load->view('errors/index.html');
 		} else {
@@ -292,9 +298,9 @@ class DocumentGenerator extends CI_Controller {
 			// data offset
 			$offset += count($data['data']);
 			// Extend table for total amounts
-			$this->excel->getActiveSheet()->fromArray((array)$data['total'], NULL, 'G' . $offset);
-			$this->excel->getActiveSheet()->setCellValue('H' . $offset, '=SUM(G7:G' . ($offset-1) . ')');
-			$this->excel->getActiveSheet()->setCellValue('H' . ($offset+1), '=SUM(H7:H' . ($offset-1) . ')');
+			$this->excel->getActiveSheet()->fromArray((array)$data['total'], NULL, 'H' . $offset);
+			$this->excel->getActiveSheet()->setCellValue('I' . $offset, '=SUM(H7:H' . ($offset-1) . ')');
+			$this->excel->getActiveSheet()->setCellValue('I' . ($offset+1), '=SUM(I7:I' . ($offset-1) . ')');
 			// Total amounts offset plus a few empty row
 			$offset += 6;
 			// Draw three signatures input
@@ -339,12 +345,12 @@ class DocumentGenerator extends CI_Controller {
 			// Add table style
 			$this->excel->getActiveSheet()->getStyle('A6:I' . $tableOffset)->applyFromArray($tableBorders);
 			// Extend table style for requested & approved total amount
-			$this->excel->getActiveSheet()->getStyle('G' . ($tableOffset+1) . ':H' . ($tableOffset+2))
+			$this->excel->getActiveSheet()->getStyle('H' . ($tableOffset+1) . ':I' . ($tableOffset+2))
 				->applyFromArray($tableBorders);
 			// Add table header style
 			$this->excel->getActiveSheet()->getStyle('A6:I6')->applyFromArray($headerStyle);
 			// Add table data numbers separator
-			$this->excel->getActiveSheet()->getStyle('G7:H' . ($tableOffset+2))->getNumberFormat()
+			$this->excel->getActiveSheet()->getStyle('H7:I' . ($tableOffset+2))->getNumberFormat()
 				->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
 			// Configure columns width
 			$this->excel->getActiveSheet()->getColumnDimension('A')->setWidth(10);

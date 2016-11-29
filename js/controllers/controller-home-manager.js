@@ -179,7 +179,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
     $scope.getApprovedAmountByDateInterval = function(from, to) {
         $mdSidenav('left').toggle();
         resetContent();
-        $scope.loadingContent = true;
+        $scope.loading = true;
         Manager.getApprovedAmountByDateInterval(from, to)
             .then(
             function (amount) {
@@ -187,11 +187,11 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 $scope.approvedAmountTitle = "Monto aprobado total " +
                                              "para el intervalo de fecha especificado:";
                 $scope.showApprovedAmount = true;
-                $scope.loadingContent = false;
+                $scope.loading = false;
             },
             function (error) {
                 $scope.fetchError = error;
-                $scope.loadingContent = false;
+                $scope.loading = false;
             }
         );
     };
@@ -199,7 +199,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
     $scope.getApprovedAmountById = function(index) {
         $mdSidenav('left').toggle();
         resetContent();
-        $scope.loadingContent = true;
+        $scope.loading = true;
         var userId = $scope.idPrefix + $scope.model.perform[index].id;
         Manager.getApprovedAmountById(userId)
             .then(
@@ -208,11 +208,11 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 $scope.approvedAmountTitle = "Monto aprobado total para " +
                                              data.username + ":";
                 $scope.showApprovedAmount = true;
-                $scope.loadingContent = false;
+                $scope.loading = false;
             },
             function (error) {
                 $scope.fetchError = error;
-                $scope.loadingContent = false;
+                $scope.loading = false;
             }
         );
     };

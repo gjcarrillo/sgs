@@ -64,6 +64,7 @@ class ManagerHomeController extends CI_Controller {
 							$result['report']['data'][$rKey] = array(
 								$rKey+1,
 								$request->getId(),
+								$this->mapLoanType($request->getLoanType()),
 								$request->getCreationDate()->format('d/m/Y'),
 								$request->getStatusByText(),
 								$request->getReunion(),
@@ -97,7 +98,7 @@ class ManagerHomeController extends CI_Controller {
 						$result['report']['dataTitle'] = "SOLICITUDES DEL AFILIADO " . strtoupper($applicant);
 						$result['report']['filename'] = $result['report']['dataTitle'];
 						$result['report']['dataHeader'] = array(
-							'Nro.', 'Identificador', 'Fecha de creación', 'Estatus', 'Nro. de Reunión',
+							'Nro.', 'Identificador', 'Tipo', 'Fecha de creación', 'Estatus', 'Nro. de Reunión',
 							 'Monto solicitado (Bs)', 'Monto aprobado (Bs)', 'Comentario'
 						 );
 						$result['report']['total'] = array(
@@ -164,6 +165,7 @@ class ManagerHomeController extends CI_Controller {
 						$result['report']['data'][$rKey] = array(
 							$rKey+1,
 							$request->getId(),
+							$this->mapLoanType($request->getLoanType()),
 							$request->getCreationDate()->format('d/m/Y'),
 						);
 						if ($_GET['status'] !== "Recibida") {
@@ -202,7 +204,7 @@ class ManagerHomeController extends CI_Controller {
 					$result['pie']['hoverBackgroundColor'][2] = "#F44336"; // 500 red
 					// Fill up report information
 					$dataHeader = array(
-						'Nro.', 'Identificador', 'Fecha de creación'
+						'Nro.', 'Identificador', 'Tipo', 'Fecha de creación'
 					 );
 					 if ($_GET['status'] !== "Recibida") {
 						 array_push($dataHeader, 'Nro. de Reunión');
@@ -302,6 +304,7 @@ class ManagerHomeController extends CI_Controller {
 						$result['report']['data'][$rKey] = array(
 							$rKey+1,
 							$request->getId(),
+							$this->mapLoanType($request->getLoanType()),
 							$request->getCreationDate()->format('d/m/Y'),
 							$request->getStatusByText(),
 							$request->getReunion(),
@@ -339,7 +342,7 @@ class ManagerHomeController extends CI_Controller {
 					$result['report']['filename'] = "SOLICITUDES REALIZADAS " . $filename;
 					$result['report']['dataTitle'] = "SOLICITUDES REALIZADAS " . $interval;
 					$result['report']['dataHeader'] = array(
-						'Nro.', 'Identificador', 'Fecha de creación', 'Estatus', 'Nro. de Reunión',
+						'Nro.', 'Identificador', 'Tipo', 'Fecha de creación', 'Estatus', 'Nro. de Reunión',
 						 'Monto solicitado (Bs)', 'Monto aprobado (Bs)', 'Comentario'
 					 );
 					$result['report']['total'] = array(
@@ -508,13 +511,13 @@ class ManagerHomeController extends CI_Controller {
 						$result['report']['data'][$count] = array(
 							$count,
 							$request->getId(),
+							$this->mapLoanType($request->getLoanType()),
 							$request->getCreationDate()->format('d/m/Y'),
 							$request->getStatusByText(),
 							$h->getUserResponsable(),
 							$request->getReunion(),
 							$request->getRequestedAmount(),
 							$request->getApprovedAmount(),
-							$request->getComment()
 						);
 						// Add report generation action to history
 						$newLog = new \Entity\History();
@@ -560,8 +563,8 @@ class ManagerHomeController extends CI_Controller {
 					$result['report']['filename'] = $filename;
 					$result['report']['dataTitle'] = $dataTitle;
 					$result['report']['dataHeader'] = array(
-						'Nro.', 'Identificador', 'Fecha de creación', 'Estatus', 'Cerrada por',
-						 'Nro. de Reunión', 'Monto solicitado (Bs)', 'Monto aprobado (Bs)', 'Comentario'
+						'Nro.', 'Identificador', 'Tipo', 'Fecha de creación', 'Estatus', 'Cerrada por',
+						 'Nro. de Reunión', 'Monto solicitado (Bs)', 'Monto aprobado (Bs)'
 					 );
 					$result['report']['total'] = array(
 						array("Monto solicitado total", ""),
@@ -582,7 +585,6 @@ class ManagerHomeController extends CI_Controller {
 			$this->load->view('errors/index.html');
 		} else {
 			try {
-				$em = $this->doctrine->em;
 				// start first day of week, end last day of week
 				if (date('D') == 'Mon') {
 					$start = date('d/m/Y');
@@ -629,13 +631,13 @@ class ManagerHomeController extends CI_Controller {
 						$result['report']['data'][$count] = array(
 							$count,
 							$request->getId(),
+							$this->mapLoanType($request->getLoanType()),
 							$request->getCreationDate()->format('d/m/Y'),
 							$request->getStatusByText(),
 							$h->getUserResponsable(),
 							$request->getReunion(),
 							$request->getRequestedAmount(),
 							$request->getApprovedAmount(),
-							$request->getComment()
 						);
 						// Add report generation action to history
 						$newLog = new \Entity\History();
@@ -674,8 +676,8 @@ class ManagerHomeController extends CI_Controller {
 					$result['report']['filename'] = $filename;
 					$result['report']['dataTitle'] = $dataTitle;
 					$result['report']['dataHeader'] = array(
-						'Nro.', 'Identificador', 'Fecha de creación', 'Estatus', 'Cerrada por',
-						 'Nro. de Reunión', 'Monto solicitado (Bs)', 'Monto aprobado (Bs)', 'Comentario'
+						'Nro.', 'Identificador', 'Tipo', 'Fecha de creación', 'Estatus', 'Cerrada por',
+						 'Nro. de Reunión', 'Monto solicitado (Bs)', 'Monto aprobado (Bs)'
 					 );
 					$result['report']['total'] = array(
 						array("Monto solicitado total", ""),
@@ -694,8 +696,13 @@ class ManagerHomeController extends CI_Controller {
     public function getStatusByText($status) {
         if ($_SESSION['type'] != 2) {
             $this->load->view('errors/index.html');
+			return null;
         } else {
             return ($status == "Recibida" ? 1 : ($status == "Aprobada" ? 2 : 3));
         }
     }
+
+	public function mapLoanType($code) {
+		return $code == 40 ? "PRÉSTAMO PERSONAL" : ($code == 31 ? "VALE DE CAJA" : $code);
+	}
 }
