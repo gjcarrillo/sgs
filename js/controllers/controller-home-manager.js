@@ -899,7 +899,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                     }
                   }
                 },
-                responsive: true
+                responsive: false
             };
             $scope.chart = new Chart(ctx, {
                 type: 'pie',
