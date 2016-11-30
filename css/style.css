@@ -205,6 +205,18 @@ md-list .md-button {
     color: #2196F3;
 }
 
+.phone-icon {
+    color: #009688;
+}
+
+.payment-icon {
+    color: #546E7A;
+}
+
+.info-icon {
+    padding-top: 10px
+}
+
 md-select.no-md-select {
     border-bottom-color: white !important;
     color: black;

@@ -140,7 +140,7 @@
                                 <md-list-item
                                     id="request-status-summary"
                                     class="md-2-line noright">
-                                    <md-icon style="padding-top: 10px">info_outline</md-icon>
+                                    <md-icon class="info-icon">info_outline</md-icon>
                                     <div class="md-list-item-text" layout="column">
                                         <h3>Estatus de la solicitud: {{req.status}}</h3>
                                        <h4 ng-if="req.reunion">
@@ -155,7 +155,7 @@
                                 <md-divider md-inset></md-divider>
                                 <md-list-item class="md-2-line noright"
                                               id="request-payment-due">
-                                    <md-icon style="color: #546E7A">payment</md-icon>
+                                    <md-icon class="payment-icon">payment</md-icon>
                                     <div class="md-list-item-text" layout="column">
                                         <h3>
                                             Cuotas a pagar
@@ -171,7 +171,7 @@
                                 <md-divider md-inset></md-divider>
                                 <md-list-item class="md-2-line noright"
                                               id="request-contact-number">
-                                    <md-icon style="color: #009688">phone</md-icon>
+                                    <md-icon class="phone-icon">phone</md-icon>
                                     <div class="md-list-item-text" layout="column">
                                         <h3>
                                             Número de contacto
