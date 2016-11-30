@@ -50,6 +50,13 @@ class User
     private $type;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="status", type="string", length=10, precision=0, scale=0, nullable=false, unique=false)
+     */
+    private $status;
+
+    /**
      * @var \Doctrine\Common\Collections\Collection
      *
      * @ORM\OneToMany(targetEntity="Entity\Request", mappedBy="userOwner")
@@ -67,7 +74,7 @@ class User
     /**
      * Set id
      *
-     * @param integer $id
+     * @param string $id
      * @return User
      */
     public function setId($id)
@@ -80,7 +87,7 @@ class User
     /**
      * Get id
      *
-     * @return integer
+     * @return string
      */
     public function getId()
     {
@@ -177,6 +184,29 @@ class User
     public function getType()
     {
         return $this->type;
+    }
+
+    /**
+     * Set status
+     *
+     * @param string $status
+     * @return User
+     */
+    public function setStatus($status)
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * Get status
+     *
+     * @return string
+     */
+    public function getStatus()
+    {
+        return $this->status;
     }
 
     /**

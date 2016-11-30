@@ -14,26 +14,30 @@ class LoginController extends CI_Controller {
     }
 
     public function authenticate() {
-
+        $result = null;
        try {
            $em = $this->doctrine->em;
            $user = $em->find('\Entity\User', $_GET['id']);
            if($user != null) {
                if($user->getPassword() == $_GET['password']) {
-                   $result['type'] = $user->getType();
-                   $result['name'] = $user->getName();
-                   $result['lastName'] = $user->getLastName();
+                   if ($user->getStatus() === "ACTIVE") {
+                       $result['type'] = $user->getType();
+                       $result['name'] = $user->getName();
+                       $result['lastName'] = $user->getLastName();
 
-                   $dataSession = array(
-                        "id" => $_GET['id'],
-                        "name" => $user->getName(),
-                        "lastName" =>  $user->getLastName(),
-                        "type" => $user->getType(),
-                        "logged" => true,
-                    );
-                    $this->session->set_userdata($dataSession);
+                       $dataSession = array(
+                           "id" => $_GET['id'],
+                           "name" => $user->getName(),
+                           "lastName" =>  $user->getLastName(),
+                           "type" => $user->getType(),
+                           "logged" => true,
+                       );
+                       $this->session->set_userdata($dataSession);
 
-                   $result['message'] ="success";
+                       $result['message'] ="success";
+                   } else {
+                       $result['message'] = "Usuario INACTIVO. Por favor contacte con un administrador.";
+                   }
                }
                else {
                    $result['message'] = "Contraseña incorrecta";

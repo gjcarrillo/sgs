@@ -105,6 +105,18 @@ class User extends \Entity\User implements \Doctrine\ORM\Proxy\Proxy
         return parent::getType();
     }
 
+    public function setStatus($status)
+    {
+        $this->__load();
+        return parent::setStatus($status);
+    }
+
+    public function getStatus()
+    {
+        $this->__load();
+        return parent::getStatus();
+    }
+
     public function addRequest(\Entity\Request $requests)
     {
         $this->__load();
@@ -126,7 +138,7 @@ class User extends \Entity\User implements \Doctrine\ORM\Proxy\Proxy
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'password', 'name', 'lastName', 'type', 'requests');
+        return array('__isInitialized__', 'id', 'password', 'name', 'lastName', 'type', 'status', 'requests');
     }
 
     public function __clone()
