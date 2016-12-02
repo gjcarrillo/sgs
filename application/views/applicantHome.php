@@ -133,7 +133,7 @@
                                             cloud_download
                                         </md-icon>
                                         <md-tooltip>
-                                            Descargar todo
+                                            Descargar documento
                                         </md-tooltip>
                                     </md-button>
                                </md-list-item>

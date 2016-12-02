@@ -34,7 +34,7 @@ class UserInfoController extends CI_Controller {
 				try {
 					$em = $this->doctrine->em;
 					$user = $em->find('\Entity\User', $_GET['userId']);
-					$result['userName'] = $user->getName() . " " . $user->getLastName();
+					$result['userName'] = $user->getFirstName() . " " . $user->getLastName();
 					$result['message'] = "success";
 				} catch (Exception $e) {
 					$result['message'] = "Error";

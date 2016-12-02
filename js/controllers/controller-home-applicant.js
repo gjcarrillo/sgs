@@ -114,70 +114,24 @@ function userHome($scope, $cookies, $timeout, FileUpload, Helps,
                 createNewRequest();
             }
 
+            $scope.missingField = function () {
+                return typeof $scope.model.reqAmount === "undefined" ||
+                       !$scope.model.tel.value;
+            };
+
             $scope.closeDialog = function () {
                 $mdDialog.hide();
             };
 
-            $scope.missingField = function () {
-                return !$scope.idPicTaken ||
-                       typeof $scope.model.reqAmount === "undefined" ||
-                       !$scope.model.tel.value;
-            };
-
-            $scope.deleteIdPic = function (event) {
-                $scope.idPicTaken = false;
-                $scope.model.idFile = {};
-                // Stops click propagation (which would open)
-                // the camera again.
-                event.stopPropagation();
-            };
-
-            $scope.deleteDocPic = function () {
-                $scope.docPicTaken = false;
-            };
-
-            $scope.gatherIDFile = function (file, errFiles) {
-                if (file) {
-                    $scope.model.idFile = file;
-                    $scope.model.idFile.description = "Comprobación de autorización";
-                    $scope.model.idFile.docName = "Identidad";
-                    $scope.idPicTaken = true;
-                }
-                $scope.errFiles = errFiles;
-            };
-
-            $scope.gatherDocFile = function (file, errFiles) {
-                if (file) {
-                    $scope.docFile = file;
-                    $scope.docFile.description = "Documento explicativo " +
-                                                 "de la solicitud";
-                    $scope.docFile.docName = "Solicitud";
-                    $scope.docPicTaken = true;
-                }
-                $scope.errFiles = errFiles;
-            };
-
-            $scope.showIdError = function (error, param) {
-                return FileUpload.showIdUploadError(error, param);
-            };
-
-            // Creates new request in database and uploads documents
+            // Creates new request in database.
             function createNewRequest() {
                 $scope.uploading = true;
                 var docs = [];
 
-                // Upload ID document.
                 var type = Requests.mapLoanType($scope.model.type);
                 var requestNumb = type + '.' + (requests[type].length + 1);
-                FileUpload.uploadFile($scope.model.idFile, fetchId, requestNumb).then(
-                    function (uploadedDoc) {
-                        docs.push(uploadedDoc);
-                        performCreation(docs);
-                    },
-                    function (errorMsg) {
-                        $scope.errorMsg = errorMsg;
-                    }
-                );
+                docs.push(Requests.createRequestDocData(fetchId, requestNumb));
+                performCreation(docs);
             }
 
             // Helper function that performs the document's creation.
@@ -199,12 +153,6 @@ function userHome($scope, $cookies, $timeout, FileUpload, Helps,
                     }
                 );
             }
-
-            // Determines wether the specified userType matches
-            // logged user's type
-            $scope.userType = function (type) {
-                return type === $cookies.getObject('session').type;
-            };
 
             // Sets the bound input to the max possibe request amount
             $scope.setMax = function() {
@@ -265,12 +213,6 @@ function userHome($scope, $cookies, $timeout, FileUpload, Helps,
                                   "del cual nos estaremos comunicando con usted.";
                     Helps.addFieldHelp(tripToShowNavigation, "#phone-numb",
                                   content, 'n');
-                }
-                if (!$scope.idPicTaken) {
-                    // Show id pic field help
-                    content = "Haga click para subir su cédula de " +
-                                  "identidad en digital.";
-                    Helps.addFieldHelp(tripToShowNavigation, "#id-pic", content, 'n');
                 }
                 // Add payment due help.
                 content = "Escoja el plazo (en meses) en el que desea " +

@@ -622,7 +622,7 @@
                                                 cloud_download
                                             </md-icon>
                                             <md-tooltip>
-                                                Descargar todo
+                                                Descargar documentos
                                             </md-tooltip>
                                         </md-button>
                                     </div>
@@ -662,7 +662,7 @@
                                                    <md-icon class="md-secondary">
                                                        cloud_download
                                                    </md-icon>
-                                                   Descargar todo
+                                                   Descargar documentos
                                                </md-button>
                                            </md-menu-item>
                                        </md-menu-content>

@@ -103,71 +103,6 @@
                         </md-input-container>
                     </div>
                 </div>
-                <!-- Upload for applicant users -->
-                <div ng-if="userType(APPLICANT)" layout="column">
-                    <div
-                        class="grey-color">
-                        <b>Cédula de identidad</b>
-                    </div>
-                    <div layout class="pointer">
-                        <md-input-container
-                            id="id-pic"
-                            ngf-select="gatherIDFile($file, $invalidFiles)"
-                            ngf-pattern="'image/*,application/pdf,application/msword'"
-                            ngf-max-size="4MB"
-                            md-no-float
-                            class="no-vertical-margin">
-                            <input type="text" readonly ng-model="model.idFile.name"
-                                class="pointer" placeholder="Clic para subir"/>
-                            <md-icon
-                                ng-hide="idPicTaken"
-                                class="pointer grey-color">
-                                file_upload
-                            </md-icon>
-                            <md-icon
-                                ng-show="idPicTaken"
-                                ng-click="deleteIdPic($event)"
-                                class="grey-color">
-                                delete
-                            </md-icon>
-                        </md-input-container>
-                    </div>
-                </div>
-                <!-- Uploads for agent users -->
-                <div ng-if="userType(AGENT)" layout="column">
-                    <div
-                        class="grey-color">
-                        <b>Foto del afiliado</b>
-                    </div>
-                    <div layout class="pointer" ng-click="openIdentityCamera($event)">
-                        <md-input-container
-                            id="id-pic"
-                            md-no-float
-                            class="no-vertical-margin">
-                            <input type="text" readonly ng-model="model.idFile"
-                                class="pointer" placeholder="Clic aquí"/>
-                            <md-icon
-                                ng-hide="idPicTaken"
-                                class="pointer grey-color">
-                                photo_camera
-                            </md-icon>
-                            <md-icon
-                                ng-show="idPicTaken"
-                                ng-click="deleteIdPic($event)"
-                                class="grey-color">
-                                delete
-                            </md-icon>
-                        </md-input-container>
-                    </div>
-                </div>
-            </div>
-            <div ng-repeat="f in errFiles" style="color:red">
-                <span ng-if="userType(APPLICANT)">
-                    Error en archivo {{f.name}}: {{showIdError(f.$error, f.$errorParam)}}
-                </span>
-                <span ng-if="userType(AGENT)">
-                    Error en archivo {{f.name}}: {{showError(f.$error, f.$errorParam)}}
-                </span>
             </div>
             <!-- Payment due & Type of transaction-->
             <div
@@ -209,9 +144,7 @@
         <md-button ng-hide="uploading" ng-click="closeDialog()" class="md-primary">
             Cancelar
         </md-button>
-        <md-progress-linear ng-show="uploading && userType(APPLICANT)" md-mode="determinate"
-            value="{{model.idFile.progress}}"></md-progress-linear>
-        <md-progress-linear ng-show="uploading && userType(AGENT)" md-mode="indeterminate">
+        <md-progress-linear ng-show="uploading" md-mode="indeterminate">
         </md-progress-linear>
     </md-dialog-actions>
 </md-dialog>

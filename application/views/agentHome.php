@@ -41,10 +41,6 @@
             </div>
             <md-tooltip md-direction="right">Ej: 123456789</md-tooltip>
         </div>
-        <!-- <md-button class="md-fab md-mini md-raised" href="#/generator" aria-label="Generate contract">
-            <md-icon style="color:#2196F3">insert_drive_file</md-icon>
-            <md-tooltip md-direction="left">Generar PDF</md-tooltip>
-        </md-button> -->
         <md-button
             id="toggle-search"
             class="md-icon-button"
@@ -238,7 +234,7 @@
                                                 cloud_download
                                             </md-icon>
                                             <md-tooltip>
-                                                Descargar todo
+                                                Descargar documentos
                                             </md-tooltip>
                                         </md-button>
                                         <!-- <md-button
@@ -287,7 +283,7 @@
                                                     <md-icon class="md-secondary">
                                                         cloud_download
                                                     </md-icon>
-                                                    Descargar todo
+                                                    Descargar documentos
                                                 </md-button>
                                             </md-menu-item>
                                             <!-- <md-menu-item>
@@ -356,7 +352,7 @@
                                             <p>{{doc.description}}</p>
                                         </div>
                                         <md-button
-                                            ng-if="doc.name =='Identidad'"
+                                            ng-if="doc.name =='Constancia'"
                                             class="md-icon-button">
                                             <md-icon class="md-secondary">
                                                 file_download
@@ -364,7 +360,7 @@
                                         </md-button>
                                         <md-menu
                                             id="request-docs-actions"
-                                            ng-if="doc.name !='Identidad'">
+                                            ng-if="doc.name !='Constancia'">
                                             <md-button
                                                 ng-click="$mdOpenMenu($event)"
                                                 class="md-icon-button"

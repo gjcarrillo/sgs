@@ -22,12 +22,12 @@ class LoginController extends CI_Controller {
                if($user->getPassword() == $_GET['password']) {
                    if ($user->getStatus() === "ACTIVE") {
                        $result['type'] = $user->getType();
-                       $result['name'] = $user->getName();
+                       $result['name'] = $user->getFirstName();
                        $result['lastName'] = $user->getLastName();
 
                        $dataSession = array(
                            "id" => $_GET['id'],
-                           "name" => $user->getName(),
+                           "name" => $user->getFirstName(),
                            "lastName" =>  $user->getLastName(),
                            "type" => $user->getType(),
                            "logged" => true,

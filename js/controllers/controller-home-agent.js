@@ -120,13 +120,6 @@ function agentHome($scope, $mdDialog, $cookies, FileUpload, Constants, Agent,
             // obj could have a reference to user data, saved
             // before confirmation dialog was opened.
             $scope.model = obj || {due: 24, type: $scope.PERSONAL, tel: {operator: '0412'}};
-            // if user data exists, it means the ID was
-            // already given, so we must show it.
-            if (obj && obj.idFile) {
-                updateIdPic(obj.idData);
-            } else {
-                $scope.idPicTaken = false;
-            }
 
             $scope.uploadErr = '';
 
@@ -141,8 +134,7 @@ function agentHome($scope, $mdDialog, $cookies, FileUpload, Constants, Agent,
             };
 
             $scope.missingField = function () {
-                return !$scope.idPicTaken ||
-                       typeof $scope.model.reqAmount === "undefined" || !$scope.model.tel.value;
+                return typeof $scope.model.reqAmount === "undefined" || !$scope.model.tel.value;
             };
 
             // TODO: Try to implement this onSelectOpen and onSelectClose
@@ -159,42 +151,15 @@ function agentHome($scope, $mdDialog, $cookies, FileUpload, Constants, Agent,
                 }
             };
 
-            function updateIdPic(dataURL) {
-                $scope.model.idData = dataURL;
-                $scope.idPicTaken = true;
-                // Upate dd pic input
-                $scope.model.idFile = "Foto del afiliado";
-            }
-
-            $scope.deleteIdPic = function (event) {
-                $scope.idPicTaken = false;
-                $scope.model.idFile = null;
-                // Stops click propagation (which would open)
-                // the camera again.
-                event.stopPropagation();
-            };
-
-            $scope.showError = function (error, param) {
-                FileUpload.showDocUploadError(error, param)
-            };
-
-            // Creates new request in database and uploads documents
+            // Creates new request in database.
             function createNewRequest() {
                 $scope.uploading = true;
                 var docs = [];
 
-                // Upload ID photo.
                 var type = Requests.mapLoanType($scope.model.type);
                 var requestNumb = type + '.' + (requests[type].length + 1);
-                FileUpload.uploadImage($scope.model.idData, fetchId, requestNumb).then(
-                    function (uploadedDoc) {
-                        docs.push(uploadedDoc);
-                        performCreation(docs);
-                    },
-                    function (errorMsg) {
-                        $scope.errorMsg = errorMsg;
-                    }
-                );
+                docs.push(Requests.createRequestDocData(fetchId, requestNumb));
+                performCreation(docs);
             }
 
             // Shows a dialog asking user to confirm the request creation.
@@ -226,7 +191,7 @@ function agentHome($scope, $mdDialog, $cookies, FileUpload, Constants, Agent,
                 var postData = {
                     userId: fetchId,
                     reqAmount: $scope.model.reqAmount,
-                    tel: parseInt($scope.model.tel.operator + $scope.model.tel.value, 10),
+                    tel: $scope.model.tel.operator + '-' + $scope.model.tel.value,
                     due: $scope.model.due,
                     loanType: $scope.model.type,
                     docs: docs
@@ -240,91 +205,6 @@ function agentHome($scope, $mdDialog, $cookies, FileUpload, Constants, Agent,
                     }
                 );
             }
-
-            $scope.openIdentityCamera = function (ev) {
-                var parentEl = angular.element(document.body);
-                $mdDialog.show({
-                    parent: parentEl,
-                    targetEvent: ev,
-                    templateUrl: 'index.php/NewRequestController/camera',
-                    clickOutsideToClose: true,
-                    escapeToClose: true,
-                    autoWrap: true,
-                    locals: {
-                        obj: $scope.model // Will retain the user data.
-                    },
-                    controller: CameraController
-                });
-            };
-
-
-            //Controller for camera dialog
-            function CameraController($scope, $mdDialog, obj) {
-                // Setup a channel to receive a video property
-                // with a reference to the video element
-                $scope.channel = {
-                    videoHeight: 320,
-                    videoWidth: 480
-                };
-                var _video = null;
-
-                $scope.webcamError = false;
-
-                $scope.picTaken = false;
-
-                $scope.onError = function (err) {
-                    $scope.webcamError = err;
-                };
-
-                $scope.onSuccess = function () {
-                    // The video element contains the captured camera data
-                    _video = $scope.channel.video;
-                };
-                $scope.closeDialog = function () {
-                    $mdDialog.hide();
-                    // Re-open parent dialog
-                    parentScope.openNewRequestDialog(null, obj);
-                };
-
-                $scope.deletePic = function () {
-                    $scope.picTaken = false;
-                };
-
-                $scope.savePic = function () {
-                    updateIdPic(document.querySelector('#snapshot').toDataURL());
-                    $mdDialog.hide();
-                    // Re-open parent dialog
-                    parentScope.openNewRequestDialog(null, obj);
-                };
-
-                $scope.takePicture = function () {
-                    if (_video) {
-                        var patCanvas = document.querySelector('#snapshot');
-                        if (!patCanvas) return;
-                        patCanvas.width = _video.width;
-                        patCanvas.height = _video.height;
-                        var ctxPat = patCanvas.getContext('2d');
-
-                        var idata = getVideoData(0, 0, _video.width, _video.height);
-                        ctxPat.putImageData(idata, 0, 0);
-                        $scope.picTaken = true;
-                    }
-                };
-
-                function getVideoData(x, y, w, h) {
-                    var hiddenCanvas = document.createElement('canvas');
-                    hiddenCanvas.width = _video.width;
-                    hiddenCanvas.height = _video.height;
-                    var ctx = hiddenCanvas.getContext('2d');
-                    ctx.drawImage(_video, 0, 0, _video.width, _video.height);
-                    return ctx.getImageData(x, y, w, h);
-                }
-            }
-
-            // Determines whether the specified userType matches logged user's type
-            $scope.userType = function (type) {
-                return type === $cookies.getObject('session').type;
-            };
 
             $scope.showHelp = function () {
                 showFormHelp(Helps.getDialogsHelpOpt());
@@ -358,11 +238,6 @@ function agentHome($scope, $mdDialog, $cookies, FileUpload, Constants, Agent,
                               "del cual se le estará contactando.";
                     Helps.addFieldHelp(tripToShowNavigation, "#phone-numb",
                                        content, 'n');
-                }
-                if (!$scope.idPicTaken) {
-                    // Show id pic field help
-                    content = "Haga click para tomar una foto al afiliado.";
-                    Helps.addFieldHelp(tripToShowNavigation, "#id-pic", content, 'n');
                 }
                 // Add payment due help.
                 content = "Escoja el plazo (en meses) en el que desea " +

@@ -40,11 +40,6 @@ sgdp.config(function ($stateProvider, $urlRouterProvider, $mdThemingProvider,
             templateUrl: 'index.php/ManagerHomeController',
             controller: 'ManagerHomeController'
         })
-        .state('docGenerator', {
-            url: '/generator',
-            templateUrl: 'index.php/DocumentGenerator',
-            controller: 'DocumentGenerator'
-        })
         .state('history', {
             url: '/history',
             templateUrl: 'index.php/HistoryController',

@@ -8,14 +8,10 @@ class pdf {
         log_message('Debug', 'mPDF class is loaded.');
     }
 
-    public function load($param=NULL)
+    public function load()
     {
         include_once APPPATH.'/third_party/mpdf/mpdf.php';
 
-        if ($params == NULL)
-        {
-            $param = '"en-GB-x","A4","","",10,10,10,10,6,3';
-        }
-        return new mPDF($param);
+        return new mPDF('utf-8', 'Letter', 12, 'Calibri', 20, 20, 20, 20, 16, 16);
     }
 }

@@ -31,9 +31,9 @@ class User
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=30, precision=0, scale=0, nullable=false, unique=false)
+     * @ORM\Column(name="first_name", type="string", length=30, precision=0, scale=0, nullable=false, unique=false)
      */
-    private $name;
+    private $first_name;
 
     /**
      * @var string
@@ -118,26 +118,26 @@ class User
     }
 
     /**
-     * Set name
+     * Set first_name
      *
-     * @param string $name
+     * @param string $firstName
      * @return User
      */
-    public function setName($name)
+    public function setFirstName($firstName)
     {
-        $this->name = $name;
+        $this->first_name = $firstName;
 
         return $this;
     }
 
     /**
-     * Get name
+     * Get first_name
      *
      * @return string
      */
-    public function getName()
+    public function getFirstName()
     {
-        return $this->name;
+        return $this->first_name;
     }
 
     /**

@@ -91,7 +91,7 @@ class ManagerHomeController extends CI_Controller {
 						$result['pie']['hoverBackgroundColor'][1] = "#00E676"; // A400 green
 						$result['pie']['hoverBackgroundColor'][2] = "#F44336"; // 500 red
 						// Fill up report information
-						$applicant = $user->getId() . ' - ' .$user->getName() . ' ' . $user->getLastName();
+						$applicant = $user->getId() . ' - ' .$user->getFirstName() . ' ' . $user->getLastName();
 						$now = (new DateTime('now', new DateTimeZone('America/Barbados')))->format('d/m/Y - h:i:sa');
 						$result['report']['header'] = array(
 							array("SGDP - IPAPEDI"),
@@ -458,7 +458,7 @@ class ManagerHomeController extends CI_Controller {
                     } else {
                         // Perform all approved amount's computation
                         $result['approvedAmount'] = 0;
-                        $result['username'] = $user->getName() . ' ' . $user->getLastName();
+                        $result['username'] = $user->getFirstName() . ' ' . $user->getLastName();
                         foreach ($requests as $rKey => $request) {
                             if ($request->getApprovedAmount() !== null) {
                                 $result['approvedAmount'] += $request->getApprovedAmount();

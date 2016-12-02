@@ -315,7 +315,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
     };
 
     $scope.downloadAll = function() {
-        location.href = Requests.getAllDocsDownloadUrl($scope.docs);
+        location.href = Requests.getAllDocsDownloadUrl($scope.req.docs);
     };
 
     function preserveState() {

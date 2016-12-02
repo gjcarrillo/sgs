@@ -32,6 +32,7 @@ class NewRequestController extends CI_Controller {
 
     public function createRequest() {
 		$data = json_decode(file_get_contents('php://input'), true);
+		\ChromePhp::log($data);
 		if ($data['userId'] != $_SESSION['id'] && $_SESSION['type'] > 1) {
 			// Only agents can create requests for other people
 			$this->load->view('errors/index.html');
@@ -70,7 +71,8 @@ class NewRequestController extends CI_Controller {
 	            $em->persist($request);
 	            $em->merge($user);
 	            $em->flush();
-				// Create all the new docs.
+				// Create the new request doc.
+				$this->generateRequestDocument($data, $user, $request);
 				$this->createDocuments($request, $history->getId(), $data['docs']);
 	            $result['message'] = "success";
 	        } catch (Exception $e) {
@@ -92,7 +94,7 @@ class NewRequestController extends CI_Controller {
 				));
 				if ($doc !== null) {
 					// doc already exists, so just merge. Otherwise we'll have
-					// 'duplicates' in database, because document name is not unique
+					// 'duplicates' in database, because document name is not primary key
 					if (isset($data['description'])) {
 						$doc->setDescription($data['description']);
 						$em->merge($doc);
@@ -130,6 +132,30 @@ class NewRequestController extends CI_Controller {
 		}
 	}
 
+	// Helper function that generates the new request's pdf document.
+	private function generateRequestDocument($data, $user, $request) {
+		$pdfFilePath = DropPath . $data['docs'][0]['lpath'];
+		// Get extra data for the pdf template.
+		$data['username'] = $user->getFirstName() . ' ' . $user->getLastName();
+		$data['requestId'] = str_pad($request->getId(), 6, '0', STR_PAD_LEFT);
+		$data['date'] = new DateTime('now', new DateTimeZone('America/Barbados'));
+		$data['loanTypeString'] = $this->mapLoanType($data['loanType']);
+		// Generate the document.
+		\ChromePhp::log("Genrating pdf...");
+		$html = $this->load->view('templates/requestPdf', $data, true); // render the view into HTML
+		$this->load->library('pdf');
+		$pdf = $this->pdf->load();
+		$pdf->WriteHTML($html); // write the HTML into the PDF
+		// Set footer
+		$pdf->SetHTMLFooter (
+			'<p style="font-size: 14px">
+			* Cuotas y plazo de pago sujetos a cambios en base a solicitudes posteriores
+			del afiliado en cuestión.
+		</p>');
+		$pdf->Output($pdfFilePath, 'F'); // save to file
+		\ChromePhp::log("PDF generation success!");
+	}
+
 	public function camera() {
 		if ($_SESSION['type'] != 1) {
 			$this->load->view('errors/index.html');
@@ -156,5 +182,9 @@ class NewRequestController extends CI_Controller {
 			 	"." . $data['docName'] . ".png";
 			echo json_encode($result);
 		}
+	}
+
+	private function mapLoanType($code) {
+		return $code == 40 ? "PRÉSTAMO PERSONAL" : ($code == 31 ? "VALE DE CAJA" : $code);
 	}
 }

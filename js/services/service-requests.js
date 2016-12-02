@@ -289,6 +289,22 @@ function reqService($q, $http, Constants) {
     };
 
     /**
+     * Creates POST data for the request doc.
+     *
+     * @param userId - user applicant's id.
+     * @param requestNumb - number of the request (i.e, [type].[number]).
+     * @returns {{lpath: string, description: string, docName: string}}
+     */
+    self.createRequestDocData = function (userId, requestNumb) {
+        var docName = 'Constancia';
+        return {
+            lpath: userId + '.' + requestNumb + '.' + docName + '.pdf',
+            description: 'Documento declarativo referente a la solicitud',
+            docName: docName
+        }
+    };
+
+    /**
      * Returns a specific doc's download link.
      *
      * @param docPath - Doc's name on disk.

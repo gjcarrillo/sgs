@@ -69,16 +69,16 @@ class User extends \Entity\User implements \Doctrine\ORM\Proxy\Proxy
         return parent::getPassword();
     }
 
-    public function setName($name)
+    public function setFirstName($firstName)
     {
         $this->__load();
-        return parent::setName($name);
+        return parent::setFirstName($firstName);
     }
 
-    public function getName()
+    public function getFirstName()
     {
         $this->__load();
-        return parent::getName();
+        return parent::getFirstName();
     }
 
     public function setLastName($lastName)
@@ -138,7 +138,7 @@ class User extends \Entity\User implements \Doctrine\ORM\Proxy\Proxy
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'password', 'name', 'lastName', 'type', 'status', 'requests');
+        return array('__isInitialized__', 'id', 'password', 'first_name', 'lastName', 'type', 'status', 'requests');
     }
 
     public function __clone()
