@@ -120,7 +120,7 @@
                                 </md-button>
                             </div>
                         </div>
-                        <!-- Query by state -->
+                        <!-- Query by status -->
                         <div ng-show="model.query == 1" layout="column" layout-padding>
                             <br/>
                             <span>Elija el estatus</span>
@@ -141,6 +141,32 @@
                                 <md-button
                                     ng-disabled="!model.perform[1].status"
                                     ng-click="fetchRequestsByStatus(model.perform[1].status, 1)"
+                                    class="md-raised md-primary">
+                                    <md-icon>search</md-icon>Consultar
+                                </md-button>
+                            </div>
+                        </div>
+                        <!-- Query by loan type -->
+                        <div ng-show="model.query == 8" layout="column" layout-padding>
+                            <br/>
+                            <span>Elija el tipo de solicitud</span>
+                            <md-input-container
+                                class="no-vertical-margin"
+                                md-no-float>
+                                <md-select
+                                    md-on-open="onTypeOpen()"
+                                    md-on-close="onTypeClose()"
+                                    placeholder="Tipo"
+                                    ng-model="model.perform[8].loanType">
+                                    <md-option ng-repeat="(lKey, loanType) in loanTypes" ng-value="loanType">
+                                        {{mappedLoanTypes[lKey]}}
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                            <div layout layout-align="center center">
+                                <md-button
+                                    ng-disabled="!model.perform[8].loanType"
+                                    ng-click="fetchRequestsByLoanType(model.perform[8].loanType, 8)"
                                     class="md-raised md-primary">
                                     <md-icon>search</md-icon>Consultar
                                 </md-button>
@@ -336,7 +362,7 @@
                             <md-divider></md-divider>
                         </div>
                         <md-list class="sidenavList">
-                            <div ng-repeat="(rKey, request) in pendingRequests">
+                            <div ng-repeat="(rKey, request) in pendingRequests" ng-if="request.length > 0">
                                 <md-list-item ng-click="togglePendingList(rKey)">
                                     <p class="sidenavSubtitle">
                                         {{listTitle[rKey]}}
@@ -346,14 +372,6 @@
                                 </md-list-item>
                                 <md-divider></md-divider>
                                 <div class="slide-toggle" ng-show="showPendingList[rKey]">
-                                    <div ng-if="request.length == 0">
-                                        <div layout layout-align="center center" class="md-padding">
-                                            <p style="color:#4CAF50">
-                                                ¡No se han encontrado solicitudes de {{listTitle[rKey]}} pendientes!
-                                            </p>
-                                        </div>
-                                        <md-divider></md-divider>
-                                    </div>
                                     <div layout="column" layout-align="center" ng-repeat="(lKey, loan) in request">
                                         <md-button
                                             ng-click="selectPendingReq(rKey, lKey)"
@@ -401,7 +419,7 @@
                         </p>
                     </md-list-item>
                     <md-divider></md-divider>
-                    <div id="result-data" ng-repeat="(rKey, request) in requests">
+                    <div id="result-data" ng-repeat="(rKey, request) in requests" ng-if="request.length > 0">
                         <md-list-item ng-click="toggleList(rKey)">
                             <p class="sidenavTitle">
                                 {{listTitle[rKey]}}
@@ -411,11 +429,6 @@
                         </md-list-item>
                         <md-divider></md-divider>
                         <div class="slide-toggle" ng-show="showList[rKey]">
-                            <div ng-if="request.length == 0" layout layout-align="center center" class="md-padding">
-                                <p style="color:#F44336">
-                                    Este afiliado no posee solicitudes de {{listTitle[rKey]}}
-                                </p>
-                            </div>
                             <div layout="column" layout-align="center" ng-repeat="(lKey, loan) in request">
                                 <md-button
                                     ng-click="selectRequest(rKey, lKey)"
@@ -447,7 +460,7 @@
                         </p>
                     </md-list-item>
                     <md-divider></md-divider>
-                    <div id="result-data" ng-repeat="(rKey, request) in requests">
+                    <div id="result-data" ng-repeat="(rKey, request) in requests" ng-if="request.length > 0">
                         <md-list-item ng-click="toggleList(rKey)">
                             <p class="sidenavTitle">
                                 {{listTitle[rKey]}}
@@ -457,11 +470,6 @@
                         </md-list-item>
                         <md-divider></md-divider>
                         <div class="slide-toggle" ng-show="showList[rKey]">
-                            <div ng-if="request.length == 0" layout layout-align="center center" class="md-padding">
-                                <p style="color:#F44336">
-                                    Este afiliado no posee solicitudes de {{listTitle[rKey]}}
-                                </p>
-                            </div>
                             <div layout="column" layout-align="center" ng-repeat="(lKey, loan) in request">
                                 <md-button
                                     ng-click="selectRequest(rKey, lKey)"
@@ -622,7 +630,7 @@
                                                 cloud_download
                                             </md-icon>
                                             <md-tooltip>
-                                                Descargar documentos
+                                                Descargar todo
                                             </md-tooltip>
                                         </md-button>
                                     </div>
@@ -662,7 +670,7 @@
                                                    <md-icon class="md-secondary">
                                                        cloud_download
                                                    </md-icon>
-                                                   Descargar documentos
+                                                   Descargar todo
                                                </md-button>
                                            </md-menu-item>
                                        </md-menu-content>

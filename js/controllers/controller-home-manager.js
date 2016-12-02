@@ -35,16 +35,14 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
         drawPie($scope.pie);
     }
 
-    $scope.statuses = [
-        Constants.Statuses.RECEIVED,
-        Constants.Statuses.APPROVED,
-        Constants.Statuses.REJECTED
-    ];
+    $scope.statuses = Requests.getAllStatuses();
     $scope.APPROVED_STRING = Requests.mapStatus(Constants.Statuses.APPROVED);
     $scope.REJECTED_STRING = Requests.mapStatus(Constants.Statuses.REJECTED);
     $scope.RECEIVED_STRING = Requests.mapStatus(Constants.Statuses.RECEIVED);
-    $scope.listTitle = Requests.getTypeTitles();
+    $scope.listTitle = Requests.getRequestsListTitle();
     $scope.mappedStatuses = Requests.getStatusesTitles();
+    $scope.loanTypes = Requests.getAllLoanTypes();
+    $scope.mappedLoanTypes = Requests.getLoanTypesTitles();
 
     $scope.loadingContent = false;
     $scope.idPrefix = "V";
@@ -123,6 +121,29 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 drawPie(data.pie);
                 $scope.report = data.report;
                 $scope.report.status = Requests.mapStatus(status);
+                $scope.loading = false;
+            },
+            function (error) {
+                $scope.fetchError = error;
+                $scope.loading = false;
+            }
+        );
+    };
+
+    $scope.fetchRequestsByLoanType = function(loanType, index) {
+        resetContent();
+        $scope.loading = true;
+        console.log(loanType);
+        Manager.fetchRequestsByLoanType(loanType)
+            .then(
+            function (data) {
+                $scope.requests = data.requests;
+                $scope.showOptions = false;
+                $scope.showResult = index;
+                $scope.pieloaded = true;
+                $scope.pie = data.pie;
+                drawPie(data.pie);
+                $scope.report = data.report;
                 $scope.loading = false;
             },
             function (error) {
@@ -718,7 +739,8 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
     $scope.fetchedRequests = function() {
         return $scope.showResult == 1 ||
             $scope.showResult == 2 ||
-            $scope.showResult == 3;
+            $scope.showResult == 3 ||
+            $scope.showResult == 8;
     };
 
     /**
@@ -751,6 +773,17 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
         }
     };
 
+    $scope.onTypeOpen = function() {
+        $scope.backup = $scope.model.perform[8].loanType;
+        $scope.model.perform[8].loanType = null;
+    };
+
+    $scope.onTypeClose = function() {
+        if ($scope.model.perform[8].loanType === null) {
+            $scope.model.perform[8].loanType = $scope.backup;
+        }
+    };
+
     $scope.onIdOpen = function() {
         $scope.backup = $scope.idPrefix;
         $scope.idPrefix = null;
@@ -766,6 +799,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
      * Goes back to query selection options
      */
     $scope.goBack = function() {
+        resetContent();
         $scope.showResult = -1;
         $scope.showOptions = true;
     };
@@ -1090,7 +1124,10 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
      */
     function resetContent() {
         $scope.requests = {};
-        $scope.selectedReq = -1;
+        $scope.selectedReq = '';
+        $scope.selectedLoan = -1;
+        $scope.selectedPendingReq = '';
+        $scope.selectedPendingLoan = -1;
         $scope.req = {};
         $scope.showList = Requests.initializeListType();
         $scope.showApprovedAmount = false;

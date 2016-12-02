@@ -2,10 +2,10 @@ angular
     .module('sgdp')
     .controller('ApplicantHomeController', userHome);
 
-userHome.$inject = ['$scope', '$cookies', '$timeout', 'FileUpload', 'Helps',
+userHome.$inject = ['$scope', '$cookies', '$timeout', 'Helps',
                     '$mdSidenav', '$mdDialog', '$mdMedia', 'Constants', 'Requests', 'Utils'];
 
-function userHome($scope, $cookies, $timeout, FileUpload, Helps,
+function userHome($scope, $cookies, $timeout, Helps,
                   $mdSidenav, $mdDialog, $mdMedia, Constants, Requests, Utils) {
     'use strict';
     $scope.loading = true;
@@ -19,7 +19,7 @@ function userHome($scope, $cookies, $timeout, FileUpload, Helps,
     $scope.contentAvailable = false;
     // contentLoaded will indicate whether sidenav can be locked open
     $scope.contentLoaded = false;
-    $scope.listTitle = Requests.getTypeTitles();
+    $scope.listTitle = Requests.getRequestsListTitle();
 
     var fetchId = $cookies.getObject('session').id;
     $scope.loading = true;
@@ -64,6 +64,16 @@ function userHome($scope, $cookies, $timeout, FileUpload, Helps,
             $scope.req = $scope.requests[i][j];
         }
         $mdSidenav('left').toggle();
+    };
+
+    /**
+     * Determines whether the specified object is empty (i.e. has no attributes).
+     *
+     * @param obj - object to test.
+     * @returns {boolean}
+     */
+    $scope.isObjEmpty = function(obj) {
+        return Utils.isObjEmpty(obj);
     };
 
     /**
@@ -128,8 +138,8 @@ function userHome($scope, $cookies, $timeout, FileUpload, Helps,
                 $scope.uploading = true;
                 var docs = [];
 
-                var type = Requests.mapLoanType($scope.model.type);
-                var requestNumb = type + '.' + (requests[type].length + 1);
+                var type = Requests.mapLoanTypeAsCode($scope.model.type);
+                var requestNumb = type + '.' + (requests[type] ? requests[type].length + 1 : 1);
                 docs.push(Requests.createRequestDocData(fetchId, requestNumb));
                 performCreation(docs);
             }
@@ -234,7 +244,7 @@ function userHome($scope, $cookies, $timeout, FileUpload, Helps,
         Requests.getUserRequests(userId).then(
             function (data) {
                 // Update UI only if needed
-                var loanType = Requests.mapLoanType(type);
+                var loanType = Requests.mapLoanTypeAsCode(type);
                 if (updateUI) {
                     updateContent(data, loanType, autoSelectIndex);
                 }

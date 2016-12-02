@@ -17,7 +17,6 @@ function reqService($q, $http, Constants) {
         vc: 'vales de caja'
     };
 
-
     var maxAmount = 0;
 
     /**
@@ -37,7 +36,7 @@ function reqService($q, $http, Constants) {
                     if (typeof response.data.requests !== "undefined") {
                         qReq.resolve(self.filterRequests(response.data.requests));
                     } else {
-                        qReq.resolve(self.filterRequests([]));
+                        qReq.resolve({});
                     }
                 } else {
                     qReq.reject(response.data.error);
@@ -145,7 +144,7 @@ function reqService($q, $http, Constants) {
         var req = {};
         var codes = Constants.LoanTypes;
         angular.forEach(codes, function(code) {
-            req[self.mapLoanType(code)] = requests.filter(function (loan) {
+            req[self.mapLoanTypeAsCode(code)] = requests.filter(function (loan) {
                 return loan.type == code;
             });
         });
@@ -157,7 +156,7 @@ function reqService($q, $http, Constants) {
      *
      * @returns {*} - a string corresponding to the loan type's title.
      */
-    self.getTypeTitles = function () {
+    self.getRequestsListTitle = function () {
         return loanTitles;
     };
 
@@ -177,18 +176,78 @@ function reqService($q, $http, Constants) {
     };
 
     /**
-     * Maps the specified (int) type to it's corresponding string type.
+     * Gets all the existing statuses codes.
+     *
+     * @returns {Array} containing all the request statuses.
+     */
+    self.getAllStatuses = function () {
+        var statuses = [];
+        angular.forEach (Constants.Statuses, function(status) {
+            statuses.push(status);
+        });
+        return statuses;
+    };
+
+    /**
+     * Gets the different request types as strings.
+     *
+     * @returns {Array} containing all the loan types mapped as strings.
+     */
+    self.getLoanTypesTitles = function () {
+        var codes = Constants.LoanTypes;
+        var titles = [];
+        angular.forEach(codes, function(code) {
+            titles.push(self.mapLoanType(code));
+        });
+
+        return titles;
+    };
+
+    /**
+     * Gets all the existing loan types.
+     *
+     * @returns {Array} containing all the requests loan types.
+     */
+    self.getAllLoanTypes = function () {
+        var loanTypes = [];
+        angular.forEach (Constants.LoanTypes, function(type) {
+           loanTypes.push(type);
+        });
+        return loanTypes;
+    };
+
+    /**
+     * Maps the specified (int) type to it's corresponding string code type.
      *
      * @param type - loan type's code.
-     * @returns {*} - string containing the corresponding mapped type.
+     * @returns {*} - string containing the corresponding mapped string code type.
      */
-    self.mapLoanType = function (type) {
+    self.mapLoanTypeAsCode = function (type) {
         switch (type) {
             case Constants.LoanTypes.PERSONAL:
                 return 'pp';
                 break;
             case Constants.LoanTypes.CASH_VOUCHER:
                 return 'vc';
+                break;
+            default:
+                return type;
+        }
+    };
+
+    /**
+     * Maps the specified (int) type to it's corresponding string type.
+     *
+     * @param type - loan type's code.
+     * @returns {*} - string containing the corresponding mapped string type.
+     */
+    self.mapLoanType = function (type) {
+        switch (type) {
+            case Constants.LoanTypes.PERSONAL:
+                return 'Préstamo Personal';
+                break;
+            case Constants.LoanTypes.CASH_VOUCHER:
+                return 'Vale de Caja';
                 break;
             default:
                 return type;
@@ -224,7 +283,7 @@ function reqService($q, $http, Constants) {
         var list = {};
         var codes = Constants.LoanTypes;
         angular.forEach(codes, function(code) {
-            list[self.mapLoanType(code)] = false;
+            list[self.mapLoanTypeAsCode(code)] = false;
         });
         return list;
     };

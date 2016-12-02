@@ -18,6 +18,7 @@ function manager($http, $q, Requests) {
     data.queries = [
         {category: 'req', name: 'Por cédula', id: 0},
         {category: 'req', name: 'Por estatus', id: 1},
+        {category: 'req', name: 'Por tipo', id: 8},
         {category: 'date', name: 'Intervalo de fecha', id: 2},
         {category: 'date', name: 'Fecha exacta', id: 3},
         {category: 'money', name: 'Intervalo de fecha', id: 4},
@@ -64,6 +65,7 @@ function manager($http, $q, Requests) {
     self.updateData = function (data) {
         self.data = data;
     };
+
     /**
      * Fetches requests the match the specified status.
      *
@@ -85,6 +87,29 @@ function manager($http, $q, Requests) {
 
             });
         return qStatus.promise;
+    };
+
+    /**
+     * Fetches requests the match the specified loan type.
+     *
+     * @param loanType - loan type code.
+     * @returns {*} - promise containing the operation's result.
+     */
+    self.fetchRequestsByLoanType = function (loanType) {
+        var qLoanType = $q.defer();
+        $http.get('index.php/ManagerHomeController/fetchRequestsByLoanType',
+            {params: {loanType: loanType}})
+            .then(
+            function (response) {
+                if (response.data.message === "success") {
+                    response.data.requests = Requests.filterRequests(response.data.requests);
+                    qLoanType.resolve(response.data);
+                } else {
+                    qLoanType.reject(response.data.error);
+                }
+
+            });
+        return qLoanType.promise;
     };
 
     /**
@@ -369,8 +394,11 @@ function manager($http, $q, Requests) {
     self.generateExcelReport = function (type, reportData) {
         var qReport = $q.defer();
         var url = '';
-        if (type == 0 || type > 1) {
-            reportData.sheetTitle = type > 1 ? "Reporte por fechas" : "Reporte de afiliado";
+        if (type == 0 || type == 8) {
+            reportData.sheetTitle = type == 0 ? "Reporte de afiliado" : "Reporte por tipo";
+            url = 'index.php/DocumentGenerator/generateSimpleRequestsReport';
+        } else if (type == 2 || type == 3) {
+            reportData.sheetTitle = reportData.sheetTitle = "Reporte por fechas";
             url = 'index.php/DocumentGenerator/generateRequestsReport';
         } else if (type == 1) {
             url = 'index.php/DocumentGenerator/generateStatusRequestsReport';
@@ -380,6 +408,7 @@ function manager($http, $q, Requests) {
         }
         var report = JSON.stringify(reportData);
         $http.post(url, report).then(function (response) {
+            console.log(response);
             if (response.data.message == "success") {
                 qReport.resolve('index.php/DocumentGenerator/' +
                                 'downloadReport?lpath=' + response.data.lpath);

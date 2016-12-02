@@ -144,8 +144,8 @@ class ManagerHomeController extends CI_Controller {
                 if (empty($requests)) {
                     $result['error'] = "No se encontraron solicitudes con estatus " . $_GET['status'];
                 } else {
-					$totalRequested = $totalApproved = 0;
                     foreach ($requests as $rKey => $request) {
+						$user = $request->getUserOwner();
                         $result['requests'][$rKey]['id'] = $request->getId();
                         $result['requests'][$rKey]['creationDate'] = $request->getCreationDate()->format('d/m/y');
                         $result['requests'][$rKey]['comment'] = $request->getComment();
@@ -153,7 +153,7 @@ class ManagerHomeController extends CI_Controller {
                         $result['requests'][$rKey]['approvedAmount'] = $request->getApprovedAmount();
                         $result['requests'][$rKey]['reunion'] = $request->getReunion();
                         $result['requests'][$rKey]['status'] = $request->getStatusByText();
-                        $result['requests'][$rKey]['userOwner'] = $request->getUserOwner()->getId();
+                        $result['requests'][$rKey]['userOwner'] = $user->getId();
                         $result['requests'][$rKey]['showList'] = false;
 						$result['requests'][$rKey]['type'] = $request->getLoanType();
 						$result['requests'][$rKey]['phone'] = $request->getContactNumber();
@@ -170,7 +170,8 @@ class ManagerHomeController extends CI_Controller {
 							$rKey+1,
 							$request->getId(),
 							$this->mapLoanType($request->getLoanType()),
-							$request->getCreationDate()->format('d/m/Y'),
+							$user->getId() . ' - ' . $user->getFirstName() . ' ' . $user->getLastName(),
+							$request->getCreationDate()->format('d/m/Y')
 						);
 						if ($_GET['status'] !== "Recibida") {
 							array_push($result['report']['data'][$rKey], $request->getReunion());
@@ -208,7 +209,7 @@ class ManagerHomeController extends CI_Controller {
 					$result['pie']['hoverBackgroundColor'][2] = "#F44336"; // 500 red
 					// Fill up report information
 					$dataHeader = array(
-						'Nro.', 'Identificador', 'Tipo', 'Fecha de creación'
+						'Nro.', 'Identificador', 'Tipo', 'Solicitante', 'Fecha de creación'
 					 );
 					 if ($_GET['status'] !== "Recibida") {
 						 array_push($dataHeader, 'Nro. de Reunión');
@@ -279,6 +280,7 @@ class ManagerHomeController extends CI_Controller {
                 } else {
 					$received = $approved = $rejected = $totalRequested = $totalApproved = 0;
                     foreach ($requests as $rKey => $request) {
+						$user = $request->getUserOwner();
                         $result['requests'][$rKey]['id'] = $request->getId();
                         $result['requests'][$rKey]['creationDate'] = $request->getCreationDate()->format('d/m/y');
                         $result['requests'][$rKey]['comment'] = $request->getComment();
@@ -286,7 +288,7 @@ class ManagerHomeController extends CI_Controller {
                         $result['requests'][$rKey]['approvedAmount'] = $request->getApprovedAmount();
                         $result['requests'][$rKey]['reunion'] = $request->getReunion();
                         $result['requests'][$rKey]['status'] = $request->getStatusByText();
-                        $result['requests'][$rKey]['userOwner'] = $request->getUserOwner()->getId();
+                        $result['requests'][$rKey]['userOwner'] = $user->getId();
                         $result['requests'][$rKey]['showList'] = false;
 						$result['requests'][$rKey]['type'] = $request->getLoanType();
 						$result['requests'][$rKey]['phone'] = $request->getContactNumber();
@@ -311,6 +313,7 @@ class ManagerHomeController extends CI_Controller {
 							$rKey+1,
 							$request->getId(),
 							$this->mapLoanType($request->getLoanType()),
+							$user->getId() . ' - ' . $user->getFirstName() . ' ' . $user->getLastName(),
 							$request->getCreationDate()->format('d/m/Y'),
 							$request->getStatusByText(),
 							$request->getReunion(),
@@ -348,14 +351,14 @@ class ManagerHomeController extends CI_Controller {
 					$result['report']['filename'] = "SOLICITUDES REALIZADAS " . $filename;
 					$result['report']['dataTitle'] = "SOLICITUDES REALIZADAS " . $interval;
 					$result['report']['dataHeader'] = array(
-						'Nro.', 'Identificador', 'Tipo', 'Fecha de creación', 'Estatus', 'Nro. de Reunión',
-						 'Monto solicitado (Bs)', 'Monto aprobado (Bs)', 'Comentario'
+						'Nro.', 'Identificador', 'Tipo', 'Solicitante', 'Fecha de creación', 'Estatus',
+						'Nro. de Reunión', 'Monto solicitado (Bs)', 'Monto aprobado (Bs)', 'Comentario'
 					 );
 					$result['report']['total'] = array(
 						array("Monto solicitado total", ""),
 						array("Monto aprobado total", "")
 					);
-					$result['report']['stats']['title'] = "ESTADÍSTICAS DE SOLICITUDES DEL AFILIADO";
+					$result['report']['stats']['title'] = "ESTADÍSTICAS DE SOLICITUDES";
 					$result['report']['stats']['dataHeader'] = array(
 						'Estatus', 'Cantidad', 'Porcentaje'
 					 );
@@ -378,12 +381,122 @@ class ManagerHomeController extends CI_Controller {
         }
     }
 
+	public function fetchRequestsByLoanType() {
+		if ($_SESSION['type'] != 2) {
+			$this->load->view('errors/index.html');
+		} else {
+			try {
+				$em = $this->doctrine->em;
+				// Look for all requests with the specified loan type.
+				$loanType = $_GET['loanType'];
+				$requestsRepo = $em->getRepository('\Entity\Request');
+				$requests = $requestsRepo->findBy(array("loanType" => $loanType));
+				if (empty($requests)) {
+					$result['error'] = "No se encontraron solicitudes del tipo " . $this->mapLoanType($loanType);
+				} else {
+					$received = $approved = $rejected = 0;
+					foreach ($requests as $rKey => $request) {
+						$user = $request->getUserOwner();
+						$result['requests'][$rKey]['id'] = $request->getId();
+						$result['requests'][$rKey]['creationDate'] = $request->getCreationDate()->format('d/m/y');
+						$result['requests'][$rKey]['comment'] = $request->getComment();
+						$result['requests'][$rKey]['reqAmount'] = $request->getRequestedAmount();
+						$result['requests'][$rKey]['approvedAmount'] = $request->getApprovedAmount();
+						$result['requests'][$rKey]['reunion'] = $request->getReunion();
+						$result['requests'][$rKey]['status'] = $request->getStatusByText();
+						$result['requests'][$rKey]['userOwner'] = $user->getId();
+						$result['requests'][$rKey]['showList'] = false;
+						$result['requests'][$rKey]['type'] = $request->getLoanType();
+						$result['requests'][$rKey]['phone'] = $request->getContactNumber();
+						$result['requests'][$rKey]['due'] = $request->getPaymentDue();
+						$docs = $request->getDocuments();
+						foreach ($docs as $dKey => $doc) {
+							$result['requests'][$rKey]['docs'][$dKey]['id'] = $doc->getId();
+							$result['requests'][$rKey]['docs'][$dKey]['name'] = $doc->getName();
+							$result['requests'][$rKey]['docs'][$dKey]['description'] = $doc->getDescription();
+							$result['requests'][$rKey]['docs'][$dKey]['lpath'] = $doc->getLpath();
+						}
+						// Gather pie chart information
+						if ($request->getStatusByText() === "Recibida") {
+							$received++;
+						} else if ($request->getStatusByText() === "Aprobada") {
+							$approved++;
+						} else if ($request->getStatusByText() === "Rechazada") {
+							$rejected++;
+						}
+						// Gather up report information
+						$result['report']['data'][$rKey] = array(
+							$rKey+1,
+							$request->getId(),
+							$user->getId() . ' - ' . $user->getFirstName() . ' ' . $user->getLastName(),
+							$request->getCreationDate()->format('d/m/Y'),
+							$request->getStatusByText(),
+							$request->getReunion(),
+							$request->getRequestedAmount(),
+							$request->getApprovedAmount(),
+							$request->getComment()
+						);
+					}
+					// Fill up pie chart information
+					$result['pie']['title'] = "Solicitudes de " . $this->mapLoanType($loanType);
+					$result['pie']['labels'][0] = "Recibidas";
+					$result['pie']['labels'][1] = "Aprobadas";
+					$result['pie']['labels'][2] = "Rechazadas";
+					$total = $received + $approved + $rejected;
+					$result['pie']['data'][0] = round($received * 100 / $total, 2);
+					$result['pie']['data'][1] = round($approved * 100 / $total, 2);
+					$result['pie']['data'][2] = round($rejected * 100 / $total, 2);
+					$result['pie']['backgroundColor'][0] = "#FFD740"; // A200 amber
+					$result['pie']['backgroundColor'][1] = "#00C853"; // A700 green
+					$result['pie']['backgroundColor'][2] = "#FF5252"; // A200 red
+					$result['pie']['hoverBackgroundColor'][0] = "#FFC107"; // 500 amber
+					$result['pie']['hoverBackgroundColor'][1] = "#00E676"; // A400 green
+					$result['pie']['hoverBackgroundColor'][2] = "#F44336"; // 500 red
+					// Fill up report information
+					$now = (new DateTime('now', new DateTimeZone('America/Barbados')))->format('d/m/Y - h:i:sa');
+					$result['report']['header'] = array(
+						array("SGDP - IPAPEDI"),
+						array("FECHA Y HORA DE GENERACIÓN DE REPORTE: " . $now)
+					);
+					$result['report']['filename'] = "SOLICITUDES DE '" . $this->mapLoanType($loanType) . "'";
+					$result['report']['dataTitle'] = $result['report']['filename'];
+					$result['report']['dataHeader'] = array(
+						'Nro.', 'Identificador', 'Solicitante', 'Fecha de creación', 'Estatus', 'Nro. de Reunión',
+						'Monto solicitado (Bs)', 'Monto aprobado (Bs)', 'Comentario'
+					);
+					$result['report']['total'] = array(
+						array("Monto solicitado total", ""),
+						array("Monto aprobado total", "")
+					);
+					$result['report']['stats']['title'] = "ESTADÍSTICAS DE SOLICITUDES";
+					$result['report']['stats']['dataHeader'] = array(
+						'Estatus', 'Cantidad', 'Porcentaje'
+					);
+					$result['report']['stats']['data'][0] = array(
+						"Recibida",  "", ""
+					);
+					$result['report']['stats']['data'][1] = array(
+						"Aprobada",  "", ""
+					);
+					$result['report']['stats']['data'][2] = array(
+						"Rechazada",  "", ""
+					);
+					$result['message'] = "success";
+				}
+			} catch (Exception $e) {
+				\ChromePhp::log($e);
+				$result['message'] = "error";
+			}
+
+			echo json_encode($result);
+		}
+	}
+
     public function getApprovedAmountByDateInterval() {
         if ($_SESSION['type'] != 2) {
             $this->load->view('errors/index.html');
         } else {
             try {
-                $em = $this->doctrine->em;
                 // Compute approved amount within specified time
                 // from first second of the day
                 $from = date_create_from_format(
@@ -427,9 +540,9 @@ class ManagerHomeController extends CI_Controller {
                     $interval = $from->diff($to);
                     $days = $interval->format("%a");
                     if ($days > 0) {
-                        $result['error'] = "No se han encontrado solicitudes aprobadas en el rango de fechas especificado";
+                        $result['error'] = "No se han encontrado solicitudes cerradas en el rango de fechas especificado";
                     } else {
-                        $result['error'] = "No se han encontrado solicitudes aprobadas en la fecha especificada";
+                        $result['error'] = "No se han encontrado solicitudes cerradas en la fecha especificada";
                     }
                 } else {
 					$result['message'] = "success";
@@ -480,7 +593,6 @@ class ManagerHomeController extends CI_Controller {
 			$this->load->view('errors/index.html');
 		} else {
 			try {
-				$em = $this->doctrine->em;
 				// Compute approved amount within specified time
 				// from first second of the day
 				$from = date_create_from_format(
@@ -510,6 +622,7 @@ class ManagerHomeController extends CI_Controller {
 				$evaluated = [];
 				foreach ($history as $h) {
 					$request = $h->getOrigin();
+					$userOwner = $request->getUserOwner();
 					if (!isset($evaluated[$request->getId()])) {
 						// Gather up report information
 						$evaluated[$request->getId()] = true;
@@ -518,6 +631,7 @@ class ManagerHomeController extends CI_Controller {
 							$count,
 							$request->getId(),
 							$this->mapLoanType($request->getLoanType()),
+							$userOwner->getId() . ' - ' . $userOwner->getFirstName() . ' ' . $userOwner->getLastName(),
 							$request->getCreationDate()->format('d/m/Y'),
 							$request->getStatusByText(),
 							$h->getUserResponsable(),
@@ -564,12 +678,12 @@ class ManagerHomeController extends CI_Controller {
 					);
 					$interval = "DEL " . $from->format('d/m/Y') . " HASTA EL " . $to->format('d/m/Y');
 					$filenameInterval = "DEL " . $from->format('d-m-Y') . " HASTA EL " . $to->format('d-m-Y');
-					$dataTitle = "SOLICITUDES APROBADAS " . $interval;
-					$filename =  "SOLICITUDES APROBADAS " . $filenameInterval;
+					$dataTitle = "SOLICITUDES CERRADAS " . $interval;
+					$filename =  "SOLICITUDES CERRADAS " . $filenameInterval;
 					$result['report']['filename'] = $filename;
 					$result['report']['dataTitle'] = $dataTitle;
 					$result['report']['dataHeader'] = array(
-						'Nro.', 'Identificador', 'Tipo', 'Fecha de creación', 'Estatus', 'Cerrada por',
+						'Nro.', 'Identificador', 'Tipo', 'Solicitante', 'Fecha de creación', 'Estatus', 'Cerrada por',
 						 'Nro. de Reunión', 'Monto solicitado (Bs)', 'Monto aprobado (Bs)'
 					 );
 					$result['report']['total'] = array(
@@ -630,6 +744,7 @@ class ManagerHomeController extends CI_Controller {
 				$evaluated = [];
 				foreach ($history as $h) {
 					$request = $h->getOrigin();
+					$userOwner = $request->getUserOwner();
 					if (!isset($evaluated[$request->getId()])) {
 						// Gather up report information
 						$evaluated[$request->getId()] = true;
@@ -638,6 +753,7 @@ class ManagerHomeController extends CI_Controller {
 							$count,
 							$request->getId(),
 							$this->mapLoanType($request->getLoanType()),
+							$userOwner->getId() . ' - ' . $userOwner->getFirstName() . ' ' . $userOwner->getLastName(),
 							$request->getCreationDate()->format('d/m/Y'),
 							$request->getStatusByText(),
 							$h->getUserResponsable(),
@@ -677,12 +793,12 @@ class ManagerHomeController extends CI_Controller {
 					);
 					$interval = "DEL " . $from->format('d/m/Y') . " HASTA EL " . $to->format('d/m/Y');
 					$filenameInterval = "DEL " . $from->format('d-m-Y') . " HASTA EL " . $to->format('d-m-Y');
-					$dataTitle = "SOLICITUDES APROBADAS " . $interval;
-					$filename =  "SOLICITUDES APROBADAS " . $filenameInterval;
+					$dataTitle = "SOLICITUDES CERRADAS " . $interval;
+					$filename =  "SOLICITUDES CERRADAS " . $filenameInterval;
 					$result['report']['filename'] = $filename;
 					$result['report']['dataTitle'] = $dataTitle;
 					$result['report']['dataHeader'] = array(
-						'Nro.', 'Identificador', 'Tipo', 'Fecha de creación', 'Estatus', 'Cerrada por',
+						'Nro.', 'Identificador', 'Tipo', 'Solicitante', 'Fecha de creación', 'Estatus', 'Cerrada por',
 						 'Nro. de Reunión', 'Monto solicitado (Bs)', 'Monto aprobado (Bs)'
 					 );
 					$result['report']['total'] = array(

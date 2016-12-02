@@ -2,10 +2,10 @@ angular
     .module('sgdp')
     .controller('AgentHomeController', agentHome);
 
-agentHome.$inject = ['$scope', '$mdDialog', '$cookies', 'FileUpload', 'Constants', 'Agent',
+agentHome.$inject = ['$scope', '$mdDialog', 'FileUpload', 'Constants', 'Agent',
                      '$http', '$state', '$timeout', '$mdSidenav', '$mdMedia', 'Requests', 'Utils', 'Helps'];
 
-function agentHome($scope, $mdDialog, $cookies, FileUpload, Constants, Agent,
+function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
                    $http, $state, $timeout, $mdSidenav, $mdMedia, Requests, Utils, Helps) {
     'use strict';
     $scope.selectedReq = Agent.data.selectedReq;
@@ -21,16 +21,9 @@ function agentHome($scope, $mdDialog, $cookies, FileUpload, Constants, Agent,
     // This will enable / disable search bar in mobile screens
     $scope.searchEnabled = Agent.data.searchEnabled;
 
-    $scope.listTitle = Requests.getTypeTitles();
+    $scope.listTitle = Requests.getRequestsListTitle();
     $scope.idPrefix = 'V';
     $scope.loading = false;
-
-    $scope.generatePdfDoc = function () {
-        $http.get('index.php/DocumentGenerator/generatePdf')
-            .then(function (response) {
-                      console.log(response);
-                  });
-    };
 
     /**
      * Toggles the selected request type list.
@@ -56,6 +49,16 @@ function agentHome($scope, $mdDialog, $cookies, FileUpload, Constants, Agent,
             $scope.req = $scope.requests[i][j];
         }
         $mdSidenav('left').toggle();
+    };
+
+    /**
+     * Determines whether the specified object is empty (i.e. has no attributes).
+     *
+     * @param obj - object to test.
+     * @returns {boolean}
+     */
+    $scope.isObjEmpty = function (obj) {
+        return Utils.isObjEmpty(obj);
     };
 
     $scope.fetchRequests = function (searchInput) {
@@ -156,8 +159,8 @@ function agentHome($scope, $mdDialog, $cookies, FileUpload, Constants, Agent,
                 $scope.uploading = true;
                 var docs = [];
 
-                var type = Requests.mapLoanType($scope.model.type);
-                var requestNumb = type + '.' + (requests[type].length + 1);
+                var type = Requests.mapLoanTypeAsCode($scope.model.type);
+                var requestNumb = type + '.' + (requests[type] ? requests[type].length + 1 : 1);
                 docs.push(Requests.createRequestDocData(fetchId, requestNumb));
                 performCreation(docs);
             }
@@ -259,9 +262,9 @@ function agentHome($scope, $mdDialog, $cookies, FileUpload, Constants, Agent,
         Requests.getUserRequests(userId).then(
             function (data) {
                 // Update UI only if needed
-                var loanType = Requests.mapLoanType(type);
+                var loanType = Requests.mapLoanTypeAsCode(type);
                 if (updateUI) {
-                    updateContent(data, loanType, autoSelectIndex);
+                    updateContent(data, loanType, autoSelectIndex, toggleList);
                 }
                 // Toggle request list only if requested.
                 if (toggleList) {
@@ -404,7 +407,7 @@ function agentHome($scope, $mdDialog, $cookies, FileUpload, Constants, Agent,
                     performEdition($scope.request);
                 } else {
                     // Add additional files to this request.
-                    var requestNumb = Requests.mapLoanType($scope.request.type) + '.' + loanNumb;
+                    var requestNumb = Requests.mapLoanTypeAsCode($scope.request.type) + '.' + loanNumb;
                     uploadFiles($scope.files, fetchId, requestNumb);
                 }
             };

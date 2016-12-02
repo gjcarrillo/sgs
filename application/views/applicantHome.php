@@ -46,9 +46,17 @@
         md-component-id="left"
         md-is-locked-open="$mdMedia('gt-sm') && contentLoaded">
         <md-content class="sidenav-height">
+            <div ng-if="isObjEmpty(requests)">
+                <div layout layout-align="center center" class="md-padding">
+                    <p style="color:#F44336; text-align:center">
+                        Usted aún no posee solicitudes.
+                    </p>
+                </div>
+                <md-divider></md-divider>
+            </div>
             <!-- Requests list -->
             <md-list class="sidenavList">
-                <div ng-repeat="(rKey, request) in requests">
+                <div ng-repeat="(rKey, request) in requests" ng-if="request.length > 0">
                     <md-list-item ng-click="toggleList(rKey)">
                         <p class="sidenavTitle">
                             {{listTitle[rKey]}}
@@ -58,14 +66,6 @@
                     </md-list-item>
                     <md-divider></md-divider>
                     <div class="slide-toggle" ng-show="showList[rKey]">
-                        <div ng-if="request.length == 0">
-                            <div layout layout-align="center center" class="md-padding">
-                                <p style="color:#F44336">
-                                    Usted no posee solicitudes de {{listTitle[rKey]}}
-                                </p>
-                            </div>
-                            <md-divider></md-divider>
-                        </div>
                         <div layout="column" layout-align="center" ng-repeat="(lKey, loan) in request">
                             <md-button
                                 ng-click="selectRequest(rKey, lKey)"
