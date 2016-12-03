@@ -205,6 +205,9 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
                                             'La solicitud ha sido creada exitosamente.',
                                             true, true,
                                             parseInt(postData.loanType, 10));
+                    },
+                    function (error) {
+                        Utils.showAlertDialog('Oops!', error);
                     }
                 );
             }

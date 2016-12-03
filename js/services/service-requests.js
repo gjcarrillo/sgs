@@ -337,7 +337,8 @@ function reqService($q, $http, Constants) {
         $http.post('index.php/NewRequestController/createRequest',
                    JSON.stringify(postData))
             .then(function (response) {
-                      if (response.status == 200) {
+                             console.log(response);
+                      if (response.data.message == "success") {
                           qReqCreation.resolve();
                       } else {
                           qReqCreation.reject('Ha ocurrido un error al crear su solicitud. ' +

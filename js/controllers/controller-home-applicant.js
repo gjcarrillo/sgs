@@ -160,6 +160,10 @@ function userHome($scope, $cookies, $timeout, Helps,
                                             'La solicitud ha sido creada exitosamente.',
                                             true, true,
                                             parseInt(postData.loanType, 10));
+                    },
+                    function(error) {
+                        $scope.uploading = false;
+                        Utils.showAlertDialog('Oops!', error);
                     }
                 );
             }

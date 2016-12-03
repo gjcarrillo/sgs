@@ -88,3 +88,4 @@ defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest auto
         DROPBOX PATH
 =========================================*/
 define('DropPath','C:/Users/Kristopher/Dropbox/');
+define('SECRET_KEY', 'NiZhiBuZhiDaoWoShiSheiMa?');

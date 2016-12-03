@@ -74,6 +74,7 @@ class NewRequestController extends CI_Controller {
 				// Create the new request doc.
 				$this->generateRequestDocument($data, $user, $request);
 				$this->createDocuments($request, $history->getId(), $data['docs']);
+				$this->createToken();
 	            $result['message'] = "success";
 	        } catch (Exception $e) {
 	            \ChromePhp::log($e);
@@ -155,6 +156,34 @@ class NewRequestController extends CI_Controller {
 		$pdf->Output($pdfFilePath, 'F'); // save to file
 		\ChromePhp::log("PDF generation success!");
 	}
+
+	private function createToken () {
+		$token = array();
+		$token['id'] = 'V24553543';
+		$encoded = JWT::encode($token, SECRET_KEY);
+		\ChromePhp::log($encoded);
+		$urlEncoded = JWT::urlsafeB64Encode($encoded);
+		\ChromePhp::log($urlEncoded);
+		$urlDecoded = JWT::urlsafeB64Decode($urlEncoded);
+		\ChromePhp::log($urlDecoded);
+		$decoded = JWT::decode($urlDecoded, SECRET_KEY);
+		\ChromePhp::log($decoded);
+//		$this->sendEmail($urlEncoded);
+	}
+
+//	private function sendEmail ($msg) {
+//		$mgClient = new Mailgun('key-53747f43c23bd393d8172814c60e17ba');
+//		$domain = "sandbox5acc2f3be9df4e80baaa6a9884d6299b.mailgun.org";
+//
+//		$email = array(
+//			'from'    => 'Excited User <noreply@ipapedi.com>',
+//			'to'      => 'kperdomo.ch@gmail.com',
+//			'subject' => 'Hello',
+//			'text'    => 'Testing some Mailgun awesomness!'
+//		);
+//		$result = $mgClient->sendMessage($domain, $email);
+//
+//	}
 
 	public function camera() {
 		if ($_SESSION['type'] != 1) {
