@@ -32,10 +32,30 @@ footer {
     color: #827717;
 }
 
-.documents-card {
+.validation-card {
     width: 85%;
     margin-top: 30px;
+    background-color: #F44336;
+    color: white;
+}
+
+.documents-card {
+    width: 85%;
     margin-bottom: 30px;
+}
+
+.valid-documents-card {
+    width: 85%;
+    margin-bottom: 30px;
+    margin-top: 30px;
+}
+
+.token-card {
+    width: 65%;
+}
+
+.documents-margin {
+    margin-top: 30px;
 }
 
 .information-card {
@@ -140,7 +160,11 @@ md-list .md-button {
 }
 
 .sidenavList {
-    padding-top:0px;
+    padding-top:0;
+}
+
+.padding-top {
+    padding-top: 30px;
 }
 
 .sidenavTitle {
@@ -229,7 +253,7 @@ md-select.no-md-select .md-select-value {
     border-bottom-color: white !important;
     font-size:16px;
     min-width: 20px !important;
-    min-height: 0px !important;
+    min-height: 0 !important;
 }
 
 .search-icon {
@@ -269,6 +293,20 @@ md-select.no-md-select .md-select-value {
     width: 128px;
 }
 
+.error-svg {
+    color: #F44336;
+    height: 300px;
+    width: 300px;
+    margin: 0;
+}
+
+.verified-user-svg {
+    color: #4CAF50;
+    height: 300px;
+    width: 300px;
+    margin: 0;
+}
+
 .md-grid-item-content:hover .perspective-svg {
     color: #0D47A1;
 }
@@ -299,6 +337,10 @@ md-list-item.md-3-line>.md-no-style .md-list-item-text h4 {
     .sidenav-height {
         height: calc(100vh - 5px);
     }
+
+    .token-card {
+        width: 80%;
+    }
 }
 
 @media screen and (max-width: 600px) {
@@ -308,6 +350,10 @@ md-list-item.md-3-line>.md-no-style .md-list-item-text h4 {
     }
 
     .history-card {
+        width: 90%;
+    }
+
+    .token-card {
         width: 90%;
     }
 

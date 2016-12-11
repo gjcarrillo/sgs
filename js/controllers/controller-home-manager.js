@@ -1068,10 +1068,14 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
          Helps.addFieldHelpWithHeader(trip, '#request-payment-due', content, 's',
                                       'Cuotas a pagar', true);
          // Request contact number
-         content = "Aquí se muestra el número de teléfono que ingresó al crear la solicitud, a través del cual " +
-                   "nos estaremos comunicando con usted.";
-         Helps.addFieldHelpWithHeader(trip, '#request-contact-number', content, 'n',
+         content = "Aquí se muestra el número de teléfono del solicitante.";
+         Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-contact-number', content, 'n',
                                       'Número de contacto', true);
+         // Request contact email
+         content = "Éste es el correo electrónico a través del cual el sistema enviará información y " +
+                   "actualizaciones referente a la solicitud.";
+         Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-email', content, 'n',
+                                      'Correo electrónico', true);
          // Request documents information
          content = "Éste y los siguientes " +
                    "items contienen el nombre y, de existir, una descripción " +

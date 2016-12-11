@@ -1,6 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 include (APPPATH. '/libraries/ChromePhp.php');
+use Mailgun\Mailgun;
 
 class ApplicantHomeController extends CI_Controller {
 
@@ -28,7 +29,7 @@ class ApplicantHomeController extends CI_Controller {
 				$this->db->where('cedula', $_GET['fetchId']);
 				$query = $this->db->get();
 				if (!empty($query->result())) {
-					$data = $query->result()[0];
+//					$data = $query->result()[0];
 					// use Data to get user info in the formula
 					$result['maxReqAmount'] = 250000;
 				} else {
@@ -52,6 +53,8 @@ class ApplicantHomeController extends CI_Controller {
 						$result['requests'][$rKey]['type'] = $request->getLoanType();
                         $result['requests'][$rKey]['phone'] = $request->getContactNumber();
                         $result['requests'][$rKey]['due'] = $request->getPaymentDue();
+                        $result['requests'][$rKey]['email'] = $request->getContactEmail();
+                        $result['requests'][$rKey]['validationDate'] = $request->getValidationDate();
                         $docs = $request->getDocuments();
                         foreach ($docs as $dKey => $doc) {
                             $result['requests'][$rKey]['docs'][$dKey]['id'] = $doc->getId();
@@ -68,6 +71,87 @@ class ApplicantHomeController extends CI_Controller {
             }
             echo json_encode($result);
         }
+    }
+
+    public function sendValidation() {
+        if ($_SESSION['type'] != 3) {
+            $this->load->view('errors/index.html');
+        } else {
+            try {
+                $reqId = json_decode(file_get_contents('php://input'), true);
+                $em = $this->doctrine->em;
+                $request = $em->find('\Entity\Request', $reqId);
+                $tokenData['uid'] = $request->getUserOwner()->getId();
+                $tokenData['rid'] = $reqId;
+                $this->sendValidationToken($tokenData, $request);
+                $this->registerValidationResend($em, $request);
+                $result['message'] = "success";
+            } catch (Exception $e) {
+                \ChromePhp::log($e);
+                $result['message'] = "error";
+            }
+            echo json_encode($result);
+        }
+    }
+
+    private function registerValidationResend($em, $request) {
+        // Register History
+        $history = new \Entity\History();
+        $history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
+        $history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
+        // Register it's corresponding actions
+        // 3 = Modification
+        $history->setTitle(3);
+        $history->setOrigin($request);
+        $action = new \Entity\HistoryAction();
+        $action->setSummary("Reenvío de correo de validación.");
+        $action->setBelongingHistory($history);
+        $history->addAction($action);
+        $em->persist($action);
+        $em->persist($history);
+        $em->merge($request);
+        $em->flush();
+        $em->clear();
+    }
+
+    private function sendValidationToken($tokenData, $request) {
+        $encodedURL = $this->createToken($tokenData);
+        $mailData['reqId'] = $request->getId();
+        $user = $request->getUserOwner();
+        $mailData['username'] = $user->getFirstName() . ' ' . $user->getLastName();
+        $mailData['userId'] = $user->getId();
+        $mailData['creationDate'] = $request->getCreationDate()->format('d/m/Y');
+        $mailData['reqAmount'] = $request->getRequestedAmount();
+        $mailData['tel'] = $request->getContactNumber();
+        $mailData['email'] = $request->getContactEmail();
+        $mailData['loanTypeString'] = $this->mapLoanType($request->getLoanType());
+        $mailData['due'] = $request->getPaymentDue();
+        $mailData['subject'] = '[Solicitud ' . str_pad($mailData['reqId'], 6, '0', STR_PAD_LEFT) .
+                               '] Confirmación de Nueva Solicitud';
+        $mailData['validationURL'] = $this->config->base_url() . '#validate/' . $encodedURL;
+        $reqTokenData['rid'] = $request->getId();
+        $mailData['deleteURL'] = $this->config->base_url() . '#delete/' . $this->createToken($reqTokenData);
+        $html = $this->load->view('templates/validationMail', $mailData, true); // render the view into HTML
+        $this->sendEmail($mailData['email'], $mailData['subject'], $html);
+    }
+
+    private function createToken ($data) {
+        $encoded = JWT::encode($data, SECRET_KEY);
+        $urlEncoded = JWT::urlsafeB64Encode($encoded);
+        return $urlEncoded;
+    }
+
+    private function sendEmail ($to, $subject, $html) {
+        $mgClient = new Mailgun('key-53747f43c23bd393d8172814c60e17ba', new \Http\Adapter\Guzzle6\Client());
+        $domain = "sandbox5acc2f3be9df4e80baaa6a9884d6299b.mailgun.org";
+        $email = array(
+            'from'    => 'IPAPEDI <noreply@ipapedi.com>',
+            'to'      => $to,
+            'subject' => $subject,
+            'html'    => $html
+        );
+        $mgClient->sendMessage($domain, $email);
+        \ChromePhp::log("Message sent!");
     }
 
     public function download() {
@@ -128,5 +212,10 @@ class ApplicantHomeController extends CI_Controller {
         readfile($zipname);
         // TODO: Test in a non-local hosting to see if download is not interrupted
         unlink($zipname);
+    }
+
+
+    private function mapLoanType($code) {
+        return $code == 40 ? "PRÉSTAMO PERSONAL" : ($code == 31 ? "VALE DE CAJA" : $code);
     }
 }

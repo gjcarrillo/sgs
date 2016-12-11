@@ -63,6 +63,18 @@ class Request extends \Entity\Request implements \Doctrine\ORM\Proxy\Proxy
         return parent::getCreationDate();
     }
 
+    public function setValidationDate($validationDate)
+    {
+        $this->__load();
+        return parent::setValidationDate($validationDate);
+    }
+
+    public function getValidationDate()
+    {
+        $this->__load();
+        return parent::getValidationDate();
+    }
+
     public function setComment($comment)
     {
         $this->__load();
@@ -135,6 +147,54 @@ class Request extends \Entity\Request implements \Doctrine\ORM\Proxy\Proxy
         return parent::setStatusByText($status);
     }
 
+    public function setPaymentDue($paymentDue)
+    {
+        $this->__load();
+        return parent::setPaymentDue($paymentDue);
+    }
+
+    public function getPaymentDue()
+    {
+        $this->__load();
+        return parent::getPaymentDue();
+    }
+
+    public function setLoanType($loanType)
+    {
+        $this->__load();
+        return parent::setLoanType($loanType);
+    }
+
+    public function getLoanType()
+    {
+        $this->__load();
+        return parent::getLoanType();
+    }
+
+    public function setContactNumber($contactNumber)
+    {
+        $this->__load();
+        return parent::setContactNumber($contactNumber);
+    }
+
+    public function getContactNumber()
+    {
+        $this->__load();
+        return parent::getContactNumber();
+    }
+
+    public function setContactEmail($contactEmail)
+    {
+        $this->__load();
+        return parent::setContactEmail($contactEmail);
+    }
+
+    public function getContactEmail()
+    {
+        $this->__load();
+        return parent::getContactEmail();
+    }
+
     public function addDocument(\Entity\Document $documents)
     {
         $this->__load();
@@ -183,46 +243,10 @@ class Request extends \Entity\Request implements \Doctrine\ORM\Proxy\Proxy
         return parent::getUserOwner();
     }
 
-    public function setPaymentDue($paymentDue)
-    {
-        $this->__load();
-        return parent::setPaymentDue($paymentDue);
-    }
-
-    public function getPaymentDue()
-    {
-        $this->__load();
-        return parent::getPaymentDue();
-    }
-
-    public function setLoanType($loanType)
-    {
-        $this->__load();
-        return parent::setLoanType($loanType);
-    }
-
-    public function getLoanType()
-    {
-        $this->__load();
-        return parent::getLoanType();
-    }
-
-    public function setContactNumber($contactNumber)
-    {
-        $this->__load();
-        return parent::setContactNumber($contactNumber);
-    }
-
-    public function getContactNumber()
-    {
-        $this->__load();
-        return parent::getContactNumber();
-    }
-
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'creationDate', 'comment', 'reunion', 'requestedAmount', 'approvedAmount', 'status', 'paymentDue', 'loanType', 'contactNumber', 'documents', 'history', 'userOwner');
+        return array('__isInitialized__', 'id', 'creationDate', 'comment', 'reunion', 'requestedAmount', 'approvedAmount', 'status', 'paymentDue', 'loanType', 'contactNumber', 'contactEmail', 'validationDate', 'documents', 'history', 'userOwner');
     }
 
     public function __clone()

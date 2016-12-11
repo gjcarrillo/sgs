@@ -36,7 +36,7 @@ class LoginController extends CI_Controller {
 
                        $result['message'] ="success";
                    } else {
-                       $result['message'] = "Usuario INACTIVO. Por favor contacte con un administrador.";
+                       $result['message'] = "Usuario INACTIVO. Por favor contacte a un administrador.";
                    }
                }
                else {
@@ -56,5 +56,23 @@ class LoginController extends CI_Controller {
 
     public function logout() {
         $this->session->sess_destroy();
+    }
+
+    public function updateSession () {
+        $data = json_decode(file_get_contents('php://input'), true);
+        $dataSession = array(
+            "id" => $_SESSION['id'],
+            "name" => $_SESSION['name'],
+            "lastName" =>  $_SESSION['lastName'],
+            "type" => $data['newType'],
+            "logged" => true,
+        );
+        if ($_SESSION['type'] == 1 && $data['newType'] == 3) {
+            $this->session->set_userdata($dataSession);
+        } else if ($_SESSION['type'] == 2 && $data['newType'] == 3) {
+            $this->session->set_userdata($dataSession);
+        } else {
+            $this->load->view('errors/index.html');
+        }
     }
 }

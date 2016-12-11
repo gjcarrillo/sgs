@@ -56,6 +56,8 @@ class AgentHomeController extends CI_Controller {
 						$result['requests'][$rKey]['type'] = $request->getLoanType();
                         $result['requests'][$rKey]['phone'] = $request->getContactNumber();
                         $result['requests'][$rKey]['due'] = $request->getPaymentDue();
+                        $result['requests'][$rKey]['email'] = $request->getContactEmail();
+                        $result['requests'][$rKey]['validationDate'] = $request->getValidationDate();
                         $docs = $request->getDocuments();
                         foreach ($docs as $dKey => $doc) {
                             $result['requests'][$rKey]['docs'][$dKey]['id'] = $doc->getId();
@@ -107,32 +109,6 @@ class AgentHomeController extends CI_Controller {
                 $em->persist($history);
                 // Delete the document.
                 $em->remove($doc);
-                // Persist the changes in database.
-                $em->flush();
-                $result['message'] = "success";
-            } catch (Exception $e) {
-                $result['message'] = "error";
-                \ChromePhp::log($e);
-            }
-            echo json_encode($result);
-        }
-    }
-
-    public function deleteRequest() {
-        if ($_SESSION['type'] != 1) {
-            $this->load->view('errors/index.html');
-        } else {
-			$data = json_decode(file_get_contents('php://input'), true);
-            try {
-                $em = $this->doctrine->em;
-                // Must delete all documents belonging to this request first
-                $request = $em->find('\Entity\Request', $data['id']);
-                $docs = $request->getDocuments();
-                foreach($docs as $doc) {
-                    unlink(DropPath . $doc->getLpath());
-                }
-                // Now we can remove the current request (and docs on cascade)
-                $em->remove($request);
                 // Persist the changes in database.
                 $em->flush();
                 $result['message'] = "success";

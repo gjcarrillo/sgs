@@ -37,6 +37,7 @@
     <li>Solicitante: <?php echo $username; ?>, CI:  <?php echo $userId; ?></li>
     <li>Monto solicitado: Bs.  <?php echo number_format($reqAmount, 2); ?></li>
     <li>Teléfono de contacto:  <?php echo $tel; ?></li>
+    <li>Correo electrónico:  <?php echo $email; ?></li>
     <li>Cuotas a pagar: Bs. _________, durante un periodo de  <?php echo $due; ?> meses. *</li>
 </ul>
 <br />

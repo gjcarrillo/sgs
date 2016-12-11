@@ -26,6 +26,7 @@ class ManagerHomeController extends CI_Controller {
 			$this->load->view('errors/index.html');
 		} else {
 			try {
+                $result = null;
 				$em = $this->doctrine->em;
 				$user = $em->find('\Entity\User', $_GET['fetchId']);
 				if ($user === null) {
@@ -35,8 +36,9 @@ class ManagerHomeController extends CI_Controller {
 					if ($requests->isEmpty()) {
 						$result['error'] = "El usuario no posee solicitudes";
 					} else {
-						$received = $approved = $rejected = $totalRequested = $totalApproved = 0;
-						foreach ($requests as $rKey => $request) {
+						$received = $approved = $rejected = $totalRequested = $totalApproved = $rKey = 0;
+						foreach ($requests as $request) {
+							if ($request->getValidationDate() === null) continue;
 							$result['requests'][$rKey]['id'] = $request->getId();
 							$result['requests'][$rKey]['creationDate'] = $request->getCreationDate()->format('d/m/y');
 							$result['requests'][$rKey]['comment'] = $request->getComment();
@@ -47,6 +49,8 @@ class ManagerHomeController extends CI_Controller {
 							$result['requests'][$rKey]['type'] = $request->getLoanType();
 							$result['requests'][$rKey]['phone'] = $request->getContactNumber();
 							$result['requests'][$rKey]['due'] = $request->getPaymentDue();
+							$result['requests'][$rKey]['email'] = $request->getContactEmail();
+							$result['requests'][$rKey]['validationDate'] = $request->getValidationDate();
 							$docs = $request->getDocuments();
 							foreach ($docs as $dKey => $doc) {
 								$result['requests'][$rKey]['docs'][$dKey]['id'] = $doc->getId();
@@ -74,53 +78,74 @@ class ManagerHomeController extends CI_Controller {
 								$request->getApprovedAmount(),
 								$request->getComment()
 							);
+							$rKey++;
 						}
-						// Fill up pie chart information
-						$result['pie']['title'] = "Estadísticas de solicitudes para el afiliado";
-						$result['pie']['labels'][0] = "Recibidas";
-						$result['pie']['labels'][1] = "Aprobadas";
-						$result['pie']['labels'][2] = "Rechazadas";
-						$total = $received + $approved + $rejected;
-						$result['pie']['data'][0] = round($received * 100 / $total, 2);
-						$result['pie']['data'][1] = round($approved * 100 / $total, 2);
-						$result['pie']['data'][2] = round($rejected * 100 / $total, 2);
-						$result['pie']['backgroundColor'][0] = "#FFD740"; // A200 amber
-						$result['pie']['backgroundColor'][1] = "#00C853"; // A700 green
-						$result['pie']['backgroundColor'][2] = "#FF5252"; // A200 red
-						$result['pie']['hoverBackgroundColor'][0] = "#FFC107"; // 500 amber
-						$result['pie']['hoverBackgroundColor'][1] = "#00E676"; // A400 green
-						$result['pie']['hoverBackgroundColor'][2] = "#F44336"; // 500 red
-						// Fill up report information
-						$applicant = $user->getId() . ' - ' .$user->getFirstName() . ' ' . $user->getLastName();
-						$now = (new DateTime('now', new DateTimeZone('America/Barbados')))->format('d/m/Y - h:i:sa');
-						$result['report']['header'] = array(
-							array("SGDP - IPAPEDI"),
-							array("FECHA Y HORA DE GENERACIÓN DE REPORTE: " . $now)
-						);
-						$result['report']['dataTitle'] = "SOLICITUDES DEL AFILIADO " . strtoupper($applicant);
-						$result['report']['filename'] = $result['report']['dataTitle'];
-						$result['report']['dataHeader'] = array(
-							'Nro.', 'Identificador', 'Tipo', 'Fecha de creación', 'Estatus', 'Nro. de Reunión',
-							 'Monto solicitado (Bs)', 'Monto aprobado (Bs)', 'Comentario'
-						 );
-						$result['report']['total'] = array(
-							array("Monto solicitado total", ""),
-							array("Monto aprobado total", "")
-						);
-						$result['report']['stats']['title'] = "ESTADÍSTICAS DE SOLICITUDES DEL AFILIADO";
-						$result['report']['stats']['dataHeader'] = array(
-							'Estatus', 'Cantidad', 'Porcentaje'
-						 );
-						$result['report']['stats']['data'][0] = array(
-							"Recibida",  "", ""
-						);
-						$result['report']['stats']['data'][1] = array(
-							"Aprobada",  "", ""
-						);
-						$result['report']['stats']['data'][2] = array(
-							"Rechazada",  "", ""
-						);
-						$result['message'] = "success";
+						if ($result['requests'] == null) {
+							$result['error'] = 'Este afiliado no tiene solicitudes validadas';
+						} else {
+                            // Fill up pie chart information
+                            $result['pie']['title'] = "Estadísticas de solicitudes para el afiliado";
+                            $result['pie']['labels'][0] = "Recibidas";
+                            $result['pie']['labels'][1] = "Aprobadas";
+                            $result['pie']['labels'][2] = "Rechazadas";
+                            $total = $received + $approved + $rejected;
+                            $result['pie']['data'][0] = round($received * 100 / $total, 2);
+                            $result['pie']['data'][1] = round($approved * 100 / $total, 2);
+                            $result['pie']['data'][2] = round($rejected * 100 / $total, 2);
+                            $result['pie']['backgroundColor'][0] = "#FFD740"; // A200 amber
+                            $result['pie']['backgroundColor'][1] = "#00C853"; // A700 green
+                            $result['pie']['backgroundColor'][2] = "#FF5252"; // A200 red
+                            $result['pie']['hoverBackgroundColor'][0] = "#FFC107"; // 500 amber
+                            $result['pie']['hoverBackgroundColor'][1] = "#00E676"; // A400 green
+                            $result['pie']['hoverBackgroundColor'][2] = "#F44336"; // 500 red
+                            // Fill up report information
+                            $applicant = $user->getId() . ' - ' . $user->getFirstName() . ' ' . $user->getLastName();
+                            $now =
+                                (new DateTime('now', new DateTimeZone('America/Barbados')))->format('d/m/Y - h:i:sa');
+                            $result['report']['header'] = array(
+                                array("SGDP - IPAPEDI"),
+                                array("FECHA Y HORA DE GENERACIÓN DE REPORTE: " . $now)
+                            );
+                            $result['report']['dataTitle'] = "SOLICITUDES DEL AFILIADO " . strtoupper($applicant);
+                            $result['report']['filename'] = $result['report']['dataTitle'];
+                            $result['report']['dataHeader'] = array(
+                                'Nro.',
+                                'Identificador',
+                                'Tipo',
+                                'Fecha de creación',
+                                'Estatus',
+                                'Nro. de Reunión',
+                                'Monto solicitado (Bs)',
+                                'Monto aprobado (Bs)',
+                                'Comentario'
+                            );
+                            $result['report']['total'] = array(
+                                array("Monto solicitado total", ""),
+                                array("Monto aprobado total", "")
+                            );
+                            $result['report']['stats']['title'] = "ESTADÍSTICAS DE SOLICITUDES DEL AFILIADO";
+                            $result['report']['stats']['dataHeader'] = array(
+                                'Estatus',
+                                'Cantidad',
+                                'Porcentaje'
+                            );
+                            $result['report']['stats']['data'][0] = array(
+                                "Recibida",
+                                "",
+                                ""
+                            );
+                            $result['report']['stats']['data'][1] = array(
+                                "Aprobada",
+                                "",
+                                ""
+                            );
+                            $result['report']['stats']['data'][2] = array(
+                                "Rechazada",
+                                "",
+                                ""
+                            );
+                            $result['message'] = "success";
+                        }
 					}
 				}
 			} catch (Exception $e) {
@@ -135,6 +160,7 @@ class ManagerHomeController extends CI_Controller {
         if ($_SESSION['type'] != 2) {
             $this->load->view('errors/index.html');
         } else {
+            $result = null;
             try {
                 $em = $this->doctrine->em;
                 // Look for all requests with the specified status
@@ -144,7 +170,9 @@ class ManagerHomeController extends CI_Controller {
                 if (empty($requests)) {
                     $result['error'] = "No se encontraron solicitudes con estatus " . $_GET['status'];
                 } else {
-                    foreach ($requests as $rKey => $request) {
+					$rKey = 0;
+                    foreach ($requests as $request) {
+						if ($request->getValidationDate() === null) continue;
 						$user = $request->getUserOwner();
                         $result['requests'][$rKey]['id'] = $request->getId();
                         $result['requests'][$rKey]['creationDate'] = $request->getCreationDate()->format('d/m/y');
@@ -158,6 +186,8 @@ class ManagerHomeController extends CI_Controller {
 						$result['requests'][$rKey]['type'] = $request->getLoanType();
 						$result['requests'][$rKey]['phone'] = $request->getContactNumber();
 						$result['requests'][$rKey]['due'] = $request->getPaymentDue();
+						$result['requests'][$rKey]['email'] = $request->getContactEmail();
+						$result['requests'][$rKey]['validationDate'] = $request->getValidationDate();
                         $docs = $request->getDocuments();
                         foreach ($docs as $dKey => $doc) {
                             $result['requests'][$rKey]['docs'][$dKey]['id'] = $doc->getId();
@@ -181,61 +211,70 @@ class ManagerHomeController extends CI_Controller {
 							array_push($result['report']['data'][$rKey], $request->getApprovedAmount());
 						}
 						array_push($result['report']['data'][$rKey], $request->getComment());
-
+						$rKey++;
                     }
-					// Fill up pie chart information
-					$received = $_GET['status'] === "Recibida" ? count($requests) : (
-						count($requestsRepo->findBy(array("status" => 1)))
-					);
-					$approved = $_GET['status'] === "Approved" ? count($requests) : (
-						count($requestsRepo->findBy(array("status" => 2)))
-					);
-					$rejected = $_GET['status'] === "Rechazada" ? count($requests) : (
-						count($requestsRepo->findBy(array("status" => 3)))
-					);
-					$result['pie']['title'] = "Estadísticas de solicitudes del sistema";
-					$result['pie']['labels'][0] = "Recibidas";
-					$result['pie']['labels'][1] = "Aprobadas";
-					$result['pie']['labels'][2] = "Rechazadas";
-					$total = $received + $approved + $rejected;
-					$result['pie']['data'][0] = round($received * 100 / $total, 2);
-					$result['pie']['data'][1] = round($approved * 100 / $total, 2);
-					$result['pie']['data'][2] = round($rejected * 100 / $total, 2);
-					$result['pie']['backgroundColor'][0] = "#FFD740"; // A200 amber
-					$result['pie']['backgroundColor'][1] = "#00C853"; // A700 green
-					$result['pie']['backgroundColor'][2] = "#FF5252"; // A200 red
-					$result['pie']['hoverBackgroundColor'][0] = "#FFC107"; // 500 amber
-					$result['pie']['hoverBackgroundColor'][1] = "#00E676"; // A400 green
-					$result['pie']['hoverBackgroundColor'][2] = "#F44336"; // 500 red
-					// Fill up report information
-					$dataHeader = array(
-						'Nro.', 'Identificador', 'Tipo', 'Solicitante', 'Fecha de creación'
-					 );
-					 if ($_GET['status'] !== "Recibida") {
-						 array_push($dataHeader, 'Nro. de Reunión');
-					 }
-					 array_push($dataHeader, 'Monto solicitado (Bs)');
-					if ($_GET['status'] === "Aprobada") {
-						array_push($dataHeader, 'Monto aprobado (Bs)');
-					}
-					array_push($dataHeader, 'Comentario');
+                    if ($result['requests'] == null) {
+                        $result['error'] = 'Este afiliado no posee solicitudes validadas';
+                    } else {
+                        // Fill up pie chart information
+                        $received = $_GET['status'] === "Recibida" ? count($requests) : (
+                        count($requestsRepo->findBy(array("status" => 1)))
+                        );
+                        $approved = $_GET['status'] === "Approved" ? count($requests) : (
+                        count($requestsRepo->findBy(array("status" => 2)))
+                        );
+                        $rejected = $_GET['status'] === "Rechazada" ? count($requests) : (
+                        count($requestsRepo->findBy(array("status" => 3)))
+                        );
+                        $result['pie']['title'] = "Estadísticas de solicitudes del sistema";
+                        $result['pie']['labels'][0] = "Recibidas";
+                        $result['pie']['labels'][1] = "Aprobadas";
+                        $result['pie']['labels'][2] = "Rechazadas";
+                        $total = $received + $approved + $rejected;
+                        $result['pie']['data'][0] = round($received * 100 / $total, 2);
+                        $result['pie']['data'][1] = round($approved * 100 / $total, 2);
+                        $result['pie']['data'][2] = round($rejected * 100 / $total, 2);
+                        $result['pie']['backgroundColor'][0] = "#FFD740"; // A200 amber
+                        $result['pie']['backgroundColor'][1] = "#00C853"; // A700 green
+                        $result['pie']['backgroundColor'][2] = "#FF5252"; // A200 red
+                        $result['pie']['hoverBackgroundColor'][0] = "#FFC107"; // 500 amber
+                        $result['pie']['hoverBackgroundColor'][1] = "#00E676"; // A400 green
+                        $result['pie']['hoverBackgroundColor'][2] = "#F44336"; // 500 red
+                        // Fill up report information
+                        $dataHeader = array(
+                            'Nro.',
+                            'Identificador',
+                            'Tipo',
+                            'Solicitante',
+                            'Fecha de creación'
+                        );
+                        if ($_GET['status'] !== "Recibida") {
+                            array_push($dataHeader, 'Nro. de Reunión');
+                        }
+                        array_push($dataHeader, 'Monto solicitado (Bs)');
+                        if ($_GET['status'] === "Aprobada") {
+                            array_push($dataHeader, 'Monto aprobado (Bs)');
+                        }
+                        array_push($dataHeader, 'Comentario');
 
-					$now = (new DateTime('now', new DateTimeZone('America/Barbados')))->format('d/m/Y - h:i:sa');
-					$result['report']['header'] = array(
-						array("SGDP - IPAPEDI"),
-						array("FECHA Y HORA DE GENERACIÓN DE REPORTE: " . $now)
-					);
-					$result['report']['dataTitle'] = "SOLICITUDES EN ESTATUS '" . strtoupper($_GET['status'] . "'");
-					$result['report']['dataHeader'] = $dataHeader;
-					$result['report']['total'] = array(
-						array("Monto solicitado total", "")
-					);
-					if ($_GET['status'] === "Aprobada") {
-						array_push($result['report']['total'], array(
-							"Monto aprobado total", "")
-						);
-					}
-					$result['message'] = "success";
+                        $now = (new DateTime('now', new DateTimeZone('America/Barbados')))->format('d/m/Y - h:i:sa');
+                        $result['report']['header'] = array(
+                            array("SGDP - IPAPEDI"),
+                            array("FECHA Y HORA DE GENERACIÓN DE REPORTE: " . $now)
+                        );
+                        $result['report']['dataTitle'] = "SOLICITUDES EN ESTATUS '" . strtoupper($_GET['status'] . "'");
+                        $result['report']['dataHeader'] = $dataHeader;
+                        $result['report']['total'] = array(
+                            array("Monto solicitado total", "")
+                        );
+                        if ($_GET['status'] === "Aprobada") {
+                            array_push($result['report']['total'], array(
+                                                                     "Monto aprobado total",
+                                                                     "")
+                            );
+                        }
+                        $result['message'] = "success";
+                    }
 				}
             } catch (Exception $e) {
                 \ChromePhp::log($e);
@@ -250,6 +289,7 @@ class ManagerHomeController extends CI_Controller {
         if ($_SESSION['type'] != 2) {
             $this->load->view('errors/index.html');
         } else {
+            $result = null;
             try {
                 // from first second of the day
                 $from = date_create_from_format(
@@ -278,8 +318,9 @@ class ManagerHomeController extends CI_Controller {
                         $result['error'] = "No se han encontrado solicitudes para la fecha especificada";
                     }
                 } else {
-					$received = $approved = $rejected = $totalRequested = $totalApproved = 0;
-                    foreach ($requests as $rKey => $request) {
+					$received = $approved = $rejected = $totalRequested = $totalApproved = $rKey = 0;
+                    foreach ($requests as $request) {
+						if ($request->getValidationDate() === null) continue;
 						$user = $request->getUserOwner();
                         $result['requests'][$rKey]['id'] = $request->getId();
                         $result['requests'][$rKey]['creationDate'] = $request->getCreationDate()->format('d/m/y');
@@ -293,6 +334,8 @@ class ManagerHomeController extends CI_Controller {
 						$result['requests'][$rKey]['type'] = $request->getLoanType();
 						$result['requests'][$rKey]['phone'] = $request->getContactNumber();
 						$result['requests'][$rKey]['due'] = $request->getPaymentDue();
+						$result['requests'][$rKey]['email'] = $request->getContactEmail();
+						$result['requests'][$rKey]['validationDate'] = $request->getValidationDate();
                         $docs = $request->getDocuments();
                         foreach ($docs as $dKey => $doc) {
                             $result['requests'][$rKey]['docs'][$dKey]['id'] = $doc->getId();
@@ -321,57 +364,80 @@ class ManagerHomeController extends CI_Controller {
 							$request->getApprovedAmount(),
 							$request->getComment()
 						);
+						$rKey++;
                     }
-					// Fill up pie chart information
-					$result['pie']['title'] = $days > 0 ? (
-						"Estadísticas de solicitudes para el intervalo de fechas especificado") : (
-						"Estadísticas de solicitudes para la fecha especificada"
-					);
-					$result['pie']['labels'][0] = "Recibidas";
-					$result['pie']['labels'][1] = "Aprobadas";
-					$result['pie']['labels'][2] = "Rechazadas";
-					$total = $received + $approved + $rejected;
-					$result['pie']['data'][0] = round($received * 100 / $total, 2);
-					$result['pie']['data'][1] = round($approved * 100 / $total, 2);
-					$result['pie']['data'][2] = round($rejected * 100 / $total, 2);
-					$result['pie']['backgroundColor'][0] = "#FFD740"; // A200 amber
-					$result['pie']['backgroundColor'][1] = "#00C853"; // A700 green
-					$result['pie']['backgroundColor'][2] = "#FF5252"; // A200 red
-					$result['pie']['hoverBackgroundColor'][0] = "#FFC107"; // 500 amber
-					$result['pie']['hoverBackgroundColor'][1] = "#00E676"; // A400 green
-					$result['pie']['hoverBackgroundColor'][2] = "#F44336"; // 500 red
-					// Fill up report information
-					$now = (new DateTime('now', new DateTimeZone('America/Barbados')))->format('d/m/Y - h:i:sa');
-					$result['report']['header'] = array(
-						array("SGDP - IPAPEDI"),
-						array("FECHA Y HORA DE GENERACIÓN DE REPORTE: " . $now)
-					);
-					$interval = $days > 0 ? "DEL " . $from->format('d/m/Y') . " HASTA EL " . $to->format('d/m/Y') : "EL " . $to->format('d/m/Y');
-					$filename =  $days > 0 ? "DEL " . $from->format('d-m-Y') . " HASTA EL " . $to->format('d-m-Y') : "EL " . $to->format('d-m-Y');
-					$result['report']['filename'] = "SOLICITUDES REALIZADAS " . $filename;
-					$result['report']['dataTitle'] = "SOLICITUDES REALIZADAS " . $interval;
-					$result['report']['dataHeader'] = array(
-						'Nro.', 'Identificador', 'Tipo', 'Solicitante', 'Fecha de creación', 'Estatus',
-						'Nro. de Reunión', 'Monto solicitado (Bs)', 'Monto aprobado (Bs)', 'Comentario'
-					 );
-					$result['report']['total'] = array(
-						array("Monto solicitado total", ""),
-						array("Monto aprobado total", "")
-					);
-					$result['report']['stats']['title'] = "ESTADÍSTICAS DE SOLICITUDES";
-					$result['report']['stats']['dataHeader'] = array(
-						'Estatus', 'Cantidad', 'Porcentaje'
-					 );
-					$result['report']['stats']['data'][0] = array(
-						"Recibida",  "", ""
-					);
-					$result['report']['stats']['data'][1] = array(
-						"Aprobada",  "", ""
-					);
-					$result['report']['stats']['data'][2] = array(
-						"Rechazada",  "", ""
-					);
-					$result['message'] = "success";
+                    if ($result['requests'] == null) {
+                        $result['error'] = 'Este afiliado no posee solicitudes validadas';
+                    } else {
+                        // Fill up pie chart information
+                        $result['pie']['title'] = $days > 0 ? (
+                        "Estadísticas de solicitudes para el intervalo de fechas especificado") : (
+                        "Estadísticas de solicitudes para la fecha especificada"
+                        );
+                        $result['pie']['labels'][0] = "Recibidas";
+                        $result['pie']['labels'][1] = "Aprobadas";
+                        $result['pie']['labels'][2] = "Rechazadas";
+                        $total = $received + $approved + $rejected;
+                        $result['pie']['data'][0] = round($received * 100 / $total, 2);
+                        $result['pie']['data'][1] = round($approved * 100 / $total, 2);
+                        $result['pie']['data'][2] = round($rejected * 100 / $total, 2);
+                        $result['pie']['backgroundColor'][0] = "#FFD740"; // A200 amber
+                        $result['pie']['backgroundColor'][1] = "#00C853"; // A700 green
+                        $result['pie']['backgroundColor'][2] = "#FF5252"; // A200 red
+                        $result['pie']['hoverBackgroundColor'][0] = "#FFC107"; // 500 amber
+                        $result['pie']['hoverBackgroundColor'][1] = "#00E676"; // A400 green
+                        $result['pie']['hoverBackgroundColor'][2] = "#F44336"; // 500 red
+                        // Fill up report information
+                        $now = (new DateTime('now', new DateTimeZone('America/Barbados')))->format('d/m/Y - h:i:sa');
+                        $result['report']['header'] = array(
+                            array("SGDP - IPAPEDI"),
+                            array("FECHA Y HORA DE GENERACIÓN DE REPORTE: " . $now)
+                        );
+                        $interval = $days > 0 ? "DEL " . $from->format('d/m/Y') . " HASTA EL " . $to->format('d/m/Y') :
+                            "EL " . $to->format('d/m/Y');
+                        $filename = $days > 0 ? "DEL " . $from->format('d-m-Y') . " HASTA EL " . $to->format('d-m-Y') :
+                            "EL " . $to->format('d-m-Y');
+                        $result['report']['filename'] = "SOLICITUDES REALIZADAS " . $filename;
+                        $result['report']['dataTitle'] = "SOLICITUDES REALIZADAS " . $interval;
+                        $result['report']['dataHeader'] = array(
+                            'Nro.',
+                            'Identificador',
+                            'Tipo',
+                            'Solicitante',
+                            'Fecha de creación',
+                            'Estatus',
+                            'Nro. de Reunión',
+                            'Monto solicitado (Bs)',
+                            'Monto aprobado (Bs)',
+                            'Comentario'
+                        );
+                        $result['report']['total'] = array(
+                            array("Monto solicitado total", ""),
+                            array("Monto aprobado total", "")
+                        );
+                        $result['report']['stats']['title'] = "ESTADÍSTICAS DE SOLICITUDES";
+                        $result['report']['stats']['dataHeader'] = array(
+                            'Estatus',
+                            'Cantidad',
+                            'Porcentaje'
+                        );
+                        $result['report']['stats']['data'][0] = array(
+                            "Recibida",
+                            "",
+                            ""
+                        );
+                        $result['report']['stats']['data'][1] = array(
+                            "Aprobada",
+                            "",
+                            ""
+                        );
+                        $result['report']['stats']['data'][2] = array(
+                            "Rechazada",
+                            "",
+                            ""
+                        );
+                        $result['message'] = "success";
+                    }
                 }
             } catch (Exception $e) {
                 \ChromePhp::log($e);
@@ -385,6 +451,7 @@ class ManagerHomeController extends CI_Controller {
 		if ($_SESSION['type'] != 2) {
 			$this->load->view('errors/index.html');
 		} else {
+            $result = null;
 			try {
 				$em = $this->doctrine->em;
 				// Look for all requests with the specified loan type.
@@ -394,8 +461,9 @@ class ManagerHomeController extends CI_Controller {
 				if (empty($requests)) {
 					$result['error'] = "No se encontraron solicitudes del tipo " . $this->mapLoanType($loanType);
 				} else {
-					$received = $approved = $rejected = 0;
-					foreach ($requests as $rKey => $request) {
+					$received = $approved = $rejected = $rKey = 0;
+					foreach ($requests as $request) {
+						if ($request->getValidationDate() === null) continue;
 						$user = $request->getUserOwner();
 						$result['requests'][$rKey]['id'] = $request->getId();
 						$result['requests'][$rKey]['creationDate'] = $request->getCreationDate()->format('d/m/y');
@@ -409,6 +477,8 @@ class ManagerHomeController extends CI_Controller {
 						$result['requests'][$rKey]['type'] = $request->getLoanType();
 						$result['requests'][$rKey]['phone'] = $request->getContactNumber();
 						$result['requests'][$rKey]['due'] = $request->getPaymentDue();
+						$result['requests'][$rKey]['email'] = $request->getContactEmail();
+						$result['requests'][$rKey]['validationDate'] = $request->getValidationDate();
 						$docs = $request->getDocuments();
 						foreach ($docs as $dKey => $doc) {
 							$result['requests'][$rKey]['docs'][$dKey]['id'] = $doc->getId();
@@ -436,52 +506,72 @@ class ManagerHomeController extends CI_Controller {
 							$request->getApprovedAmount(),
 							$request->getComment()
 						);
+						$rKey++;
 					}
-					// Fill up pie chart information
-					$result['pie']['title'] = "Solicitudes de " . $this->mapLoanType($loanType);
-					$result['pie']['labels'][0] = "Recibidas";
-					$result['pie']['labels'][1] = "Aprobadas";
-					$result['pie']['labels'][2] = "Rechazadas";
-					$total = $received + $approved + $rejected;
-					$result['pie']['data'][0] = round($received * 100 / $total, 2);
-					$result['pie']['data'][1] = round($approved * 100 / $total, 2);
-					$result['pie']['data'][2] = round($rejected * 100 / $total, 2);
-					$result['pie']['backgroundColor'][0] = "#FFD740"; // A200 amber
-					$result['pie']['backgroundColor'][1] = "#00C853"; // A700 green
-					$result['pie']['backgroundColor'][2] = "#FF5252"; // A200 red
-					$result['pie']['hoverBackgroundColor'][0] = "#FFC107"; // 500 amber
-					$result['pie']['hoverBackgroundColor'][1] = "#00E676"; // A400 green
-					$result['pie']['hoverBackgroundColor'][2] = "#F44336"; // 500 red
-					// Fill up report information
-					$now = (new DateTime('now', new DateTimeZone('America/Barbados')))->format('d/m/Y - h:i:sa');
-					$result['report']['header'] = array(
-						array("SGDP - IPAPEDI"),
-						array("FECHA Y HORA DE GENERACIÓN DE REPORTE: " . $now)
-					);
-					$result['report']['filename'] = "SOLICITUDES DE '" . $this->mapLoanType($loanType) . "'";
-					$result['report']['dataTitle'] = $result['report']['filename'];
-					$result['report']['dataHeader'] = array(
-						'Nro.', 'Identificador', 'Solicitante', 'Fecha de creación', 'Estatus', 'Nro. de Reunión',
-						'Monto solicitado (Bs)', 'Monto aprobado (Bs)', 'Comentario'
-					);
-					$result['report']['total'] = array(
-						array("Monto solicitado total", ""),
-						array("Monto aprobado total", "")
-					);
-					$result['report']['stats']['title'] = "ESTADÍSTICAS DE SOLICITUDES";
-					$result['report']['stats']['dataHeader'] = array(
-						'Estatus', 'Cantidad', 'Porcentaje'
-					);
-					$result['report']['stats']['data'][0] = array(
-						"Recibida",  "", ""
-					);
-					$result['report']['stats']['data'][1] = array(
-						"Aprobada",  "", ""
-					);
-					$result['report']['stats']['data'][2] = array(
-						"Rechazada",  "", ""
-					);
-					$result['message'] = "success";
+                    if ($result['requests'] == null) {
+                        $result['error'] = 'Este afiliado no posee solicitudes validadas';
+                    } else {
+                        // Fill up pie chart information
+                        $result['pie']['title'] = "Solicitudes de " . $this->mapLoanType($loanType);
+                        $result['pie']['labels'][0] = "Recibidas";
+                        $result['pie']['labels'][1] = "Aprobadas";
+                        $result['pie']['labels'][2] = "Rechazadas";
+                        $total = $received + $approved + $rejected;
+                        $result['pie']['data'][0] = round($received * 100 / $total, 2);
+                        $result['pie']['data'][1] = round($approved * 100 / $total, 2);
+                        $result['pie']['data'][2] = round($rejected * 100 / $total, 2);
+                        $result['pie']['backgroundColor'][0] = "#FFD740"; // A200 amber
+                        $result['pie']['backgroundColor'][1] = "#00C853"; // A700 green
+                        $result['pie']['backgroundColor'][2] = "#FF5252"; // A200 red
+                        $result['pie']['hoverBackgroundColor'][0] = "#FFC107"; // 500 amber
+                        $result['pie']['hoverBackgroundColor'][1] = "#00E676"; // A400 green
+                        $result['pie']['hoverBackgroundColor'][2] = "#F44336"; // 500 red
+                        // Fill up report information
+                        $now = (new DateTime('now', new DateTimeZone('America/Barbados')))->format('d/m/Y - h:i:sa');
+                        $result['report']['header'] = array(
+                            array("SGDP - IPAPEDI"),
+                            array("FECHA Y HORA DE GENERACIÓN DE REPORTE: " . $now)
+                        );
+                        $result['report']['filename'] = "SOLICITUDES DE '" . $this->mapLoanType($loanType) . "'";
+                        $result['report']['dataTitle'] = $result['report']['filename'];
+                        $result['report']['dataHeader'] = array(
+                            'Nro.',
+                            'Identificador',
+                            'Solicitante',
+                            'Fecha de creación',
+                            'Estatus',
+                            'Nro. de Reunión',
+                            'Monto solicitado (Bs)',
+                            'Monto aprobado (Bs)',
+                            'Comentario'
+                        );
+                        $result['report']['total'] = array(
+                            array("Monto solicitado total", ""),
+                            array("Monto aprobado total", "")
+                        );
+                        $result['report']['stats']['title'] = "ESTADÍSTICAS DE SOLICITUDES";
+                        $result['report']['stats']['dataHeader'] = array(
+                            'Estatus',
+                            'Cantidad',
+                            'Porcentaje'
+                        );
+                        $result['report']['stats']['data'][0] = array(
+                            "Recibida",
+                            "",
+                            ""
+                        );
+                        $result['report']['stats']['data'][1] = array(
+                            "Aprobada",
+                            "",
+                            ""
+                        );
+                        $result['report']['stats']['data'][2] = array(
+                            "Rechazada",
+                            "",
+                            ""
+                        );
+                        $result['message'] = "success";
+                    }
 				}
 			} catch (Exception $e) {
 				\ChromePhp::log($e);

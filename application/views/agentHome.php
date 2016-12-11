@@ -184,8 +184,15 @@
             <md-content
                 ng-hide="!req.docs"
                 class="document-container">
-                <div layout layout-align="center center">
-                    <md-card class="documents-card">
+                <div layout="column" layout-align="center center">
+                    <md-card class="validation-card" ng-if="!req.validationDate">
+                        <md-card-content>
+                            <p>
+                                NO VALIDADO
+                            </p>
+                        </md-card-content>
+                    </md-card>
+                    <md-card class="documents-card" ng-class="{'documents-margin' : req.validationDate}">
                         <md-card-content>
                             <md-list>
                                 <md-list-item id="request-summary" class="md-3-line noright">
@@ -335,6 +342,19 @@
                                         <h4>
                                             {{req.phone}}
                                         </h4>
+                                    </div>
+                                </md-list-item>
+                                <md-divider md-inset></md-divider>
+                                <md-list-item class="md-2-line noright"
+                                              id="request-email">
+                                    <md-icon>mail_outline</md-icon>
+                                    <div class="md-list-item-text" layout="column">
+                                        <h3>
+                                            Correo electrónico
+                                        </h3>
+                                        <p>
+                                            {{req.email}}
+                                        </p>
                                     </div>
                                 </md-list-item>
                                 <md-divider></md-divider>

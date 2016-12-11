@@ -1,6 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 include (APPPATH. '/libraries/ChromePhp.php');
+use Mailgun\Mailgun;
 
 class NewRequestController extends CI_Controller {
 
@@ -65,6 +66,7 @@ class NewRequestController extends CI_Controller {
 				$request->setLoanType($data['loanType']);
 				$request->setPaymentDue($data['due']);
 				$request->setContactNumber($data['tel']);
+				$request->setContactEmail($data['email']);
 	            $user = $em->find('\Entity\User', $data['userId']);
 	            $request->setUserOwner($user);
 	            $user->addRequest($request);
@@ -74,10 +76,11 @@ class NewRequestController extends CI_Controller {
 				// Create the new request doc.
 				$this->generateRequestDocument($data, $user, $request);
 				$this->createDocuments($request, $history->getId(), $data['docs']);
-				$this->createToken();
+				// Send request validation token.
+				$this->sendValidationToken($request);
 	            $result['message'] = "success";
 	        } catch (Exception $e) {
-	            \ChromePhp::log($e);
+	             \ChromePhp::log($e);
 	            $result['message'] = "error";
 	        }
 
@@ -157,33 +160,47 @@ class NewRequestController extends CI_Controller {
 		\ChromePhp::log("PDF generation success!");
 	}
 
-	private function createToken () {
-		$token = array();
-		$token['id'] = 'V24553543';
-		$encoded = JWT::encode($token, SECRET_KEY);
-		\ChromePhp::log($encoded);
-		$urlEncoded = JWT::urlsafeB64Encode($encoded);
-		\ChromePhp::log($urlEncoded);
-		$urlDecoded = JWT::urlsafeB64Decode($urlEncoded);
-		\ChromePhp::log($urlDecoded);
-		$decoded = JWT::decode($urlDecoded, SECRET_KEY);
-		\ChromePhp::log($decoded);
-//		$this->sendEmail($urlEncoded);
+	private function sendValidationToken($request) {
+		$tokenData['uid'] = $request->getUserOwner()->getId();
+		$tokenData['rid'] = $request->getId();
+		$encodedURL = $this->createToken($tokenData);
+		$mailData['reqId'] = $request->getId();
+		$user = $request->getUserOwner();
+		$mailData['username'] = $user->getFirstName() . ' ' . $user->getLastName();
+		$mailData['userId'] = $user->getId();
+		$mailData['creationDate'] = $request->getCreationDate()->format('d/m/Y');
+		$mailData['reqAmount'] = $request->getRequestedAmount();
+		$mailData['loanTypeString'] = $this->mapLoanType($request->getLoanType());
+		$mailData['tel'] = $request->getContactNumber();
+		$mailData['email'] = $request->getContactEmail();
+		$mailData['due'] = $request->getPaymentDue();
+		$mailData['subject'] = '[Solicitud ' . str_pad($mailData['reqId'], 6, '0', STR_PAD_LEFT) .
+							   '] Confirmación de Nueva Solicitud';
+		$mailData['validationURL'] = $this->config->base_url() . '#validate/' . $encodedURL;
+		$reqTokenData['rid'] = $request->getId();
+		$mailData['deleteURL'] = $this->config->base_url() . '#delete/' . $this->createToken($reqTokenData);
+		$html = $this->load->view('templates/validationMail', $mailData, true); // render the view into HTML
+		$this->sendEmail($mailData['email'], $mailData['subject'], $html);
 	}
 
-//	private function sendEmail ($msg) {
-//		$mgClient = new Mailgun('key-53747f43c23bd393d8172814c60e17ba');
-//		$domain = "sandbox5acc2f3be9df4e80baaa6a9884d6299b.mailgun.org";
-//
-//		$email = array(
-//			'from'    => 'Excited User <noreply@ipapedi.com>',
-//			'to'      => 'kperdomo.ch@gmail.com',
-//			'subject' => 'Hello',
-//			'text'    => 'Testing some Mailgun awesomness!'
-//		);
-//		$result = $mgClient->sendMessage($domain, $email);
-//
-//	}
+	private function createToken ($data) {
+		$encoded = JWT::encode($data, SECRET_KEY);
+		$urlEncoded = JWT::urlsafeB64Encode($encoded);
+		return $urlEncoded;
+	}
+
+	private function sendEmail ($to, $subject, $html) {
+		$mgClient = new Mailgun('key-53747f43c23bd393d8172814c60e17ba', new \Http\Adapter\Guzzle6\Client());
+		$domain = "sandbox5acc2f3be9df4e80baaa6a9884d6299b.mailgun.org";
+		$email = array(
+			'from'    => 'IPAPEDI <noreply@ipapedi.com>',
+			'to'      => $to,
+			'subject' => $subject,
+			'html'    => $html
+		);
+		$mgClient->sendMessage($domain, $email);
+		\ChromePhp::log("Message sent!");
+	}
 
 	public function camera() {
 		if ($_SESSION['type'] != 1) {

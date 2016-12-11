@@ -58,7 +58,7 @@ $autoload['packages'] = array();
 |
 |	$autoload['libraries'] = array('user_agent' => 'ua');
 */
-$autoload['libraries'] = array('database', 'Doctrine');
+$autoload['libraries'] = array('MyComposer', 'database', 'Doctrine');
 
 /*
 | -------------------------------------------------------------------

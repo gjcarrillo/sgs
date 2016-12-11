@@ -24,6 +24,15 @@ class EditRequestController extends CI_Controller {
 		}
 	}
 
+	public function emailEditionDialog() {
+		\ChromePhp::log($_SESSION['type']);
+		if ($_SESSION['type'] != 3) {
+			$this->load->view('errors/index.html');
+		} else {
+			$this->load->view('editEmail');
+		}
+	}
+
 	public function updateRequest() {
 		if ($_SESSION['type'] != 1) {
 			$this->load->view('errors/index.html');
@@ -160,5 +169,82 @@ class EditRequestController extends CI_Controller {
 
 			echo json_encode($result);
 		}
+	}
+
+	public function updateEmail() {
+		if ($_SESSION['type'] != 3) {
+			$this->load->view('errors/index.html');
+		} else {
+			$data = json_decode(file_get_contents('php://input'), true);
+			try {
+				$em = $this->doctrine->em;
+				// Update request
+				$request = $em->find('\Entity\Request', $data['reqId']);
+				$request->setContactEmail($data['newAddress']);
+				// Register History
+				$history = new \Entity\History();
+				$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
+				$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
+				// Register it's corresponding actions
+				// 3 = Modification
+				$history->setTitle(3);
+				$history->setOrigin($request);
+				$action = new \Entity\HistoryAction();
+				$action->setSummary("Cambio de correo electrónico.");
+				$action->setDetail("Nuevo correo electrónico: " . $data['newAddress']);
+				$action->setBelongingHistory($history);
+				$history->addAction($action);
+				$em->persist($action);
+				$em->persist($history);
+				$em->merge($request);
+				$em->flush();
+				$em->clear();
+				$this->updateRequestDocument($request, $request->getUserOwner());
+				$result['message'] = "success";
+			} catch (Exception $e) {
+				\ChromePhp::log($e);
+				$result['message'] = "error";
+			}
+
+			echo json_encode($result);
+		}
+	}
+
+	private function updateRequestDocument ($request, $user) {
+		$data['reqAmount'] = $request->getRequestedAmount();
+		$data['tel'] = $request->getContactNumber();
+		$data['email'] = $request->getContactEmail();
+		$data['due'] = $request->getPaymentDue();
+		$data['userId'] = $user->getId();
+		$data['loanType'] = $request->getLoanType();
+		$data['lpath'] = $request->getDocuments()[0]->getLpath();
+		$this->generateRequestDocument($data, $user, $request);
+	}
+
+	private function generateRequestDocument($data, $user, $request) {
+		$pdfFilePath = DropPath . $data['lpath'];
+		// Get extra data for the pdf template.
+		$data['username'] = $user->getFirstName() . ' ' . $user->getLastName();
+		$data['requestId'] = str_pad($request->getId(), 6, '0', STR_PAD_LEFT);
+		$data['date'] = new DateTime('now', new DateTimeZone('America/Barbados'));
+		$data['loanTypeString'] = $this->mapLoanType($data['loanType']);
+		// Generate the document.
+		\ChromePhp::log("Genrating pdf...");
+		$html = $this->load->view('templates/requestPdf', $data, true); // render the view into HTML
+		$this->load->library('pdf');
+		$pdf = $this->pdf->load();
+		$pdf->WriteHTML($html); // write the HTML into the PDF
+		// Set footer
+		$pdf->SetHTMLFooter (
+			'<p style="font-size: 14px">
+			* Cuotas y plazo de pago sujetos a cambios en base a solicitudes posteriores
+			del afiliado en cuestión.
+		</p>');
+		$pdf->Output($pdfFilePath, 'F'); // save to file
+		\ChromePhp::log("PDF generation success!");
+	}
+
+	private function mapLoanType($code) {
+		return $code == 40 ? "PRÉSTAMO PERSONAL" : ($code == 31 ? "VALE DE CAJA" : $code);
 	}
 }

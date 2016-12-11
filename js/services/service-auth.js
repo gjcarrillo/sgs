@@ -4,52 +4,45 @@ var login = angular
     .module('sgdp.login', ['ngCookies', 'ngMaterial'])
     .factory('Auth', auth);
 
-auth.$inject = ['$cookies', '$location', '$http', '$rootScope', '$timeout'];
+auth.$inject = ['$cookies', '$location', '$http', '$rootScope', '$q'];
 
-function auth($cookies, $location, $http, $rootScope, $timeout) {
+function auth($cookies, $location, $http, $rootScope, $q) {
     var self = this;
 
     self.login = function (username, password) {
-        $rootScope.loading = true;
+        var qLogin = $q.defer();
         $http.get('index.php/LoginController/authenticate', {params: {id: username, password: password}})
-            .then(function (response) {
-                      console.log(response);
-                      if (response.data.message === "success") {
-                          var now = new Date();
-                          // 1 year exp date
-                          var timeToExpire = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
-                          // create the session cookie
-                          $cookies.putObject('session', {
-                              id: username,
-                              type: response.data.type,
-                              name: response.data.name,
-                              lastName: response.data.lastName
-                          }, {
-                              expires: timeToExpire
-                          });
-                          // $cookies.putObject('session', {
-                          //     id: username,
-                          //     password: password,
-                          //     type: response.data.type,
-                          //     name: response.data.name,
-                          //     lastName: response.data.lastName
-                          // });
-                          if (response.data.type == 3) {
-                              // if applicant then redirect to home
-                              $location.path("applicantHome");
-                          } else {
-                              // if agent or manager, allow perspective selection
-                              $location.path("perspective");
-                          }
-                          $timeout(function () {
-                              $rootScope.loading = false;
-                          }, 1000);
+            .then(
+            function (response) {
+                console.log(response);
+                if (response.data.message === "success") {
+                    var now = new Date();
+                    // 1 year exp date
+                    var timeToExpire = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
+                    // create the session cookie
+                    $cookies.putObject('session', {
+                        id: username,
+                        type: response.data.type,
+                        name: response.data.name,
+                        lastName: response.data.lastName
+                    }, {
+                        expires: timeToExpire
+                    });
+                    // $cookies.putObject('session', {
+                    //     id: username,
+                    //     password: password,
+                    //     type: response.data.type,
+                    //     name: response.data.name,
+                    //     lastName: response.data.lastName
+                    // });
+                    qLogin.resolve(response.data.type);
 
-                      } else {
-                          $rootScope.loading = false;
-                          $rootScope.model.loginError = response.data.message;
-                      }
-                  })
+                } else {
+                    qLogin.reject(response.data.message);
+                }
+            }
+        );
+        return qLogin.promise;
     };
 
     self.logout = function () {
@@ -67,8 +60,14 @@ function auth($cookies, $location, $http, $rootScope, $timeout) {
         return $cookies.getObject('session').type;
     };
 
+    self.userType = function (type) {
+        return $cookies.getObject('session').type == type;
+    };
+
     self.sendHome = function () {
-        if ($cookies.getObject('session').type == 1) {
+        if (!self.isLoggedIn()) {
+            $location.path('/login');
+        } else if ($cookies.getObject('session').type == 1) {
             $location.path("/agentHome");
         } else if ($cookies.getObject('session').type == 2) {
             $location.path("/managerHome");
@@ -81,6 +80,21 @@ function auth($cookies, $location, $http, $rootScope, $timeout) {
         return typeof $cookies.get('session') !== "undefined";
     };
 
+    self.updateSession = function (newType) {
+        var qSession = $q.defer();
+        $http.post('index.php/LoginController/updateSession', {newType: newType})
+            .then(
+            function (response) {
+                if (response.status == 200) {
+                    qSession.resolve();
+                } else {
+                    qSession.reject('Ha ocurrido un error en el servidor. Por favor intente más tarde');
+                }
+            }
+        );
+        return qSession.promise;
+    };
+
     // Clears possible data stored on browser
     function cleanBrowser() {
         sessionStorage.removeItem("req");
@@ -88,21 +102,3 @@ function auth($cookies, $location, $http, $rootScope, $timeout) {
 
     return self;
 }
-
-login.config(function($mdIconProvider) {
-    $mdIconProvider.icon('account-box', 'images/icons/ic_account_box_black_48px.svg', 24);
-    $mdIconProvider.icon('assignment', 'images/icons/ic_assignment_black_48px.svg', 24);
-    $mdIconProvider.icon('assessment', 'images/icons/ic_assessment_black_48px.svg', 24);
-});
-
-// Cache svg's
-login.run(function($http, $templateCache) {
-    var urls = [
-        'images/icons/ic_account_box_black_48px.svg',
-        'images/icons/ic_assignment_black_48px.svg',
-        'images/icons/ic_assessment_black_48px.svg'
-    ];
-    angular.forEach(urls, function(url) {
-        $http.get(url, {cache: $templateCache});
-    });
-});

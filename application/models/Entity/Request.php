@@ -43,14 +43,14 @@ class Request
     private $reunion;
 
     /**
-     * @var integer
+     * @var float
      *
      * @ORM\Column(name="requested_amount", type="float", precision=0, scale=0, nullable=false, unique=false)
      */
     private $requestedAmount;
 
     /**
-     * @var integer
+     * @var float
      *
      * @ORM\Column(name="approved_amount", type="float", precision=0, scale=0, nullable=true, unique=false)
      */
@@ -62,6 +62,34 @@ class Request
      * @ORM\Column(name="status", type="smallint", precision=2, scale=0, nullable=false, unique=false)
      */
     private $status;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="paymentDue", type="smallint", precision=2, scale=0, nullable=false, unique=false)
+     */
+    private $paymentDue;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="loanType", type="smallint", precision=2, scale=0, nullable=false, unique=false)
+     */
+    private $loanType;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="contactNumb", type="string", length=15, precision=0, scale=0, nullable=false, unique=false)
+     */
+    private $contactNumber;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="contactEmail", type="string", length=255, precision=0, scale=0, nullable=false, unique=false)
+     */
+    private $contactEmail;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
@@ -88,25 +116,11 @@ class Request
     private $userOwner;
 
     /**
-     * @var integer
+     * @var \DateTime
      *
-     * @ORM\Column(name="paymentDue", type="smallint", precision=2, scale=0, nullable=false, unique=false)
+     * @ORM\Column(name="validation_date", type="datetime", precision=0, scale=0, nullable=true, unique=false)
      */
-    private $paymentDue;
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="loanType", type="smallint", precision=2, scale=0, nullable=false, unique=false)
-     */
-    private $loanType;
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="contactNumb", type="string", length=15, precision=0, scale=0, nullable=false, unique=false)
-     */
-    private $contactNumber;
+    private $validationDate;
 
     /**
      * Constructor
@@ -151,6 +165,29 @@ class Request
     }
 
     /**
+     * Set validationDate
+     *
+     * @param \DateTime $validationDate
+     * @return Request
+     */
+    public function setValidationDate($validationDate)
+    {
+        $this->validationDate = $validationDate;
+
+        return $this;
+    }
+
+    /**
+     * Get validationDate
+     *
+     * @return \DateTime
+     */
+    public function getValidationDate()
+    {
+        return $this->validationDate;
+    }
+
+    /**
      * Set comment
      *
      * @param string $comment
@@ -172,6 +209,7 @@ class Request
     {
         return $this->comment;
     }
+
     /**
      * Set reunion
      *
@@ -198,7 +236,7 @@ class Request
     /**
      * Set requestedAmount
      *
-     * @param integer $requestedAmount
+     * @param float $requestedAmount
      * @return Request
      */
     public function setRequestedAmount($requestedAmount)
@@ -211,7 +249,7 @@ class Request
     /**
      * Get requestedAmount
      *
-     * @return integer
+     * @return float
      */
     public function getRequestedAmount()
     {
@@ -221,7 +259,7 @@ class Request
     /**
      * Set approvedAmount
      *
-     * @param integer $approvedAmount
+     * @param float $approvedAmount
      * @return Request
      */
     public function setApprovedAmount($approvedAmount)
@@ -234,7 +272,7 @@ class Request
     /**
      * Get approvedAmount
      *
-     * @return integer
+     * @return float
      */
     public function getApprovedAmount()
     {
@@ -265,23 +303,116 @@ class Request
     }
 
     /**
-    * Get status converted into text
-    * @return string
-    */
+     * Get status converted into text
+     * @return string
+     */
     public function getStatusByText()
     {
         $status = $this->status;
         return ($status == 1 ? "Recibida" : ($status == 2 ? "Aprobada" : "Rechazada"));
     }
     /**
-    * Set status converted into text
-    * @param string $status
-    * @return Request
-    */
+     * Set status converted into text
+     * @param string $status
+     * @return Request
+     */
     public function setStatusByText($status)
     {
         $this->status = ($status == "Recibida" ? 1 : ($status == "Aprobada" ? 2 : 3));
         return $this;
+    }
+
+
+    /**
+     * Set paymentDue
+     *
+     * @param integer $paymentDue
+     * @return Request
+     */
+    public function setPaymentDue($paymentDue)
+    {
+        $this->paymentDue = $paymentDue;
+
+        return $this;
+    }
+
+    /**
+     * Get paymentDue
+     *
+     * @return integer
+     */
+    public function getPaymentDue()
+    {
+        return $this->paymentDue;
+    }
+
+    /**
+     * Set loanType
+     *
+     * @param integer $loanType
+     * @return Request
+     */
+    public function setLoanType($loanType)
+    {
+        $this->loanType = $loanType;
+
+        return $this;
+    }
+
+    /**
+     * Get loanType
+     *
+     * @return integer
+     */
+    public function getLoanType()
+    {
+        return $this->loanType;
+    }
+
+    /**
+     * Set contactNumber
+     *
+     * @param string $contactNumber
+     * @return Request
+     */
+    public function setContactNumber($contactNumber)
+    {
+        $this->contactNumber = $contactNumber;
+
+        return $this;
+    }
+
+    /**
+     * Get contactNumber
+     *
+     * @return string
+     */
+    public function getContactNumber()
+    {
+        return $this->contactNumber;
+    }
+
+    /**
+     * Set contactEmail
+     *
+     * @param string $contactEmail
+     * @return Request
+     */
+    public function setContactEmail($contactEmail)
+    {
+        $this->contactEmail = $contactEmail;
+
+        return $this;
+    }
+
+    /**
+     * Get contactEmail
+     *
+     * @return string
+     */
+    public function getContactEmail()
+    {
+        return $this->contactEmail;
     }
 
     /**
@@ -371,74 +502,5 @@ class Request
     public function getUserOwner()
     {
         return $this->userOwner;
-    }
-
-    /**
-     * Set paymentDue
-     *
-     * @param integer $paymentDue
-     * @return Request
-     */
-    public function setPaymentDue($paymentDue)
-    {
-        $this->paymentDue = $paymentDue;
-    
-        return $this;
-    }
-
-    /**
-     * Get paymentDue
-     *
-     * @return integer 
-     */
-    public function getPaymentDue()
-    {
-        return $this->paymentDue;
-    }
-
-    /**
-     * Set loanType
-     *
-     * @param integer $loanType
-     * @return Request
-     */
-    public function setLoanType($loanType)
-    {
-        $this->loanType = $loanType;
-    
-        return $this;
-    }
-
-    /**
-     * Get loanType
-     *
-     * @return integer 
-     */
-    public function getLoanType()
-    {
-        return $this->loanType;
-    }
-
-    /**
-     * Set contactNumber
-     *
-     * @param integer $contactNumber
-     * @return Request
-     */
-    public function setContactNumber($contactNumber)
-    {
-        $this->contactNumber = $contactNumber;
-    
-        return $this;
-    }
-
-    /**
-     * Get contactNumber
-     *
-     * @return integer 
-     */
-    public function getContactNumber()
-    {
-        return $this->contactNumber;
     }
 }

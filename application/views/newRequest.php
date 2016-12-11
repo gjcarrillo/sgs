@@ -98,7 +98,30 @@
                                 placeholder="Ej: 1234567"/>
                             <div ng-messages="applicantForm.phone.$error" ng-show="applicantForm.phone.$dirty">
                                 <div ng-message="required">¡Este campo es obligatorio!</div>
-                                <div ng-message="maxlength">El número debe tener 10 dígitos.</div>
+                                <div ng-message="maxlength">El número debe tener 7 dígitos.</div>
+                            </div>
+                        </md-input-container>
+                    </div>
+                </div>
+                <div layout="column">
+                    <div
+                        class="grey-color">
+                        <b>Correo electrónico</b>
+                    </div>
+                    <div layout class="pointer">
+                        <md-input-container
+                            id="email"
+                            md-no-float
+                            class="no-vertical-margin">
+                            <input type="email"
+                                   name="email"
+                                   required
+                                   pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$"
+                                   ng-model="model.email"
+                                   placeholder="ejemplo@dominio.com"/>
+                            <div ng-messages="applicantForm.email.$error" ng-show="applicantForm.email.$dirty">
+                                <div ng-message="required">¡Este campo es obligatorio!</div>
+                                <div ng-message="pattern">Formato: ejemplo@dominio.com</div>
                             </div>
                         </md-input-container>
                     </div>

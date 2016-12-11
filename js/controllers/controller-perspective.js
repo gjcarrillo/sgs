@@ -2,9 +2,9 @@ angular
     .module('sgdp.login')
     .controller('PerspectiveController', selection);
 
-selection.$inject = ['$scope', '$rootScope', '$state', '$cookies'];
+selection.$inject = ['$scope', '$rootScope', '$state', '$cookies', 'Constants', 'Auth'];
 
-function selection($scope, $rootScope, $state, $cookies) {
+function selection($scope, $rootScope, $state, $cookies, Constants, Auth) {
     'use strict';
 
     var now = new Date();
@@ -15,11 +15,11 @@ function selection($scope, $rootScope, $state, $cookies) {
 
     $scope.welcomeMsg = "Bienvenido, " + name + ".";
 
-    if (userType(2)) {
+    if (userType(Constants.Users.MANAGER)) {
         // User is manager, disable go-agent
         $("#go-agent").toggle();
         $("#agent-help").toggle();
-    } else if (userType(1)) {
+    } else if (userType(Constants.Users.AGENT)) {
         // If user is agent, disable go-manager
         $("#go-manager").toggle();
         $("#manager-help").toggle();
@@ -28,39 +28,71 @@ function selection($scope, $rootScope, $state, $cookies) {
         // re-write the session cookie
         $cookies.putObject('session', {
             id: id,
-            type: 3,
+            type: Constants.Users.APPLICANT,
             name: name,
             lastName: lastName
         }, {
             expires : timeToExpire
         });
-        $state.go("applicantHome");
+        Auth.updateSession(Constants.Users.APPLICANT)
+            .then (
+            function () {
+                $state.go("applicantHome");
+            },
+            function (error) {
+                console.log(error);
+            }
+        );
     };
 
     $scope.goAgent = function() {
-        // re-write the session cookie
-        $cookies.putObject('session', {
-            id: id,
-            type: 1,
-            name: name,
-            lastName: lastName
-        }, {
-            expires : timeToExpire
-        });
-        $state.go("agentHome");
+        if (userType(Constants.Users.AGENT)) {
+            $state.go("agentHome");
+        } else {
+            // re-write the session cookie
+            $cookies.putObject('session', {
+                id: id,
+                type: Constants.Users.AGENT,
+                name: name,
+                lastName: lastName
+            }, {
+                expires : timeToExpire
+            });
+            Auth.updateSession(Constants.Users.AGENT)
+                .then (
+                function () {
+                    $state.go("agentHome");
+                },
+                function (error) {
+                    console.log(error);
+                }
+            );
+        }
     };
 
     $scope.goManager = function() {
-        // re-write the session cookie
-        $cookies.putObject('session', {
-            id: id,
-            type: 2,
-            name: name,
-            lastName: lastName
-        }, {
-            expires : timeToExpire
-        });
-        $state.go("managerHome");
+        if (userType(Constants.Users.MANAGER)) {
+            $state.go('managerHome');
+        } else {
+            // re-write the session cookie
+            $cookies.putObject('session', {
+                id: id,
+                type: Constants.Users.MANAGER,
+                name: name,
+                lastName: lastName
+            }, {
+                expires : timeToExpire
+            });
+            Auth.updateSession(Constants.Users.MANAGER)
+                .then (
+                function () {
+                    $state.go("managerHome");
+                },
+                function (error) {
+                    console.log(error);
+                }
+            );
+        }
     };
 
     function userType(type) {

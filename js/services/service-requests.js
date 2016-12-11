@@ -135,7 +135,7 @@ function reqService($q, $http, Constants) {
     };
 
     /**
-     * * Filters all requests by type and assigns to the scope.
+     * * Filters all requests by type.
      *
      * @param requests - Requests array returned by the server.
      * @returns {{}} - Obj containing arrays of different types of loans.
@@ -143,7 +143,7 @@ function reqService($q, $http, Constants) {
     self.filterRequests = function (requests) {
         var req = {};
         var codes = Constants.LoanTypes;
-        angular.forEach(codes, function(code) {
+        angular.forEach(codes, function (code) {
             req[self.mapLoanTypeAsCode(code)] = requests.filter(function (loan) {
                 return loan.type == code;
             });
@@ -168,7 +168,7 @@ function reqService($q, $http, Constants) {
     self.getStatusesTitles = function () {
         var codes = Constants.Statuses;
         var titles = [];
-        angular.forEach(codes, function(code) {
+        angular.forEach(codes, function (code) {
             titles.push(self.mapStatus(code));
         });
 
@@ -182,7 +182,7 @@ function reqService($q, $http, Constants) {
      */
     self.getAllStatuses = function () {
         var statuses = [];
-        angular.forEach (Constants.Statuses, function(status) {
+        angular.forEach(Constants.Statuses, function (status) {
             statuses.push(status);
         });
         return statuses;
@@ -196,7 +196,7 @@ function reqService($q, $http, Constants) {
     self.getLoanTypesTitles = function () {
         var codes = Constants.LoanTypes;
         var titles = [];
-        angular.forEach(codes, function(code) {
+        angular.forEach(codes, function (code) {
             titles.push(self.mapLoanType(code));
         });
 
@@ -210,8 +210,8 @@ function reqService($q, $http, Constants) {
      */
     self.getAllLoanTypes = function () {
         var loanTypes = [];
-        angular.forEach (Constants.LoanTypes, function(type) {
-           loanTypes.push(type);
+        angular.forEach(Constants.LoanTypes, function (type) {
+            loanTypes.push(type);
         });
         return loanTypes;
     };
@@ -282,7 +282,7 @@ function reqService($q, $http, Constants) {
     self.initializeListType = function () {
         var list = {};
         var codes = Constants.LoanTypes;
-        angular.forEach(codes, function(code) {
+        angular.forEach(codes, function (code) {
             list[self.mapLoanTypeAsCode(code)] = false;
         });
         return list;
@@ -312,7 +312,7 @@ function reqService($q, $http, Constants) {
         var index = {};
         var found = false;
 
-        angular.forEach (requests, function (request, rKey) {
+        angular.forEach(requests, function (request, rKey) {
             var i = 0;
             while (i < request.length && !found) {
                 if (request[i].id === id) {
@@ -337,7 +337,7 @@ function reqService($q, $http, Constants) {
         $http.post('index.php/NewRequestController/createRequest',
                    JSON.stringify(postData))
             .then(function (response) {
-                             console.log(response);
+                      console.log(response);
                       if (response.data.message == "success") {
                           qReqCreation.resolve();
                       } else {
@@ -362,6 +362,52 @@ function reqService($q, $http, Constants) {
             description: 'Documento declarativo referente a la solicitud',
             docName: docName
         }
+    };
+
+    /**
+     * Edits the request's email address.
+     *
+     * @param reqId - selected request's id.
+     * @param newAddress - new email address.
+     */
+    self.editEmail = function (reqId, newAddress) {
+        var qEmail = $q.defer();
+
+        var postData = {reqId: reqId, newAddress: newAddress};
+        $http.post('index.php/EditRequestController/updateEmail', postData)
+            .then(
+            function (response) {
+                console.log(response);
+                if (response.data.message == "success") {
+                    qEmail.resolve();
+                } else {
+                    qEmail.reject('Ha ocurrido un error al actualizar la dirección. ' +
+                                  'de correo. Por favor intente más tarde.');
+                }
+            });
+        return qEmail.promise;
+    };
+
+    /**
+     * Sends a validation email for the specified request.
+     *
+     * @param reqId - request id.
+     */
+    self.sendValidation = function(reqId) {
+        var qValidation = $q.defer();
+
+        $http.post('index.php/ApplicantHomeController/sendValidation', reqId)
+            .then(
+            function (response) {
+                console.log(response);
+                if (response.data.message == "success") {
+                    qValidation.resolve();
+                } else {
+                    qValidation.reject('Ha ocurrido un error al actualizar la dirección. ' +
+                                  'de correo. Por favor intente más tarde.');
+                }
+            });
+        return qValidation.promise;
     };
 
     /**

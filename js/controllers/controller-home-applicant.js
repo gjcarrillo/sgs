@@ -126,7 +126,8 @@ function userHome($scope, $cookies, $timeout, Helps,
 
             $scope.missingField = function () {
                 return typeof $scope.model.reqAmount === "undefined" ||
-                       !$scope.model.tel.value;
+                       !$scope.model.tel.value ||
+                       !$scope.model.email;
             };
 
             $scope.closeDialog = function () {
@@ -152,12 +153,17 @@ function userHome($scope, $cookies, $timeout, Helps,
                     tel: $scope.model.tel.operator + '-' + $scope.model.tel.value,
                     due: $scope.model.due,
                     loanType: $scope.model.type,
+                    email: $scope.model.email,
                     docs: docs
                 };
                 Requests.createRequest(postData).then(
                     function() {
                         updateRequestListUI(fetchId, 0, 'Solicitud creada',
-                                            'La solicitud ha sido creada exitosamente.',
+                                            'La solicitud ha sido creada exitosamente. ' +
+                                            'Le hemos enviado un correo para realizar la correspondiente validación. ' +
+                                            'Una vez validada, nuestros agentes la atenderán a la mayor brevedad ' +
+                                            'posible. ' +
+                                            'Si no ha recibido el correo luego de 10 minutos, haga clic en Reenviar.',
                                             true, true,
                                             parseInt(postData.loanType, 10));
                     },
@@ -177,8 +183,7 @@ function userHome($scope, $cookies, $timeout, Helps,
             $scope.confirmCreation = function (ev) {
                 Utils.showConfirmDialog(
                     'Confirmación de creación de solicitud',
-                    'El sistema generará el documento correspondiente a su solicitud y será' +
-                    ' atendida a la mayor brevedad posible. ¿Desea proceder con su solicitud?',
+                    'El sistema generará el documento correspondiente a su solicitud. ¿Desea proceder?',
                     'Sí', 'Cancelar', ev, true
                 ).then(
                     function() {
@@ -221,12 +226,19 @@ function userHome($scope, $cookies, $timeout, Helps,
                     Helps.addFieldHelp(tripToShowNavigation, "#req-amount",
                                   content, 's');
                 }
-                if (!$scope.model.phone) {
+                if (!$scope.model.tel.value) {
                     // Requested amount field
                     content = "Ingrese su número telefónico, a través " +
                                   "del cual nos estaremos comunicando con usted.";
                     Helps.addFieldHelp(tripToShowNavigation, "#phone-numb",
                                   content, 'n');
+                }
+                if (!$scope.model.email) {
+                    // Email field
+                    content = "Ingrese su correo electrónico, a través del cual se le " +
+                              "enviará información y actualizaciones referente a su solicitud.";
+                    Helps.addFieldHelp(tripToShowNavigation, "#email",
+                                       content, 'n');
                 }
                 // Add payment due help.
                 content = "Escoja el plazo (en meses) en el que desea " +
@@ -240,6 +252,66 @@ function userHome($scope, $cookies, $timeout, Helps,
         }
     };
 
+    $scope.editEmail = function(ev) {
+        var parentEl = angular.element(document.body);
+        $mdDialog.show({
+            parent: parentEl,
+            targetEvent: ev,
+            clickOutsideToClose: true,
+            escapeToClose: true,
+            templateUrl: 'index.php/EditRequestController/emailEditionDialog',
+            locals: {
+                req: $scope.req,
+                userId: fetchId,
+                selectedReq: $scope.selectedReq,
+                selectedLoan: $scope.selectedLoan
+            },
+            controller: DialogController
+        });
+
+        function DialogController($scope, req, userId, selectedReq, selectedLoan) {
+            $scope.email = req.email;
+            $scope.loading = false;
+
+            $scope.saveEdition = function () {
+                if (!$scope.canSend()) return;
+                $scope.loading = true;
+                Requests.editEmail(req.id, $scope.email).then(
+                    function () {
+                        updateRequestListUI(userId, selectedLoan,
+                                            'Actualización exitosa', 'La dirección de correo ha sido actualizada ' +
+                                                                     'exitosamente',
+                                            true, false, selectedReq);
+                    },
+                    function (errorMsg) {
+                        Utils.showAlertDialog('Oops!', errorMsg);
+                    }
+                );
+            };
+
+            $scope.canSend = function() {
+                return typeof $scope.email !== "undefined" &&
+                       $scope.email !== req.email;
+            }
+        }
+    };
+
+    $scope.sendValidation = function() {
+        $scope.sending = true;
+        Requests.sendValidation($scope.req.id)
+            .then(
+            function () {
+                $scope.sending = false;
+                Utils.showAlertDialog('Validación reenviada!',
+                                      'Hemos reenviado el correo de validación de su solicitud de forma exitosa.');
+            },
+            function (errorMsg) {
+                $scope.sending = false;
+                Utils.showAlertDialog('Oops!', errorMsg);
+            }
+        )
+    };
+
     // Helper method that updates UI's request list.
     function updateRequestListUI(userId, autoSelectIndex,
                                  dialogTitle, dialogContent,
@@ -250,7 +322,7 @@ function userHome($scope, $cookies, $timeout, Helps,
                 // Update UI only if needed
                 var loanType = Requests.mapLoanTypeAsCode(type);
                 if (updateUI) {
-                    updateContent(data, loanType, autoSelectIndex);
+                    updateContent(data, loanType, autoSelectIndex, toggleList);
                 }
                 // Toggle request list only if requested.
                 if (toggleList) {
@@ -274,14 +346,15 @@ function userHome($scope, $cookies, $timeout, Helps,
      * @param newRequests - the updated requests obj.
      * @param req - New request's type.
      * @param selection - Specific request's index.
+     * @param toggleList - Whether should to toggle request list or not.
      */
-    function updateContent(newRequests, req, selection) {
+    function updateContent(newRequests, req, selection, toggleList) {
         $scope.contentLoaded = true;
         $scope.contentAvailable = true;
         $scope.fetchError = '';
         $scope.requests = newRequests;
         // Close the list
-        closeAllReqList();
+        if (toggleList) closeAllReqList();
         // Automatically select created request
         $scope.selectRequest(req, selection);
     }
@@ -393,9 +466,14 @@ function userHome($scope, $cookies, $timeout, Helps,
                                      'Cuotas a pagar', true);
         // Request contact number
         content = "Aquí se muestra el número de teléfono que ingresó al crear la solicitud, a través del cual " +
-                  "nos estaremos comunicando con usted.";
+                  "lo estaremos contactando.";
         Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-contact-number', content, 'n',
                                      'Número de contacto', true);
+        // Request contact email
+        content = "Éste es el correo electrónico que ingresó al crear la solicitud, a través del cual " +
+                  "le enviaremos información y actualizaciones referente a su solicitud.";
+        Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-email', content, 'n',
+                                     'Correo electrónico', true);
         // Request documents information
         content = "Éste y los siguientes " +
                   "items contienen el nombre y una posible descripción de " +

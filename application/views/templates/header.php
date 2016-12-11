@@ -30,6 +30,8 @@
         <script type="text/javascript" src="<?php echo base_url(); ?>js/services/service-helps.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/services/service-manager.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/services/service-agent.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>js/services/service-validation.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>js/services/service-delete.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-login.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-home-applicant.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-home-agent.js"></script>
@@ -37,9 +39,10 @@
         <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-history.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-user-info.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-perspective.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-validation.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-delete.js"></script>
 
         <!-- Plugins -->
-        <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/webcam/dist/webcam.min.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/moment/min/moment.min.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/chart.js/dist/Chart.min.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/ng-file-upload/dist/ng-file-upload.min.js"></script>

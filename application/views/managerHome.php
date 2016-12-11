@@ -570,8 +570,8 @@
             <md-content
                 ng-show="req.docs"
                 class="document-container">
-                <div layout layout-align="center center">
-                    <md-card class="documents-card">
+                <div layout="column" layout-align="center center">
+                    <md-card class="valid-documents-card">
                         <md-card-content>
                             <md-list>
                                 <md-list-item
@@ -630,7 +630,7 @@
                                                 cloud_download
                                             </md-icon>
                                             <md-tooltip>
-                                                Descargar todo
+                                                Descargar documentos
                                             </md-tooltip>
                                         </md-button>
                                     </div>
@@ -670,7 +670,7 @@
                                                    <md-icon class="md-secondary">
                                                        cloud_download
                                                    </md-icon>
-                                                   Descargar todo
+                                                   Descargar documentos
                                                </md-button>
                                            </md-menu-item>
                                        </md-menu-content>
@@ -719,6 +719,19 @@
                                         <h4>
                                             {{req.phone}}
                                         </h4>
+                                    </div>
+                                </md-list-item>
+                                <md-divider md-inset></md-divider>
+                                <md-list-item class="md-2-line noright"
+                                              id="request-email">
+                                    <md-icon>mail_outline</md-icon>
+                                    <div class="md-list-item-text" layout="column">
+                                        <h3>
+                                            Correo electrónico
+                                        </h3>
+                                        <p>
+                                            {{req.email}}
+                                        </p>
                                     </div>
                                 </md-list-item>
                                 <md-divider></md-divider>

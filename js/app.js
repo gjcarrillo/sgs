@@ -8,6 +8,8 @@ var sgdp = angular.module("sgdp",
         "sgdp.service-helps",
         "sgdp.service-manager",
         "sgdp.service-agent",
+        "sgdp.service-validation",
+        "sgdp.service-delete",
         "ui.router",
         "ngMaterial",
         "ngFileUpload",
@@ -54,6 +56,16 @@ sgdp.config(function ($stateProvider, $urlRouterProvider, $mdThemingProvider,
             url: '/userInfo',
             templateUrl: 'index.php/UserInfoController',
             controller: 'UserInfoController'
+        })
+        .state('validate', {
+            url: '/validate/:token',
+            templateUrl: 'index.php/ValidationController',
+            controller: 'ValidationController'
+        })
+        .state('delete', {
+            url: '/delete/:rid',
+            templateUrl: 'index.php/DeleteController',
+            controller: 'DeleteController'
         });
     // $locationProvider.html5Mode(true);
     // Application theme
@@ -104,7 +116,7 @@ sgdp.config(function ($stateProvider, $urlRouterProvider, $mdThemingProvider,
     });
     $mdThemingProvider.definePalette('darkBlue', darkBlue);
     $mdThemingProvider.theme('help-card').backgroundPalette('lime', {
-        'default': '100',
+        'default': '100'
     });
     $mdThemingProvider.theme('default')
         .primaryPalette('darkBlue')
@@ -154,23 +166,26 @@ sgdp.run(['$rootScope', '$location', '$state', 'Auth', '$cookies', '$http',
                   Auth.logout();
               };
               $rootScope.$on("$locationChangeStart", function (e, toState, toParams, fromState, fromParams) {
-                  if (!Auth.isLoggedIn() && $location.url() != "/login") {
+                  var url = $location.url();
+                  if (!Auth.isLoggedIn() &&
+                      url != "/login" &&
+                      !url.startsWith('/validate') &&
+                      !url.startsWith('/delete')) {
                       // if user is not logged in and is trying to access
                       // private content, send to login.
                       e.preventDefault();
                       $state.go('login');
-                  }
-                  else if (Auth.isLoggedIn() && $location.url() == "/login") {
+                  } else if (Auth.isLoggedIn() && url == "/login") {
                       // if user Is logged in and is trying to access login page
                       // send to home page
                       e.preventDefault();
+                      console.log('Sending home 1');
                       Auth.sendHome();
-                  } else if (Auth.isLoggedIn() && !userHasPermission(Auth.permission(), $location.url())) {
+                  } else if (Auth.isLoggedIn() && !userHasPermission(Auth.permission(), url)) {
                       // check if user actually has access permission to intended url
 
                       e.preventDefault();
-                      // if user does not have the propper permission, send home
-                      // or maybe send to error page.
+                      // if user does not have the proper permission, send home
                       Auth.sendHome();
                   }
               });
@@ -180,6 +195,10 @@ sgdp.run(['$rootScope', '$location', '$state', 'Auth', '$cookies', '$http',
                       case '/applicantHome':
                           // Anyone can access user home page
                           return true;
+                      case '/validate':
+                          return userType == 3;
+                      case '/delete':
+                          return userType == 3;
                       case '/agentHome':
                           // Check for agent rights
                           return userType == 1;
@@ -199,7 +218,8 @@ sgdp.run(['$rootScope', '$location', '$state', 'Auth', '$cookies', '$http',
                   //  Going to login (.otherwise('login')), so keep going!
                   return true;
               }
-          }]);
+          }
+]);
 
 // Slide up/down animation for ng-hide
 sgdp.animation('.slide-toggle', ['$animateCss', function ($animateCss) {
@@ -233,3 +253,26 @@ sgdp.animation('.slide-toggle', ['$animateCss', function ($animateCss) {
         }
     };
 }]);
+
+
+sgdp.config(function($mdIconProvider) {
+    $mdIconProvider.icon('account-box', 'images/icons/ic_account_box_black_48px.svg', 24);
+    $mdIconProvider.icon('assignment', 'images/icons/ic_assignment_black_48px.svg', 24);
+    $mdIconProvider.icon('assessment', 'images/icons/ic_assessment_black_48px.svg', 24);
+    $mdIconProvider.icon('error', 'images/icons/ic_error_black_48px.svg', 24);
+    $mdIconProvider.icon('verified-user', 'images/icons/ic_verified_user_black_48px.svg', 24);
+});
+
+// Cache svg's
+sgdp.run(function($http, $templateCache) {
+    var urls = [
+        'images/icons/ic_account_box_black_48px.svg',
+        'images/icons/ic_assignment_black_48px.svg',
+        'images/icons/ic_assessment_black_48px.svg',
+        'images/icons/ic_error_black_48px.svg',
+        'images/icons/ic_verified_user_black_48px.svg'
+    ];
+    angular.forEach(urls, function(url) {
+        $http.get(url, {cache: $templateCache});
+    });
+});

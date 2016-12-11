@@ -137,7 +137,9 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
             };
 
             $scope.missingField = function () {
-                return typeof $scope.model.reqAmount === "undefined" || !$scope.model.tel.value;
+                return typeof $scope.model.reqAmount === "undefined" ||
+                       !$scope.model.tel.value ||
+                       !$scope.model.email;
             };
 
             // TODO: Try to implement this onSelectOpen and onSelectClose
@@ -197,12 +199,14 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
                     tel: $scope.model.tel.operator + '-' + $scope.model.tel.value,
                     due: $scope.model.due,
                     loanType: $scope.model.type,
+                    email: $scope.model.email,
                     docs: docs
                 };
                 Requests.createRequest(postData).then(
                     function () {
                         updateRequestListUI(fetchId, 0, 'Solicitud creada',
-                                            'La solicitud ha sido creada exitosamente.',
+                                            'La solicitud ha sido creada exitosamente. ' +
+                                            'Se ha enviado el correo para realizar la correspondiente validación.',
                                             true, true,
                                             parseInt(postData.loanType, 10));
                     },
@@ -238,19 +242,26 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
                     content = "Ingrese la cantidad de Bs. solicitado por el afiliado.";
                     Helps.addFieldHelp(tripToShowNavigation, "#req-amount", content, 's');
                 }
-                if (!$scope.model.phone) {
-                    // Requested amount field
+                if (!$scope.model.tel.value) {
+                    // Phone number field
                     content = "Ingrese el número telefónico del afiliado, a través " +
                               "del cual se le estará contactando.";
                     Helps.addFieldHelp(tripToShowNavigation, "#phone-numb",
                                        content, 'n');
                 }
+                if (!$scope.model.email) {
+                    // Email field
+                    content = "Ingrese su correo electrónico, a través del cual se le " +
+                              "enviará información y actualizaciones referente a la solicitud.";
+                    Helps.addFieldHelp(tripToShowNavigation, "#email",
+                                       content, 'n');
+                }
                 // Add payment due help.
-                content = "Escoja el plazo (en meses) en el que desea " +
+                content = "Escoja el plazo (en meses) en el que el afiliado desea " +
                                 "pagar su deuda.";
                 Helps.addFieldHelp(tripToShowNavigation, "#payment-due", content, 'n');
                 // Add loan type help.
-                content = "Escoja el tipo de préstamo que desea solicitar.";
+                content = "Escoja el tipo de préstamo que el afiliado desea solicitar.";
                 Helps.addFieldHelp(tripToShowNavigation, "#loan-type", content, 'n');
                 tripToShowNavigation.start();
             }
@@ -697,10 +708,14 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
         Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-payment-due', content, 's',
                                      'Cuotas a pagar', true);
         // Request contact number
-        content = "Aquí se muestra el número de teléfono que ingresó al crear la solicitud, a través del cual " +
-                  "nos estaremos comunicando con usted.";
+        content = "Aquí se muestra el número de teléfono del solicitante.";
         Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-contact-number', content, 'n',
                                      'Número de contacto', true);
+        // Request contact email
+        content = "Éste es el correo electrónico a través del cual el sistema enviará información y " +
+                  "actualizaciones referente a la solicitud.";
+        Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-email', content, 'n',
+                                     'Correo electrónico', true);
         // Request documents information
         content = "Éste y los siguientes items contienen " +
                   "el nombre y, de existir, una descripción de cada documento en la solicitud. " +
