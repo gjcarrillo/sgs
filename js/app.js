@@ -13,7 +13,6 @@ var sgdp = angular.module("sgdp",
         "ui.router",
         "ngMaterial",
         "ngFileUpload",
-        "webcam",
         "ngMessages"
     ]);
 
