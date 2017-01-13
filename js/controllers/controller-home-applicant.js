@@ -368,7 +368,8 @@ function userHome($scope, $cookies, $timeout, Helps,
             $scope.confirmOperation = function (ev) {
                 Utils.showConfirmDialog(
                     'Confirmación de edición de solicitud',
-                    'Se guardarán los cambios que haya realizado a su solicitud. ¿Desea proceder?',
+                    'Se guardarán los cambios que haya realizado a su solicitud y se reenviará el correo de ' +
+                    'validación con los datos actualizados. ¿Desea proceder?',
                     'Sí', 'Cancelar', ev, true
                 ).then(
                     function() {

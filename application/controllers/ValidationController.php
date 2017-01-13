@@ -22,20 +22,23 @@ class ValidationController extends CI_Controller {
             $rid = $decoded->rid;
             $em = $this->doctrine->em;
             $request = $em->find('\Entity\Request', $rid);
-            if ($request->getUserOwner()->getId() === $uid) {
-                \ChromePhp::log($request->getValidationDate());
-                if ($request->getValidationDate() !== null) {
-                    $result['message'] = "Esta solicitud ya ha sido validada.";
-                } else {
-                    $request->setValidationDate(new DateTime('now', new DateTimeZone('America/Barbados')));
-                    $this->registerValidation($em, $request);
-                    $em->merge($request);
-                    $em->flush();
-                    $em->clear();
-                    $result['message'] = "success";
-                }
-            } else {
+            if ($request->getUserOwner()->getId() !== $uid) {
                 $result['message'] = "Token Inválido.";
+            } else {
+                if (!isset($_SESSION['id']) || $_SESSION['id'] !== $uid) {
+                    $result['message'] = "Esta solicitud no le pertenece.";
+                } else {
+                    if ($request->getValidationDate() !== null) {
+                        $result['message'] = "Esta solicitud ya ha sido validada.";
+                    } else {
+                        $request->setValidationDate(new DateTime('now', new DateTimeZone('America/Barbados')));
+                        $this->registerValidation($em, $request);
+                        $em->merge($request);
+                        $em->flush();
+                        $em->clear();
+                        $result['message'] = "success";
+                    }
+                }
             }
         } catch (Exception $e) {
             \ChromePhp::log($e);
@@ -50,8 +53,8 @@ class ValidationController extends CI_Controller {
         $history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
         $history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
         // Register it's corresponding actions
-        // 3 = Modification
-        $history->setTitle(3);
+        // 7 = Validation
+        $history->setTitle(7);
         $history->setOrigin($request);
         $action = new \Entity\HistoryAction();
         $action->setSummary("Validación de solicitud");
