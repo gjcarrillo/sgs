@@ -85,7 +85,7 @@ class ManageAgentUsers extends CI_Controller {
 				$agents = $em->getRepository('\Entity\User')->findBy(array('type' => 1, 'status' => "ACTIVE"));
 				foreach ($agents as $aKey => $agent) {
 					$result['agents'][$aKey] =
-						$agent->getId() . " (" . $agent->getName() . " " . $agent->getLastName() . ")";
+						$agent->getId() . " (" . $agent->getFirstName() . " " . $agent->getLastName() . ")";
 				}
 			} catch (Exception $e) {
 				\ChromePhp::log($e);
