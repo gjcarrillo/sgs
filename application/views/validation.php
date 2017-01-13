@@ -39,7 +39,13 @@
                 md-svg-src="verified-user">
             </md-icon>
             <p ng-if="!errorMsg">Solicitud verificada exitosamente.</p>
-            <md-button ng-if="!errorMsg" ng-click="go()" class="md-raised md-primary">Ingresar</md-button>
+            <div layout ng-if="!errorMsg">
+                <md-button ng-click="go()" class="md-raised md-primary">Ingresar</md-button>
+                <md-button onclick="window.open('', '_self', ''); window.close();"
+                           class="md-raised md-primary">Cerrar</md-button>
+            </div>
+            <md-button ng-if="errorMsg" onclick="window.open('', '_self', ''); window.close();"
+                       class="md-raised md-primary">Cerrar</md-button>
         </div>
     </md-content>
 </main>
