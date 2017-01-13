@@ -49,6 +49,7 @@ function reqService($q, $http, Constants) {
      * Updates the given request.
      *
      * @param postData - data to be sent to the server for updating the request.
+     * @returns {*} - promise containing the operation's result.
      */
     self.updateRequest = function (postData) {
         var qUpdate = $q.defer();
@@ -58,11 +59,32 @@ function reqService($q, $http, Constants) {
                       if (response.status == 200) {
                           qUpdate.resolve();
                       } else {
-                          qUpdate.reject('Ha ocurrido un problema al actualizar la solicitud. ' +
+                          qUpdate.reject('Ha ocurrido un problema al intentar actualizar la solicitud. ' +
                                          'Por favor intente más tarde.');
                       }
                   });
         return qUpdate.promise;
+    };
+
+    /**
+     * Edits the given request.
+     *
+     * @param postData - data to be sent to the server for editing the request.
+     * @returns {*} - promise containing the operation's result.
+     */
+    self.editRequest = function (postData) {
+        var qEdit = $q.defer();
+        $http.post('index.php/EditRequestController/editRequest',
+                   JSON.stringify(postData))
+            .then(function (response) {
+                      if (response.status == 200) {
+                          qEdit.resolve();
+                      } else {
+                          qEdit.reject('Ha ocurrido un problema al intentar editar la solicitud. ' +
+                                         'Por favor intente más tarde.');
+                      }
+                  });
+        return qEdit.promise;
     };
 
     /**

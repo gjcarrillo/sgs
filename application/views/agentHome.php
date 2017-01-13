@@ -185,7 +185,7 @@
                 ng-hide="!req.docs"
                 class="document-container">
                 <div layout="column" layout-align="center center">
-                    <md-card class="validation-card" ng-if="!req.validationDate">
+                    <md-card id="validation-card" class="validation-card" ng-if="!req.validationDate">
                         <md-card-content>
                             <p>
                                 NO VALIDADO
@@ -225,7 +225,18 @@
                                         </md-button>
                                         <md-button
                                             class="md-icon-button"
-                                            ng-if="req.status == 'Recibida'"
+                                            ng-if="req.status == 'Recibida' && req.validationDate"
+                                            ng-click="openUpdateRequestDialog($event)">
+                                            <md-icon class="md-secondary">
+                                                edit
+                                            </md-icon>
+                                            <md-tooltip>
+                                                Editar solicitud
+                                            </md-tooltip>
+                                        </md-button>
+                                        <md-button
+                                            class="md-icon-button"
+                                            ng-if="!req.validationDate"
                                             ng-click="openEditRequestDialog($event)">
                                             <md-icon class="md-secondary">
                                                 edit
@@ -277,12 +288,20 @@
                                                     Historial
                                                 </md-button>
                                             </md-menu-item>
-                                            <md-menu-item ng-if="req.status == 'Recibida'">
+                                            <md-menu-item ng-if="req.status == 'Recibida' && req.validationDate">
+                                                <md-button ng-click="openUpdateRequestDialog($event)">
+                                                    <md-icon class="md-secondary">
+                                                        edit
+                                                    </md-icon>
+                                                    Editar solicitud
+                                                </md-button>
+                                            </md-menu-item>
+                                            <md-menu-item ng-if="!req.validationDate">
                                                 <md-button ng-click="openEditRequestDialog($event)">
                                                     <md-icon class="md-secondary">
                                                         edit
                                                     </md-icon>
-                                                    Editar
+                                                    Editar solicitud
                                                 </md-button>
                                             </md-menu-item>
                                             <md-menu-item>

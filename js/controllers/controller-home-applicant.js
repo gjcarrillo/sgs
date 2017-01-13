@@ -117,6 +117,8 @@ function userHome($scope, $cookies, $timeout, Helps,
             // obj could have a reference to user data, saved
             // before confirmation dialog was opened.
             $scope.model = obj || {due: 24, type: $scope.PERSONAL, tel: {operator: '0412'}};
+            $scope.confirmButton = 'Crear';
+            $scope.title = 'Nueva solicitud de préstamo';
 
             // if user came back to this dialog after confirming operation..
             if ($scope.model.confirmed) {
@@ -180,7 +182,7 @@ function userHome($scope, $cookies, $timeout, Helps,
             };
 
             // Shows a dialog asking user to confirm the request creation.
-            $scope.confirmCreation = function (ev) {
+            $scope.confirmOperation = function (ev) {
                 Utils.showConfirmDialog(
                     'Confirmación de creación de solicitud',
                     'El sistema generará el documento correspondiente a su solicitud. ¿Desea proceder?',
@@ -243,6 +245,189 @@ function userHome($scope, $cookies, $timeout, Helps,
                 // Add payment due help.
                 content = "Escoja el plazo (en meses) en el que desea " +
                                 "pagar su deuda.";
+                Helps.addFieldHelp(tripToShowNavigation, "#payment-due", content, 'n');
+                // Add loan type help.
+                content = "Escoja el tipo de préstamo que desea solicitar.";
+                Helps.addFieldHelp(tripToShowNavigation, "#loan-type", content, 'n');
+                tripToShowNavigation.start();
+            }
+        }
+    };
+
+    /**
+     * Opens the edition request dialog and performs the corresponding operations.
+     *
+     * @param $event - DOM event.
+     * @param obj - optional obj containing user input data.
+     */
+    $scope.openEditRequestDialog = function ($event, obj) {
+        var parentEl = angular.element(document.body);
+        $mdDialog.show({
+            parent: parentEl,
+            targetEvent: $event,
+            templateUrl: 'index.php/NewRequestController',
+            clickOutsideToClose: false,
+            escapeToClose: false,
+            autoWrap: false,
+            locals: {
+                fetchId: fetchId,
+                request: $scope.requests[$scope.selectedReq][$scope.selectedLoan],
+                selectedLoan: $scope.selectedLoan,
+                obj: obj,
+                parentScope: $scope
+            },
+            controller: DialogController
+        });
+        // Isolated dialog controller for the new request dialog
+        function DialogController($scope, $mdDialog, fetchId, request,
+                                  selectedLoan, parentScope, obj) {
+            $scope.docPicTaken = false;
+            $scope.uploading = false;
+            $scope.maxReqAmount = Requests.getMaxAmount();
+            $scope.uploadErr = '';
+            // Hold scope reference to constants
+            $scope.APPLICANT = Constants.Users.APPLICANT;
+            $scope.AGENT = Constants.Users.AGENT;
+            $scope.PERSONAL = Constants.LoanTypes.PERSONAL;
+            $scope.CASH_VOUCHER = Constants.LoanTypes.CASH_VOUCHER;
+            // obj could have a reference to user data, saved
+            // before confirmation dialog was opened.
+            console.log(request.phone, request.phone.slice(0,4), request.phone.slice(5));
+            var model = {
+                reqAmount: request.reqAmount,
+                type: request.type,
+                due: request.due,
+                tel: {operator: request.phone.slice(0, 4), value: parseInt(request.phone.slice(5), 10)},
+                email: request.email
+            };
+            $scope.model = obj || model;
+            $scope.confirmButton = 'Editar';
+            $scope.title = 'Edición de solicitud';
+
+            // if user came back to this dialog after confirming operation..
+            if ($scope.model.confirmed) {
+                // Go ahead and proceed with edition
+                editRequest();
+            }
+
+            $scope.missingField = function () {
+                return (typeof $scope.model.reqAmount === "undefined"
+                        || typeof $scope.model.tel.value === "undefined"
+                        || typeof $scope.model.email === "undefined")
+                       || ($scope.model.reqAmount === request.reqAmount &&
+                        $scope.model.tel.value === parseInt(request.phone.slice(5), 10) &&
+                       $scope.model.tel.operator === request.phone.slice(0, 4) &&
+                       $scope.model.email === request.email &&
+                       parseInt($scope.model.due, 10) === request.due &&
+                       $scope.model.type === request.type);
+                };
+
+            $scope.closeDialog = function () {
+                $mdDialog.hide();
+            };
+
+            // Edits request in database.
+            function editRequest() {
+                $scope.uploading = true;
+                performEdition();
+            }
+
+            // Helper function that performs request edition
+            function performEdition() {
+                var postData = {
+                    rid: request.id,
+                    userId: fetchId,
+                    reqAmount: $scope.model.reqAmount,
+                    tel: $scope.model.tel.operator + '-' + $scope.model.tel.value,
+                    due: $scope.model.due,
+                    loanType: $scope.model.type,
+                    email: $scope.model.email
+                };
+                Requests.editRequest(postData).then(
+                    function() {
+                        updateRequestListUI(fetchId, selectedLoan, 'Solicitud editada',
+                                            'La solicitud ha sido editada exitosamente. Hemos reenviado el correo ' +
+                                            'de validación con los datos actualizados. Si no recibe el correo dentro ' +
+                                            'de unos pocos minutos, por favor haga clic en Reenviar.',
+                                            true, true,
+                                            parseInt(postData.loanType, 10));
+                    },
+                    function(error) {
+                        $scope.uploading = false;
+                        Utils.showAlertDialog('Oops!', error);
+                    }
+                );
+            }
+
+            // Sets the bound input to the max possibe request amount
+            $scope.setMax = function() {
+                $scope.model.reqAmount = $scope.maxReqAmount;
+            };
+
+            // Shows a dialog asking user to confirm the request creation.
+            $scope.confirmOperation = function (ev) {
+                Utils.showConfirmDialog(
+                    'Confirmación de edición de solicitud',
+                    'Se guardarán los cambios que haya realizado a su solicitud. ¿Desea proceder?',
+                    'Sí', 'Cancelar', ev, true
+                ).then(
+                    function() {
+                        // Re-open parent dialog and perform request creation
+                        $scope.model.confirmed = true;
+                        parentScope.openEditRequestDialog(null, $scope.model);
+                    },
+                    function() {
+                        // Re-open parent dialog and do nothing
+                        parentScope.openEditRequestDialog(null, $scope.model);
+                    }
+                );
+            };
+
+            $scope.showHelp = function () {
+                showFormHelp(Helps.getDialogsHelpOpt());
+            };
+
+            /**
+             * Shows tour-based help of all input fields.
+             * @param options: Obj containing tour.js options
+             */
+            function showFormHelp(options) {
+                var tripToShowNavigation = new Trip([], options);
+                if (!$scope.missingField()) {
+                    Helps.addFieldHelp(tripToShowNavigation, '#create-btn',
+                                       'Haga clic en CREAR para generar la solicitud', 'n');
+                    tripToShowNavigation.start();
+                } else {
+                    showAllFieldsHelp(tripToShowNavigation);
+                }
+            }
+
+            function showAllFieldsHelp(tripToShowNavigation) {
+                var content = '';
+                if (!$scope.model.reqAmount) {
+                    // Requested amount field
+                    content = "Ingrese la cantidad de Bs. que " +
+                              "desea solicitar.";
+                    Helps.addFieldHelp(tripToShowNavigation, "#req-amount",
+                                       content, 's');
+                }
+                if (!$scope.model.tel.value) {
+                    // Requested amount field
+                    content = "Ingrese su número telefónico, a través " +
+                              "del cual nos estaremos comunicando con usted.";
+                    Helps.addFieldHelp(tripToShowNavigation, "#phone-numb",
+                                       content, 'n');
+                }
+                if (!$scope.model.email) {
+                    // Email field
+                    content = "Ingrese su correo electrónico, a través del cual se le " +
+                              "enviará información y actualizaciones referente a su solicitud.";
+                    Helps.addFieldHelp(tripToShowNavigation, "#email",
+                                       content, 'n');
+                }
+                // Add payment due help.
+                content = "Escoja el plazo (en meses) en el que desea " +
+                          "pagar su deuda.";
                 Helps.addFieldHelp(tripToShowNavigation, "#payment-due", content, 'n');
                 // Add loan type help.
                 content = "Escoja el tipo de préstamo que desea solicitar.";
@@ -451,6 +636,14 @@ function userHome($scope, $cookies, $timeout, Helps,
         var responsivePos = $mdMedia('xs') ? 's' : 'w';
         var tripToShowNavigation = new Trip([], options);
         var content;
+        // Validation help
+        if (!$scope.req.validationDate) {
+            content = "Debe validar su solicitud a través del correo enviado al correo electrónico provisto. " +
+                      "Si no ha recibido el correo dentro de unos minutos, por favor haga clic en Reenviar." +
+                      "También puede cambiar la dirección del correo electrónico haciendo clic en \"Cambiar Correo\".";
+            Helps.addFieldHelpWithHeader(tripToShowNavigation, '#validation-card', content, 's',
+                                         'Validación de solicitud', true);
+        }
         // Request summary information
         content = "Aquí se muestra información acerca de la fecha de creación, monto solicitado " +
                   "por usted, y un posible comentario.";
@@ -481,10 +674,28 @@ function userHome($scope, $cookies, $timeout, Helps,
                   "haciendo click encima de ellos.";
         Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-docs', content, 'n',
                                      'Documentos', true);
-        // Download as zip information
-        content = "También puede descargar todos los documentos haciendo click aquí.";
-        Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-summary-actions', content, responsivePos,
-                                     'Descargar todo', true);
+        if ($mdSidenav('left').isLockedOpen()) {
+            if (!$scope.req.validationDate) {
+                content = "También puede editar la información de su solicitud, " +
+                          " o descargar todos los documentos presionando el botón correspondiente.";
+            } else {
+                content = "También puede descargar todos los documentos haciendo click aquí.";
+            }
+            Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-summary-actions', content, responsivePos,
+                                         'Acciones', true, 'fadeInLeft');
+        } else {
+            if (!$scope.req.validationDate) {
+                content = "También puede hacer clic en el botón de opciones para " +
+                          "editar la información de su solicitud, o descargar todos los " +
+                          "documentos presionando el botón correspondiente.";
+            } else {
+                content = "También puede hacer clic en el botón de opciones para " +
+                          "descargar todos los documentos presionando el botón correspondiente.";
+            }
+            Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-summary-actions-menu',
+                                         content, responsivePos,
+                                         'Acciones', true, 'fadeInLeft');
+        }
         tripToShowNavigation.start();
     }
 }
