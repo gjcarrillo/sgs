@@ -20,6 +20,7 @@ function agent (Requests) {
     data.fetchError = '';
     data.showList = Requests.initializeListType();
     data.fetchId = '';
+    data.searchInput = '';
     // contentAvailable will indicate whether sidenav can be visible
     data.contentAvailable = false;
     // contentLoaded will indicate whether sidenav can be locked open

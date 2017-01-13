@@ -3,10 +3,10 @@ angular
     .controller('AgentHomeController', agentHome);
 
 agentHome.$inject = ['$scope', '$mdDialog', 'FileUpload', 'Constants', 'Agent',
-                     '$http', '$state', '$timeout', '$mdSidenav', '$mdMedia', 'Requests', 'Utils', 'Helps'];
+                     '$state', '$timeout', '$mdSidenav', '$mdMedia', 'Requests', 'Utils', 'Helps'];
 
 function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
-                   $http, $state, $timeout, $mdSidenav, $mdMedia, Requests, Utils, Helps) {
+                   $state, $timeout, $mdSidenav, $mdMedia, Requests, Utils, Helps) {
     'use strict';
     $scope.selectedReq = Agent.data.selectedReq;
     $scope.selectedLoan = Agent.data.selectedLoan;
@@ -14,6 +14,8 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
     $scope.req = Agent.data.req;
     $scope.fetchError = Agent.data.fetchError;
     $scope.showList = Agent.data.showList;
+    $scope.fetchId = Agent.data.fetchId;
+    $scope.searchInput = Agent.data.searchInput;
     // contentAvailable will indicate whether sidenav can be visible
     $scope.contentAvailable = Agent.data.contentAvailable;
     // contentLoaded will indicate whether sidenav can be locked open
@@ -62,6 +64,7 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
     };
 
     $scope.fetchRequests = function (searchInput) {
+        console.log($scope.searchInput);
         $scope.contentAvailable = false;
         $scope.fetchId = $scope.idPrefix + searchInput;
         $scope.requests = [];
@@ -591,6 +594,8 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
         data.req = $scope.req;
         data.fetchError = $scope.fetchError;
         data.showList = $scope.showList;
+        data.fetchId = $scope.fetchId;
+        data.searchInput = $scope.searchInput;
         // contentAvailable will indicate whether sidenav can be visible
         data.contentAvailable = $scope.contentAvailable;
         // contentLoaded will indicate whether sidenav can be locked open
