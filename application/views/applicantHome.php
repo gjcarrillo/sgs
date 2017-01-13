@@ -106,7 +106,7 @@
                 ng-hide="!req.docs"
                 class="document-container">
                 <div layout="column" layout-align="center center">
-                    <md-card class="validation-card" ng-if="!req.validationDate">
+                    <md-card id="validation-card" class="validation-card" ng-if="!req.validationDate">
                         <md-card-content>
                             <p>
                                 NO VALIDADO <br/><br/>
@@ -150,17 +150,78 @@
                                             {{req.comment}}
                                         </p>
                                     </div>
-                                    <md-button
+                                    <div
                                         id="request-summary-actions"
-                                        ng-click="downloadAll()"
-                                        class="md-icon-button">
-                                        <md-icon class="md-secondary">
-                                            cloud_download
-                                        </md-icon>
-                                        <md-tooltip>
-                                            Descargar documentos
-                                        </md-tooltip>
-                                    </md-button>
+                                        hide show-gt-sm>
+                                        <md-button
+                                            class="md-icon-button"
+                                            ng-if="!req.validationDate"
+                                            ng-click="openEditRequestDialog($event)">
+                                            <md-icon class="md-secondary">
+                                                edit
+                                            </md-icon>
+                                            <md-tooltip>
+                                                Editar solicitud
+                                            </md-tooltip>
+                                        </md-button>
+                                        <md-button
+                                            ng-click="downloadAll()"
+                                            class="md-icon-button">
+                                            <md-icon class="md-secondary">
+                                                cloud_download
+                                            </md-icon>
+                                            <md-tooltip>
+                                                Descargar documentos
+                                            </md-tooltip>
+                                        </md-button>
+                                        <!-- <md-button
+                                                ng-click="deleteRequest($event)"
+                                                class="md-icon-button">
+                                                <md-icon class="md-secondary">
+                                                    delete
+                                                </md-icon>
+                                                <md-tooltip>
+                                                    Eliminar solicitud
+                                                </md-tooltip>
+                                            </md-button> -->
+                                        <!-- Show when screen width < 960px -->
+                                    </div>
+                                    <md-menu
+                                        id="request-summary-actions-menu"
+                                        hide-gt-sm>
+                                        <md-button
+                                            ng-click="$mdOpenMenu($event)"
+                                            class="md-icon-button"
+                                            aria-label="More">
+                                            <md-icon class="md-secondary">
+                                                more_vert
+                                            </md-icon>
+                                        </md-button>
+                                        <md-menu-content>
+                                            <md-menu-item ng-if="!req.validationDate">
+                                                <md-button ng-click="openEditRequestDialog($event)">
+                                                    <md-icon class="md-secondary">
+                                                        edit
+                                                    </md-icon>
+                                                    Editar solicitud
+                                                </md-button>
+                                            </md-menu-item>
+                                            <md-menu-item>
+                                                <md-button ng-click="downloadAll()">
+                                                    <md-icon class="md-secondary">
+                                                        cloud_download
+                                                    </md-icon>
+                                                    Descargar documentos
+                                                </md-button>
+                                            </md-menu-item>
+                                            <!-- <md-menu-item>
+                                                <md-button ng-click="deleteRequest($event)">
+                                                    <md-icon>delete</md-icon>
+                                                    Eliminar
+                                                </md-icon-button>
+                                            </md-menu-item> -->
+                                        </md-menu-content>
+                                    </md-menu>
                                </md-list-item>
                                 <md-list-item
                                     id="request-status-summary"

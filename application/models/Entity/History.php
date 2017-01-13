@@ -210,8 +210,16 @@ class History
     */
     public function getTitleByText()
     {
-        $title = $this->title;
-        return ($title == 1 ? "Creación" : ($title == 2 ? "Adición" : ($title == 3 ? "Modificación" : ($title == 4 ? "Cierre" : ($title == 5 ? "Eliminación" : "Reporte")))));
+        switch ($this->title) {
+            case 1: return "Creación";
+            case 2: return "Adición";
+            case 3: return "Modificación";
+            case 4: return "Cierre";
+            case 5: return "Eliminación";
+            case 6: return "Reporte";
+            case 7: return "Validación";
+            default: return "Otro";
+        }
     }
 
     /**
@@ -221,7 +229,30 @@ class History
     */
     public function setTitleByText($title)
     {
-        $this->title = ($title == "Creación" ? 1 : ($title == "Modificación" ? 2 : ($title == "Adición" ? 3 : ($title == "Cierre" ? 4 : ($title == "Eliminación" ? 5 : 6)))));
+        switch ($title) {
+            case "Creación":
+                $this->title = 1;
+                break;
+            case "Modificación":
+                $this->title = 2;
+                break;
+            case "Adición":
+                $this->title = 3;
+                break;
+            case "Cierre":
+                $this->title = 4;
+                break;
+            case "Eliminación":
+                $this->title = 5;
+                break;
+            case "Reporte":
+                $this->title = 6;
+                break;
+            case "Validación":
+                $this->title = 7;
+                break;
+            default: $this->title = 0;
+        }
         return $this;
     }
 }

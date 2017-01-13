@@ -52,12 +52,35 @@ class NewRequestController extends CI_Controller {
 				$request->addHistory($history);
 				// Register it's corresponding actions
 				$action = new \Entity\HistoryAction();
-				$action->setSummary("Solicitud creada.");
-				$action->setDetail("Estado de la solicitud: Recibida.\n" .
-					"Monto solicitado: Bs " . number_format($data['reqAmount'], 2));
+				$action->setSummary("Estatus de la solicitud: Recibida.");
 				$action->setBelongingHistory($history);
 				$history->addAction($action);
 				$em->persist($action);
+				$action = new \Entity\HistoryAction();
+				$action->setSummary("Monto solicitado: Bs " . number_format($data['reqAmount'], 2));
+				$action->setBelongingHistory($history);
+				$history->addAction($action);
+				$em->persist($action);
+				$action = new \Entity\HistoryAction();
+				$action->setSummary("Número de contacto: " . $data['tel']);
+				$action->setBelongingHistory($history);
+				$history->addAction($action);
+				$em->persist($action);
+				$action = new \Entity\HistoryAction();
+				$action->setSummary("Dirección de correo: " . $data['email']);
+				$action->setBelongingHistory($history);
+				$history->addAction($action);
+				$em->persist($action);
+				$action = new \Entity\HistoryAction();
+				$action->setSummary("Plazo para pagar: " . $data['due'] . " meses.");
+				$action->setBelongingHistory($history);
+				$history->addAction($action);
+				$em->persist($action);
+				$action = new \Entity\HistoryAction();
+				$action->setSummary("Tipo de préstamo: " . $this->mapLoanType($data['loanType']));
+				$action->setBelongingHistory($history);
+				$em->persist($action);
+				$history->addAction($action);
 				$em->persist($history);
 	            // 1 = Waiting
 	            $request->setStatus(1);
@@ -78,6 +101,7 @@ class NewRequestController extends CI_Controller {
 				$this->createDocuments($request, $history->getId(), $data['docs']);
 				// Send request validation token.
 				$this->sendValidationToken($request);
+				$this->registerValidationSending($request);
 	            $result['message'] = "success";
 	        } catch (Exception $e) {
 	             \ChromePhp::log($e);
@@ -181,6 +205,28 @@ class NewRequestController extends CI_Controller {
 		$mailData['deleteURL'] = $this->config->base_url() . '#delete/' . $this->createToken($reqTokenData);
 		$html = $this->load->view('templates/validationMail', $mailData, true); // render the view into HTML
 		$this->sendEmail($mailData['email'], $mailData['subject'], $html);
+	}
+
+	private function registerValidationSending($request) {
+		$em = $this->doctrine->em;
+		// Register History
+		$history = new \Entity\History();
+		$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
+		$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
+		// Register it's corresponding actions
+		// 3 = Modification
+		$history->setTitle(3);
+		$history->setOrigin($request);
+		$action = new \Entity\HistoryAction();
+		$action->setSummary("Envío de correo de validación.");
+		$action->setDetail("Enviado correo de validación a " .
+						   "la dirección de correo " . $request->getContactEmail());
+		$action->setBelongingHistory($history);
+		$history->addAction($action);
+		$em->persist($action);
+		$em->persist($history);
+		$em->merge($request);
+		$em->flush();
 	}
 
 	private function createToken ($data) {

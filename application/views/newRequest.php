@@ -2,7 +2,7 @@
     <!-- Dialog title -->
     <md-toolbar>
         <div class="md-toolbar-tools">
-            <h2>Nueva solicitud de préstamo</h2>
+            <h2>{{title}}</h2>
             <span flex></span>
             <md-button class="md-icon-button" ng-click="showHelp()" aria-label="Help">
                 <md-icon>help_outline</md-icon>
@@ -159,10 +159,10 @@
         <md-button
             id="create-btn"
             ng-hide="uploading"
-            ng-click="confirmCreation($event)"
+            ng-click="confirmOperation($event)"
             ng-disabled="missingField()"
             class="md-primary">
-            Crear
+            {{confirmButton}}
         </md-button>
         <md-button ng-hide="uploading" ng-click="closeDialog()" class="md-primary">
             Cancelar
