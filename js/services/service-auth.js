@@ -4,9 +4,9 @@ var login = angular
     .module('sgdp.login', ['ngCookies', 'ngMaterial'])
     .factory('Auth', auth);
 
-auth.$inject = ['$cookies', '$location', '$http', '$rootScope', '$q'];
+auth.$inject = ['$cookies', '$location', '$http', '$rootScope', '$q', 'Agent', 'Manager'];
 
-function auth($cookies, $location, $http, $rootScope, $q) {
+function auth($cookies, $location, $http, $rootScope, $q, Agent, Manager) {
     var self = this;
 
     self.login = function (username, password) {
@@ -46,11 +46,12 @@ function auth($cookies, $location, $http, $rootScope, $q) {
     };
 
     self.logout = function () {
+        console.log('logging out...');
         // remove cookie
         $cookies.remove('session');
         // redirect to login page
         $location.path("/login");
-        // Remove possible data on broswer's session storage
+        // Remove possible data on browser's session storage
         cleanBrowser();
         // Clear login form
         $rootScope.model = {};
@@ -98,6 +99,8 @@ function auth($cookies, $location, $http, $rootScope, $q) {
     // Clears possible data stored on browser
     function cleanBrowser() {
         sessionStorage.removeItem("req");
+        Agent.clearData();
+        Manager.clearData();
     }
 
     return self;

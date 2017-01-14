@@ -67,6 +67,52 @@ function manager($http, $q, Requests) {
     };
 
     /**
+     * Clears the service's data (i.e. re-initializes it)
+     */
+    self.clearData = function () {
+        self.data.model = {};
+        self.data.model.query = -1;
+        self.data.queries = [
+            {category: 'req', name: 'Por cédula', id: 0},
+            {category: 'req', name: 'Por estatus', id: 1},
+            {category: 'req', name: 'Por tipo', id: 8},
+            {category: 'date', name: 'Intervalo de fecha', id: 2},
+            {category: 'date', name: 'Fecha exacta', id: 3},
+            {category: 'money', name: 'Intervalo de fecha', id: 4},
+            {category: 'money', name: 'Por cédula', id: 5},
+            {category: 'report', name: 'Intervalo de fecha', id: 6},
+            {category: 'report', name: 'Semana actual', id: 7}
+        ];
+        self.data.model.perform = new Array(data.queries.length);
+        // initialize all ng-model variables.
+        for (var i = 0; i < self.data.queries.length; i++) {
+            self.data.model.perform[i] = {};
+        }
+        self.data.selectedQuery = -1;
+        self.data.showOptions = true;
+        self.data.showResult = -1;
+        self.data.chart = null;
+        self.data.pie = null;
+        self.data.pieError = '';
+        self.data.report = null;
+        self.data.fetchId = '';
+        self.data.fetchError = '';
+        self.data.approvalReportError = '';
+        self.data.showPendingReq = false;
+        self.data.showAdvSearch = false;
+        self.data.requests = {};
+        self.data.selectedReq = '';
+        self.data.selectedLoan = -1;
+        self.data.showApprovedAmount = false;
+        self.data.pendingRequests = {};
+        self.data.selectedPendingReq = '';
+        self.data.selectedPendingLoan = -1;
+        self.data.req = {}; // Selected request obj.
+        self.data.showList = Requests.initializeListType();
+        self.data.showPendingList = Requests.initializeListType();
+    };
+
+    /**
      * Fetches requests the match the specified status.
      *
      * @param status - request status.

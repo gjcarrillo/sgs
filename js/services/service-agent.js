@@ -16,7 +16,7 @@ function agent (Requests) {
     data.selectedReq = '';
     data.selectedLoan = -1;
     data.requests = {};
-    data.req = {}; // Will containg the selected request object.
+    data.req = {}; // Will contain the selected request object.
     data.fetchError = '';
     data.showList = Requests.initializeListType();
     data.fetchId = '';
@@ -36,8 +36,25 @@ function agent (Requests) {
      *
      * @param data - data to be updated.
      */
-    self.updateData = function(data) {
+    self.updateData = function (data) {
         self.data = data;
+    };
+
+    /**
+     * Clears the service's data (i.e. re-initializes it)
+     */
+    self.clearData = function () {
+        self.data.selectedReq = '';
+        self.data.selectedLoan = -1;
+        self.data.requests = {};
+        self.data.req = {};
+        self.data.fetchError = '';
+        self.data.showList = Requests.initializeListType();
+        self.data.fetchId = '';
+        self.data.searchInput = '';
+        self.data.contentAvailable = false;
+        self.data.contentLoaded = false;
+        self.data.searchEnabled = false;
     };
 
     return self;
