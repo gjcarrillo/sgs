@@ -24,21 +24,28 @@ class ValidationController extends CI_Controller {
             $request = $em->find('\Entity\Request', $rid);
             if ($request->getUserOwner()->getId() !== $uid) {
                 $result['message'] = "Token Inválido.";
-            } else {
-                if (!isset($_SESSION['id']) || $_SESSION['id'] !== $uid) {
+            } else if (!isset($_SESSION['id']) || $_SESSION['id'] !== $uid) {
                     $result['message'] = "Esta solicitud no le pertenece.";
-                } else {
-                    if ($request->getValidationDate() !== null) {
+            } else if ($request->getValidationDate() !== null) {
                         $result['message'] = "Esta solicitud ya ha sido validada.";
-                    } else {
-                        $request->setValidationDate(new DateTime('now', new DateTimeZone('America/Barbados')));
-                        $this->registerValidation($em, $request);
-                        $em->merge($request);
-                        $em->flush();
-                        $em->clear();
-                        $result['message'] = "success";
-                    }
-                }
+            } else if ($decoded->reqAmount != $request->getRequestedAmount() ||
+                       $decoded->tel != $request->getContactNumber() ||
+                       $decoded->email != $request->getContactEmail() ||
+                       $decoded->due != $request->getPaymentDue() ||
+                       $decoded->loanType != $request->getLoanType()) {
+                $result['message'] = "La información de su solicitud ha cambiado y esta URL de validación " .
+                                     "ha caducado.
+                                     Por favor utilice la URL de validación del correo enviado con información
+                                     actualizada.
+                                     Si no ha recibido dicho correo luego de 10 minutos, puede solicitar reenvío del
+                                     mismo a través del sistema.";
+            } else {
+                $request->setValidationDate(new DateTime('now', new DateTimeZone('America/Barbados')));
+                $this->registerValidation($em, $request);
+                $em->merge($request);
+                $em->flush();
+                $em->clear();
+                $result['message'] = "success";
             }
         } catch (Exception $e) {
             \ChromePhp::log($e);

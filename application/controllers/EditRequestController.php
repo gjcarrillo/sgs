@@ -340,6 +340,11 @@ class EditRequestController extends CI_Controller {
 		try {
 			$tokenData['uid'] = $request->getUserOwner()->getId();
 			$tokenData['rid'] = $request->getId();
+			$tokenData['reqAmount'] = $request->getRequestedAmount();
+			$tokenData['tel'] = $request->getContactNumber();
+			$tokenData['email'] = $request->getContactEmail();
+			$tokenData['due'] = $request->getPaymentDue();
+			$tokenData['loanType'] = $request->getLoanType();
 			$this->sendValidationToken($tokenData, $request);
 			$this->registerValidationResend($request);
 		} catch (Exception $e) {

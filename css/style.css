@@ -293,6 +293,11 @@ md-select.no-md-select .md-select-value {
     width: 128px;
 }
 
+.validation-error-msg {
+    padding: 16px 56px;
+    text-align: justify;
+}
+
 .error-svg {
     color: #F44336;
     height: 300px;
@@ -341,6 +346,10 @@ md-list-item.md-3-line>.md-no-style .md-list-item-text h4 {
     .token-card {
         width: 80%;
     }
+
+    .validation-error-msg {
+        padding: 16px 36px;
+    }
 }
 
 @media screen and (max-width: 600px) {
@@ -359,6 +368,10 @@ md-list-item.md-3-line>.md-no-style .md-list-item-text h4 {
 
     .help-card {
         max-width: 90%;
+    }
+
+    .validation-error-msg {
+        padding: 16px;
     }
 }
 

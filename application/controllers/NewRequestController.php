@@ -187,6 +187,11 @@ class NewRequestController extends CI_Controller {
 	private function sendValidationToken($request) {
 		$tokenData['uid'] = $request->getUserOwner()->getId();
 		$tokenData['rid'] = $request->getId();
+		$tokenData['reqAmount'] = $request->getRequestedAmount();
+		$tokenData['tel'] = $request->getContactNumber();
+		$tokenData['email'] = $request->getContactEmail();
+		$tokenData['due'] = $request->getPaymentDue();
+		$tokenData['loanType'] = $request->getLoanType();
 		$encodedURL = $this->createToken($tokenData);
 		$mailData['reqId'] = $request->getId();
 		$user = $request->getUserOwner();

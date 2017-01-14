@@ -83,6 +83,11 @@ class ApplicantHomeController extends CI_Controller {
                 $request = $em->find('\Entity\Request', $reqId);
                 $tokenData['uid'] = $request->getUserOwner()->getId();
                 $tokenData['rid'] = $reqId;
+                $tokenData['reqAmount'] = $request->getRequestedAmount();
+                $tokenData['tel'] = $request->getContactNumber();
+                $tokenData['email'] = $request->getContactEmail();
+                $tokenData['due'] = $request->getPaymentDue();
+                $tokenData['loanType'] = $request->getLoanType();
                 $this->sendValidationToken($tokenData, $request);
                 $this->registerValidationResend($em, $request);
                 $result['message'] = "success";

@@ -120,7 +120,7 @@
                     class="error-svg"
                     md-svg-src="error">
                 </md-icon>
-                <p ng-if="errorMsg" style="padding: 16px">
+                <p ng-if="errorMsg" class="validation-error-msg">
                     Ha ocurrido un error durante la verificación.
                     {{errorMsg}}
                 </p>

@@ -1,5 +1,13 @@
 <html>
 <head>
+    <style>
+        .validation-wrapper {
+            text-align: center;
+        }
+        .validation-link {
+            display: inline-block;
+        }
+    </style>
 </head>
 <body>
 <br /><br />
@@ -19,14 +27,20 @@
 </ul>
 <br />
 <p>
-    Una vez verificada la información por favor haga clic en el siguiente enlace, con la finalidad de validar
+    Una vez verificada la información por favor haga clic en "Validar solicitud", con la finalidad de validar
     su solicitud. Es importante resaltar que una vez validada, ésta <b>no podrá ser eliminada</b>.
     <br/>
-    <?php echo $validationURL; ?>
+    <div class="validation-wrapper">
+        <div class="validation-link">
+            <a href="<?php echo $validationURL; ?>">Validar solicitud</a>
+        </div>
+    </div>
     <br/><br/>
-    Si existe algún error con la información provista, por favor haga clic en el siguiente enlace para eliminar su
-    solicitud.<br/>
-    <?php echo $deleteURL; ?>
+    Si existe algún error con la información provista, por favor realice la correspondiente edición a través
+    del sistema y volveremos a enviar el enlace de validación con la información actualizada.<br/><br>
+
+    En caso de haber realizado la solicitud por error, puede eliminarla haciendo clic
+    <a href="<?php echo $deleteURL; ?>">aquí</a>.
 </p>
 
 </body>
