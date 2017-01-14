@@ -214,8 +214,8 @@ class NewRequestController extends CI_Controller {
 		$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
 		$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
 		// Register it's corresponding actions
-		// 3 = Modification
-		$history->setTitle(3);
+		// 7 = Validation
+		$history->setTitle(7);
 		$history->setOrigin($request);
 		$action = new \Entity\HistoryAction();
 		$action->setSummary("Envío de correo de validación.");

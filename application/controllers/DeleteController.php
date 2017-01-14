@@ -13,7 +13,7 @@ class DeleteController extends CI_Controller {
         $this->load->view('deleteRequest');
     }
 
-    public function deleteRequest() {
+    public function deleteRequestJWT() {
         $data = json_decode(file_get_contents('php://input'), true);
         try {
             $em = $this->doctrine->em;
@@ -41,6 +41,40 @@ class DeleteController extends CI_Controller {
             }
         } catch (Exception $e) {
             $result['message'] = "Token inválido.";
+            \ChromePhp::log($e);
+        }
+        echo json_encode($result);
+    }
+
+    public function deleteRequestUI() {
+        try {
+            $data = json_decode(file_get_contents('php://input'), true);
+            \ChromePhp::log($data);
+            $em = $this->doctrine->em;
+            $request = $em->find('\Entity\Request', $data['id']);
+            if ($_SESSION['id'] != $request->getUserOwner()->getId() && $_SESSION['type'] != 1) {
+                // Only agents can delete a document that aren't their own.
+                $this->load->view('errors/index.html');
+            }
+            $em = $this->doctrine->em;
+
+            $request = $em->find('\Entity\Request', $data['id']);
+            if ($request->getValidationDate() !== null) {
+                $result['message'] = 'Esta solicitud no puede ser eliminada.';
+            } else {
+                // Must delete all documents belonging to this request first
+                $docs = $request->getDocuments();
+                foreach($docs as $doc) {
+                    unlink(DropPath . $doc->getLpath());
+                }
+                // Now we can remove the current request (and docs on cascade)
+                $em->remove($request);
+                // Persist the changes in database.
+                $em->flush();
+                $result['message'] = "success";
+            }
+        } catch (Exception $e) {
+            $result['message'] = null;
             \ChromePhp::log($e);
         }
         echo json_encode($result);

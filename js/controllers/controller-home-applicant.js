@@ -498,6 +498,31 @@ function userHome($scope, $cookies, $timeout, Helps,
         )
     };
 
+    $scope.deleteRequest = function (ev) {
+        Utils.showConfirmDialog(
+            'Confirmación de eliminación',
+            'Al eliminar la solicitud, también se eliminarán ' +
+            'todos los datos asociados a ella.',
+            'Continuar',
+            'Cancelar',
+            ev, true).then(
+            function() {
+                Requests.deleteRequestUI($scope.req).then(
+                    function () {
+                        // Update interface
+                        $scope.req = {};
+                        updateRequestListUI($scope.fetchId, -1, 'Solicitud eliminada',
+                                            'La solicitud fue eliminada exitosamente.',
+                                            true, true, -1);
+                    },
+                    function (errorMsg) {
+                        Utils.showAlertDialog('Oops!', errorMsg);
+                    }
+                );
+            }
+        );
+    };
+
     // Helper method that updates UI's request list.
     function updateRequestListUI(userId, autoSelectIndex,
                                  dialogTitle, dialogContent,
@@ -677,8 +702,8 @@ function userHome($scope, $cookies, $timeout, Helps,
                                      'Documentos', true);
         if ($mdSidenav('left').isLockedOpen()) {
             if (!$scope.req.validationDate) {
-                content = "También puede editar la información de su solicitud, " +
-                          " o descargar todos los documentos presionando el botón correspondiente.";
+                content = "También puede editar la información de su solicitud descargar todos los " +
+                          "documentos, o eliminarla presionando el botón correspondiente.";
             } else {
                 content = "También puede descargar todos los documentos haciendo click aquí.";
             }
@@ -688,7 +713,7 @@ function userHome($scope, $cookies, $timeout, Helps,
             if (!$scope.req.validationDate) {
                 content = "También puede hacer clic en el botón de opciones para " +
                           "editar la información de su solicitud, o descargar todos los " +
-                          "documentos presionando el botón correspondiente.";
+                          "documentos, o eliminarla presionando el botón correspondiente.";
             } else {
                 content = "También puede hacer clic en el botón de opciones para " +
                           "descargar todos los documentos presionando el botón correspondiente.";

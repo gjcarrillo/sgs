@@ -710,12 +710,12 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
         Utils.showConfirmDialog(
             'Confirmación de eliminación',
             'Al eliminar la solicitud, también eliminará ' +
-            'todos sus documentos.',
+            'todos los datos asociados a ella.',
             'Continuar',
             'Cancelar',
             ev, true).then(
             function() {
-                Requests.deleteRequest($scope.requests[$scope.selectedReq][$scope.selectedLoan]).then(
+                Requests.deleteRequestUI($scope.req).then(
                     function () {
                         // Update interface
                         $scope.req = {};
@@ -929,24 +929,23 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
         }
         if ($mdSidenav('left').isLockedOpen()) {
             if (!$scope.req.validationDate) {
-                content = "Puede ver el historial de la solicitud, " +
-                          "editar su información (si aún no ha sido validada), o descargar todos " +
-                          "sus documentos presionando el botón correspondiente.";
+                content = "Puede ver el historial de la solicitud, editar su información, descargar todos " +
+                          "sus documentos, o eliminarla presionando el botón correspondiente.";
             } else {
-                content = "Puede ver el historial de la solicitud, editarla con con alguna actualización " +
-                          "(si la solicitud no se ha cerrado), o descargar todos sus documentos.";
+                content = "Puede ver el historial de la solicitud, editarla con alguna actualización " +
+                          "(si la solicitud no se ha cerrado), o descargar todos sus documentos presionando " +
+                          "el botón correspondiente.";
             }
             Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-summary-actions', content, responsiveSouthPos,
                                          'Acciones', true, 'fadeInLeft');
         } else {
             if (!$scope.req.validationDate) {
-                content = "Haga click en el botón de opciones para " +
-                          "ver el historial de la solicitud, editar su información (si aún no ha sido validada), " +
-                          "o descargar todos sus documentos.";
+                content = "Haga clic en el botón de opciones para ver el historial de la solicitud, editar " +
+                          "su información, descargar todos sus documentos, o eliminarla";
             } else {
                 content = "Haga click en el botón de opciones para " +
-                          "ver el historial de la solicitud, editarla con con alguna actualización, " +
-                          "o descargar todos sus documentos.";
+                          "ver el historial de la solicitud, editarla con con alguna actualización (si la solicitud" +
+                          " no ha cerrado), o descargar todos sus documentos.";
             }
             Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-summary-actions-menu',
                                          content, responsiveSouthPos,

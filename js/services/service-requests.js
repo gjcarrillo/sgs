@@ -116,19 +116,66 @@ function reqService($q, $http, Constants) {
      * @param request - the request obj to erase from database.
      * @returns {*} - promise with the operation's result.
      */
-    self.deleteRequest = function (request) {
+    self.deleteRequestUI = function (request) {
         var qDelReq = $q.defer();
-        $http.post('index.php/AgentHomeController/deleteRequest',
+        $http.post('index.php/DeleteController/deleteRequestUI',
                    JSON.stringify(request))
             .then(function (response) {
                       if (response.data.message == "success") {
                           qDelReq.resolve();
                       } else {
-                          qDelReq.reject('Ha ocurrido un error en el sistema. ' +
-                                         'Por favor intente más tarde');
+                          qDelReq.reject(response.data.message ? response.data.message :
+                                         'Ha ocurrido un error en el sistema. Por favor intente más tarde');
                       }
                   });
         return qDelReq.promise;
+    };
+
+    /**
+     * Eliminates the specified request from the system.
+     *
+     * @param rid - request id as an encoded token.
+     * @returns {*} promise containing the operation's result.
+     */
+    self.deleteRequestJWT = function (rid) {
+        var qEliminate = $q.defer();
+        $http.post('index.php/DeleteController/deleteRequestJWT', {rid: rid})
+            .then(
+            function (response) {
+                console.log(response);
+                if (response.data.message == 'success') {
+                    qEliminate.resolve();
+                } else {
+                    qEliminate.reject(response.data.message);
+                }
+            }
+
+        );
+
+        return qEliminate.promise;
+    };
+
+    /**
+     * Validates a request through the specified token.
+     *
+     * @param token - JWT
+     * @returns {*} - promise with the operation's result.
+     */
+    self.validate = function(token) {
+        var qVal = $q.defer();
+
+        $http.get('index.php/ValidationController/validate', {params: {token: token}})
+            .then(
+            function (response) {
+                console.log(response);
+                if (response.data.message === "success") {
+                    qVal.resolve();
+                } else {
+                    qVal.reject(response.data.message);
+                }
+            }
+        );
+        return qVal.promise;
     };
 
     self.updateDocDescription = function (doc) {

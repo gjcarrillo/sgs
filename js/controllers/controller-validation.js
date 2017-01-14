@@ -5,9 +5,9 @@ angular
     .module('sgdp')
     .controller('ValidationController', validation);
 
-validation.$inject = ['$scope', 'Validation', '$stateParams', 'Auth'];
+validation.$inject = ['$scope', 'Requests', '$stateParams', 'Auth'];
 
-function validation($scope, Validation, $stateParams, Auth) {
+function validation($scope, Requests, $stateParams, Auth) {
 
     $scope.loading = false;
     $scope.userLogged = Auth.isLoggedIn();
@@ -19,7 +19,7 @@ function validation($scope, Validation, $stateParams, Auth) {
 
     if ($scope.userLogged) {
         $scope.validating = true;
-        Validation.validate($stateParams.token)
+        Requests.validate($stateParams.token)
             .then(
             function () {
                 $scope.validating = false;
@@ -40,7 +40,7 @@ function validation($scope, Validation, $stateParams, Auth) {
             Auth.login($scope.idPrefix + $scope.model.login, $scope.model.password)
                 .then (
                 function () {
-                    Validation.validate($stateParams.token)
+                    Requests.validate($stateParams.token)
                         .then(
                         function () {
                             $scope.eliminating = false;

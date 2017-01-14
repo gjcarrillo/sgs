@@ -174,7 +174,8 @@
                                                 Descargar documentos
                                             </md-tooltip>
                                         </md-button>
-                                        <!-- <md-button
+                                        <md-button
+                                                ng-if="!req.validationDate"
                                                 ng-click="deleteRequest($event)"
                                                 class="md-icon-button">
                                                 <md-icon class="md-secondary">
@@ -183,7 +184,7 @@
                                                 <md-tooltip>
                                                     Eliminar solicitud
                                                 </md-tooltip>
-                                            </md-button> -->
+                                            </md-button>
                                         <!-- Show when screen width < 960px -->
                                     </div>
                                     <md-menu
@@ -214,12 +215,12 @@
                                                     Descargar documentos
                                                 </md-button>
                                             </md-menu-item>
-                                            <!-- <md-menu-item>
+                                            <md-menu-item ng-if="!req.validationDate">
                                                 <md-button ng-click="deleteRequest($event)">
                                                     <md-icon>delete</md-icon>
-                                                    Eliminar
-                                                </md-icon-button>
-                                            </md-menu-item> -->
+                                                    Eliminar solicitud
+                                                </md-button>
+                                            </md-menu-item>
                                         </md-menu-content>
                                     </md-menu>
                                </md-list-item>

@@ -5,9 +5,9 @@ angular
     .module('sgdp')
     .controller('DeleteController', eliminate);
 
-eliminate.$inject = ['$scope', '$stateParams', 'Auth', 'Delete'];
+eliminate.$inject = ['$scope', '$stateParams', 'Auth', 'Requests'];
 
-function eliminate($scope, $stateParams, Auth, Delete) {
+function eliminate($scope, $stateParams, Auth, Requests) {
 
     $scope.idPrefix = "V";
     $scope.model = {};
@@ -17,7 +17,7 @@ function eliminate($scope, $stateParams, Auth, Delete) {
 
     if ($scope.userLogged) {
         $scope.eliminating = true;
-        Delete.deleteRequest($stateParams.rid)
+        Requests.deleteRequestJWT($stateParams.rid)
             .then(
             function () {
                 $scope.eliminating = false;
@@ -38,7 +38,7 @@ function eliminate($scope, $stateParams, Auth, Delete) {
             Auth.login($scope.idPrefix + $scope.model.login, $scope.model.password)
                 .then (
                 function () {
-                    Delete.deleteRequest($stateParams.rid)
+                    Requests.deleteRequestJWT($stateParams.rid)
                         .then(
                         function () {
                             $scope.eliminating = false;
