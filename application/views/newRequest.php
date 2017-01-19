@@ -37,7 +37,7 @@
                             <input
                                 ng-model="model.reqAmount"
                                 type="number"
-                                min="100"
+                                min="{{minReqAmount}}"
                                 max="{{maxReqAmount}}"
                                 step="1000"
                                 name="reqAmount"
@@ -52,6 +52,7 @@
                             <div ng-messages="applicantForm.reqAmount.$error" ng-show="applicantForm.reqAmount.$dirty">
                                 <div ng-message="required">¡Este campo es obligatorio!</div>
                                 <div ng-message="max">Monto máximo: Bs. {{maxReqAmount | number:2}}</div>
+                                <div ng-message="min">Monto mínimo: Bs. {{minReqAmount | number:2}}</div>
                             </div>
                         </md-input-container>
                     </div>

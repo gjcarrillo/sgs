@@ -26,19 +26,12 @@ class AgentHomeController extends CI_Controller {
             $this->load->view('errors/index.html');
         } else {
             try {
-				// Get user's max request amount
-				$this->db->select('*');
-				$this->db->from('db_dt_personales');
-				$this->db->where('cedula', $_GET['fetchId']);
-				$query = $this->db->get();
-				if (!empty($query->result())) {
-					$data = $query->result()[0];
-					// use Data to get user info in the formula
-					$result['maxReqAmount'] = 250000;
-				} else {
-					$result['maxReqAmount'] = 100000;
-				}
                 $em = $this->doctrine->em;
+                // Get configured's max. and min. request amount.
+                $em = $this->doctrine->em;
+                $config = $em->getRepository('\Entity\Config');
+                $result['maxReqAmount'] = $config->findOneBy(array('key' => 'MAX_AMOUNT'))->getValue();
+                $result['minReqAmount'] = $config->findOneBy(array('key' => 'MIN_AMOUNT'))->getValue();
                 $user = $em->find('\Entity\User', $_GET['fetchId']);
                 if ($user === null) {
                     $result['error'] = "La cédula ingresada no se encuentra en la base de datos";

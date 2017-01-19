@@ -105,6 +105,7 @@ function userHome($scope, $cookies, $timeout, Helps,
             $scope.docPicTaken = false;
             $scope.uploading = false;
             $scope.maxReqAmount = Requests.getMaxAmount();
+            $scope.minReqAmount = Requests.getMinAmount();
             // if user data exists, it means the ID was
             // already given, so we must show it.
             $scope.idPicTaken = obj && obj.idFile ? true : false;
@@ -284,6 +285,7 @@ function userHome($scope, $cookies, $timeout, Helps,
             $scope.docPicTaken = false;
             $scope.uploading = false;
             $scope.maxReqAmount = Requests.getMaxAmount();
+            $scope.minReqAmount = Requests.getMinAmount();
             $scope.uploadErr = '';
             // Hold scope reference to constants
             $scope.APPLICANT = Constants.Users.APPLICANT;

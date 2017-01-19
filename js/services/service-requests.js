@@ -18,6 +18,7 @@ function reqService($q, $http, Constants) {
     };
 
     var maxAmount = 0;
+    var minAmount = 0;
 
     /**
      * Fetches the specified user's requests.
@@ -31,7 +32,8 @@ function reqService($q, $http, Constants) {
             {params: {fetchId: fetchId}})
             .then(
             function (response) {
-                maxAmount = response.data.maxReqAmount;
+                minAmount = parseInt(response.data.minReqAmount, 10);
+                maxAmount = parseInt(response.data.maxReqAmount, 10);
                 if (response.data.message === "success") {
                     if (typeof response.data.requests !== "undefined") {
                         qReq.resolve(self.filterRequests(response.data.requests));
@@ -201,6 +203,15 @@ function reqService($q, $http, Constants) {
      */
     self.getMaxAmount = function () {
         return maxAmount;
+    };
+
+    /**
+     * Returns the min amount of money the user can ask for in a request.
+     *
+     * @returns {number} - containing the min. amount the applicant can request.
+     */
+    self.getMinAmount = function () {
+        return minAmount;
     };
 
     /**

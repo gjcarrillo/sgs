@@ -32,9 +32,10 @@ function config ($http, $q) {
     };
 
     /**
+     * Saves all the additional request statuses the user specified.
      *
-     * @param statuses
-     * @returns {*}
+     * @param statuses - Array of additional statuses.
+     * @returns {*} - promise with the operation's result.
      */
     self.saveStatuses = function (statuses) {
         var qStatuses = $q.defer();
@@ -52,8 +53,9 @@ function config ($http, $q) {
     };
 
     /**
+     * Fetches the max. possible amount of money a user can request.
      *
-     * @returns {*}
+     * @returns {*} - promise with the operation's result.
      */
     self.getMaxReqAmount = function () {
         var qReqAmount = $q.defer();
@@ -71,8 +73,9 @@ function config ($http, $q) {
     };
 
     /**
+     * Fetches the min. possible amount of money a user can request.
      *
-     * @returns {*}
+     * @returns {*} - promise with the operation's result.
      */
     self.getMinReqAmount = function () {
         var qReqAmount = $q.defer();
@@ -90,10 +93,11 @@ function config ($http, $q) {
     };
 
     /**
+     * Updates both min. amount and max. amount of money a user can request.
      *
-     * @param minAmount
-     * @param maxAmount
-     * @returns {*}
+     * @param minAmount - min amount a user can request.
+     * @param maxAmount - max amount a user can request.
+     * @returns {*} - promise with the operation's result.
      */
     self.updateReqAmount = function (minAmount, maxAmount) {
         var qReqAmount = $q.defer();

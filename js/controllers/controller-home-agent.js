@@ -118,6 +118,7 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
             $scope.docPicTaken = false;
             $scope.uploading = false;
             $scope.maxReqAmount = Requests.getMaxAmount();
+            $scope.minReqAmount = Requests.getMinAmount();
             $scope.APPLICANT = Constants.Users.APPLICANT;
             $scope.AGENT = Constants.Users.AGENT;
             $scope.PERSONAL = Constants.LoanTypes.PERSONAL;
@@ -528,6 +529,7 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
             $scope.docPicTaken = false;
             $scope.uploading = false;
             $scope.maxReqAmount = Requests.getMaxAmount();
+            $scope.minReqAmount = Requests.getMinAmount();
             $scope.uploadErr = '';
             // Hold scope reference to constants
             $scope.APPLICANT = Constants.Users.APPLICANT;
