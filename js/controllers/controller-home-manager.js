@@ -733,6 +733,175 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
         }
     };
 
+    $scope.openConfigDialog = function($event) {
+        var parentEl = angular.element(document.body);
+        $mdDialog.show({
+            parent: parentEl,
+            targetEvent: $event,
+            templateUrl: 'index.php/ConfigController',
+            clickOutsideToClose: false,
+            escapeToClose: false,
+            controller: DialogController
+        });
+
+        function DialogController($mdDialog, $scope, Config) {
+            /**
+             * =================================================
+             *          Requests status configuration
+             * =================================================
+             */
+
+            $scope.statuses = {};
+            $scope.statuses.systemStatuses = Requests.getStatusesTitles();
+            $scope.statuses.newStatuses = $scope.statuses.existing = [];
+            $scope.statuses.errorMsg = '';
+            $scope.statuses.updating = false;
+            $scope.statuses.loading = true;
+
+            Config.getStatuses()
+                .then(
+                function (statuses) {
+                    $scope.statuses.loading = false;
+                    $scope.statuses.newStatuses = statuses;
+                    // Create a DEEP copy of the statuses array.
+                    $scope.statuses.existing = JSON.parse(JSON.stringify(statuses));
+                },
+                function (err) {
+                    $scope.statuses.errorMsg = err;
+                    $scope.statuses.loading = false;
+                }
+            );
+
+            /**
+             * Checks whether statuses have been updated at all.
+             *
+             * @returns {boolean} {@code true} if statuses have changed.
+             */
+            $scope.updatedStatuses = function() {
+                return !Utils.isArrayEqualsTo($scope.statuses.newStatuses, $scope.statuses.existing);
+            };
+
+            $scope.updateStatuses = function() {
+                $scope.statuses.updating = true;
+                Config.saveStatuses ($scope.statuses.newStatuses)
+                    .then (
+                    function () {
+                        $scope.statuses.updating = false;
+                        Utils.showAlertDialog('Actualización exitosa',
+                                              'Los estatus de sus solicitudes han sido exitosamente actualizados.');
+                    },
+                    function (err) {
+                        $scope.statuses.updating = false;
+                        Utils.showAlertDialog('Oops!', err);
+                    }
+                );
+            };
+
+            /**
+             * =================================================
+             *      Max & Min amount request configuration
+             * =================================================
+             */
+            $scope.amount = {max: {}, min: {}, errorMsg: ''};
+            Config.getMaxReqAmount()
+                .then (
+                function (maxAmount) {
+                    $scope.amount.max.existing = maxAmount;
+                    $scope.amount.max.new = maxAmount;
+                },
+                function (err) {
+                    $scope.amount.errorMsg = err;
+                }
+            );
+
+            Config.getMinReqAmount()
+                .then (
+                function (minAmount) {
+                    $scope.amount.min.existing = minAmount;
+                    $scope.amount.min.new = minAmount;
+                },
+                function (err) {
+                    $scope.amount.errorMsg = err;
+                }
+            );
+
+            $scope.updateReqAmount = function() {
+                $scope.amount.updating = true;
+                Config.updateReqAmount($scope.amount.min.new, $scope.amount.max.new)
+                    .then (
+                    function () {
+                        $scope.amount.updating = false;
+                        Utils.showAlertDialog('Actualización exitosa',
+                                              'La cantidad posible de dinero a solicitar ha sido exitosamente ' +
+                                              'actualizada.');
+                    },
+                    function (err) {
+                        $scope.amount.updating = false;
+                        Utils.showAlertDialog('Oops!', err);
+                    }
+                );
+            };
+
+            $scope.missingField = function() {
+                return (typeof $scope.amount.min.new === "undefined" ||
+                        typeof $scope.amount.max.new === "undefined") ||
+                       ($scope.amount.min.existing === $scope.amount.min.new &&
+                       $scope.amount.max.existing === $scope.amount.max.new);
+            };
+
+            $scope.closeDialog = function() {
+                $mdDialog.hide();
+            };
+
+            $scope.showHelp = function() {
+                if ($scope.selectedTab == 1) {
+                    showStatusHelp(Helps.getDialogsHelpOpt());
+                } else {
+                    showReqAmountHelp(Helps.getDialogsHelpOpt());
+                }
+            };
+
+            /**
+             * Shows tour-based help of all input fields.
+             * @param options: Obj containing tour.js options
+             */
+            function showStatusHelp(options) {
+                var trip = new Trip([], options);
+
+                var contentChip = "Para agregar otros estatus, escríbalo y presione ENTER. Para eliminar " +
+                                  "estatus existentes, bórrelos con el teclado o haga clic en la 'X'.";
+                Helps.addFieldHelp(trip, "#additional-statuses",
+                                   contentChip, 'n');
+                if ($scope.updatedStatuses()) {
+                    var content = "Haga clic en GUARDAR para hacer efectivo " +
+                                  "los cambios.";
+                    Helps.addFieldHelp(trip, "#save-statuses",
+                                       content, 'n');
+                }
+                trip.start();
+            }
+
+            function showReqAmountHelp(options) {
+                var trip = new Trip([], options);
+                var content;
+
+                content = "Actualice el monto mínimo a solicitar permitido.";
+                Helps.addFieldHelp(trip, "#min-amount",
+                                   content, 'n');
+                content = "Actualice el monto máximo a solicitar permitido.";
+                Helps.addFieldHelp(trip, "#max-amount",
+                                   content, 'n');
+                if (!$scope.missingField()) {
+                    content = "Haga click en GUARDAR para hacer efectivo " +
+                              "los cambios.";
+                    Helps.addFieldHelp(trip, "#save-amounts",
+                                       content, 'n');
+                }
+                trip.start();
+            }
+        }
+    };
+
     /**
      *  Will show result pane if any of the following queries were executed
      */
@@ -1038,12 +1207,17 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
             content = "También puede generar reportes de solicitudes cerradas durante la " +
                       "semana vigente o en un rango de fechas específico.";
             Helps.addFieldHelpWithHeader(trip, '#approval-report', content, 'e', 'Reporte de solicitudes cerradas');
+            content = "También puede realizar gestiones del sistema a través de las opciones correspondientes.";
+            Helps.addFieldHelpWithHeader(trip, '#manager-options', content, 's', 'Administración');
             trip.start();
         } else {
             trip = new Trip([], options);
             content = "Haga click en el ícono para abrir el panel de navegación, donde podrá elegir las" +
                       " solicitudes a administrar o realizar búsquedas avanzadas.";
             Helps.addFieldHelp(trip, '#nav-panel', content, 's');
+            content = "También hacer clic aquí para desplegar un menú, donde podrá " +
+                      "realizar gestiones del sistema a través de las opciones correspondientes.";
+            Helps.addFieldHelp(trip, '#manager-options-menu', content, 's');
             trip.start();
         }
     }
@@ -1141,4 +1315,11 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
         $scope.showApprovedAmount = false;
         $scope.pieloaded = false;
     }
+
+    /**
+     * Takes user to system config. state.
+     */
+    $scope.goToConfig = function() {
+        $state.go('config');
+    };
 }

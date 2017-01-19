@@ -93,5 +93,23 @@ function utils($mdDialog, Constants) {
         return true;
     };
 
+    /**
+     * Checks if 2 arrays are equal (i.e. have the same content).
+     * @param arr1 - array1
+     * @param arr2 - array2
+     *
+     * @returns {boolean} {@code true} if both arrays have same content.
+     */
+    self.isArrayEqualsTo = function (arr1, arr2) {
+        if(arr1.length !== arr2.length)
+            return false;
+        for(var i = arr1.length; i--;) {
+            if(arr1[i] !== arr2[i])
+                return false;
+        }
+
+        return true;
+    };
+
     return self;
 }

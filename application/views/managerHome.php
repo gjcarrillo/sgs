@@ -13,18 +13,63 @@
             <span>{{appName}}</span>
         </h2>
         <span flex></span>
-        <md-button class="md-icon-button" ng-click="openManageUserAgentDialog($event)" aria-label="Help">
-            <md-icon>account_box</md-icon>
-            <md-tooltip md-direction="bottom">Administrar usuarios gestores</md-tooltip>
-        </md-button>
-        <md-button class="md-icon-button" ng-click="showHelp()" aria-label="Help">
-            <md-icon>help_outline</md-icon>
-            <md-tooltip md-direction="bottom">Ayuda</md-tooltip>
-        </md-button>
-        <md-button class="md-icon-button" ng-click="logout()" aria-label="Logout">
-            <md-icon>exit_to_app</md-icon>
-            <md-tooltip md-direction="bottom">Cerrar sesión</md-tooltip>
-        </md-button>
+        <div hide show-gt-sm id="manager-options">
+            <md-button class="md-icon-button" ng-click="openManageUserAgentDialog($event)" aria-label="Manage Agents">
+                <md-icon>account_box</md-icon>
+                <md-tooltip md-direction="bottom">Administrar usuarios gestores</md-tooltip>
+            </md-button>
+            <md-button class="md-icon-button" ng-click="openConfigDialog($event)" aria-label="System Configuration">
+                <md-icon>settings</md-icon>
+                <md-tooltip md-direction="bottom">Configuración del sistema</md-tooltip>
+            </md-button>
+            <md-button class="md-icon-button" ng-click="showHelp()" aria-label="Help">
+                <md-icon>help_outline</md-icon>
+                <md-tooltip md-direction="bottom">Ayuda</md-tooltip>
+            </md-button>
+            <md-button class="md-icon-button" ng-click="logout()" aria-label="Logout">
+                <md-icon>exit_to_app</md-icon>
+                <md-tooltip md-direction="bottom">Cerrar sesión</md-tooltip>
+            </md-button>
+        </div>
+        <!-- Show when screen width < 960px -->
+        <md-menu
+            hide-gt-sm>
+            <md-button
+                id="manager-options-menu"
+                ng-click="$mdOpenMenu($event)"
+                class="md-icon-button"
+                aria-label="More">
+                <md-icon class="md-secondary">
+                    more_vert
+                </md-icon>
+            </md-button>
+            <md-menu-content>
+                <md-menu-item>
+                    <md-button ng-click="openManageUserAgentDialog($event)" aria-label="Manage Agents">
+                        <md-icon>account_box</md-icon>
+                        Administrar gestores
+                    </md-button>
+                </md-menu-item>
+                <md-menu-item>
+                    <md-button ng-click="openConfigDialog($event)" aria-label="System Configuration">
+                        <md-icon>settings</md-icon>
+                        Configuración del sistema
+                    </md-button>
+                </md-menu-item>
+                <md-menu-item>
+                    <md-button ng-click="showHelp()" aria-label="Help">
+                        <md-icon>help_outline</md-icon>
+                        Ayuda
+                    </md-button>
+                </md-menu-item>
+                <md-menu-item>
+                    <md-button ng-click="logout()" aria-label="Logout">
+                        <md-icon>exit_to_app</md-icon>
+                        Cerrar sesión
+                    </md-button>
+                </md-menu-item>
+            </md-menu-content>
+        </md-menu>
     </div>
 </md-toolbar>
 <div layout>

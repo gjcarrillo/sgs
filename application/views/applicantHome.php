@@ -114,14 +114,20 @@
                             </p>
                         </md-card-content>
                         <md-card-actions layout="row" layout-align="end center">
-                            <md-button ng-click="sendValidation()" class="md-raised" aria-label="Resend email">
+                            <md-button
+                                ng-click="sendValidation()"
+                                ng-disabled="sending"
+                                class="md-raised"
+                                aria-label="Resend email">
                                 <span ng-if="!sending">
                                     Reenviar
                                     <md-tooltip>Reenviar el correo de validación</md-tooltip>
                                 </span>
                                 <div ng-if="sending" layout layout-align="center center">
-                                    <md-progress-circular md-mode="indeterminate"
-                                                          md-diameter="30">
+                                    <md-progress-circular
+                                        ng-if="statuses.loading"
+                                        md-mode="indeterminate"
+                                        md-diameter="30">
                                     </md-progress-circular>
                                 </div>
                             </md-button>

@@ -1,5 +1,5 @@
 <md-bottom-sheet style="position: fixed"class="md-list md-has-header" ng-cloak>
-    <h2 class="md-headline">Acciones realizadas</h2>
+    <h2 class="md-headline">Detalle de acciones</h2>
   <md-list>
       <div ng-repeat="(aKey, action) in actions">
           <md-list-item

@@ -7,6 +7,7 @@ var sgdp = angular.module("sgdp",
         "sgdp.service-file-upload",
         "sgdp.service-helps",
         "sgdp.service-manager",
+        "sgdp.service-config",
         "sgdp.service-agent",
         "ui.router",
         "ngMaterial",
@@ -176,7 +177,6 @@ sgdp.run(['$rootScope', '$location', '$state', 'Auth', '$cookies', '$http',
                       // if user Is logged in and is trying to access login page
                       // send to home page
                       e.preventDefault();
-                      console.log('Sending home 1');
                       Auth.sendHome();
                   } else if (Auth.isLoggedIn() && !userHasPermission(Auth.permission(), url)) {
                       // check if user actually has access permission to intended url

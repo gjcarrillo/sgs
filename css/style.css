@@ -87,6 +87,11 @@ footer {
     z-index: 2;
 }
 
+.config-card {
+    margin-top: 20px;
+    width: 60%;
+}
+
 .user-info-card {
     width: 60%;
     position: relative;
@@ -359,6 +364,10 @@ md-list-item.md-3-line>.md-no-style .md-list-item-text h4 {
     }
 
     .history-card {
+        width: 90%;
+    }
+
+    .config-card {
         width: 90%;
     }
 
