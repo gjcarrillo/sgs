@@ -162,10 +162,7 @@ function userHome($scope, $cookies, $timeout, Helps,
                 Requests.createRequest(postData).then(
                     function() {
                         updateRequestListUI(fetchId, 0, 'Solicitud creada',
-                                            'La solicitud ha sido creada exitosamente. ' +
-                                            'Le hemos enviado un correo para realizar la correspondiente validación. ' +
-                                            'Una vez validada, nuestros agentes la atenderán a la mayor brevedad ' +
-                                            'posible. ' +
+                                            'Le hemos enviado un correo para realizar validación de su solicitud. ' +
                                             'Si no ha recibido el correo luego de 10 minutos, haga clic en Reenviar.',
                                             true, true,
                                             parseInt(postData.loanType, 10));

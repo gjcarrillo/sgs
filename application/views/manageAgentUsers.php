@@ -125,7 +125,7 @@
                             <md-select
                                 placeholder="Elija el usuario"
                                 ng-model="selectedUser"
-                                md-on-open="onUsersOpen()"
+                                md-on-open="fetchAllAgents()"
                                 md-on-close="onUsersClose()"
                                 style="min-width: 200px;">
                                 <md-option ng-value="user" ng-repeat="user in userAgents">{{user.display}}</md-option>

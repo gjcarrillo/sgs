@@ -57,9 +57,9 @@ class Request
     private $approvedAmount;
 
     /**
-     * @var integer
+     * @var string
      *
-     * @ORM\Column(name="status", type="smallint", precision=2, scale=0, nullable=false, unique=false)
+     * @ORM\Column(name="status", type="string", length=255, precision=0, scale=0, nullable=false, unique=false)
      */
     private $status;
 
@@ -282,7 +282,7 @@ class Request
     /**
      * Set status
      *
-     * @param integer $status
+     * @param string $status
      * @return Request
      */
     public function setStatus($status)
@@ -295,33 +295,12 @@ class Request
     /**
      * Get status
      *
-     * @return integer
+     * @return string
      */
     public function getStatus()
     {
         return $this->status;
     }
-
-    /**
-     * Get status converted into text
-     * @return string
-     */
-    public function getStatusByText()
-    {
-        $status = $this->status;
-        return ($status == 1 ? "Recibida" : ($status == 2 ? "Aprobada" : "Rechazada"));
-    }
-    /**
-     * Set status converted into text
-     * @param string $status
-     * @return Request
-     */
-    public function setStatusByText($status)
-    {
-        $this->status = ($status == "Recibida" ? 1 : ($status == "Aprobada" ? 2 : 3));
-        return $this;
-    }
-
 
     /**
      * Set paymentDue

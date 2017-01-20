@@ -3,10 +3,10 @@ angular
     .controller('ManagerHomeController', managerHome);
 
 managerHome.$inject = ['$scope', '$mdDialog', '$state', '$timeout', '$mdSidenav',
-                       '$mdMedia', 'Utils', 'Requests', 'Helps', 'Constants', 'Manager'];
+                       '$mdMedia', 'Utils', 'Requests', 'Helps', 'Constants', 'Manager', 'Config'];
 
 function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
-                     Utils, Requests, Helps, Constants, Manager) {
+                     Utils, Requests, Helps, Constants, Manager, Config) {
     'use strict';
     $scope.model = Manager.data.model;
     $scope.selectedQuery = Manager.data.selectedQuery;
@@ -36,11 +36,11 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
     }
 
     $scope.statuses = Requests.getAllStatuses();
-    $scope.APPROVED_STRING = Requests.mapStatus(Constants.Statuses.APPROVED);
-    $scope.REJECTED_STRING = Requests.mapStatus(Constants.Statuses.REJECTED);
-    $scope.RECEIVED_STRING = Requests.mapStatus(Constants.Statuses.RECEIVED);
+    $scope.APPROVED_STRING = Constants.Statuses.APPROVED;
+    $scope.REJECTED_STRING = Constants.Statuses.REJECTED;
+    $scope.RECEIVED_STRING = Constants.Statuses.RECEIVED;
     $scope.listTitle = Requests.getRequestsListTitle();
-    $scope.mappedStatuses = Requests.getStatusesTitles();
+    $scope.mappedStatuses = Requests.getAllStatuses();
     $scope.loanTypes = Requests.getAllLoanTypes();
     $scope.mappedLoanTypes = Requests.getLoanTypesTitles();
 
@@ -64,8 +64,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
      */
     function loadPendingRequests() {
         $scope.loadingContent = true;
-        Manager.fetchRequestsByStatus(Requests.mapStatus(Constants.Statuses.RECEIVED))
-            .then(
+        Manager.fetchPendingRequests().then(
             function (data) {
                 $scope.pendingRequests = data.requests;
                 if (!Utils.isObjEmpty(data.requests)) {
@@ -110,7 +109,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
     $scope.fetchRequestsByStatus = function(status, index) {
         resetContent();
         $scope.loading = true;
-        Manager.fetchRequestsByStatus(Requests.mapStatus(status))
+        Manager.fetchRequestsByStatus(status)
             .then(
             function (data) {
                 $scope.requests = data.requests;
@@ -120,7 +119,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 $scope.pie = data.pie;
                 drawPie(data.pie);
                 $scope.report = data.report;
-                $scope.report.status = Requests.mapStatus(status);
+                $scope.report.status = status;
                 $scope.loading = false;
             },
             function (error) {
@@ -238,11 +237,11 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
         );
     };
 
-    $scope.getApprovedReportByCurrentWeek = function() {
+    $scope.getClosedReportByCurrentWeek = function() {
         $mdSidenav('left').toggle();
         resetContent();
         $scope.loadingReport = true;
-        Manager.getApprovedReportByCurrentWeek()
+        Manager.getClosedReportByCurrentWeek()
             .then(
             function (report) {
                 $scope.report = report;
@@ -255,11 +254,11 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
         );
     };
 
-    $scope.getApprovedReportByDateInterval = function(from, to) {
+    $scope.getClosedReportByDateInterval = function(from, to) {
         $mdSidenav('left').toggle();
         resetContent();
         $scope.loadingReport = true;
-        Manager.getApprovedReportByDateInterval(from, to)
+        Manager.getClosedReportByDateInterval(from, to)
             .then(
             function (report) {
                 $scope.report = report;
@@ -316,6 +315,16 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
         setDataChanged(false);
         // Close sidenav
         $mdSidenav('left').toggle();
+    };
+
+    $scope.loadStatuses = function() {
+        $scope.onStatusOpen();
+        return Config.getStatuses().then(
+            function (statuses) {
+                $scope.statuses = Requests.getAllStatuses();
+                $scope.statuses = $scope.statuses.concat(statuses);
+            }
+        );
     };
 
     // Helper function for formatting numbers with leading zeros
@@ -392,16 +401,19 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
             $scope.fetchId = fetchId;
             $scope.uploading = false;
             $scope.request = request;
-            $scope.mappedStatuses = Requests.getStatusesTitles();
-            $scope.APPROVED_STRING = Requests.mapStatus(Constants.Statuses.APPROVED);
-            $scope.REJECTED_STRING = Requests.mapStatus(Constants.Statuses.REJECTED);
-            $scope.RECEIVED_STRING = Requests.mapStatus(Constants.Statuses.RECEIVED);
+            $scope.mappedStatuses = Requests.getAllStatuses();
+            $scope.APPROVED_STRING = Constants.Statuses.APPROVED;
+            $scope.REJECTED_STRING = Constants.Statuses.REJECTED;
+            $scope.RECEIVED_STRING = Constants.Statuses.RECEIVED;
 
             if (obj) {
                 $scope.model = obj;
                 if (obj.confirmed) updateRequest();
             } else {
                 $scope.model = {};
+                if ($scope.mappedStatuses.indexOf(request.status) == -1) {
+                    $scope.mappedStatuses.push(request.status);
+                }
                 $scope.model.status = request.status;
                 $scope.model.comment = $scope.request.comment;
                 $scope.model.approvedAmount = $scope.request.reqAmount;
@@ -415,11 +427,20 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 if ($scope.model.status == $scope.APPROVED_STRING) {
                     return typeof $scope.model.approvedAmount === "undefined";
                 } else {
-                    return ($scope.model.status != $scope.REJECTED_STRING &&
+                    return ($scope.model.status == request.status &&
                         (typeof $scope.model.comment === "undefined"
                         || $scope.model.comment == ""
                         || $scope.model.comment == $scope.request.comment));
                 }
+            };
+
+            $scope.loadStatuses = function() {
+                return Config.getStatuses().then(
+                    function (statuses) {
+                        $scope.mappedStatuses = Requests.getAllStatuses();
+                        $scope.mappedStatuses = $scope.mappedStatuses.concat(statuses);
+                    }
+                );
             };
 
             /**
@@ -463,7 +484,9 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 $scope.request.status = $scope.model.status;
                 $scope.request.comment = $scope.model.comment;
                 $scope.request.reunion = $scope.model.reunion;
-                $scope.request.approvedAmount = $scope.model.approvedAmount;
+                if ($scope.model.status == $scope.APPROVED_STRING) {
+                    $scope.request.approvedAmount = $scope.model.approvedAmount;
+                }
                 Manager.updateRequest($scope.request)
                     .then(
                     function () {
@@ -511,7 +534,8 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                         "solicitud.";
                     Helps.addFieldHelp(trip, "#status", content, 's');
                 }
-                if ($scope.model.status != $scope.RECEIVED_STRING
+                if (($scope.model.status == $scope.APPROVED_STRING ||
+                    $scope.model.status == $scope.REJECTED_STRING)
                     && typeof $scope.model.reunion === "undefined") {
                     content = "Agrege el número de reunión (opcional).";
                     Helps.addFieldHelp(trip, "#reunion",
@@ -550,7 +574,9 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
         $scope.pendingRequests[index.request][index.loan].status = status;
         $scope.pendingRequests[index.request][index.loan].comment = comment;
         $scope.pendingRequests[index.request][index.loan].reunion = reunion;
-        $scope.pendingRequests[index.request][index.loan].approvedAmount = approvedAmount;
+        if (status == $scope.APPROVED_STRING) {
+            $scope.pendingRequests[index.request][index.loan].approvedAmount = approvedAmount;
+        }
     }
 
     /**
@@ -622,15 +648,18 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
              */
             $scope.selectedUser = null;
 
-            Manager.fetchAllAgents()
-                .then(
-                function (agents) {
-                    $scope.userAgents = agents;
-                },
-                function (error) {
-                    Utils.showAlertDialog('Oops!', error);
-                }
-            );
+            $scope.fetchAllAgents = function () {
+                $scope.onUsersOpen();
+                return Manager.fetchAllAgents()
+                    .then(
+                    function (agents) {
+                        $scope.userAgents = agents;
+                    },
+                    function (error) {
+                        Utils.showAlertDialog('Oops!', error);
+                    }
+                );
+            };
 
             // TODO: Implement directive.
             $scope.onUsersOpen = function() {
@@ -745,6 +774,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
         });
 
         function DialogController($mdDialog, $scope, Config) {
+            $scope.uploading = false;
             /**
              * =================================================
              *          Requests status configuration
@@ -752,10 +782,9 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
              */
 
             $scope.statuses = {};
-            $scope.statuses.systemStatuses = Requests.getStatusesTitles();
+            $scope.statuses.systemStatuses = Requests.getAllStatuses();
             $scope.statuses.newStatuses = $scope.statuses.existing = [];
             $scope.statuses.errorMsg = '';
-            $scope.statuses.updating = false;
             $scope.statuses.loading = true;
 
             Config.getStatuses()
@@ -782,17 +811,21 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
             };
 
             $scope.updateStatuses = function() {
-                $scope.statuses.updating = true;
+                $scope.uploading = true;
                 Config.saveStatuses ($scope.statuses.newStatuses)
                     .then (
                     function () {
-                        $scope.statuses.updating = false;
+                        $scope.uploading = false;
                         Utils.showAlertDialog('Actualización exitosa',
                                               'Los estatus de sus solicitudes han sido exitosamente actualizados.');
+                        Manager.clearData();
+                        $state.go($state.current, {}, {reload: true});
                     },
                     function (err) {
-                        $scope.statuses.updating = false;
+                        $scope.uploading = false;
                         Utils.showAlertDialog('Oops!', err);
+                        Manager.clearData();
+                        $state.go($state.current, {}, {reload: true});
                     }
                 );
             };
@@ -803,40 +836,46 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
              * =================================================
              */
             $scope.amount = {max: {}, min: {}, errorMsg: ''};
+            $scope.amount.max.loading = true;
             Config.getMaxReqAmount()
                 .then (
                 function (maxAmount) {
+                    $scope.amount.max.loading = false;
                     $scope.amount.max.existing = maxAmount;
                     $scope.amount.max.new = maxAmount;
                 },
                 function (err) {
+                    $scope.amount.max.loading = false;
                     $scope.amount.errorMsg = err;
                 }
             );
 
+            $scope.amount.min.loading = true;
             Config.getMinReqAmount()
                 .then (
                 function (minAmount) {
+                    $scope.amount.min.loading = false;
                     $scope.amount.min.existing = minAmount;
                     $scope.amount.min.new = minAmount;
                 },
                 function (err) {
+                    $scope.amount.min.loading = false;
                     $scope.amount.errorMsg = err;
                 }
             );
 
             $scope.updateReqAmount = function() {
-                $scope.amount.updating = true;
+                $scope.uploading = true;
                 Config.updateReqAmount($scope.amount.min.new, $scope.amount.max.new)
                     .then (
                     function () {
-                        $scope.amount.updating = false;
+                        $scope.uploading = false;
                         Utils.showAlertDialog('Actualización exitosa',
                                               'La cantidad posible de dinero a solicitar ha sido exitosamente ' +
                                               'actualizada.');
                     },
                     function (err) {
-                        $scope.amount.updating = false;
+                        $scope.uploading = false;
                         Utils.showAlertDialog('Oops!', err);
                     }
                 );
@@ -1145,7 +1184,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
             // Nav. panel information
             content = "Consulte datos del afiliado";
             Helps.addFieldHelpWithHeader(trip, '#user-data', content, 'e', 'Datos del afiliado', false, 'fadeInLeft');
-            content = "Ésta es la lista de solicitudes del afiliado. Haga click en el tipo de solicitud de " +
+            content = "Ésta es la lista de solicitudes del afiliado. Haga clic en el tipo de solicitud de " +
                       "su elección para ver sus solicitudes de préstamo. <br/>Para facilitar " +
                       "la elección, el estatus de cada una está identificada por un bombillo amarillo, verde " +
                       "y rojo para Recibida, Aprobada y Rechazada, respectivamente.";
@@ -1243,12 +1282,12 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                                       'Cuotas a pagar', true);
          // Request contact number
          content = "Aquí se muestra el número de teléfono del solicitante.";
-         Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-contact-number', content, 'n',
+         Helps.addFieldHelpWithHeader(trip, '#request-contact-number', content, 'n',
                                       'Número de contacto', true);
          // Request contact email
          content = "Éste es el correo electrónico a través del cual el sistema enviará información y " +
                    "actualizaciones referente a la solicitud.";
-         Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-email', content, 'n',
+         Helps.addFieldHelpWithHeader(trip, '#request-email', content, 'n',
                                       'Correo electrónico', true);
          // Request documents information
          content = "Éste y los siguientes " +

@@ -241,22 +241,7 @@ function reqService($q, $http, Constants) {
     };
 
     /**
-     * Gets the different request status types as strings.
-     *
-     * @returns {Array} containing all the statuses mapped as strings.
-     */
-    self.getStatusesTitles = function () {
-        var codes = Constants.Statuses;
-        var titles = [];
-        angular.forEach(codes, function (code) {
-            titles.push(self.mapStatus(code));
-        });
-
-        return titles;
-    };
-
-    /**
-     * Gets all the existing statuses codes.
+     * Gets all the system-default statuses.
      *
      * @returns {Array} containing all the request statuses.
      */
@@ -331,28 +316,6 @@ function reqService($q, $http, Constants) {
                 break;
             default:
                 return type;
-        }
-    };
-
-    /**
-     * Maps the specified (int) statusCode to it's corresponding string type.
-     *
-     * @param statusCode - request's status code.
-     * @returns {*} - string contaning the corresponding mapped type.
-     */
-    self.mapStatus = function (statusCode) {
-        switch (statusCode) {
-            case Constants.Statuses.RECEIVED:
-                return 'Recibida';
-                break;
-            case Constants.Statuses.APPROVED:
-                return 'Aprobada';
-                break;
-            case Constants.Statuses.REJECTED:
-                return 'Rechazada';
-                break;
-            default:
-                return statusCode;
         }
     };
 

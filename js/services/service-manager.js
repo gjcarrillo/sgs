@@ -124,6 +124,7 @@ function manager($http, $q, Requests) {
             {params: {status: status}})
             .then(
             function (response) {
+                console.log(response);
                 if (response.data.message === "success") {
                     response.data.requests = Requests.filterRequests(response.data.requests);
                     qStatus.resolve(response.data);
@@ -133,6 +134,23 @@ function manager($http, $q, Requests) {
 
             });
         return qStatus.promise;
+    };
+
+    self.fetchPendingRequests = function () {
+        var qPending = $q.defer();
+        $http.get('index.php/ManagerHomeController/fetchPendingRequests')
+            .then(
+            function (response) {
+                console.log(response);
+                if (response.data.message === "success") {
+                    response.data.requests = Requests.filterRequests(response.data.requests);
+                    qPending.resolve(response.data);
+                } else {
+                    qPending.reject(response.data.error);
+                }
+
+            });
+        return qPending.promise;
     };
 
     /**
@@ -293,37 +311,37 @@ function manager($http, $q, Requests) {
     };
 
     /**
-     * Gets the approved requests report within the current week.
+     * Gets the closed requests report within the current week.
      *
      * @returns {*} - promise containing the operation's result.
      */
-    self.getApprovedReportByCurrentWeek = function () {
+    self.getClosedReportByCurrentWeek = function () {
         var qReport = $q.defer();
         $http.get('index.php/ManagerHomeController/' +
-                  'getApprovedReportByCurrentWeek')
+                  'getClosedReportByCurrentWeek')
             .then(
             function (response) {
                 console.log(response);
                 if (response.data.message === "success") {
                     qReport.resolve(response.data.report);
                 } else {
-                    qReport.resolve(response.data.error);
+                    qReport.reject(response.data.error);
                 }
             });
         return qReport.promise;
     };
 
     /**
-     * Gets the approved requests report within the specified date interval.
+     * Gets the closed requests report within the specified date interval.
      *
      * @param from - date from which to start the look up.
      * @param to - date from which to end the look up.
      * @returns {*} - promise containing the operation's result.
      */
-    self.getApprovedReportByDateInterval = function (from, to) {
+    self.getClosedReportByDateInterval = function (from, to) {
         var qReport = $q.defer();
         $http.get('index.php/ManagerHomeController/' +
-                  'getApprovedReportByDateInterval',
+                  'getClosedReportByDateInterval',
             {
                 params: {
                     from: moment(from).format('DD/MM/YYYY'),
@@ -336,7 +354,7 @@ function manager($http, $q, Requests) {
                 if (response.data.message === "success") {
                     qReport.resolve(response.data.report);
                 } else {
-                    qReport.resolve(response.data.error);
+                    qReport.reject(response.data.error);
                 }
             });
         return qReport.promise;
@@ -450,7 +468,7 @@ function manager($http, $q, Requests) {
             url = 'index.php/DocumentGenerator/generateStatusRequestsReport';
         } else {
             // Approved requests report
-            url = 'index.php/DocumentGenerator/generateApprovedRequestsReport';
+            url = 'index.php/DocumentGenerator/generateClosedRequestsReport';
         }
         var report = JSON.stringify(reportData);
         $http.post(url, report).then(function (response) {

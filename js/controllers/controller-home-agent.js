@@ -16,6 +16,9 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
     $scope.showList = Agent.data.showList;
     $scope.fetchId = Agent.data.fetchId;
     $scope.searchInput = Agent.data.searchInput;
+    $scope.APPROVED_STRING = Constants.Statuses.APPROVED;
+    $scope.REJECTED_STRING = Constants.Statuses.REJECTED;
+    $scope.RECEIVED_STRING = Constants.Statuses.RECEIVED;
     // contentAvailable will indicate whether sidenav can be visible
     $scope.contentAvailable = Agent.data.contentAvailable;
     // contentLoaded will indicate whether sidenav can be locked open

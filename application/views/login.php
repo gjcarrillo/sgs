@@ -89,7 +89,6 @@
                         <md-button
                             aria-label="logging in"
                             ng-if="loading"
-                            ng-click="login()"
                             class="md-raised md-primary">
                             <div layout layout-align="center center">
                                 <md-progress-circular

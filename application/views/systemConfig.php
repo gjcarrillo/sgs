@@ -51,16 +51,26 @@
             <md-tab label="Monto a solicitar" md-on-select="selectedTab = 2">
                 <md-content layout-padding>
                     <div layout="column">
-                        <div class="grey-color">
-                            Monto mínimo (Bs)
+                        <div layout>
+                            <span class="grey-color">Monto mínimo (Bs)</span>
+                            <md-progress-circular
+                                ng-if="amount.min.loading"
+                                md-mode="indeterminate"
+                                md-diameter="30">
+                            </md-progress-circular>
                         </div>
                         <md-input-container
                             id="min-amount"
                             md-no-float>
                             <input required type="number" ng-model="amount.min.new" placeholder="Ej: 200000"/>
                         </md-input-container>
-                        <div class="grey-color">
-                            Monto máximo (Bs)
+                        <div layout>
+                            <span class="grey-color">Monto máximo (Bs)</span>
+                            <md-progress-circular
+                                ng-if="amount.max.loading"
+                                md-mode="indeterminate"
+                                md-diameter="30">
+                            </md-progress-circular>
                         </div>
                         <md-input-container
                             id="max-amount"

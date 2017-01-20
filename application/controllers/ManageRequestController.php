@@ -34,22 +34,32 @@ class ManageRequestController extends CI_Controller {
 				$history->setOrigin($request);
 				$request->addHistory($history);
 				// Register it's corresponding actions
-				if (isset($data['status']) && $request->getStatusByText() !== $data['status']) {
-					// 4 = Close
-					$history->setTitle(4);
-					$action = new \Entity\HistoryAction();
-					$action->setSummary("Cierre de solicitud.");
-					if (isset($data['approvedAmount'])) {
-						$approvedAmount = number_format($data['approvedAmount'], 2);
-						$action->setDetail(
-							"Sugerencia: " . $this->statusToVerb($data['status']) . " solicitud. Monto aprobado: Bs " . $approvedAmount
-						);
+				if (isset($data['status'])) {
+					if ($data['status'] === 'Aprobada' || $data['status'] === 'Rechazada' ) {
+						// 4 = Close
+						$history->setTitle(4);
+						$action = new \Entity\HistoryAction();
+						$action->setSummary("Cierre de solicitud.");
+						if ($data['status'] === 'Aprobada') {
+							$approvedAmount = number_format($data['approvedAmount'], 2);
+							$action->setDetail(
+								"Sugerencia: " . $this->statusToVerb($data['status']) .
+								" solicitud. Monto aprobado: Bs " . $approvedAmount
+							);
+						} else {
+							$action->setDetail("Nuevo estatus: " . $data['status']);
+						}
+						$action->setBelongingHistory($history);
+						$history->addAction($action);
+						$em->persist($action);
 					} else {
-						$action->setDetail("Nuevo estado: " . $data['status']);
+						$action = new \Entity\HistoryAction();
+						$action->setSummary("Cambio de estatus.");
+						$action->setDetail("Nuevo estatus: " . $data['status']);
+						$action->setBelongingHistory($history);
+						$history->addAction($action);
+						$em->persist($action);
 					}
-					$action->setBelongingHistory($history);
-					$history->addAction($action);
-					$em->persist($action);
 				}
 				if (isset($data['comment']) && $request->getComment() !== $data['comment']) {
 					$action = new \Entity\HistoryAction();
@@ -75,7 +85,7 @@ class ManageRequestController extends CI_Controller {
 				if (isset($data['reunion'])) {
 					$request->setReunion($data['reunion']);
 				}
-				$request->setStatusByText($data['status']);
+				$request->setStatus($data['status']);
 				if (isset($data['comment'])) {
 					$request->setComment($data['comment']);
 				}

@@ -225,7 +225,8 @@
                                         </md-button>
                                         <md-button
                                             class="md-icon-button"
-                                            ng-if="req.status == 'Recibida' && req.validationDate"
+                                            ng-if="req.status != APPROVED_STRING && req.status != REJECTED_STRING
+                                                && req.validationDate"
                                             ng-click="openUpdateRequestDialog($event)">
                                             <md-icon class="md-secondary">
                                                 edit
@@ -289,7 +290,8 @@
                                                     Historial
                                                 </md-button>
                                             </md-menu-item>
-                                            <md-menu-item ng-if="req.status == 'Recibida' && req.validationDate">
+                                            <md-menu-item ng-if="req.status != APPROVED_STRING &&
+                                                req.status != REJECTED_STRING && req.validationDate">
                                                 <md-button ng-click="openUpdateRequestDialog($event)">
                                                     <md-icon class="md-secondary">
                                                         edit

@@ -12,6 +12,11 @@ class DocumentGenerator extends CI_Controller {
         $this->load->view('DocumentGenerator');
     }
 
+	/**
+	 * Generates a simple (w/o conditions or exceptions) requets report.
+	 * Currently used for specific user requests & reports by loan type.
+	 * @throws PHPExcel_Reader_Exception
+	 */
 	public function generateSimpleRequestsReport() {
 		$result = null;
 		if ($_SESSION['type'] != 2) {
@@ -56,17 +61,13 @@ class DocumentGenerator extends CI_Controller {
 			$offset++;
 			$this->excel->getActiveSheet()->fromArray((array)$data['stats']['data'], NULL, 'A' . $offset);
 			// Add count stat formula
-			$this->excel->getActiveSheet()->setCellValue('B' . $offset, '=COUNTIF(E7:E'. ($offset-6) . ',"Recibida")');
-			$this->excel->getActiveSheet()->setCellValue('B' . ($offset+1), '=COUNTIF(E7:E'. ($offset-6) . ',"Aprobada")');
-			$this->excel->getActiveSheet()->setCellValue('B' . ($offset+2), '=COUNTIF(E7:E'. ($offset-6) . ',"Rechazada")');
-			// Add percentage stat formula
-			$this->excel->getActiveSheet()
-						->setCellValue('C' . $offset, '=ROUND(B'. $offset .' * 100 / ROWS(E7:E' . ($offset-6) . '), 2)');
-			$this->excel->getActiveSheet()
-						->setCellValue('C' . ($offset+1), '=ROUND(B'. ($offset+1) .' * 100 / ROWS(E7:E' . ($offset-6) . '), 2)');
-			$this->excel->getActiveSheet()
-						->setCellValue('C' . ($offset+2), '=ROUND(B'. ($offset+2) .' * 100 / ROWS(E7:E' . ($offset-6) . '), 2)');
-
+			foreach ($data['stats']['data'] as $sKey => $status) {
+				$this->excel->getActiveSheet()->setCellValue('B' . ($offset + $sKey),
+															 '=COUNTIF(E7:E'. ($offset-6) . ',"' . $status[0] .'")');
+				$this->excel->getActiveSheet()
+							->setCellValue('C' . ($offset + $sKey), '=ROUND(B'. ($offset + $sKey) .
+																	' * 100 / ROWS(E7:E' . ($offset-6) . '), 2)');
+			}
 			// Merge header and dataTitle cells
 			$this->excel->getActiveSheet()->mergeCells('A1:I1');
 			$this->excel->getActiveSheet()->mergeCells('A2:I2');
@@ -89,7 +90,7 @@ class DocumentGenerator extends CI_Controller {
 			);
 			// Table offset
 			$tableOffset = 6 + count($data['data']);
-			$statTableOffset = $offset + 2;
+			$statTableOffset = $offset + count($data['stats']['data']) - 1;
 			// Add table style
 			$this->excel->getActiveSheet()->getStyle('A6:I' . $tableOffset)->applyFromArray($tableBorders);
 			$this->excel->getActiveSheet()->getStyle('A' . ($offset-1) . ':C' . $statTableOffset)
@@ -129,6 +130,12 @@ class DocumentGenerator extends CI_Controller {
 		echo json_encode($result);
 	}
 
+	/**
+	 * Generates date-based requests report.
+	 * Currently used by date interval & date specific requests report.
+	 *
+	 * @throws PHPExcel_Reader_Exception
+	 */
 	public function generateRequestsReport() {
 		$result = null;
 		if ($_SESSION['type'] != 2) {
@@ -173,17 +180,13 @@ class DocumentGenerator extends CI_Controller {
 			$offset++;
 			$this->excel->getActiveSheet()->fromArray((array)$data['stats']['data'], NULL, 'A' . $offset);
 			// Add count stat formula
-			$this->excel->getActiveSheet()->setCellValue('B' . $offset, '=COUNTIF(F7:F'. ($offset-6) . ',"Recibida")');
-			$this->excel->getActiveSheet()->setCellValue('B' . ($offset+1), '=COUNTIF(F7:F'. ($offset-6) . ',"Aprobada")');
-			$this->excel->getActiveSheet()->setCellValue('B' . ($offset+2), '=COUNTIF(F7:F'. ($offset-6) . ',"Rechazada")');
-			// Add percentage stat formula
-			$this->excel->getActiveSheet()
-				->setCellValue('C' . $offset, '=ROUND(B'. $offset .' * 100 / ROWS(F7:F' . ($offset-6) . '), 2)');
-			$this->excel->getActiveSheet()
-				->setCellValue('C' . ($offset+1), '=ROUND(B'. ($offset+1) .' * 100 / ROWS(F7:F' . ($offset-6) . '), 2)');
-			$this->excel->getActiveSheet()
-				->setCellValue('C' . ($offset+2), '=ROUND(B'. ($offset+2) .' * 100 / ROWS(F7:F' . ($offset-6) . '), 2)');
-
+			foreach ($data['stats']['data'] as $sKey => $status) {
+				$this->excel->getActiveSheet()->setCellValue('B' . ($offset + $sKey),
+															 '=COUNTIF(F7:F'. ($offset-6) . ',"' . $status[0] .'")');
+				$this->excel->getActiveSheet()
+							->setCellValue('C' . ($offset + $sKey), '=ROUND(B'. ($offset + $sKey) .
+																	' * 100 / ROWS(F7:F' . ($offset-6) . '), 2)');
+			}
 			// Merge header and dataTitle cells
 			$this->excel->getActiveSheet()->mergeCells('A1:J1');
 			$this->excel->getActiveSheet()->mergeCells('A2:J2');
@@ -206,7 +209,7 @@ class DocumentGenerator extends CI_Controller {
 			);
 			// Table offset
 			$tableOffset = 6 + count($data['data']);
-			$statTableOffset = $offset + 2;
+			$statTableOffset = $offset + count($data['stats']['data']) - 1;
 			// Add table style
 			$this->excel->getActiveSheet()->getStyle('A6:J' . $tableOffset)->applyFromArray($tableBorders);
 			$this->excel->getActiveSheet()->getStyle('A' . ($offset-1) . ':C' . $statTableOffset)
@@ -247,6 +250,12 @@ class DocumentGenerator extends CI_Controller {
 		echo json_encode($result);
 	}
 
+	/**
+	 * Generates status based requests report.
+	 * Currently used by requests by status queries.
+	 *
+	 * @throws PHPExcel_Reader_Exception
+	 */
 	public function generateStatusRequestsReport() {
 		$result = null;
 		if ($_SESSION['type'] != 2) {
@@ -277,12 +286,12 @@ class DocumentGenerator extends CI_Controller {
 			// data offset
 			$offset += count($data['data']);
 			// Extend table for total amounts
-			if ($data['status'] == "Recibida") {
-				// Don't take reunion number into account
-				$this->excel->getActiveSheet()->fromArray((array)$data['total'], NULL, 'E' . $offset);
-				$totalStartCell = 'E';
-				$requestedCell = $totalValCell = 'F';
-				$lastCell = 'G';
+			if ($data['status'] == "Aprobada") {
+				// Take both reunion number & approved amount cells into account.
+				$this->excel->getActiveSheet()->fromArray((array)$data['total'], NULL, 'G' . $offset);
+				$totalStartCell = $requestedCell = 'G';
+				$totalValCell = 'H';
+				$lastCell = 'I';
 			} else if ($data['status'] == "Rechazada") {
 				// Take reunion number into account
 				$this->excel->getActiveSheet()->fromArray((array)$data['total'], NULL, 'F' . $offset);
@@ -290,10 +299,11 @@ class DocumentGenerator extends CI_Controller {
 				$requestedCell = $totalValCell = 'G';
 				$lastCell = 'H';
 			} else {
-				$this->excel->getActiveSheet()->fromArray((array)$data['total'], NULL, 'G' . $offset);
-				$totalStartCell = $requestedCell = 'G';
-				$totalValCell = 'H';
-				$lastCell = 'I';
+				// Don't take reunion number into account
+				$this->excel->getActiveSheet()->fromArray((array)$data['total'], NULL, 'E' . $offset);
+				$totalStartCell = 'E';
+				$requestedCell = $totalValCell = 'F';
+				$lastCell = 'G';
 			}
 			$this->excel->getActiveSheet()
 				->setCellValue($totalValCell . $offset, '=SUM(' . $requestedCell . '7:' . $requestedCell . ($offset-1) . ')');
@@ -363,7 +373,13 @@ class DocumentGenerator extends CI_Controller {
 		echo json_encode($result);
 	}
 
-	public function generateApprovedRequestsReport() {
+	/**
+	 * Generates closed requests report.
+	 * Currently used by both date-interval & current week closed requests reports.
+	 *
+	 * @throws PHPExcel_Reader_Exception
+	 */
+	public function generateClosedRequestsReport() {
 		$result = null;
 		if ($_SESSION['type'] != 2) {
 			$this->load->view('errors/index.html');

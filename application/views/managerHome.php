@@ -173,12 +173,12 @@
                                 class="no-vertical-margin"
                                 md-no-float>
                                 <md-select
-                                    md-on-open="onStatusOpen()"
+                                    md-on-open="loadStatuses()"
                                     md-on-close="onStatusClose()"
                                     placeholder="Estatus"
                                     ng-model="model.perform[1].status">
-                                    <md-option ng-repeat="(sKey, status) in statuses" ng-value="mappedStatuses[sKey]">
-                                        {{mappedStatuses[sKey]}}
+                                    <md-option ng-repeat="(sKey, status) in statuses" ng-value="status">
+                                        {{status}}
                                     </md-option>
                                 </md-select>
                             </md-input-container>
@@ -659,7 +659,7 @@
                                         </md-button>
                                         <md-button
                                             class="md-icon-button"
-                                            ng-if="req.status == RECEIVED_STRING"
+                                            ng-if="req.status != APPROVED_STRING && req.status != REJECTED_STRING"
                                             ng-click="openEditRequestDialog($event)">
                                             <md-icon class="md-secondary">
                                                 edit
@@ -701,7 +701,7 @@
                                                </md-button>
                                            </md-menu-item>
                                            <md-menu-item
-                                               ng-if="req.status == RECEIVED_STRING">
+                                               ng-if="req.status != APPROVED_STRING && req.status != REJECTED_STRING">
                                                <md-button
                                                    ng-click="openEditRequestDialog($event)">
                                                    <md-icon class="md-secondary">

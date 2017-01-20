@@ -115,8 +115,7 @@
                         </md-card-content>
                         <md-card-actions layout="row" layout-align="end center">
                             <md-button
-                                ng-click="sendValidation()"
-                                ng-disabled="sending"
+                                ng-click="sending ? null : sendValidation()"
                                 class="md-raised"
                                 aria-label="Resend email">
                                 <span ng-if="!sending">
@@ -125,7 +124,6 @@
                                 </span>
                                 <div ng-if="sending" layout layout-align="center center">
                                     <md-progress-circular
-                                        ng-if="statuses.loading"
                                         md-mode="indeterminate"
                                         md-diameter="30">
                                     </md-progress-circular>

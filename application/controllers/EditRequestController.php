@@ -63,7 +63,7 @@ class EditRequestController extends CI_Controller {
 					$em->persist($action);
 				}
 				$em->persist($history);
-				$request->setStatusByText($data['status']);
+				$request->setStatus($data['status']);
 				if (isset($data['comment'])) {
 					$request->setComment($data['comment']);
 				}

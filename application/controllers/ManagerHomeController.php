@@ -36,7 +36,13 @@ class ManagerHomeController extends CI_Controller {
 					if ($requests->isEmpty()) {
 						$result['error'] = "El usuario no posee solicitudes";
 					} else {
-						$received = $approved = $rejected = $totalRequested = $totalApproved = $rKey = 0;
+						$rKey = 0;
+                        $statuses = $this->getAllStatuses();
+                        $statusCounter = array();
+                        foreach ($statuses as $status) {
+                            // Initialize counter array
+                            $statusCounter[$status] = 0;
+                        }
 						foreach ($requests as $request) {
 							if ($request->getValidationDate() === null) continue;
 							$result['requests'][$rKey]['id'] = $request->getId();
@@ -45,7 +51,7 @@ class ManagerHomeController extends CI_Controller {
 							$result['requests'][$rKey]['reqAmount'] = $request->getRequestedAmount();
 							$result['requests'][$rKey]['approvedAmount'] = $request->getApprovedAmount();
 							$result['requests'][$rKey]['reunion'] = $request->getReunion();
-							$result['requests'][$rKey]['status'] = $request->getStatusByText();
+							$result['requests'][$rKey]['status'] = $request->getStatus();
 							$result['requests'][$rKey]['type'] = $request->getLoanType();
 							$result['requests'][$rKey]['phone'] = $request->getContactNumber();
 							$result['requests'][$rKey]['due'] = $request->getPaymentDue();
@@ -59,20 +65,14 @@ class ManagerHomeController extends CI_Controller {
 								$result['requests'][$rKey]['docs'][$dKey]['lpath'] = $doc->getLpath();
 							}
 							// Gather pie chart information
-							if ($request->getStatusByText() === "Recibida") {
-								$received++;
-							} else if ($request->getStatusByText() === "Aprobada") {
-								$approved++;
-							} else if ($request->getStatusByText() === "Rechazada") {
-								$rejected++;
-							}
+                            $statusCounter[$request->getStatus()] ++;
 							// Gather up report information
 							$result['report']['data'][$rKey] = array(
 								$rKey+1,
 								$request->getId(),
 								$this->mapLoanType($request->getLoanType()),
 								$request->getCreationDate()->format('d/m/Y'),
-								$request->getStatusByText(),
+								$request->getStatus(),
 								$request->getReunion(),
 								$request->getRequestedAmount(),
 								$request->getApprovedAmount(),
@@ -85,19 +85,16 @@ class ManagerHomeController extends CI_Controller {
 						} else {
                             // Fill up pie chart information
                             $result['pie']['title'] = "Estadísticas de solicitudes para el afiliado";
-                            $result['pie']['labels'][0] = "Recibidas";
-                            $result['pie']['labels'][1] = "Aprobadas";
-                            $result['pie']['labels'][2] = "Rechazadas";
-                            $total = $received + $approved + $rejected;
-                            $result['pie']['data'][0] = round($received * 100 / $total, 2);
-                            $result['pie']['data'][1] = round($approved * 100 / $total, 2);
-                            $result['pie']['data'][2] = round($rejected * 100 / $total, 2);
-                            $result['pie']['backgroundColor'][0] = "#FFD740"; // A200 amber
-                            $result['pie']['backgroundColor'][1] = "#00C853"; // A700 green
-                            $result['pie']['backgroundColor'][2] = "#FF5252"; // A200 red
-                            $result['pie']['hoverBackgroundColor'][0] = "#FFC107"; // 500 amber
-                            $result['pie']['hoverBackgroundColor'][1] = "#00E676"; // A400 green
-                            $result['pie']['hoverBackgroundColor'][2] = "#F44336"; // 500 red
+                            $total = array_sum($statusCounter);
+                            $result['pie']['backgroundColor'] = [];
+                            foreach ($statuses as $sKey => $status) {
+                                $result['pie']['labels'][$sKey] = $status;
+                                $result['pie']['data'][$sKey] = round($statusCounter[$status] * 100 / $total, 2);
+                                $result['pie']['backgroundColor'][$sKey] =
+                                    $this->generatePieBgColor($status, $result['pie']['backgroundColor']);
+                                $result['pie']['hoverBackgroundColor'][$sKey] =
+                                    $this->generatePieHoverColor($result['pie']['backgroundColor'][$sKey]);
+                            }
                             // Fill up report information
                             $applicant = $user->getId() . ' - ' . $user->getFirstName() . ' ' . $user->getLastName();
                             $now =
@@ -124,26 +121,10 @@ class ManagerHomeController extends CI_Controller {
                                 array("Monto aprobado total", "")
                             );
                             $result['report']['stats']['title'] = "ESTADÍSTICAS DE SOLICITUDES DEL AFILIADO";
-                            $result['report']['stats']['dataHeader'] = array(
-                                'Estatus',
-                                'Cantidad',
-                                'Porcentaje'
-                            );
-                            $result['report']['stats']['data'][0] = array(
-                                "Recibida",
-                                "",
-                                ""
-                            );
-                            $result['report']['stats']['data'][1] = array(
-                                "Aprobada",
-                                "",
-                                ""
-                            );
-                            $result['report']['stats']['data'][2] = array(
-                                "Rechazada",
-                                "",
-                                ""
-                            );
+                            $result['report']['stats']['dataHeader'] = array('Estatus', 'Cantidad', 'Porcentaje');
+                            foreach ($statuses as $sKey => $status) {
+                                $result['report']['stats']['data'][$sKey] = array($status, '', '');
+                            }
                             $result['message'] = "success";
                         }
 					}
@@ -156,6 +137,63 @@ class ManagerHomeController extends CI_Controller {
 		}
 	}
 
+    public function fetchPendingRequests() {
+        if ($_SESSION['type'] != 2) {
+            $this->load->view('errors/index.html');
+        } else {
+            $result = null;
+            try {
+                $em = $this->doctrine->em;
+                // Look for all requests with the specified status
+                $requestsRepo = $em->getRepository('\Entity\Request');
+                $statuses = $this->getAdditionalStatuses();
+                array_push($statuses, 'Recibida');
+                $requests = $requestsRepo->findBy(array("status" => $statuses));
+                if (empty($requests)) {
+                    $result['error'] = "No se encontraron solicitudes pendientes.";
+                } else {
+                    $rKey = 0;
+                    foreach ($requests as $request) {
+                        if ($request->getValidationDate() === null) continue;
+                        $user = $request->getUserOwner();
+                        $result['requests'][$rKey]['id'] = $request->getId();
+                        $result['requests'][$rKey]['creationDate'] = $request->getCreationDate()->format('d/m/y');
+                        $result['requests'][$rKey]['comment'] = $request->getComment();
+                        $result['requests'][$rKey]['reqAmount'] = $request->getRequestedAmount();
+                        $result['requests'][$rKey]['approvedAmount'] = $request->getApprovedAmount();
+                        $result['requests'][$rKey]['reunion'] = $request->getReunion();
+                        $result['requests'][$rKey]['status'] = $request->getStatus();
+                        $result['requests'][$rKey]['userOwner'] = $user->getId();
+                        $result['requests'][$rKey]['showList'] = false;
+                        $result['requests'][$rKey]['type'] = $request->getLoanType();
+                        $result['requests'][$rKey]['phone'] = $request->getContactNumber();
+                        $result['requests'][$rKey]['due'] = $request->getPaymentDue();
+                        $result['requests'][$rKey]['email'] = $request->getContactEmail();
+                        $result['requests'][$rKey]['validationDate'] = $request->getValidationDate();
+                        $docs = $request->getDocuments();
+                        foreach ($docs as $dKey => $doc) {
+                            $result['requests'][$rKey]['docs'][$dKey]['id'] = $doc->getId();
+                            $result['requests'][$rKey]['docs'][$dKey]['name'] = $doc->getName();
+                            $result['requests'][$rKey]['docs'][$dKey]['description'] = $doc->getDescription();
+                            $result['requests'][$rKey]['docs'][$dKey]['lpath'] = $doc->getLpath();
+                        }
+                        $rKey++;
+                    }
+                    if ($result['requests'] == null) {
+                        $result['error'] = 'Este afiliado no posee solicitudes validadas';
+                    } else {
+                        $result['message'] = "success";
+                    }
+                }
+            } catch (Exception $e) {
+                \ChromePhp::log($e);
+                $result['message'] = "error";
+            }
+
+            echo json_encode($result);
+        }
+    }
+
     public function fetchRequestsByStatus() {
         if ($_SESSION['type'] != 2) {
             $this->load->view('errors/index.html');
@@ -164,13 +202,19 @@ class ManagerHomeController extends CI_Controller {
             try {
                 $em = $this->doctrine->em;
                 // Look for all requests with the specified status
-                $status = $this->getStatusByText($_GET['status']);
+                $status = $_GET['status'];
 				$requestsRepo = $em->getRepository('\Entity\Request');
                 $requests = $requestsRepo->findBy(array("status" => $status));
                 if (empty($requests)) {
                     $result['error'] = "No se encontraron solicitudes con estatus " . $_GET['status'];
                 } else {
 					$rKey = 0;
+                    $statuses = $this->getAllStatuses();
+                    $statusCounter = array();
+                    foreach ($statuses as $status) {
+                        // Initialize counter array
+                        $statusCounter[$status] = 0;
+                    }
                     foreach ($requests as $request) {
 						if ($request->getValidationDate() === null) continue;
 						$user = $request->getUserOwner();
@@ -180,7 +224,7 @@ class ManagerHomeController extends CI_Controller {
                         $result['requests'][$rKey]['reqAmount'] = $request->getRequestedAmount();
                         $result['requests'][$rKey]['approvedAmount'] = $request->getApprovedAmount();
                         $result['requests'][$rKey]['reunion'] = $request->getReunion();
-                        $result['requests'][$rKey]['status'] = $request->getStatusByText();
+                        $result['requests'][$rKey]['status'] = $request->getStatus();
                         $result['requests'][$rKey]['userOwner'] = $user->getId();
                         $result['requests'][$rKey]['showList'] = false;
 						$result['requests'][$rKey]['type'] = $request->getLoanType();
@@ -203,7 +247,7 @@ class ManagerHomeController extends CI_Controller {
 							$user->getId() . ' - ' . $user->getFirstName() . ' ' . $user->getLastName(),
 							$request->getCreationDate()->format('d/m/Y')
 						);
-						if ($_GET['status'] !== "Recibida") {
+						if ($_GET['status'] === "Aprobada" || $_GET['status'] === 'Rechazada') {
 							array_push($result['report']['data'][$rKey], $request->getReunion());
 						}
 						array_push($result['report']['data'][$rKey], $request->getRequestedAmount());
@@ -216,30 +260,22 @@ class ManagerHomeController extends CI_Controller {
                     if ($result['requests'] == null) {
                         $result['error'] = 'Este afiliado no posee solicitudes validadas';
                     } else {
+                        // Get requests status statistics.
+                        foreach ($statuses as $status) {
+                            $statusCounter[$status] = count($requestsRepo->findBy(array("status" => $status)));
+                        }
                         // Fill up pie chart information
-                        $received = $_GET['status'] === "Recibida" ? count($requests) : (
-                        count($requestsRepo->findBy(array("status" => 1)))
-                        );
-                        $approved = $_GET['status'] === "Approved" ? count($requests) : (
-                        count($requestsRepo->findBy(array("status" => 2)))
-                        );
-                        $rejected = $_GET['status'] === "Rechazada" ? count($requests) : (
-                        count($requestsRepo->findBy(array("status" => 3)))
-                        );
                         $result['pie']['title'] = "Estadísticas de solicitudes del sistema";
-                        $result['pie']['labels'][0] = "Recibidas";
-                        $result['pie']['labels'][1] = "Aprobadas";
-                        $result['pie']['labels'][2] = "Rechazadas";
-                        $total = $received + $approved + $rejected;
-                        $result['pie']['data'][0] = round($received * 100 / $total, 2);
-                        $result['pie']['data'][1] = round($approved * 100 / $total, 2);
-                        $result['pie']['data'][2] = round($rejected * 100 / $total, 2);
-                        $result['pie']['backgroundColor'][0] = "#FFD740"; // A200 amber
-                        $result['pie']['backgroundColor'][1] = "#00C853"; // A700 green
-                        $result['pie']['backgroundColor'][2] = "#FF5252"; // A200 red
-                        $result['pie']['hoverBackgroundColor'][0] = "#FFC107"; // 500 amber
-                        $result['pie']['hoverBackgroundColor'][1] = "#00E676"; // A400 green
-                        $result['pie']['hoverBackgroundColor'][2] = "#F44336"; // 500 red
+                        $total = array_sum($statusCounter);
+                        $result['pie']['backgroundColor'] = [];
+                        foreach ($statuses as $sKey => $status) {
+                            $result['pie']['labels'][$sKey] = $status;
+                            $result['pie']['data'][$sKey] = round($statusCounter[$status] * 100 / $total, 2);
+                            $result['pie']['backgroundColor'][$sKey] =
+                                $this->generatePieBgColor($status, $result['pie']['backgroundColor']);
+                            $result['pie']['hoverBackgroundColor'][$sKey] =
+                                $this->generatePieHoverColor($result['pie']['backgroundColor'][$sKey]);
+                        }
                         // Fill up report information
                         $dataHeader = array(
                             'Nro.',
@@ -248,7 +284,7 @@ class ManagerHomeController extends CI_Controller {
                             'Solicitante',
                             'Fecha de creación'
                         );
-                        if ($_GET['status'] !== "Recibida") {
+                        if ($_GET['status'] === "Aprobada" || $_GET['status'] === 'Rechazada') {
                             array_push($dataHeader, 'Nro. de Reunión');
                         }
                         array_push($dataHeader, 'Monto solicitado (Bs)');
@@ -318,7 +354,13 @@ class ManagerHomeController extends CI_Controller {
                         $result['error'] = "No se han encontrado solicitudes para la fecha especificada";
                     }
                 } else {
-					$received = $approved = $rejected = $totalRequested = $totalApproved = $rKey = 0;
+					$rKey = 0;
+                    $statuses = $this->getAllStatuses();
+                    $statusCounter = array();
+                    foreach ($statuses as $status) {
+                        // Initialize counter array
+                        $statusCounter[$status] = 0;
+                    }
                     foreach ($requests as $request) {
 						if ($request->getValidationDate() === null) continue;
 						$user = $request->getUserOwner();
@@ -328,7 +370,7 @@ class ManagerHomeController extends CI_Controller {
                         $result['requests'][$rKey]['reqAmount'] = $request->getRequestedAmount();
                         $result['requests'][$rKey]['approvedAmount'] = $request->getApprovedAmount();
                         $result['requests'][$rKey]['reunion'] = $request->getReunion();
-                        $result['requests'][$rKey]['status'] = $request->getStatusByText();
+                        $result['requests'][$rKey]['status'] = $request->getStatus();
                         $result['requests'][$rKey]['userOwner'] = $user->getId();
                         $result['requests'][$rKey]['showList'] = false;
 						$result['requests'][$rKey]['type'] = $request->getLoanType();
@@ -343,14 +385,8 @@ class ManagerHomeController extends CI_Controller {
                             $result['requests'][$rKey]['docs'][$dKey]['description'] = $doc->getDescription();
                             $result['requests'][$rKey]['docs'][$dKey]['lpath'] = $doc->getLpath();
                         }
-						// Gather pie chart information
-						if ($request->getStatusByText() === "Recibida") {
-							$received++;
-						} else if ($request->getStatusByText() === "Aprobada") {
-							$approved++;
-						} else if ($request->getStatusByText() === "Rechazada") {
-							$rejected++;
-						}
+                        // Gather pie chart information
+                        $statusCounter[$request->getStatus()] ++;
 						// Gather up report information
 						$result['report']['data'][$rKey] = array(
 							$rKey+1,
@@ -358,7 +394,7 @@ class ManagerHomeController extends CI_Controller {
 							$this->mapLoanType($request->getLoanType()),
 							$user->getId() . ' - ' . $user->getFirstName() . ' ' . $user->getLastName(),
 							$request->getCreationDate()->format('d/m/Y'),
-							$request->getStatusByText(),
+							$request->getStatus(),
 							$request->getReunion(),
 							$request->getRequestedAmount(),
 							$request->getApprovedAmount(),
@@ -374,19 +410,16 @@ class ManagerHomeController extends CI_Controller {
                         "Estadísticas de solicitudes para el intervalo de fechas especificado") : (
                         "Estadísticas de solicitudes para la fecha especificada"
                         );
-                        $result['pie']['labels'][0] = "Recibidas";
-                        $result['pie']['labels'][1] = "Aprobadas";
-                        $result['pie']['labels'][2] = "Rechazadas";
-                        $total = $received + $approved + $rejected;
-                        $result['pie']['data'][0] = round($received * 100 / $total, 2);
-                        $result['pie']['data'][1] = round($approved * 100 / $total, 2);
-                        $result['pie']['data'][2] = round($rejected * 100 / $total, 2);
-                        $result['pie']['backgroundColor'][0] = "#FFD740"; // A200 amber
-                        $result['pie']['backgroundColor'][1] = "#00C853"; // A700 green
-                        $result['pie']['backgroundColor'][2] = "#FF5252"; // A200 red
-                        $result['pie']['hoverBackgroundColor'][0] = "#FFC107"; // 500 amber
-                        $result['pie']['hoverBackgroundColor'][1] = "#00E676"; // A400 green
-                        $result['pie']['hoverBackgroundColor'][2] = "#F44336"; // 500 red
+                        $total = array_sum($statusCounter);
+                        $result['pie']['backgroundColor'] = [];
+                        foreach ($statuses as $sKey => $status) {
+                            $result['pie']['labels'][$sKey] = $status;
+                            $result['pie']['data'][$sKey] = round($statusCounter[$status] * 100 / $total, 2);
+                            $result['pie']['backgroundColor'][$sKey] =
+                                $this->generatePieBgColor($status, $result['pie']['backgroundColor']);
+                            $result['pie']['hoverBackgroundColor'][$sKey] =
+                                $this->generatePieHoverColor($result['pie']['backgroundColor'][$sKey]);
+                        }
                         // Fill up report information
                         $now = (new DateTime('now', new DateTimeZone('America/Barbados')))->format('d/m/Y - h:i:sa');
                         $result['report']['header'] = array(
@@ -416,26 +449,10 @@ class ManagerHomeController extends CI_Controller {
                             array("Monto aprobado total", "")
                         );
                         $result['report']['stats']['title'] = "ESTADÍSTICAS DE SOLICITUDES";
-                        $result['report']['stats']['dataHeader'] = array(
-                            'Estatus',
-                            'Cantidad',
-                            'Porcentaje'
-                        );
-                        $result['report']['stats']['data'][0] = array(
-                            "Recibida",
-                            "",
-                            ""
-                        );
-                        $result['report']['stats']['data'][1] = array(
-                            "Aprobada",
-                            "",
-                            ""
-                        );
-                        $result['report']['stats']['data'][2] = array(
-                            "Rechazada",
-                            "",
-                            ""
-                        );
+                        $result['report']['stats']['dataHeader'] = array('Estatus', 'Cantidad', 'Porcentaje');
+                        foreach ($statuses as $sKey => $status) {
+                            $result['report']['stats']['data'][$sKey] = array($status, '', '');
+                        }
                         $result['message'] = "success";
                     }
                 }
@@ -461,7 +478,13 @@ class ManagerHomeController extends CI_Controller {
 				if (empty($requests)) {
 					$result['error'] = "No se encontraron solicitudes del tipo " . $this->mapLoanType($loanType);
 				} else {
-					$received = $approved = $rejected = $rKey = 0;
+					$rKey = 0;
+                    $statuses = $this->getAllStatuses();
+                    $statusCounter = array();
+                    foreach ($statuses as $status) {
+                        // Initialize counter array
+                        $statusCounter[$status] = 0;
+                    }
 					foreach ($requests as $request) {
 						if ($request->getValidationDate() === null) continue;
 						$user = $request->getUserOwner();
@@ -471,7 +494,7 @@ class ManagerHomeController extends CI_Controller {
 						$result['requests'][$rKey]['reqAmount'] = $request->getRequestedAmount();
 						$result['requests'][$rKey]['approvedAmount'] = $request->getApprovedAmount();
 						$result['requests'][$rKey]['reunion'] = $request->getReunion();
-						$result['requests'][$rKey]['status'] = $request->getStatusByText();
+						$result['requests'][$rKey]['status'] = $request->getStatus();
 						$result['requests'][$rKey]['userOwner'] = $user->getId();
 						$result['requests'][$rKey]['showList'] = false;
 						$result['requests'][$rKey]['type'] = $request->getLoanType();
@@ -487,20 +510,14 @@ class ManagerHomeController extends CI_Controller {
 							$result['requests'][$rKey]['docs'][$dKey]['lpath'] = $doc->getLpath();
 						}
 						// Gather pie chart information
-						if ($request->getStatusByText() === "Recibida") {
-							$received++;
-						} else if ($request->getStatusByText() === "Aprobada") {
-							$approved++;
-						} else if ($request->getStatusByText() === "Rechazada") {
-							$rejected++;
-						}
-						// Gather up report information
+                        $statusCounter[$request->getStatus()] ++;
+                        // Gather up report information
 						$result['report']['data'][$rKey] = array(
 							$rKey+1,
 							$request->getId(),
 							$user->getId() . ' - ' . $user->getFirstName() . ' ' . $user->getLastName(),
 							$request->getCreationDate()->format('d/m/Y'),
-							$request->getStatusByText(),
+							$request->getStatus(),
 							$request->getReunion(),
 							$request->getRequestedAmount(),
 							$request->getApprovedAmount(),
@@ -513,19 +530,16 @@ class ManagerHomeController extends CI_Controller {
                     } else {
                         // Fill up pie chart information
                         $result['pie']['title'] = "Solicitudes de " . $this->mapLoanType($loanType);
-                        $result['pie']['labels'][0] = "Recibidas";
-                        $result['pie']['labels'][1] = "Aprobadas";
-                        $result['pie']['labels'][2] = "Rechazadas";
-                        $total = $received + $approved + $rejected;
-                        $result['pie']['data'][0] = round($received * 100 / $total, 2);
-                        $result['pie']['data'][1] = round($approved * 100 / $total, 2);
-                        $result['pie']['data'][2] = round($rejected * 100 / $total, 2);
-                        $result['pie']['backgroundColor'][0] = "#FFD740"; // A200 amber
-                        $result['pie']['backgroundColor'][1] = "#00C853"; // A700 green
-                        $result['pie']['backgroundColor'][2] = "#FF5252"; // A200 red
-                        $result['pie']['hoverBackgroundColor'][0] = "#FFC107"; // 500 amber
-                        $result['pie']['hoverBackgroundColor'][1] = "#00E676"; // A400 green
-                        $result['pie']['hoverBackgroundColor'][2] = "#F44336"; // 500 red
+                        $total = array_sum($statusCounter);
+                        $result['pie']['backgroundColor'] = [];
+                        foreach ($statuses as $sKey => $status) {
+                            $result['pie']['labels'][$sKey] = $status;
+                            $result['pie']['data'][$sKey] = round($statusCounter[$status] * 100 / $total, 2);
+                            $result['pie']['backgroundColor'][$sKey] =
+                                $this->generatePieBgColor($status, $result['pie']['backgroundColor']);
+                            $result['pie']['hoverBackgroundColor'][$sKey] =
+                                $this->generatePieHoverColor($result['pie']['backgroundColor'][$sKey]);
+                        }
                         // Fill up report information
                         $now = (new DateTime('now', new DateTimeZone('America/Barbados')))->format('d/m/Y - h:i:sa');
                         $result['report']['header'] = array(
@@ -550,26 +564,10 @@ class ManagerHomeController extends CI_Controller {
                             array("Monto aprobado total", "")
                         );
                         $result['report']['stats']['title'] = "ESTADÍSTICAS DE SOLICITUDES";
-                        $result['report']['stats']['dataHeader'] = array(
-                            'Estatus',
-                            'Cantidad',
-                            'Porcentaje'
-                        );
-                        $result['report']['stats']['data'][0] = array(
-                            "Recibida",
-                            "",
-                            ""
-                        );
-                        $result['report']['stats']['data'][1] = array(
-                            "Aprobada",
-                            "",
-                            ""
-                        );
-                        $result['report']['stats']['data'][2] = array(
-                            "Rechazada",
-                            "",
-                            ""
-                        );
+                        $result['report']['stats']['dataHeader'] = array('Estatus', 'Cantidad', 'Porcentaje');
+                        foreach ($statuses as $sKey => $status) {
+                            $result['report']['stats']['data'][$sKey] = array($status, '', '');
+                        }
                         $result['message'] = "success";
                     }
 				}
@@ -615,7 +613,7 @@ class ManagerHomeController extends CI_Controller {
 				$result['approvedAmount'] = $count = 0;
 				foreach ($history as $h) {
 					$request = $h->getOrigin();
-					if ($request->getStatusByText() === "Aprobada") {
+					if ($request->getStatus() === "Aprobada") {
 						if (!isset($evaluated[$request->getId()])) {
 							// Perform all approved amount's computation
 							$evaluated[$request->getId()] = true;
@@ -678,7 +676,7 @@ class ManagerHomeController extends CI_Controller {
         }
     }
 
-	public function getApprovedReportByDateInterval() {
+	public function getClosedReportByDateInterval() {
 		if ($_SESSION['type'] != 2) {
 			$this->load->view('errors/index.html');
 		} else {
@@ -723,7 +721,7 @@ class ManagerHomeController extends CI_Controller {
 							$this->mapLoanType($request->getLoanType()),
 							$userOwner->getId() . ' - ' . $userOwner->getFirstName() . ' ' . $userOwner->getLastName(),
 							$request->getCreationDate()->format('d/m/Y'),
-							$request->getStatusByText(),
+							$request->getStatus(),
 							$h->getUserResponsable(),
 							$request->getReunion(),
 							$request->getRequestedAmount(),
@@ -790,7 +788,7 @@ class ManagerHomeController extends CI_Controller {
 		}
 	}
 
-	public function getApprovedReportByCurrentWeek() {
+	public function getClosedReportByCurrentWeek() {
 		if ($_SESSION['type'] != 2) {
 			$this->load->view('errors/index.html');
 		} else {
@@ -845,7 +843,7 @@ class ManagerHomeController extends CI_Controller {
 							$this->mapLoanType($request->getLoanType()),
 							$userOwner->getId() . ' - ' . $userOwner->getFirstName() . ' ' . $userOwner->getLastName(),
 							$request->getCreationDate()->format('d/m/Y'),
-							$request->getStatusByText(),
+							$request->getStatus(),
 							$h->getUserResponsable(),
 							$request->getReunion(),
 							$request->getRequestedAmount(),
@@ -901,20 +899,114 @@ class ManagerHomeController extends CI_Controller {
 				\ChromePhp::log($e);
 				$result['message'] = "error";
 			}
+            \ChromePhp::log($result);
 			echo json_encode($result);
 		}
 	}
 
-    public function getStatusByText($status) {
-        if ($_SESSION['type'] != 2) {
-            $this->load->view('errors/index.html');
-			return null;
-        } else {
-            return ($status == "Recibida" ? 1 : ($status == "Aprobada" ? 2 : 3));
+	private function mapLoanType($code) {
+		return $code == 40 ? "PRÉSTAMO PERSONAL" : ($code == 31 ? "VALE DE CAJA" : $code);
+	}
+
+    /**
+     * Randomly generates a new hexadecimal color.
+     *
+     * @param $existing - array with existing colors.
+     * @return string - randomly (hex) color that is not present in $existing array.
+     */
+    private function rand_color($existing) {
+        do {
+            $color = sprintf('#%06X', mt_rand(0, 0xFFFFFF));
+        } while (in_array($color, $existing));
+        return $color;
+    }
+
+    /**
+     * Generates a hexadecimal color code for a specified status.
+     *
+     * @param $status - current status to generate a color for.
+     * @param $colors - already used colors (that can't be repeated).
+     * @return string - (hex) color for the specified status.
+     */
+    private function generatePieBgColor($status, $colors) {
+        switch ($status) {
+            case 'Recibida': return '#FFD740'; // A200 amber
+            case 'Aprobada': return '#00C853'; // A700 green
+            case 'Rechazada': return '#FF5252'; // A200 red
+            default: return $this->rand_color($colors);
         }
     }
 
-	public function mapLoanType($code) {
-		return $code == 40 ? "PRÉSTAMO PERSONAL" : ($code == 31 ? "VALE DE CAJA" : $code);
-	}
+    private function generatePieHoverColor($colour) {
+        $brightness = -0.9; // 10% darker
+        return($this->colourBrightness($colour,$brightness));
+    }
+
+    private function colourBrightness($hex, $percent) {
+        // Work out if hash given
+        $hash = '';
+        if (stristr($hex,'#')) {
+            $hex = str_replace('#','',$hex);
+            $hash = '#';
+        }
+        /// HEX TO RGB
+        $rgb = array(hexdec(substr($hex,0,2)), hexdec(substr($hex,2,2)), hexdec(substr($hex,4,2)));
+        //// CALCULATE
+        for ($i=0; $i<3; $i++) {
+            // See if brighter or darker
+            if ($percent > 0) {
+                // Lighter
+                $rgb[$i] = round($rgb[$i] * $percent) + round(255 * (1-$percent));
+            } else {
+                // Darker
+                $positivePercent = $percent - ($percent*2);
+                $rgb[$i] = round($rgb[$i] * $positivePercent) + round(0 * (1-$positivePercent));
+            }
+            // In case rounding up causes us to go to 256
+            if ($rgb[$i] > 255) {
+                $rgb[$i] = 255;
+            }
+        }
+        //// RBG to Hex
+        $hex = '';
+        for($i=0; $i < 3; $i++) {
+            // Convert the decimal digit to hex
+            $hexDigit = dechex($rgb[$i]);
+            // Add a leading zero if necessary
+            if(strlen($hexDigit) == 1) {
+                $hexDigit = "0" . $hexDigit;
+            }
+            // Append to the hex string
+            $hex .= $hexDigit;
+        }
+        return $hash.$hex;
+    }
+
+    private function getAllStatuses () {
+        $theStatuses = array('Recibida', 'Aprobada', 'Rechazada');
+        try {
+            $em = $this->doctrine->em;
+            $statuses = $em->getRepository('\Entity\Config')->findBy(array('key' => 'STATUS'));
+            foreach ($statuses as $status) {
+                array_push($theStatuses, $status->getValue());
+            }
+        } catch (Exception $e) {
+            \ChromePhp::log($e);
+        }
+        return $theStatuses;
+    }
+
+    private function getAdditionalStatuses () {
+        $theStatuses = [];
+        try {
+            $em = $this->doctrine->em;
+            $statuses = $em->getRepository('\Entity\Config')->findBy(array('key' => 'STATUS'));
+            foreach ($statuses as $status) {
+                array_push($theStatuses, $status->getValue());
+            }
+        } catch (Exception $e) {
+            \ChromePhp::log($e);
+        }
+        return $theStatuses;
+    }
 }

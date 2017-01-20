@@ -82,8 +82,7 @@ class NewRequestController extends CI_Controller {
 				$em->persist($action);
 				$history->addAction($action);
 				$em->persist($history);
-	            // 1 = Waiting
-	            $request->setStatus(1);
+	            $request->setStatus('Recibida');
 	            $request->setCreationDate(new DateTime('now', new DateTimeZone('America/Barbados')));
 				$request->setRequestedAmount($data['reqAmount']);
 				$request->setLoanType($data['loanType']);

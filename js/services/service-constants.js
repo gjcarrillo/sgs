@@ -14,9 +14,9 @@ var obj = {
         CASH_VOUCHER: 31
     },
     Statuses: {
-        RECEIVED: 1,
-        APPROVED: 2,
-        REJECTED: 3
+        RECEIVED: 'Recibida',
+        APPROVED: 'Aprobada',
+        REJECTED: 'Rechazada'
     },
     BASEURL: 'http://localhost:8080/sgdp/'
 };

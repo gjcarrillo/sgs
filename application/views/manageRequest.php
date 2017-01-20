@@ -42,6 +42,8 @@
                             class="md-block no-vertical-margin"
                             md-no-float>
                         <md-select
+                            style="min-width: 100px"
+                            md-on-open="loadStatuses()"
                             aria-label="Nuevo Estatus"
                             ng-model="model.status">
                             <md-option ng-value="status" ng-repeat="status in mappedStatuses">{{status}}</md-option>
@@ -52,7 +54,7 @@
         </div>
         <div layout layout-xs="column" layout-padding layout-align-gt-xs="center center">
             <div
-                ng-show="model.status != RECEIVED_STRING"
+                ng-show="model.status == REJECTED_STRING || model.status == APPROVED_STRING"
                 layout-align-gt-xs="center center"
                 flex-xs="100">
                 <div>

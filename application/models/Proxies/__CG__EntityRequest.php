@@ -135,18 +135,6 @@ class Request extends \Entity\Request implements \Doctrine\ORM\Proxy\Proxy
         return parent::getStatus();
     }
 
-    public function getStatusByText()
-    {
-        $this->__load();
-        return parent::getStatusByText();
-    }
-
-    public function setStatusByText($status)
-    {
-        $this->__load();
-        return parent::setStatusByText($status);
-    }
-
     public function setPaymentDue($paymentDue)
     {
         $this->__load();
