@@ -18,11 +18,31 @@
             <md-tab label="Estatus de solicitudes" md-on-select="selectedTab = 1">
                 <md-content layout-padding>
                     <div>
-                        <p>Estatus del sistema (no editables)</p>
-                        <md-chips
-                            ng-model="statuses.systemStatuses"
-                            readonly="true">
-                        </md-chips>
+                        <div layout layout-xs="column">
+                            <div flex="45" flex-xs="100">
+                                <p>Estatus del sistema (no editables)</p>
+                                <md-chips
+                                    ng-model="statuses.systemStatuses"
+                                    readonly="true">
+                                </md-chips>
+                            </div>
+                            <div flex="45" flex-xs="100" flex-offset="10" flex-offset-xs="0">
+                                <div layout>
+                                    <p>Estatus en uso (no editables)</p>
+                                    <div layout layout-align="center center">
+                                        <md-progress-circular
+                                            ng-if="statuses.loading"
+                                            md-mode="indeterminate"
+                                            md-diameter="30">
+                                        </md-progress-circular>
+                                    </div>
+                                </div>
+                                <md-chips
+                                    ng-model="statuses.inUse"
+                                    readonly="true">
+                                </md-chips>
+                            </div>
+                        </div>
                         <div layout>
                             <p>Estatus adicionales (presione ENTER para ingresarlos)</p>
                             <div layout layout-align="center center">

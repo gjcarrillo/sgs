@@ -32,6 +32,28 @@ function config ($http, $q) {
     };
 
     /**
+     * Fetches all the existing statuses configuration.
+     * Returns all existing status configuration and indicates if they're being used.
+     *
+     * @returns {*} promise with the operation's result.
+     */
+    self.getStatusesForConfig = function() {
+        var qStatuses = $q.defer();
+        $http.get('index.php/ConfigController/getStatusesForConfig')
+            .then(
+            function (response) {
+                console.log(response);
+                if (response.data.message === "success") {
+                    qStatuses.resolve(response.data.statuses);
+                } else {
+                    qStatuses.reject(response.data.message);
+                }
+            });
+
+        return qStatuses.promise;
+    };
+
+    /**
      * Saves all the additional request statuses the user specified.
      *
      * @param statuses - Array of additional statuses.

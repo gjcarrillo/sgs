@@ -787,13 +787,14 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
             $scope.statuses.errorMsg = '';
             $scope.statuses.loading = true;
 
-            Config.getStatuses()
+            Config.getStatusesForConfig()
                 .then(
                 function (statuses) {
                     $scope.statuses.loading = false;
-                    $scope.statuses.newStatuses = statuses;
-                    // Create a DEEP copy of the statuses array.
-                    $scope.statuses.existing = JSON.parse(JSON.stringify(statuses));
+                    $scope.statuses.newStatuses = statuses.existing;
+                    // Create a DEEP copy of the existing statuses array.
+                    $scope.statuses.existing = JSON.parse(JSON.stringify(statuses.existing));
+                    $scope.statuses.inUse = statuses.inUse;
                 },
                 function (err) {
                     $scope.statuses.errorMsg = err;
@@ -812,7 +813,8 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
 
             $scope.updateStatuses = function() {
                 $scope.uploading = true;
-                Config.saveStatuses ($scope.statuses.newStatuses)
+                var toSave = $scope.statuses.newStatuses.concat($scope.statuses.inUse);
+                Config.saveStatuses (toSave)
                     .then (
                     function () {
                         $scope.uploading = false;

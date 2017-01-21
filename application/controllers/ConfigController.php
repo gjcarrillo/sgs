@@ -47,6 +47,35 @@ class ConfigController extends CI_Controller
         }
     }
 
+    public function getStatusesForConfig() {
+        if ($_SESSION['type'] != 2) {
+            $this->load->view('errors/index.html');
+        } else {
+            $result['statuses']['inUse'] = [];
+            $result['statuses']['existing'] = [];
+            try {
+                $em = $this->doctrine->em;
+                // Look for all configured statuses
+                $config = $em->getRepository('\Entity\Config');
+                $requestsRepo = $em->getRepository('\Entity\Request');
+                $statuses = $config->findBy(array("key" => 'STATUS'));
+                foreach ($statuses as $status) {
+                    if (count($requestsRepo->findBy(array('status' => $status->getValue()))) > 0) {
+                        // Being used.
+                        array_push($result['statuses']['inUse'], $status->getValue());
+                    } else {
+                        array_push($result['statuses']['existing'], $status->getValue());
+                    }
+                }
+                $result['message'] = 'success';
+            } catch (Exception $e) {
+                \ChromePhp::log($e);
+                $result['message'] = 'error';
+            }
+            echo json_encode($result);
+        }
+    }
+
     public function saveStatuses() {
         if ($_SESSION['type'] != 2) {
             $this->load->view('errors/index.html');
