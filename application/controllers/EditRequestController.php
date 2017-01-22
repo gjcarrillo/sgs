@@ -409,6 +409,7 @@ class EditRequestController extends CI_Controller {
 		$mailData['email'] = $request->getContactEmail();
 		$mailData['loanTypeString'] = $this->mapLoanType($request->getLoanType());
 		$mailData['due'] = $request->getPaymentDue();
+		$mailData['paymentFee'] = $this->calculatePaymentFee($mailData['reqAmount'], $mailData['due'], 12);
 		$mailData['subject'] = '[Solicitud ' . str_pad($mailData['reqId'], 6, '0', STR_PAD_LEFT) .
 							   '] Confirmación de Nueva Solicitud';
 		$mailData['validationURL'] = $this->config->base_url() . '#validate/' . $encodedURL;

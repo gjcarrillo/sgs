@@ -130,6 +130,23 @@ function userHome($scope, $cookies, $timeout, Helps,
             if ($scope.model.confirmed) {
                 // Go ahead and proceed with creation
                 createNewRequest();
+            } else {
+                $scope.loading = true;
+                Requests.getUserConcurrence(fetchId).then(
+                    function (concurrence) {
+                        if (concurrence >= 45) {
+                            Utils.showAlertDialog('No permitido',
+                                                  'Estimado usuario, debido a que su nivel de concurrencia sobrepasa ' +
+                                                  'los niveles permitidos, usted no se encuentra en condiciones de ' +
+                                                  'solicitar un nuevo préstamo.');
+                        } else {
+                            $scope.loading = false;
+                        }
+                    },
+                    function (error) {
+                        Utils.showAlertDialog('Oops!', error);
+                    }
+                );
             }
 
             $scope.missingField = function () {

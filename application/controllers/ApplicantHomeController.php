@@ -126,6 +126,7 @@ class ApplicantHomeController extends CI_Controller {
         $mailData['email'] = $request->getContactEmail();
         $mailData['loanTypeString'] = $this->mapLoanType($request->getLoanType());
         $mailData['due'] = $request->getPaymentDue();
+        $mailData['paymentFee'] = $this->calculatePaymentFee($mailData['reqAmount'], $mailData['due'], 12);
         $mailData['subject'] = '[Solicitud ' . str_pad($mailData['reqId'], 6, '0', STR_PAD_LEFT) .
                                '] Confirmación de Nueva Solicitud';
         $mailData['validationURL'] = $this->config->base_url() . '#validate/' . $encodedURL;
@@ -217,5 +218,23 @@ class ApplicantHomeController extends CI_Controller {
 
     private function mapLoanType($code) {
         return $code == 40 ? "PRÉSTAMO PERSONAL" : ($code == 31 ? "VALE DE CAJA" : $code);
+    }
+
+    /**
+     * Calculates the monthly payment fee the applicant must pay.
+     *
+     * @param $reqAmount - the amount of money the applicant is requesting.
+     * @param $paymentDue - number in months the applicant chose to pay his debt.
+     * @param $interest - payment interest (percentage).
+     * @return float - monthly payment fee.
+     */
+    private function calculatePaymentFee($reqAmount, $paymentDue, $interest) {
+        $rate = $interest / 100 ;
+        // monthly payment.
+        $nFreq = 12;
+        // calculate the interest as a factor
+        $interestFactor = $rate / $nFreq;
+        // calculate the monthly payment fee
+        return $reqAmount / ((1 - pow($interestFactor +1, $paymentDue * -1)) / $interestFactor);
     }
 }

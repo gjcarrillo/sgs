@@ -31,6 +31,30 @@ class NewRequestController extends CI_Controller {
 		}
     }
 
+	/**
+	 * Gets a specific user's concurrence percentage.
+	 */
+	public function getUserConcurrence() {
+		$result['message'] = "error";
+		if ($_GET['userId'] != $_SESSION['id'] && $_SESSION['type'] > 1) {
+			$this->load->view('errors/index.html');
+		} else {
+			$this->db->select('*');
+			$this->db->from('db_dt_personales');
+			$this->db->where('cedula', $_GET['userId']);
+			$query = $this->db->get();
+			if (empty($query->result())) {
+				// User info not found! Set concurrence to max.
+				$result['concurrence'] = 100;
+			} else {
+				$result['concurrence'] = $query->result()[0]->concurrencia;
+				$result['message'] = "success";
+			}
+		}
+
+		echo json_encode($result);
+	}
+
     public function createRequest() {
 		$data = json_decode(file_get_contents('php://input'), true);
 		\ChromePhp::log($data);
@@ -203,6 +227,7 @@ class NewRequestController extends CI_Controller {
 		$mailData['tel'] = $request->getContactNumber();
 		$mailData['email'] = $request->getContactEmail();
 		$mailData['due'] = $request->getPaymentDue();
+		$mailData['paymentFee'] = $this->calculatePaymentFee($mailData['reqAmount'], $mailData['due'], 12);
 		$mailData['subject'] = '[Solicitud ' . str_pad($mailData['reqId'], 6, '0', STR_PAD_LEFT) .
 							   '] Confirmación de Nueva Solicitud';
 		$mailData['validationURL'] = $this->config->base_url() . '#validate/' . $encodedURL;

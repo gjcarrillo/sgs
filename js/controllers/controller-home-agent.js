@@ -143,6 +143,23 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
             if ($scope.model.confirmed) {
                 // Go ahead and proceed with creation
                 createNewRequest();
+            } else {
+                $scope.loading = true;
+                Requests.getUserConcurrence(fetchId).then(
+                    function (concurrence) {
+                        if (concurrence >= 45) {
+                            Utils.showAlertDialog('No permitido',
+                                                  'El nivel de concurrencia del afiliado sobrepasa ' +
+                                                  'los niveles permitidos, por lo cual no se encuentra en ' +
+                                                  'condiciones de solicitar un nuevo préstamo.');
+                        } else {
+                            $scope.loading = false;
+                        }
+                    },
+                    function (error) {
+                        Utils.showAlertDialog('Oops!', error);
+                    }
+                );
             }
 
             $scope.closeDialog = function () {

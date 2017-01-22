@@ -497,5 +497,27 @@ function reqService($q, $http, Constants, $filter) {
         return $filter('number')(paymentFee, 2);
     };
 
+    /**
+     * Gets a specific user's concurrence.
+     *
+     * @param userId - user's id.
+     * @returns {*} promise with the operation's result.
+     */
+    self.getUserConcurrence = function(userId) {
+        var qUser = $q.defer();
+
+        $http.get('index.php/NewRequestController/getUserConcurrence', {params: {userId: userId}})
+            .then(
+            function (response) {
+                console.log(response);
+                if (response.data.message == "success") {
+                    qUser.resolve(response.data.concurrence);
+                } else {
+                    qUser.reject('Ha ocurrido un error en el sistema. Por favor intente más tarde.');
+                }
+            });
+        return qUser.promise;
+    };
+
     return self;
 }

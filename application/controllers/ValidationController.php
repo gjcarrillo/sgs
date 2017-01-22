@@ -25,9 +25,12 @@ class ValidationController extends CI_Controller {
             if ($request->getUserOwner()->getId() !== $uid) {
                 $result['message'] = "Token Inválido.";
             } else if (!isset($_SESSION['id']) || $_SESSION['id'] !== $uid) {
-                    $result['message'] = "Esta solicitud no le pertenece.";
+                $result['message'] = "Esta solicitud no le pertenece.";
             } else if ($request->getValidationDate() !== null) {
-                        $result['message'] = "Esta solicitud ya ha sido validada.";
+                $result['message'] = "Esta solicitud ya ha sido validada.";
+            } else if ($this->getUserConcurrence($uid) >= 45) {
+                $result['message'] = "Usted ya no posee un nivel de concurrencia apropiado,
+                    por lo cual deja de cumplir con las condiciones para validar esta solicitud.";
             } else if ($decoded->reqAmount != $request->getRequestedAmount() ||
                        $decoded->tel != $request->getContactNumber() ||
                        $decoded->email != $request->getContactEmail() ||
@@ -52,6 +55,25 @@ class ValidationController extends CI_Controller {
             $result['message'] = "Token Inválido.";
         }
         echo json_encode($result);
+    }
+
+    /**
+     * Obtains a specific user's concurrence level percentage.
+     *
+     * @param $userId - user's id.
+     * @return int - user's concurrence level percentage.
+     */
+    private function getUserConcurrence($userId) {
+        $this->db->select('*');
+        $this->db->from('db_dt_personales');
+        $this->db->where('cedula', $userId);
+        $query = $this->db->get();
+        if (empty($query->result())) {
+            // User info not found! Set concurrence to max.
+            return 100;
+        } else {
+            return $query->result()[0]->concurrencia;
+        }
     }
 
     private function registerValidation($em, $request) {

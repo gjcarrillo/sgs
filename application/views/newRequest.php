@@ -4,7 +4,7 @@
         <div class="md-toolbar-tools">
             <h2>{{title}}</h2>
             <span flex></span>
-            <md-button class="md-icon-button" ng-click="showHelp()" aria-label="Help">
+            <md-button ng-if="!loading" class="md-icon-button" ng-click="showHelp()" aria-label="Help">
                 <md-icon>help_outline</md-icon>
                 <md-tooltip md-direction="top">Ayuda</md-tooltip>
             </md-button>
@@ -13,9 +13,13 @@
             </md-button>
         </div>
     </md-toolbar>
-
+    <md-dialog-content ng-if="loading" layout-padding>
+        <div layout layout-align="center center">
+            <md-progress-circular md-mode="indeterminate" md-diameter="60"></md-progress-circular>
+        </div>
+    </md-dialog-content>
     <!-- Inputs requested for applicants -->
-    <md-dialog-content layout-padding>
+    <md-dialog-content layout-padding ng-if="!loading">
         <form name="applicantForm">
             <!-- Requested amount -->
             <md-card>
@@ -167,7 +171,7 @@
             </div>
         </form>
     </md-dialog-content>
-    <md-dialog-actions>
+    <md-dialog-actions ng-if="!loading">
         <md-button
             id="create-btn"
             ng-hide="uploading"
