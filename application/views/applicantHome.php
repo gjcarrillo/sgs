@@ -252,7 +252,7 @@
                                             Cuotas a pagar
                                         </h3>
                                         <h4>
-                                            Bs 12,000.00
+                                            Bs {{calculatePaymentFee()}}
                                         </h4>
                                         <p>
                                             Por {{req.due}} meses

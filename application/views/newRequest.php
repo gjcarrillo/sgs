@@ -144,14 +144,25 @@
                         <md-radio-button value="60">60 meses</md-radio-button>
                     </md-radio-group>
                 </div>
-                <div class="md-padding" style="padding-top:0" id="loan-type">
-                    <p class="grey-color">
-                        <b>Tipo de préstamo</b>:
-                    </p>
-                    <md-radio-group ng-model="model.type">
-                        <md-radio-button ng-value="PERSONAL">Préstamo Personal</md-radio-button>
-                        <md-radio-button ng-value="CASH_VOUCHER">Vale de Caja</md-radio-button>
-                    </md-radio-group>
+                <div layout="column">
+                    <div class="md-padding" style="padding-top:0; padding-bottom: 0" id="loan-type">
+                        <p class="grey-color">
+                            <b>Tipo de préstamo</b>:
+                        </p>
+                        <md-radio-group ng-model="model.type">
+                            <md-radio-button ng-value="PERSONAL">Préstamo Personal</md-radio-button>
+                            <md-radio-button ng-value="CASH_VOUCHER">Vale de Caja</md-radio-button>
+                        </md-radio-group>
+                    </div>
+                    <!-- Payment fee -->
+                    <md-card md-theme="help-card">
+                        <md-card-content>
+                            <div layout layout-align="center center">
+                                <md-icon style="color:#827717; margin-right:10px">info_outline</md-icon>
+                                <span> Cuotas a pagar: Bs. <b>{{calculatePaymentFee()}}</b></span>
+                            </div>
+                        </md-card-content>
+                    </md-card>
                 </div>
             </div>
         </form>

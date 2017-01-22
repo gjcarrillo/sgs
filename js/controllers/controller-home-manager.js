@@ -327,6 +327,11 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
         );
     };
 
+    // Calculates the request's payment fee.
+    $scope.calculatePaymentFee = function() {
+        return Requests.calculatePaymentFee($scope.req.reqAmount, $scope.req.due, 12);
+    };
+
     // Helper function for formatting numbers with leading zeros
     $scope.pad = function(n, width, z) {
         return Utils.pad(n, width, z);

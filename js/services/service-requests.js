@@ -5,9 +5,9 @@ var requests = angular
     .module('sgdp.service-requests', [])
     .factory('Requests', reqService);
 
-reqService.$inject = ['$q', '$http', 'Constants'];
+reqService.$inject = ['$q', '$http', 'Constants', '$filter'];
 
-function reqService($q, $http, Constants) {
+function reqService($q, $http, Constants, $filter) {
     'use strict';
 
     var self = this;
@@ -476,6 +476,25 @@ function reqService($q, $http, Constants) {
             paths.push(doc.lpath);
         });
         return 'index.php/ApplicantHomeController/downloadAll?docs=' + JSON.stringify(paths);
+    };
+
+    /**
+     * Calculates the monthly payment fee the applicant must pay.
+     *
+     * @param reqAmount - the amount of money the applicant is requesting.
+     * @param paymentDue - number in months the applicant chose to pay his debt.
+     * @param interest - payment interest (percentage).
+     * @returns {number} - monthly payment fee.
+     */
+    self.calculatePaymentFee = function (reqAmount, paymentDue, interest) {
+        var rate = interest / 100;
+        // monthly payment.
+        var nFreq = 12;
+        // calculate the interest as a factor.
+        var interestFactor = rate / nFreq;
+        // calculate the monthly paymeny fee.
+        var paymentFee = reqAmount / ((1 - Math.pow(interestFactor + 1, paymentDue * -1)) / interestFactor);
+        return $filter('number')(paymentFee, 2);
     };
 
     return self;

@@ -91,6 +91,11 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
         );
     };
 
+    // Calculates the request's payment fee.
+    $scope.calculatePaymentFee = function() {
+        return Requests.calculatePaymentFee($scope.req.reqAmount, $scope.req.due, 12);
+    };
+
     // Helper function for formatting numbers with leading zeros
     $scope.pad = function (n, width, z) {
         return Utils.pad(n, width, z);
@@ -197,6 +202,14 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
             // Sets the bound input to the max possibe request amount
             $scope.setMax = function () {
                 $scope.model.reqAmount = $scope.maxReqAmount;
+            };
+
+            $scope.calculatePaymentFee = function() {
+                if ($scope.model.reqAmount) {
+                    return Requests.calculatePaymentFee($scope.model.reqAmount, $scope.model.due, 12);
+                } else {
+                    return 0;
+                }
             };
 
             // Helper function that performs the document's creation.
@@ -568,6 +581,14 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
                            $scope.model.email === request.email &&
                            parseInt($scope.model.due, 10) === request.due &&
                            $scope.model.type === request.type);
+            };
+
+            $scope.calculatePaymentFee = function() {
+                if ($scope.model.reqAmount) {
+                    return Requests.calculatePaymentFee($scope.model.reqAmount, $scope.model.due, 12);
+                } else {
+                    return 0;
+                }
             };
 
             $scope.closeDialog = function () {

@@ -66,6 +66,11 @@ function userHome($scope, $cookies, $timeout, Helps,
         $mdSidenav('left').toggle();
     };
 
+    // Calculates the request's payment fee.
+    $scope.calculatePaymentFee = function() {
+        return Requests.calculatePaymentFee($scope.req.reqAmount, $scope.req.due, 12);
+    };
+
     /**
      * Determines whether the specified object is empty (i.e. has no attributes).
      *
@@ -131,6 +136,14 @@ function userHome($scope, $cookies, $timeout, Helps,
                 return typeof $scope.model.reqAmount === "undefined" ||
                        !$scope.model.tel.value ||
                        !$scope.model.email;
+            };
+
+            $scope.calculatePaymentFee = function() {
+                if ($scope.model.reqAmount) {
+                    return Requests.calculatePaymentFee($scope.model.reqAmount, $scope.model.due, 12);
+                } else {
+                    return 0;
+                }
             };
 
             $scope.closeDialog = function () {
@@ -323,6 +336,14 @@ function userHome($scope, $cookies, $timeout, Helps,
 
             $scope.closeDialog = function () {
                 $mdDialog.hide();
+            };
+
+            $scope.calculatePaymentFee = function() {
+                if ($scope.model.reqAmount) {
+                    return Requests.calculatePaymentFee($scope.model.reqAmount, $scope.model.due, 12);
+                } else {
+                    return 0;
+                }
             };
 
             // Edits request in database.

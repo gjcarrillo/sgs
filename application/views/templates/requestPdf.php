@@ -38,7 +38,7 @@
     <li>Monto solicitado: Bs.  <?php echo number_format($reqAmount, 2); ?></li>
     <li>Teléfono de contacto:  <?php echo $tel; ?></li>
     <li>Correo electrónico:  <?php echo $email; ?></li>
-    <li>Cuotas a pagar: Bs. _________, durante un periodo de  <?php echo $due; ?> meses. *</li>
+    <li>Cuotas a pagar: Bs. <?php echo number_format($paymentFee, 2); ?>, durante un periodo de  <?php echo $due; ?> meses. *</li>
 </ul>
 <br />
 <p>

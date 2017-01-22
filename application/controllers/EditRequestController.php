@@ -320,6 +320,7 @@ class EditRequestController extends CI_Controller {
 		$data['requestId'] = str_pad($request->getId(), 6, '0', STR_PAD_LEFT);
 		$data['date'] = new DateTime('now', new DateTimeZone('America/Barbados'));
 		$data['loanTypeString'] = $this->mapLoanType($data['loanType']);
+		$data['paymentFee'] = $this->calculatePaymentFee($data['reqAmount'], $data['due'], 12);
 		// Generate the document.
 		\ChromePhp::log("Genrating pdf...");
 		$html = $this->load->view('templates/requestPdf', $data, true); // render the view into HTML
@@ -335,6 +336,25 @@ class EditRequestController extends CI_Controller {
 		$pdf->Output($pdfFilePath, 'F'); // save to file
 		\ChromePhp::log("PDF generation success!");
 	}
+
+	/**
+	 * Calculates the monthly payment fee the applicant must pay.
+	 *
+	 * @param $reqAmount - the amount of money the applicant is requesting.
+	 * @param $paymentDue - number in months the applicant chose to pay his debt.
+	 * @param $interest - payment interest (percentage).
+	 * @return float - monthly payment fee.
+	 */
+	private function calculatePaymentFee($reqAmount, $paymentDue, $interest) {
+		$rate = $interest / 100 ;
+		// monthly payment.
+		$nFreq = 12;
+		// calculate the interest as a factor
+		$interestFactor = $rate / $nFreq;
+		// calculate the monthly payment fee
+		return $reqAmount / ((1 - pow($interestFactor +1, $paymentDue * -1)) / $interestFactor);
+	}
+
 
 	private function sendValidation($request) {
 		try {

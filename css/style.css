@@ -39,6 +39,10 @@ footer {
     color: white;
 }
 
+.no-bottom-padding {
+    padding-bottom: 0 !important;
+}
+
 .documents-card {
     width: 85%;
     margin-bottom: 30px;
