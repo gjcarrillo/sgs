@@ -14,7 +14,7 @@
         </div>
     </md-toolbar>
     <md-dialog-content>
-        <md-tabs md-border-bottom="true" md-dynamic-height="true" md-stretch-tabs="always" md-swipe-content="true">
+        <md-tabs md-border-bottom="true" md-dynamic-height="true" md-stretch-tabs="never" md-swipe-content="true">
             <md-tab label="Estatus de solicitudes" md-on-select="selectedTab = 1">
                 <md-content layout-padding>
                     <div>
@@ -104,6 +104,28 @@
                     </div>
                 </md-content>
             </md-tab>
+            <md-tab label="Lapsos" md-on-select="selectedTab = 3">
+                <md-content layout-padding>
+                    <div layout="column">
+                        <div layout>
+                            <span class="grey-color">Lapso (meses) entre solicitudes</span>
+                            <md-progress-circular
+                                ng-if="span.loading"
+                                md-mode="indeterminate"
+                                md-diameter="30">
+                            </md-progress-circular>
+                        </div>
+                        <md-input-container
+                            id="min-span"
+                            md-no-float>
+                            <input required type="number" step="1" ng-model="span.newValue" placeholder="Ej: 3"/>
+                        </md-input-container>
+                    </div>
+                    <div ng-if="span.errorMsg != ''" layout layout-align="center center" class="md-padding">
+                        <span style="color:red">{{span.errorMsg}}</span>
+                    </div>
+                </md-content>
+            </md-tab>
         </md-tabs>
     </md-dialog-content>
     <md-dialog-actions>
@@ -120,6 +142,14 @@
             ng-if="selectedTab == 2"
             ng-disabled="missingField()"
             ng-hide="uploading" ng-click="updateReqAmount()"
+            class="md-primary">
+            Guardar
+        </md-button>
+        <md-button
+            id="save-span"
+            ng-if="selectedTab == 3"
+            ng-disabled="missingSpan()"
+            ng-hide="uploading" ng-click="updateRequestsSpan()"
             class="md-primary">
             Guardar
         </md-button>

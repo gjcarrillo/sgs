@@ -130,7 +130,7 @@ class ConfigController extends CI_Controller
         }
     }
 
-    /** Min.  requested amount configuration **/
+    /** Min. requested amount configuration **/
     public function getMinReqAmount() {
         if ($_SESSION['type'] != 2) {
             $this->load->view('errors/index.html');
@@ -189,6 +189,60 @@ class ConfigController extends CI_Controller
                     // Update it.
                     $this->db->where('id', $minAmount->getId());
                     $this->db->update('config', $newMinData);
+                }
+                $result['message'] = 'success';
+            } catch (Exception $e) {
+                \ChromePhp::log($e);
+                $result['message'] = 'error';
+            }
+            echo json_encode($result);
+        }
+    }
+
+    /** Requests month span for applying to same type of loan configuration **/
+
+    public function getRequestsSpan() {
+        if ($_SESSION['type'] != 2) {
+            $this->load->view('errors/index.html');
+        } else {
+            try {
+                $em = $this->doctrine->em;
+                // Look for all configured statuses
+                $config = $em->getRepository('\Entity\Config');
+                // Get the configured span.
+                $span = $config->findOneBy(array("key" => 'SPAN'));
+                $result['span'] = $span === null ? null : $span->getValue();
+                $result['message'] = 'success';
+            } catch (Exception $e) {
+                \ChromePhp::log($e);
+                $result['message'] = 'error';
+            }
+            echo json_encode($result);
+        }
+    }
+
+
+
+    // Updates the month requests span, required to applying to same type of loan.
+    public function updateRequestsSpan() {
+        if ($_SESSION['type'] != 2) {
+            $this->load->view('errors/index.html');
+        } else {
+            $data = json_decode(file_get_contents('php://input'), true);
+            try {
+                $em = $this->doctrine->em;
+                // Look for all configured statuses
+                $config = $em->getRepository('\Entity\Config');
+                // Get the configured span.
+                $span = $config->findOneBy(array("key" => 'SPAN'));
+                $entry = array('key' => 'SPAN', 'value' => $data['span']);
+                if ($span === null) {
+                    // Create it.
+                    $this->db->insert('config', $entry);
+                } else {
+                    // Update it.
+                    $this->db->where('id', $span->getId());
+                    $this->db->update('config', $entry);
                 }
                 $result['message'] = 'success';
             } catch (Exception $e) {

@@ -136,5 +136,46 @@ function config ($http, $q) {
 
         return qReqAmount.promise;
     };
+
+    /**
+     * Gets the configured month span required for applying to same type of loan once again.
+     *
+     * @returns {*} - promise with the operation's result.
+     */
+    self.getRequestsSpan = function () {
+        var qSpan = $q.defer();
+        $http.get('index.php/ConfigController/getRequestsSpan')
+            .then(
+            function (response) {
+                if (response.data.message === "success") {
+                    qSpan.resolve(parseInt(response.data.span, 10));
+                } else {
+                    qSpan.reject(response.data.message);
+                }
+            });
+
+        return qSpan.promise;
+    };
+
+    /**
+     * Updates the requests month span required for applying to same type of loan once again.
+     *
+     * @param span - time in months.
+     * @returns {*} promise with the operation's result.
+     */
+    self.updateRequestsSpan = function (span) {
+        var qSpan = $q.defer();
+        $http.post('index.php/ConfigController/updateRequestsSpan', {span: span})
+            .then(
+            function (response) {
+                if (response.data.message === "success") {
+                    qSpan.resolve();
+                } else {
+                    qSpan.reject();
+                }
+            });
+
+        return qSpan.promise;
+    };
     return self;
 }

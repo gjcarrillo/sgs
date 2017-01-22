@@ -895,6 +895,53 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                        $scope.amount.max.existing === $scope.amount.max.new);
             };
 
+            /**
+             * =================================================
+             *         Requests span time configuration
+             * =================================================
+             */
+
+            $scope.missingSpan = function() {
+                return typeof $scope.span.newValue === "undefined" ||
+                       $scope.span.newValue === $scope.span.existing;
+            };
+
+            $scope.span = {errorMsg: '', loading: true};
+            Config.getRequestsSpan()
+                .then(
+                function (span) {
+                    $scope.span.loading = false;
+                    $scope.span.newValue = $scope.span.existing = span;
+                },
+                function (err) {
+                    $scope.span.errorMsg = err;
+                    $scope.span.loading = false;
+                }
+            );
+
+            $scope.updateRequestsSpan = function () {
+                $scope.uploading = true;
+                Config.updateRequestsSpan($scope.span.newValue)
+                    .then(
+                    function () {
+                        $scope.uploading = false;
+                        Utils.showAlertDialog('Actualización exitosa',
+                                              'El lapso a esperar para realizar diferentes solicitudes ' +
+                                              'del mismo tipo ha sido actualizado.');
+                    },
+                    function (err) {
+                        $scope.span.errorMsg = err;
+                        $scope.uploading = false;
+                    }
+                );
+            };
+
+            /**
+             * =================================================
+             *                  SHARED CODE
+             * =================================================
+             */
+
             $scope.closeDialog = function() {
                 $mdDialog.hide();
             };
@@ -902,8 +949,10 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
             $scope.showHelp = function() {
                 if ($scope.selectedTab == 1) {
                     showStatusHelp(Helps.getDialogsHelpOpt());
-                } else {
+                } else if ($scope.selectedTab == 2) {
                     showReqAmountHelp(Helps.getDialogsHelpOpt());
+                } else if ($scope.selectedTab == 3) {
+                    showSpanHelp(Helps.getDialogsHelpOpt());
                 }
             };
 
@@ -916,13 +965,11 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
 
                 var contentChip = "Para agregar otros estatus, escríbalo y presione ENTER. Para eliminar " +
                                   "estatus existentes, bórrelos con el teclado o haga clic en la 'X'.";
-                Helps.addFieldHelp(trip, "#additional-statuses",
-                                   contentChip, 'n');
+                Helps.addFieldHelp(trip, "#additional-statuses", contentChip, 'n');
                 if ($scope.updatedStatuses()) {
                     var content = "Haga clic en GUARDAR para hacer efectivo " +
                                   "los cambios.";
-                    Helps.addFieldHelp(trip, "#save-statuses",
-                                       content, 'n');
+                    Helps.addFieldHelp(trip, "#save-statuses", content, 'n');
                 }
                 trip.start();
             }
@@ -932,16 +979,28 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 var content;
 
                 content = "Actualice el monto mínimo a solicitar permitido.";
-                Helps.addFieldHelp(trip, "#min-amount",
-                                   content, 'n');
+                Helps.addFieldHelp(trip, "#min-amount", content, 'n');
                 content = "Actualice el monto máximo a solicitar permitido.";
-                Helps.addFieldHelp(trip, "#max-amount",
-                                   content, 'n');
+                Helps.addFieldHelp(trip, "#max-amount", content, 'n');
                 if (!$scope.missingField()) {
                     content = "Haga click en GUARDAR para hacer efectivo " +
                               "los cambios.";
-                    Helps.addFieldHelp(trip, "#save-amounts",
-                                       content, 'n');
+                    Helps.addFieldHelp(trip, "#save-amounts", content, 'n');
+                }
+                trip.start();
+            }
+
+            function showSpanHelp(options) {
+                var trip = new Trip([], options);
+                var content;
+
+                content = "Actualice el tiempo a esperar (en meses) para realizar diferentes " +
+                          "solicitudes del mismo tipo.";
+                Helps.addFieldHelp(trip, "#min-span", content, 'n');
+                if (!$scope.missingSpan()) {
+                    content = "Haga click en GUARDAR para hacer efectivo " +
+                              "los cambios.";
+                    Helps.addFieldHelp(trip, "#save-span", content, 'n');
                 }
                 trip.start();
             }
