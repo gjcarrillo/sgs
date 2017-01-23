@@ -21,7 +21,12 @@ class ValidationController extends CI_Controller {
             $uid = $decoded->uid;
             $rid = $decoded->rid;
             $em = $this->doctrine->em;
+            // Get the request entity.
             $request = $em->find('\Entity\Request', $rid);
+            // Get the configured span between requests.
+            $span = $em->getRepository('\Entity\Config')->findOneBy(array('key' => 'SPAN'))->getValue();
+            // Get this user's last granting for this type of request.
+            $monthsLeft = $this->getSpanLeft($span, $uid, $request);
             if ($request->getUserOwner()->getId() !== $uid) {
                 $result['message'] = "Token Inválido.";
             } else if (!isset($_SESSION['id']) || $_SESSION['id'] !== $uid) {
@@ -31,6 +36,11 @@ class ValidationController extends CI_Controller {
             } else if ($this->getUserConcurrence($uid) >= 45) {
                 $result['message'] = "Usted ya no posee un nivel de concurrencia apropiado,
                     por lo cual deja de cumplir con las condiciones para validar esta solicitud.";
+            } else if ($monthsLeft > 0) {
+                $result['message'] = "No ha" . ($span == 1 ? "" : "n") .
+                    " transcurrido al menos " . $span . ($span == 1 ? " mes " : " meses ") .
+                    "desde su última otorgación de préstamo del tipo: " .
+                    $this->mapLoanType($request->getLoanType());
             } else if ($decoded->reqAmount != $request->getRequestedAmount() ||
                        $decoded->tel != $request->getContactNumber() ||
                        $decoded->email != $request->getContactEmail() ||
@@ -55,6 +65,23 @@ class ValidationController extends CI_Controller {
             $result['message'] = "Token Inválido.";
         }
         echo json_encode($result);
+    }
+
+    private function getSpanLeft ($span, $uid, $request) {
+        $this->db->select('*');
+        $this->db->from('db_dt_prestamos');
+        $this->db->where('cedula', $uid);
+        $this->db->where('concepto', $request->getLoanType());
+        $query = $this->db->order_by('otorg_fecha',"desc")->get();
+        if (empty($query->result())) {
+            return $span;
+        } else {
+            $granting = date_create_from_format('d/m/Y', $query->result()[0]->otorg_fecha);
+            $currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
+            $interval = $granting->diff($currentDate);
+            $monthsPassed = $interval->format("%m");
+            return $span - $monthsPassed;
+        }
     }
 
     /**
@@ -92,5 +119,9 @@ class ValidationController extends CI_Controller {
         $history->addAction($action);
         $em->persist($action);
         $em->persist($history);
+    }
+
+    private function mapLoanType($code) {
+        return $code == 40 ? "PRÉSTAMO PERSONAL" : ($code == 31 ? "VALE DE CAJA" : $code);
     }
 }

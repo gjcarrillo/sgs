@@ -358,7 +358,7 @@
                                 <md-button
                                     ng-disabled="!model.perform[6].from || !model.perform[6].to"
                                     ng-hide="loadingReport"
-                                    ng-click="getApprovedReportByDateInterval(model.perform[6].from, model.perform[6].to)"
+                                    ng-click="getClosedReportByDateInterval(model.perform[6].from, model.perform[6].to)"
                                     class="md-raised md-primary">
                                     <md-icon>assignment</md-icon> Generar
                                 </md-button>
@@ -373,7 +373,7 @@
                             <div layout layout-align="center center">
                                 <md-button
                                     ng-hide="loadingReport"
-                                    ng-click="getApprovedReportByCurrentWeek()"
+                                    ng-click="getClosedReportByCurrentWeek()"
                                     class="md-raised md-primary">
                                     <md-icon>assignment</md-icon> Generar
                                 </md-button>

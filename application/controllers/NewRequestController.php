@@ -55,6 +55,48 @@ class NewRequestController extends CI_Controller {
 		echo json_encode($result);
 	}
 
+	/**
+	 * Gets a specific user's last requests granting, which indicates whether user can
+	 * request the same type of request or not.
+	 */
+	public function getLastRequestsGranting() {
+		$result['message'] = "error";
+		if ($_GET['userId'] != $_SESSION['id'] && $_SESSION['type'] > 1) {
+			$this->load->view('errors/index.html');
+		} else {
+			try {
+				$em = $this->doctrine->em;
+				$span = $em->getRepository('\Entity\Config')->findOneBy(array("key" => 'SPAN'))->getValue();
+				$result['granting']['span'] = $span;
+				$loanTypes = array(31, 40);
+				foreach ($loanTypes as $type) {
+					$this->db->select('*');
+					$this->db->from('db_dt_prestamos');
+					$this->db->where('cedula', $_GET['userId']);
+					$this->db->where('concepto', $type);
+					$query = $this->db->order_by('otorg_fecha',"desc")->get();
+					if (empty($query->result())) {
+						// Seems like this is their first request. Grant permission to create!
+						$result['granting']['allow'][$type] = true;
+					} else {
+						$granting = date_create_from_format('d/m/Y', $query->result()[0]->otorg_fecha);
+						$currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
+						$interval = $granting->diff($currentDate);
+						$monthsPassed = $interval->format("%m");
+						$monthsLeft = $span - $monthsPassed;
+						$result['granting']['allow'][$type] = $monthsLeft <= 0;
+					}
+					$result['message'] = 'success';
+				}
+			} catch (Exception $e) {
+				\ChromePhp::log($e);
+				$result['message'] = 'error';
+			}
+		}
+
+		echo json_encode($result);
+	}
+
     public function createRequest() {
 		$data = json_decode(file_get_contents('php://input'), true);
 		\ChromePhp::log($data);
@@ -276,14 +318,6 @@ class NewRequestController extends CI_Controller {
 		);
 		$mgClient->sendMessage($domain, $email);
 		\ChromePhp::log("Message sent!");
-	}
-
-	public function camera() {
-		if ($_SESSION['type'] != 1) {
-			$this->load->view('errors/index.html');
-		} else {
-			$this->load->view('camera');
-		}
 	}
 
 	public function uploadBase64Images() {

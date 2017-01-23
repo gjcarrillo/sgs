@@ -129,11 +129,10 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
             $scope.minReqAmount = Requests.getMinAmount();
             $scope.APPLICANT = Constants.Users.APPLICANT;
             $scope.AGENT = Constants.Users.AGENT;
-            $scope.PERSONAL = Constants.LoanTypes.PERSONAL;
-            $scope.CASH_VOUCHER = Constants.LoanTypes.CASH_VOUCHER;
+            $scope.LOAN_TYPES = Constants.LoanTypes;
             // obj could have a reference to user data, saved
             // before confirmation dialog was opened.
-            $scope.model = obj || {due: 24, type: $scope.PERSONAL, tel: {operator: '0412'}};
+            $scope.model = obj || {due: 24, tel: {operator: '0412'}};
             $scope.confirmButton = 'Crear';
             $scope.title = 'Nueva solicitud de préstamo';
 
@@ -144,16 +143,29 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
                 // Go ahead and proceed with creation
                 createNewRequest();
             } else {
+                checkCreationConditions();
+            }
+            // Checks whether conditions for creating new requests are fulfilled.
+            function checkCreationConditions () {
                 $scope.loading = true;
                 Requests.getUserConcurrence(fetchId).then(
                     function (concurrence) {
                         if (concurrence >= 45) {
                             Utils.showAlertDialog('No permitido',
-                                                  'El nivel de concurrencia del afiliado sobrepasa ' +
-                                                  'los niveles permitidos, por lo cual no se encuentra en ' +
-                                                  'condiciones de solicitar un nuevo préstamo.');
+                                                  'Debido a que el nivel de concurrencia del afiliado sobrepasa ' +
+                                                  'los niveles permitidos, no se encuentra en condiciones de ' +
+                                                  'solicitar un nuevo préstamo.');
                         } else {
-                            $scope.loading = false;
+                            Requests.getLastRequestsGranting(fetchId)
+                                .then (
+                                function (granting) {
+                                    verifyGranting(granting);
+                                    $scope.loading = false;
+                                },
+                                function (error) {
+                                    Utils.showAlertDialog('Oops!', error);
+                                }
+                            );
                         }
                     },
                     function (error) {
@@ -161,6 +173,36 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
                     }
                 );
             }
+
+            /**
+             * Helper function that verifies the if request span has been
+             * fulfilled for each type of request.
+             *
+             * @param granting - response from getLastRequestsGranting.
+             */
+            function verifyGranting (granting) {
+                $scope.canCreate = granting.allow;
+                $scope.span = granting.span;
+                var allDenied = true;
+                angular.forEach(granting.allow, function(allow, type) {
+                    if (allow) {
+                        $scope.model.type = type;
+                        allDenied = false;
+                    }
+                });
+                if (allDenied) {
+                    Utils.showAlertDialog('No permitido',
+                                          'Aún no ha' + (granting.span == 1 ? '' : 'n') +
+                                          ' transcurrido '
+                                          + granting.span + (granting.span == 1 ? ' mes' : ' meses') +
+                                          ' desde el último préstamo otorgado para cualquier tipo de ' +
+                                          'solicitud disponible a través del sistema.');
+                }
+            }
+
+            $scope.mapLoanType = function (code) {
+                return Requests.mapLoanType(code);
+            };
 
             $scope.closeDialog = function () {
                 $mdDialog.hide();
@@ -558,7 +600,6 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
         // Isolated dialog controller for the new request dialog
         function DialogController($scope, $mdDialog, fetchId, request,
                                   selectedLoan, parentScope, obj) {
-            console.log(fetchId);
             $scope.docPicTaken = false;
             $scope.uploading = false;
             $scope.maxReqAmount = Requests.getMaxAmount();
@@ -567,8 +608,7 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
             // Hold scope reference to constants
             $scope.APPLICANT = Constants.Users.APPLICANT;
             $scope.AGENT = Constants.Users.AGENT;
-            $scope.PERSONAL = Constants.LoanTypes.PERSONAL;
-            $scope.CASH_VOUCHER = Constants.LoanTypes.CASH_VOUCHER;
+            $scope.LOAN_TYPES = Constants.LoanTypes;
             // obj could have a reference to user data, saved
             // before confirmation dialog was opened.
             var model = {
@@ -586,7 +626,54 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
             if ($scope.model.confirmed) {
                 // Go ahead and proceed with edition
                 editRequest();
+            } else {
+                checkCreationConditions();
             }
+
+            // Checks whether conditions for creating new requests are fulfilled.
+            function checkCreationConditions () {
+                $scope.loading = true;
+                Requests.getLastRequestsGranting(fetchId)
+                    .then (
+                    function (granting) {
+                        verifyGranting(granting);
+                        $scope.loading = false;
+                    },
+                    function (error) {
+                        Utils.showAlertDialog('Oops!', error);
+                    }
+                );
+            }
+
+            /**
+             * Helper function that verifies the if request span has been
+             * fulfilled for each type of request.
+             *
+             * @param granting - response from getLastRequestsGranting.
+             */
+            function verifyGranting (granting) {
+                $scope.canCreate = granting.allow;
+                $scope.span = granting.span;
+                var allDenied = true;
+                angular.forEach(granting.allow, function(allow, type) {
+                    if (allow) {
+                        $scope.model.type = type;
+                        allDenied = false;
+                    }
+                });
+                if (allDenied) {
+                    Utils.showAlertDialog('No permitido',
+                                          'Aún no ha' + (granting.span == 1 ? '' : 'n') +
+                                          ' transcurrido '
+                                          + granting.span + (granting.span == 1 ? ' mes' : ' meses') +
+                                          ' desde el último préstamo otorgado para cualquier tipo de ' +
+                                          'solicitud disponible a través del sistema.');
+                }
+            }
+
+            $scope.mapLoanType = function (code) {
+                return Requests.mapLoanType(code);
+            };
 
             $scope.missingField = function () {
                 return (typeof $scope.model.reqAmount === "undefined"

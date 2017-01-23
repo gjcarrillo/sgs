@@ -113,16 +113,14 @@ function userHome($scope, $cookies, $timeout, Helps,
             $scope.minReqAmount = Requests.getMinAmount();
             // if user data exists, it means the ID was
             // already given, so we must show it.
-            $scope.idPicTaken = obj && obj.idFile ? true : false;
             $scope.uploadErr = '';
             // Hold scope reference to constants
             $scope.APPLICANT = Constants.Users.APPLICANT;
             $scope.AGENT = Constants.Users.AGENT;
-            $scope.PERSONAL = Constants.LoanTypes.PERSONAL;
-            $scope.CASH_VOUCHER = Constants.LoanTypes.CASH_VOUCHER;
+            $scope.LOAN_TYPES = Constants.LoanTypes;
             // obj could have a reference to user data, saved
             // before confirmation dialog was opened.
-            $scope.model = obj || {due: 24, type: $scope.PERSONAL, tel: {operator: '0412'}};
+            $scope.model = obj || {due: 24, tel: {operator: '0412'}};
             $scope.confirmButton = 'Crear';
             $scope.title = 'Nueva solicitud de préstamo';
 
@@ -131,6 +129,11 @@ function userHome($scope, $cookies, $timeout, Helps,
                 // Go ahead and proceed with creation
                 createNewRequest();
             } else {
+                checkCreationConditions();
+            }
+
+            // Checks whether conditions for creating new requests are fulfilled.
+            function checkCreationConditions () {
                 $scope.loading = true;
                 Requests.getUserConcurrence(fetchId).then(
                     function (concurrence) {
@@ -140,7 +143,16 @@ function userHome($scope, $cookies, $timeout, Helps,
                                                   'los niveles permitidos, usted no se encuentra en condiciones de ' +
                                                   'solicitar un nuevo préstamo.');
                         } else {
-                            $scope.loading = false;
+                            Requests.getLastRequestsGranting(fetchId)
+                                .then (
+                                function (granting) {
+                                    verifyGranting(granting);
+                                    $scope.loading = false;
+                                },
+                                function (error) {
+                                    Utils.showAlertDialog('Oops!', error);
+                                }
+                            );
                         }
                     },
                     function (error) {
@@ -148,6 +160,35 @@ function userHome($scope, $cookies, $timeout, Helps,
                     }
                 );
             }
+
+            /**
+             * Helper function that verifies the if request span has been
+             * fulfilled for each type of request.
+             *
+             * @param granting - response from getLastRequestsGranting.
+             */
+            function verifyGranting (granting) {
+                $scope.canCreate = granting.allow;
+                $scope.span = granting.span;
+                var allDenied = true;
+                angular.forEach(granting.allow, function(allow, type) {
+                    if (allow) {
+                        $scope.model.type = type;
+                        allDenied = false;
+                    }
+                });
+                if (allDenied) {
+                    Utils.showAlertDialog('No permitido',
+                                          'Estimado usuario, aún no ha' + (granting.span == 1 ? '' : 'n') +
+                                          ' transcurrido ' + granting.span + (granting.span == 1 ? ' mes' : ' meses') +
+                                          ' desde el último préstamo otorgado para cualquier tipo de ' +
+                                          'solicitud disponible a través del sistema.');
+                }
+            }
+
+            $scope.mapLoanType = function (code) {
+                return Requests.mapLoanType(code);
+            };
 
             $scope.missingField = function () {
                 return typeof $scope.model.reqAmount === "undefined" ||
@@ -317,11 +358,10 @@ function userHome($scope, $cookies, $timeout, Helps,
             // Hold scope reference to constants
             $scope.APPLICANT = Constants.Users.APPLICANT;
             $scope.AGENT = Constants.Users.AGENT;
-            $scope.PERSONAL = Constants.LoanTypes.PERSONAL;
-            $scope.CASH_VOUCHER = Constants.LoanTypes.CASH_VOUCHER;
+            $scope.LOAN_TYPES = Constants.LoanTypes;
+
             // obj could have a reference to user data, saved
             // before confirmation dialog was opened.
-            console.log(request.phone, request.phone.slice(0,4), request.phone.slice(5));
             var model = {
                 reqAmount: request.reqAmount,
                 type: request.type,
@@ -337,7 +377,53 @@ function userHome($scope, $cookies, $timeout, Helps,
             if ($scope.model.confirmed) {
                 // Go ahead and proceed with edition
                 editRequest();
+            } else {
+                checkCreationConditions();
             }
+
+            // Checks whether conditions for creating new requests are fulfilled.
+            function checkCreationConditions () {
+                $scope.loading = true;
+                Requests.getLastRequestsGranting(fetchId)
+                    .then (
+                    function (granting) {
+                        verifyGranting(granting);
+                        $scope.loading = false;
+                    },
+                    function (error) {
+                        Utils.showAlertDialog('Oops!', error);
+                    }
+                );
+            }
+
+            /**
+             * Helper function that verifies the if request span has been
+             * fulfilled for each type of request.
+             *
+             * @param granting - response from getLastRequestsGranting.
+             */
+            function verifyGranting (granting) {
+                $scope.canCreate = granting.allow;
+                $scope.span = granting.span;
+                var allDenied = true;
+                angular.forEach(granting.allow, function(allow, type) {
+                    if (allow) {
+                        $scope.model.type = type;
+                        allDenied = false;
+                    }
+                });
+                if (allDenied) {
+                    Utils.showAlertDialog('No permitido',
+                                          'Estimado usuario, aún no han transcurrido '
+                                          + granting.span + (granting.span == 1 ? ' mes' : ' meses') +
+                                          ' desde el último préstamo otorgado para cualquier tipo de ' +
+                                          'solicitud disponible a través del sistema.');
+                }
+            }
+
+            $scope.mapLoanType = function (code) {
+                return Requests.mapLoanType(code);
+            };
 
             $scope.missingField = function () {
                 return (typeof $scope.model.reqAmount === "undefined"

@@ -154,8 +154,17 @@
                             <b>Tipo de préstamo</b>:
                         </p>
                         <md-radio-group ng-model="model.type">
-                            <md-radio-button ng-value="PERSONAL">Préstamo Personal</md-radio-button>
-                            <md-radio-button ng-value="CASH_VOUCHER">Vale de Caja</md-radio-button>
+                            <md-radio-button
+                                ng-repeat="TYPE in LOAN_TYPES"
+                                ng-value="TYPE"
+                                ng-disabled="!canCreate[TYPE]">
+                                {{mapLoanType(TYPE)}}
+                                <md-tooltip ng-if="!canCreate[TYPE]" md-direction="bottom">
+                                    No ha{{span === 1 ? '' : 'n'}}
+                                    transcurrido {{span}} {{span == 1 ? 'mes' : 'meses'}}
+                                    desde su última otorgación.
+                                </md-tooltip>
+                            </md-radio-button>
                         </md-radio-group>
                     </div>
                     <!-- Payment fee -->

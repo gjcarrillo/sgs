@@ -503,7 +503,7 @@ function reqService($q, $http, Constants, $filter) {
      * @param userId - user's id.
      * @returns {*} promise with the operation's result.
      */
-    self.getUserConcurrence = function(userId) {
+    self.getUserConcurrence = function (userId) {
         var qUser = $q.defer();
 
         $http.get('index.php/NewRequestController/getUserConcurrence', {params: {userId: userId}})
@@ -517,6 +517,30 @@ function reqService($q, $http, Constants, $filter) {
                 }
             });
         return qUser.promise;
+    };
+
+    /**
+     * Gets a specific user's last requests granting, which indicates whether user can
+     * request the same type of request or not.
+     *
+     * @param userId - user's id.
+     * @returns {*} - promise with the operation's result.
+     */
+    self.getLastRequestsGranting = function (userId) {
+        var qGranting = $q.defer();
+
+        $http.get('index.php/NewRequestController/getLastRequestsGranting',
+            {params: {userId: userId}})
+            .then(
+            function (response) {
+                console.log(response);
+                if (response.data.message == "success") {
+                    qGranting.resolve(response.data.granting);
+                } else {
+                    qGranting.reject('Ha ocurrido un error en el sistema. Por favor intente más tarde.');
+                }
+            });
+        return qGranting.promise;
     };
 
     return self;
