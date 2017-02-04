@@ -22,3 +22,5 @@ var obj = {
 };
 
 constants.constant('Constants', obj);
+// lodash support
+constants.constant('_', window._);

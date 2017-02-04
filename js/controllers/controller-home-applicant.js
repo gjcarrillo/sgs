@@ -135,24 +135,14 @@ function userHome($scope, $cookies, $timeout, Helps,
             // Checks whether conditions for creating new requests are fulfilled.
             function checkCreationConditions () {
                 $scope.loading = true;
-                Requests.getUserConcurrence(fetchId).then(
-                    function (concurrence) {
-                        if (concurrence >= 45) {
-                            Utils.showAlertDialog('No permitido',
-                                                  'Estimado usuario, debido a que su nivel de concurrencia sobrepasa ' +
-                                                  'los niveles permitidos, usted no se encuentra en condiciones de ' +
-                                                  'solicitar un nuevo préstamo.');
-                        } else {
-                            Requests.getLastRequestsGranting(fetchId)
-                                .then (
-                                function (granting) {
-                                    verifyGranting(granting);
-                                    $scope.loading = false;
-                                },
-                                function (error) {
-                                    Utils.showAlertDialog('Oops!', error);
-                                }
-                            );
+                Requests.getAvailabilityData(fetchId).then(
+                    function (data) {
+                        data.opened = Requests.checkPreviousRequests(requests);
+                        $scope.allow = data.granting.allow;
+                        $scope.opened = data.opened;
+                        $scope.model.type = Requests.verifyAvailability(data);
+                        if($scope.model.type) {
+                            $scope.loading = false;
                         }
                     },
                     function (error) {
@@ -161,37 +151,13 @@ function userHome($scope, $cookies, $timeout, Helps,
                 );
             }
 
-            /**
-             * Helper function that verifies the if request span has been
-             * fulfilled for each type of request.
-             *
-             * @param granting - response from getLastRequestsGranting.
-             */
-            function verifyGranting (granting) {
-                $scope.canCreate = granting.allow;
-                $scope.span = granting.span;
-                var allDenied = true;
-                angular.forEach(granting.allow, function(allow, type) {
-                    if (allow) {
-                        $scope.model.type = type;
-                        allDenied = false;
-                    }
-                });
-                if (allDenied) {
-                    Utils.showAlertDialog('No permitido',
-                                          'Estimado usuario, aún no ha' + (granting.span == 1 ? '' : 'n') +
-                                          ' transcurrido ' + granting.span + (granting.span == 1 ? ' mes' : ' meses') +
-                                          ' desde el último préstamo otorgado para cualquier tipo de ' +
-                                          'solicitud disponible a través del sistema.');
-                }
-            }
-
             $scope.mapLoanType = function (code) {
                 return Requests.mapLoanType(code);
             };
 
             $scope.missingField = function () {
                 return typeof $scope.model.reqAmount === "undefined" ||
+                       typeof $scope.model.type === "undefined" ||
                        !$scope.model.tel.value ||
                        !$scope.model.email;
             };
@@ -226,14 +192,14 @@ function userHome($scope, $cookies, $timeout, Helps,
                     reqAmount: $scope.model.reqAmount,
                     tel: $scope.model.tel.operator + '-' + $scope.model.tel.value,
                     due: $scope.model.due,
-                    loanType: $scope.model.type,
+                    loanType: parseInt($scope.model.type, 10),
                     email: $scope.model.email,
                     docs: docs
                 };
                 Requests.createRequest(postData).then(
                     function() {
                         updateRequestListUI(fetchId, 0, 'Solicitud creada',
-                                            'Le hemos enviado un correo para realizar validación de su solicitud. ' +
+                                            'Le hemos enviado un correo para realizar validación de su solicitud.<br/>' +
                                             'Si no ha recibido el correo luego de 10 minutos, haga clic en Reenviar.',
                                             true, true,
                                             parseInt(postData.loanType, 10));
@@ -343,13 +309,14 @@ function userHome($scope, $cookies, $timeout, Helps,
                 request: $scope.requests[$scope.selectedReq][$scope.selectedLoan],
                 selectedLoan: $scope.selectedLoan,
                 obj: obj,
-                parentScope: $scope
+                parentScope: $scope,
+                requests: $scope.requests
             },
             controller: DialogController
         });
         // Isolated dialog controller for the new request dialog
         function DialogController($scope, $mdDialog, fetchId, request,
-                                  selectedLoan, parentScope, obj) {
+                                  selectedLoan, parentScope, obj, requests) {
             $scope.docPicTaken = false;
             $scope.uploading = false;
             $scope.maxReqAmount = Requests.getMaxAmount();
@@ -388,6 +355,7 @@ function userHome($scope, $cookies, $timeout, Helps,
                     .then (
                     function (granting) {
                         verifyGranting(granting);
+                        $scope.opened = Requests.checkPreviousRequests(requests);
                         $scope.loading = false;
                     },
                     function (error) {
@@ -403,20 +371,20 @@ function userHome($scope, $cookies, $timeout, Helps,
              * @param granting - response from getLastRequestsGranting.
              */
             function verifyGranting (granting) {
-                $scope.canCreate = granting.allow;
+                $scope.allow = granting.allow;
                 $scope.span = granting.span;
                 var allDenied = true;
                 angular.forEach(granting.allow, function(allow, type) {
                     if (allow) {
-                        $scope.model.type = type;
+                        $scope.model.type = parseInt(type, 10);
                         allDenied = false;
                     }
                 });
                 if (allDenied) {
                     Utils.showAlertDialog('No permitido',
-                                          'Estimado usuario, aún no han transcurrido '
-                                          + granting.span + (granting.span == 1 ? ' mes' : ' meses') +
-                                          ' desde el último préstamo otorgado para cualquier tipo de ' +
+                                          'Estimado usuario, aún no ha' + (granting.span == 1 ? '' : 'n') +
+                                          ' transcurrido ' + granting.span + (granting.span == 1 ? ' mes' : ' meses') +
+                                          ' desde el último préstamo otorgado, para cada tipo de ' +
                                           'solicitud disponible a través del sistema.');
                 }
             }
@@ -463,15 +431,15 @@ function userHome($scope, $cookies, $timeout, Helps,
                     reqAmount: $scope.model.reqAmount,
                     tel: $scope.model.tel.operator + '-' + $scope.model.tel.value,
                     due: $scope.model.due,
-                    loanType: $scope.model.type,
+                    loanType: parseInt($scope.model.type, 10),
                     email: $scope.model.email
                 };
                 Requests.editRequest(postData).then(
                     function() {
                         updateRequestListUI(fetchId, selectedLoan, 'Solicitud editada',
-                                            'La solicitud ha sido editada exitosamente. Hemos reenviado el correo ' +
-                                            'de validación con los datos actualizados. Si no recibe el correo dentro ' +
-                                            'de unos pocos minutos, por favor haga clic en Reenviar.',
+                                            'Hemos reenviado el correo de validación con los datos actualizados.<br/>' +
+                                            'Si no recibe el correo dentro de unos pocos minutos, ' +
+                                            'por favor haga clic en Reenviar.',
                                             true, true,
                                             parseInt(postData.loanType, 10));
                     },
@@ -634,7 +602,7 @@ function userHome($scope, $cookies, $timeout, Helps,
                     function () {
                         // Update interface
                         $scope.req = {};
-                        updateRequestListUI($scope.fetchId, -1, 'Solicitud eliminada',
+                        updateRequestListUI(fetchId, -1, 'Solicitud eliminada',
                                             'La solicitud fue eliminada exitosamente.',
                                             true, true, -1);
                     },

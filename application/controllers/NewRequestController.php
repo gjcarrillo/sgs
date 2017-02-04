@@ -97,80 +97,168 @@ class NewRequestController extends CI_Controller {
 		echo json_encode($result);
 	}
 
+	/**
+	 * Gets a user's availability data (i.e. conditions for creating new requests)
+	 */
+	public function getAvailabilityData() {
+		$result['message'] = "error";
+		if ($_GET['userId'] != $_SESSION['id'] && $_SESSION['type'] > 1) {
+			$this->load->view('errors/index.html');
+		} else {
+			try {
+				$em = $this->doctrine->em;
+				$span = $em->getRepository('\Entity\Config')->findOneBy(array("key" => 'SPAN'))->getValue();
+				$result['granting']['span'] = $span;
+				$result['granting']['allDenied'] = true;
+				$loanTypes = array(31, 40);
+				foreach ($loanTypes as $type) {
+					$this->db->select('*');
+					$this->db->from('db_dt_prestamos');
+					$this->db->where('cedula', $_GET['userId']);
+					$this->db->where('concepto', $type);
+					// get last granting date for corresponding request type.
+					$query = $this->db->order_by('otorg_fecha',"desc")->get();
+					if (empty($query->result())) {
+						// Seems like this is their first request. Grant permission to create!
+						$result['granting']['allow'][$type] = true;
+					} else {
+						$granting = date_create_from_format('d/m/Y', $query->result()[0]->otorg_fecha);
+						$currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
+						$interval = $granting->diff($currentDate);
+						$monthsPassed = $interval->format("%m");
+						$monthsLeft = $span - $monthsPassed;
+						if ($monthsLeft <= 0) {
+							$result['granting']['allow'][$type] = $monthsLeft <= 0;
+							$result['granting']['allDenied'] = false;
+						}
+					}
+				}
+				$this->db->select('*');
+				$this->db->from('db_dt_personales');
+				$this->db->where('cedula', $_GET['userId']);
+				$query = $this->db->get();
+				if (empty($query->result())) {
+					// User info not found! Set concurrence to max.
+					$result['concurrence'] = 100;
+				} else {
+					$result['concurrence'] = $query->result()[0]->concurrencia;
+				}
+				$result['message'] = 'success';
+			} catch (Exception $e) {
+				\ChromePhp::log($e);
+				$result['message'] = 'error';
+			}
+		}
+		echo json_encode($result);
+	}
+
+	/**
+	 * Looks for a specific loan type still opened request from the specified user.
+	 *
+	 * @param $uid - user's id.
+	 * @param $loanType - loan type.
+	 * @return bool {@code true} if said request type has an opened request.
+	 */
+	private function checkPreviousRequests ($uid, $loanType) {
+		try {
+			$em = $this->doctrine->em;
+			$user = $em->find('\Entity\User', $uid);
+			$requests = $user->getRequests();
+			$canCreate = true;
+			foreach ($requests as $request) {
+				if ($request->getLoanType() === $loanType &&
+					$request->getStatus() !== "Aprobada" &&
+					$request->getStatus() !== "Rechazada") {
+					// There is another request of the same type still opened.
+					$canCreate = false;
+				}
+			}
+		} catch (Exception $e) {
+			$canCreate = false;
+			\ChromePhp::log($e);
+		}
+		return $canCreate;
+	}
+
     public function createRequest() {
 		$data = json_decode(file_get_contents('php://input'), true);
-		\ChromePhp::log($data);
 		if ($data['userId'] != $_SESSION['id'] && $_SESSION['type'] > 1) {
 			// Only agents can create requests for other people
 			$this->load->view('errors/index.html');
 		} else {
 	        try {
-	            $em = $this->doctrine->em;
-	            // New request
-	            $request = new \Entity\Request();
-				// Register History first
-				$history = new \Entity\History();
-				$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
-				$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
-				// 1 = Creation
-				$history->setTitle(1);
-				$history->setOrigin($request);
-				$request->addHistory($history);
-				// Register it's corresponding actions
-				$action = new \Entity\HistoryAction();
-				$action->setSummary("Estatus de la solicitud: Recibida.");
-				$action->setBelongingHistory($history);
-				$history->addAction($action);
-				$em->persist($action);
-				$action = new \Entity\HistoryAction();
-				$action->setSummary("Monto solicitado: Bs " . number_format($data['reqAmount'], 2));
-				$action->setBelongingHistory($history);
-				$history->addAction($action);
-				$em->persist($action);
-				$action = new \Entity\HistoryAction();
-				$action->setSummary("Número de contacto: " . $data['tel']);
-				$action->setBelongingHistory($history);
-				$history->addAction($action);
-				$em->persist($action);
-				$action = new \Entity\HistoryAction();
-				$action->setSummary("Dirección de correo: " . $data['email']);
-				$action->setBelongingHistory($history);
-				$history->addAction($action);
-				$em->persist($action);
-				$action = new \Entity\HistoryAction();
-				$action->setSummary("Plazo para pagar: " . $data['due'] . " meses.");
-				$action->setBelongingHistory($history);
-				$history->addAction($action);
-				$em->persist($action);
-				$action = new \Entity\HistoryAction();
-				$action->setSummary("Tipo de préstamo: " . $this->mapLoanType($data['loanType']));
-				$action->setBelongingHistory($history);
-				$em->persist($action);
-				$history->addAction($action);
-				$em->persist($history);
-	            $request->setStatus('Recibida');
-	            $request->setCreationDate(new DateTime('now', new DateTimeZone('America/Barbados')));
-				$request->setRequestedAmount($data['reqAmount']);
-				$request->setLoanType($data['loanType']);
-				$request->setPaymentDue($data['due']);
-				$request->setContactNumber($data['tel']);
-				$request->setContactEmail($data['email']);
-	            $user = $em->find('\Entity\User', $data['userId']);
-	            $request->setUserOwner($user);
-	            $user->addRequest($request);
-	            $em->persist($request);
-	            $em->merge($user);
-	            $em->flush();
-				// Create the new request doc.
-				$this->generateRequestDocument($data, $user, $request);
-				$this->createDocuments($request, $history->getId(), $data['docs']);
-				// Send request validation token.
-				$this->sendValidationToken($request);
-				$this->registerValidationSending($request);
-	            $result['message'] = "success";
+				if (!$this->checkPreviousRequests($data['userId'], $data['loanType'])) {
+					$result['message'] = 'Usted ya posee una solicitud del tipo ' .
+										 $this->mapLoanType($data['loanType']) . ' en transcurso.';
+				} else {
+					$em = $this->doctrine->em;
+					// New request
+					$request = new \Entity\Request();
+					// Register History first
+					$history = new \Entity\History();
+					$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
+					$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
+					// 1 = Creation
+					$history->setTitle(1);
+					$history->setOrigin($request);
+					$request->addHistory($history);
+					// Register it's corresponding actions
+					$action = new \Entity\HistoryAction();
+					$action->setSummary("Estatus de la solicitud: Recibida.");
+					$action->setBelongingHistory($history);
+					$history->addAction($action);
+					$em->persist($action);
+					$action = new \Entity\HistoryAction();
+					$action->setSummary("Monto solicitado: Bs " . number_format($data['reqAmount'], 2));
+					$action->setBelongingHistory($history);
+					$history->addAction($action);
+					$em->persist($action);
+					$action = new \Entity\HistoryAction();
+					$action->setSummary("Número de contacto: " . $data['tel']);
+					$action->setBelongingHistory($history);
+					$history->addAction($action);
+					$em->persist($action);
+					$action = new \Entity\HistoryAction();
+					$action->setSummary("Dirección de correo: " . $data['email']);
+					$action->setBelongingHistory($history);
+					$history->addAction($action);
+					$em->persist($action);
+					$action = new \Entity\HistoryAction();
+					$action->setSummary("Plazo para pagar: " . $data['due'] . " meses.");
+					$action->setBelongingHistory($history);
+					$history->addAction($action);
+					$em->persist($action);
+					$action = new \Entity\HistoryAction();
+					$action->setSummary("Tipo de préstamo: " . $this->mapLoanType($data['loanType']));
+					$action->setBelongingHistory($history);
+					$em->persist($action);
+					$history->addAction($action);
+					$em->persist($history);
+					$request->setStatus('Recibida');
+					$request->setCreationDate(new DateTime('now', new DateTimeZone('America/Barbados')));
+					$request->setRequestedAmount($data['reqAmount']);
+					$request->setLoanType($data['loanType']);
+					$request->setPaymentDue($data['due']);
+					$request->setContactNumber($data['tel']);
+					$request->setContactEmail($data['email']);
+					$user = $em->find('\Entity\User', $data['userId']);
+					$request->setUserOwner($user);
+					$user->addRequest($request);
+					$em->persist($request);
+					$em->merge($user);
+					$em->flush();
+					// Create the new request doc.
+					$this->generateRequestDocument($data, $user, $request);
+					$this->createDocuments($request, $history->getId(), $data['docs']);
+					// Send request validation token.
+					$this->sendValidationToken($request);
+					$this->registerValidationSending($request);
+					$result['message'] = "success";
+				}
 	        } catch (Exception $e) {
 	             \ChromePhp::log($e);
-	            $result['message'] = "error";
+	            $result['message'] = "Ha ocurrido un error al crear su solicitud. " .
+									 $e->getCode() . ": " . $e->getMessage();
 	        }
 
 	        echo json_encode($result);

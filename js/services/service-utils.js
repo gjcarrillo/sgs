@@ -2,7 +2,7 @@
  * Created by Kristopher on 11/16/2016.
  */
 angular
-    .module('sgdp.service-utils', [])
+    .module('sgdp.service-utils', ['ngSanitize'])
     .factory('Utils', utils);
 
 utils.$inject = ['$mdDialog', 'Constants'];
@@ -47,7 +47,7 @@ function utils($mdDialog, Constants) {
                 .parent(angular.element(document.body))
                 .clickOutsideToClose(true)
                 .title(dialogTitle)
-                .textContent(dialogContent)
+                .htmlContent(dialogContent)
                 .ariaLabel(dialogTitle)
                 .ok('Ok')
         );

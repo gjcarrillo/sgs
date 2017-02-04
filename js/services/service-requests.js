@@ -5,9 +5,9 @@ var requests = angular
     .module('sgdp.service-requests', [])
     .factory('Requests', reqService);
 
-reqService.$inject = ['$q', '$http', 'Constants', '$filter'];
+reqService.$inject = ['$q', '$http', 'Constants', '$filter', 'Utils'];
 
-function reqService($q, $http, Constants, $filter) {
+function reqService($q, $http, Constants, $filter, Utils) {
     'use strict';
 
     var self = this;
@@ -301,6 +301,25 @@ function reqService($q, $http, Constants, $filter) {
     };
 
     /**
+     * Maps a loan type code as string, to loan type code as int.
+     *
+     * @param type - string loan type code.
+     * @returns {*} - integer containing the corresponding mapped loan type code.
+     */
+    self.mapLoanTypeStringCode = function (type) {
+        switch (type) {
+            case 'pp':
+                return Constants.LoanTypes.PERSONAL;
+                break;
+            case 'vc':
+                return Constants.LoanTypes.CASH_VOUCHER;
+                break;
+            default:
+                return type;
+        }
+    };
+
+    /**
      * Maps the specified (int) type to it's corresponding string type.
      *
      * @param type - loan type's code.
@@ -384,8 +403,7 @@ function reqService($q, $http, Constants, $filter) {
                       if (response.data.message == "success") {
                           qReqCreation.resolve();
                       } else {
-                          qReqCreation.reject('Ha ocurrido un error al crear su solicitud. ' +
-                                              'Por favor intente más tarde');
+                          qReqCreation.reject(response.data.message);
                       }
                   });
         return qReqCreation.promise;
@@ -542,6 +560,93 @@ function reqService($q, $http, Constants, $filter) {
             });
         return qGranting.promise;
     };
+
+    /**
+     * Checks specified requests and indicates whether there is any type of request still open.
+     *
+     * @param requests - all requests from a user.
+     * @returns {{hasOpen: {}, allTypesOpen: boolean}}
+     */
+    self.checkPreviousRequests = function (requests) {
+        var hasOpen = {};
+        angular.forEach(requests, function (typeList, typeCode) {
+            hasOpen[self.mapLoanTypeStringCode(typeCode)] =
+                typeList.filter(function (loan) {
+                   return loan.status != Constants.Statuses.APPROVED && 
+                          loan.status != Constants.Statuses.REJECTED;
+                }).length > 0;
+        });
+        var allTypesOpen = true;
+        angular.forEach (hasOpen, function(unvalidated) {
+            if (!unvalidated) {
+                allTypesOpen = false;
+            }
+        });
+        return {
+            hasOpen: hasOpen,
+            allTypesOpen: allTypesOpen
+        };
+    };
+
+    /**
+     * Gets a user's availability data (i.e. conditions for creating new requests)
+     *
+     * @param userId - user's id.
+     * @returns {*} - promise with the operation's result.
+     */
+    self.getAvailabilityData = function (userId) {
+        var qAvailability = $q.defer();
+
+        $http.get('index.php/NewRequestController/getAvailabilityData',
+            {params: {userId: userId}})
+            .then(
+            function (response) {
+                console.log(response);
+                if (response.data.message == "success") {
+                    qAvailability.resolve(response.data);
+                } else {
+                    qAvailability.reject('Ha ocurrido un error en el sistema. Por favor intente más tarde.');
+                }
+            });
+        return qAvailability.promise;
+    };
+
+    self.verifyAvailability = function (data) {
+        var available = null;
+        if (data.concurrence >= 45) {
+            Utils.showAlertDialog('No permitido',
+                                  'Estimado usuario, debido a que su nivel de concurrencia sobrepasa ' +
+                                  'los niveles permitidos, usted no se encuentra en condiciones de ' +
+                                  'solicitar un nuevo préstamo.');
+        } else {
+            var types = Constants.LoanTypes;
+            var anyTypeAvailable = false;
+            // A request type is available for creation if the following is tue:
+            // 1. there are no opened requests of the same type.
+            // 2. span creation constrain between requests of same time is over.
+            for (var type in types) {
+                if (types.hasOwnProperty(type)) {
+                    if (!data.opened.hasOpen[types[type]] && data.granting.allow[types[type]]) {
+                        anyTypeAvailable = true;
+                        available = parseInt(types[type], 10);
+                        break;
+                    }
+                }
+            }
+            if (!anyTypeAvailable) {
+                // throw error msg
+                Utils.showAlertDialog('No permitido',
+                                      'Etimado usuario, no puede solicitar ningún tipo de solicitud adicional ' +
+                                      'debido a cualquiera de las siguientes razones:<br/><br/>' +
+                                      '1. Posee distintos tipos de solicitudes en transcurso.<br/>' +
+                                      '2. Aún no ha' + (data.granting.span == 1 ? '' : 'n') +
+                                      ' transcurrido ' + data.granting.span + (data.granting.span == 1 ? ' mes' : ' meses') +
+                                      ' desde el último préstamo otorgado.');
+            }
+        }
+        return available;
+    };
+
 
     return self;
 }

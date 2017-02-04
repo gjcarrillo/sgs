@@ -15,6 +15,7 @@
         <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/angular-messages/angular-messages.min.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/angular-cookies/angular-cookies.min.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/angular-ui-router/release/angular-ui-router.min.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/angular-sanitize/angular-sanitize.min.js"></script>
 
         <!-- Angular Material Library -->
         <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/angular-material/angular-material.min.js"></script>
@@ -46,6 +47,7 @@
         <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/chart.js/dist/Chart.min.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/ng-file-upload/dist/ng-file-upload.min.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/ng-file-upload/dist/ng-file-upload-shim.min.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/lodash/lodash.min.js"></script>
 
         <!-- Modified version of trip js plugin. Fixed for truly responsive design :) -->
         <script type="text/javascript" src="<?php echo base_url(); ?>lib/trip.js/trip.js"></script>

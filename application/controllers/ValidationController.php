@@ -74,7 +74,8 @@ class ValidationController extends CI_Controller {
         $this->db->where('concepto', $request->getLoanType());
         $query = $this->db->order_by('otorg_fecha',"desc")->get();
         if (empty($query->result())) {
-            return $span;
+            // User's first request.
+            return 0;
         } else {
             $granting = date_create_from_format('d/m/Y', $query->result()[0]->otorg_fecha);
             $currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
