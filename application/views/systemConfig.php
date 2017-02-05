@@ -70,35 +70,53 @@
             </md-tab>
             <md-tab label="Monto a solicitar" md-on-select="selectedTab = 2">
                 <md-content layout-padding>
-                    <div layout="column">
-                        <div layout>
-                            <span class="grey-color">Monto mínimo (Bs)</span>
-                            <md-progress-circular
-                                ng-if="amount.min.loading"
-                                md-mode="indeterminate"
-                                md-diameter="30">
-                            </md-progress-circular>
+                    <form name="amountsForm">
+                        <div layout="column">
+                            <div layout>
+                                <span class="grey-color">Monto mínimo (Bs)</span>
+                                <md-progress-circular
+                                    ng-if="amount.min.loading"
+                                    md-mode="indeterminate"
+                                    md-diameter="30">
+                                </md-progress-circular>
+                            </div>
+                            <md-input-container
+                                id="min-amount"
+                                md-no-float>
+                                <input required name="minAmount"
+                                       type="number"
+                                       ng-max="amount.max.new"
+                                       ng-model="amount.min.new"
+                                       placeholder="Ej: 200000"/>
+                                <div ng-messages="amountsForm.minAmount.$error" ng-show="amountsForm.minAmount.$dirty">
+                                    <div ng-message="required">¡Este campo es obligatorio!</div>
+                                    <div ng-message="max">Monto máximo: Bs. {{amount.max.new | number:2}}</div>
+                                </div>
+                            </md-input-container>
+                            <div layout>
+                                <span class="grey-color">Monto máximo (Bs)</span>
+                                <md-progress-circular
+                                    ng-if="amount.max.loading"
+                                    md-mode="indeterminate"
+                                    md-diameter="30">
+                                </md-progress-circular>
+                            </div>
+                            <md-input-container
+                                id="max-amount"
+                                md-no-float
+                                class="no-vertical-margin">
+                                <input required name="maxAmount"
+                                       type="number"
+                                       ng-min="amount.min.new"
+                                       ng-model="amount.max.new"
+                                       placeholder="Ej: 500000"/>
+                                <div ng-messages="amountsForm.maxAmount.$error" ng-show="amountsForm.maxAmount.$dirty">
+                                    <div ng-message="required">¡Este campo es obligatorio!</div>
+                                    <div ng-message="min">Monto mínimo: Bs. {{amount.min.new | number:2}}</div>
+                                </div>
+                            </md-input-container>
                         </div>
-                        <md-input-container
-                            id="min-amount"
-                            md-no-float>
-                            <input required type="number" ng-model="amount.min.new" placeholder="Ej: 200000"/>
-                        </md-input-container>
-                        <div layout>
-                            <span class="grey-color">Monto máximo (Bs)</span>
-                            <md-progress-circular
-                                ng-if="amount.max.loading"
-                                md-mode="indeterminate"
-                                md-diameter="30">
-                            </md-progress-circular>
-                        </div>
-                        <md-input-container
-                            id="max-amount"
-                            md-no-float
-                            class="no-vertical-margin">
-                            <input required type="number" ng-model="amount.max.new" placeholder="Ej: 500000"/>
-                        </md-input-container>
-                    </div>
+                    </form>
                     <div ng-if="amount.errorMsg != ''" layout layout-align="center center" class="md-padding">
                         <span style="color:red">{{amount.errorMsg}}</span>
                     </div>

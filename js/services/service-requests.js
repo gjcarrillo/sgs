@@ -28,7 +28,7 @@ function reqService($q, $http, Constants, $filter, Utils) {
      */
     self.getUserRequests = function (fetchId) {
         var qReq = $q.defer();
-        $http.get('index.php/AgentHomeController/getUserRequests',
+        $http.get('index.php/RequestsController/getUserRequests',
             {params: {fetchId: fetchId}})
             .then(
             function (response) {
@@ -97,7 +97,7 @@ function reqService($q, $http, Constants, $filter, Utils) {
      */
     self.deleteDocument = function (doc) {
         var qDelete = $q.defer();
-        $http.post('index.php/AgentHomeController/deleteDocument',
+        $http.post('index.php/RequestsController/deleteDocument',
                    JSON.stringify(doc)).then(
             function (response) {
                 if (response.data.message == "success") {
@@ -120,7 +120,7 @@ function reqService($q, $http, Constants, $filter, Utils) {
      */
     self.deleteRequestUI = function (request) {
         var qDelReq = $q.defer();
-        $http.post('index.php/DeleteController/deleteRequestUI',
+        $http.post('index.php/RequestsController/deleteRequestUI',
                    JSON.stringify(request))
             .then(function (response) {
                       if (response.data.message == "success") {
@@ -141,7 +141,7 @@ function reqService($q, $http, Constants, $filter, Utils) {
      */
     self.deleteRequestJWT = function (rid) {
         var qEliminate = $q.defer();
-        $http.post('index.php/DeleteController/deleteRequestJWT', {rid: rid})
+        $http.post('index.php/RequestsController/deleteRequestJWT', {rid: rid})
             .then(
             function (response) {
                 console.log(response);
@@ -478,7 +478,7 @@ function reqService($q, $http, Constants, $filter, Utils) {
      * @returns {string} - Formed URL containing link to download doc.
      */
     self.getDocDownloadUrl = function (docPath) {
-        return 'index.php/ApplicantHomeController/download?lpath=' + docPath;
+        return 'index.php/RequestsController/download?lpath=' + docPath;
     };
 
     /**
@@ -493,7 +493,7 @@ function reqService($q, $http, Constants, $filter, Utils) {
         angular.forEach(docs, function (doc) {
             paths.push(doc.lpath);
         });
-        return 'index.php/ApplicantHomeController/downloadAll?docs=' + JSON.stringify(paths);
+        return 'index.php/RequestsController/downloadAll?docs=' + JSON.stringify(paths);
     };
 
     /**

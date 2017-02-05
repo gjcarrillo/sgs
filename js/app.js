@@ -62,7 +62,7 @@ sgdp.config(function ($stateProvider, $urlRouterProvider, $mdThemingProvider,
         })
         .state('delete', {
             url: '/delete/:rid',
-            templateUrl: 'index.php/DeleteController',
+            templateUrl: 'index.php/RequestsController/deleteRequestView',
             controller: 'DeleteController'
         });
     // $locationProvider.html5Mode(true);

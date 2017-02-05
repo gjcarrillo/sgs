@@ -85,7 +85,50 @@ defined('EXIT__AUTO_MIN')      OR define('EXIT__AUTO_MIN', 9); // lowest automat
 defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest automatically-assigned error code
 
 /* ======================================
-        DROPBOX PATH
+             UPLOADS PATH
 =========================================*/
 define('DropPath','C:/Users/Kristopher/Dropbox/');
-define('SECRET_KEY', 'NiZhiBuZhiDaoWoShiSheiMa?');
+/* ======================================
+             TYPES OF USERS
+=========================================*/
+define('AGENT', 1);
+define('APPLICANT', 3);
+define('MANAGER', 2);
+/* ======================================
+             JWT SECRET KEY
+=========================================*/
+define('JWT_SECRET_KEY', 'NiZhiBuZhiDaoWoShiSheiMa?');
+/* ======================================
+                LOAN TYPES
+=========================================*/
+define('PERSONAL_LOAN', 40);\
+define('CASH_VOUCHER', 31);
+define('LOAN_TYPES', array(40, 31));
+define('LOAN_TYPES_NAMES', array(
+   40 => "PRÉSTAMO PERSONAL",
+   31 => "VALE DE CAJA"
+));
+/* ======================================
+                STATUSES
+=========================================*/
+define('RECEIVED', 'Recibida');
+define('APPROVED', 'Aprobada');
+define('REJECTED', 'Rechazada');
+define('STATUSES', array('Recibida', 'Aprobada', 'Rechazada'));
+/* ======================================
+                MAILGUN
+=========================================*/
+define('MAILGUN_PRIVATE_KEY', 'key-53747f43c23bd393d8172814c60e17ba');
+define('MAILGUN_SENDER_DOMAIN', 'sandbox5acc2f3be9df4e80baaa6a9884d6299b.mailgun.org');
+define('MAILGUN_SENDER', 'IPAPEDI <noreply@ipapedi.com>');
+/* ======================================
+             HISTORY ACTIONS
+=========================================*/
+define('HISTORY_ACTIONS_CODES', array(
+    'creation' => 1,
+    'validation' => 7
+));
+define('HISTORY_ACTIONS_NAMES', array(
+    1 => 'Creación',
+    7 => 'Validación'
+));
