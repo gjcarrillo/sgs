@@ -198,9 +198,7 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
                 $scope.uploading = true;
                 var docs = [];
 
-                var type = Requests.mapLoanTypeAsCode($scope.model.type);
-                var requestNumb = type + '.' + (requests[type] ? requests[type].length + 1 : 1);
-                docs.push(Requests.createRequestDocData(fetchId, requestNumb));
+                docs.push(Requests.createRequestDocData(fetchId));
                 performCreation(docs);
             }
 
@@ -395,14 +393,12 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
             locals: {
                 fetchId: $scope.fetchId,
                 request: $scope.req,
-                // Request lists are ordered from newest to oldest!
-                loanNumb: $scope.requests[$scope.selectedReq].length - $scope.selectedLoan,
                 selectedLoan: $scope.selectedLoan
             },
             controller: DialogController
         });
         // Isolated dialog controller
-        function DialogController($scope, $mdDialog, fetchId, request, loanNumb, selectedLoan) {
+        function DialogController($scope, $mdDialog, fetchId, request, selectedLoan) {
             $scope.files = [];
             $scope.fetchId = fetchId;
             $scope.uploading = false;
@@ -467,8 +463,7 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
                     performEdition($scope.request);
                 } else {
                     // Add additional files to this request.
-                    var requestNumb = Requests.mapLoanTypeAsCode($scope.request.type) + '.' + loanNumb;
-                    uploadFiles($scope.files, fetchId, requestNumb);
+                    uploadFiles($scope.files, fetchId);
                 }
             };
 
@@ -489,8 +484,8 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
             }
 
             // Uploads each of selected documents to the server
-            function uploadFiles(files, userId, loanNumb) {
-                FileUpload.uploadFiles(files, userId, loanNumb).then(
+            function uploadFiles(files, userId) {
+                FileUpload.uploadFiles(files, userId).then(
                     function (docs) {
                         $scope.request.newDocs = docs;
                         performEdition($scope.request)

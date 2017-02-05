@@ -24,7 +24,7 @@ class RequestsModel extends CI_Model
             $result['minReqAmount'] = $config->findOneBy(array('key' => 'MIN_AMOUNT'))->getValue();
             $user = $em->find('\Entity\User', $this->input->get('fetchId'));
             if ($user === null) {
-                $result['error'] = "La cédula ingresada no se encuentra en la base de datos";
+                $result['error'] = "La c?dula ingresada no se encuentra en la base de datos";
             } else {
                 $requests = $user->getRequests();
                 $requests = array_reverse($requests->getValues());
@@ -81,7 +81,7 @@ class RequestsModel extends CI_Model
             $em->merge($request);
             // Register it's corresponding action
             $action = new \Entity\HistoryAction();
-            $action->setSummary("Eliminación del documento '" . $doc->getName() . "'.");
+            $action->setSummary("Eliminaci?n del documento '" . $doc->getName() . "'.");
             $action->setBelongingHistory($history);
             $history->addAction($action);
             $em->persist($action);
@@ -99,7 +99,7 @@ class RequestsModel extends CI_Model
     }
 
     public function downloadDocument () {
-        // [0] = userId, [1] = request type, [2] = loan number, [3] = filename, [4] = file extension
+        // [0] = userId, [1] = file uuid, [2] = filename, [3] = file extension
         $parsed = explode('.', $this->input->get('lpath'));
         // Get the Id of the document's owner.
         $userOwner = $parsed[0];
@@ -108,21 +108,21 @@ class RequestsModel extends CI_Model
             $this->load->view('errors/index.html');
         } else {
             // file information
-            if ($parsed[4] === "pdf") {
+            if ($parsed[3] === "pdf") {
                 // Don't force downloads on pdf files
                 header('Content-type: application/pdf');
-                header('Content-Disposition: inline; filename="' . $parsed[3] . '.' . $parsed[4] . '"');
-            } else if ($parsed[4] === "png"
-                       || $parsed[4] === "jpg"
-                       || $parsed[4] === "jpeg"
-                       || $parsed[4] === "gif"
-                       || $parsed[4] === "tif") {
+                header('Content-Disposition: inline; filename="' . $parsed[2] . '.' . $parsed[4] . '"');
+            } else if ($parsed[3] === "png"
+                       || $parsed[3] === "jpg"
+                       || $parsed[3] === "jpeg"
+                       || $parsed[3] === "gif"
+                       || $parsed[3] === "tif") {
                 // Don't force downloads on image files
-                header('Content-type: image/' . $parsed[4]);
-                header('Content-Disposition: inline; filename="' . $parsed[3] . '.' . $parsed[4] . '"');
+                header('Content-type: image/' . $parsed[3]);
+                header('Content-Disposition: inline; filename="' . $parsed[2] . '.' . $parsed[3] . '"');
             } else {
                 // Force downloads on files that aren't pdf nor image files.
-                header('Content-Disposition: attachment; filename="' . $parsed[3] . '.' . $parsed[4] . '"');
+                header('Content-Disposition: attachment; filename="' . $parsed[2] . '.' . $parsed[3] . '"');
             }
             // The document source
             readfile(DropPath . $this->input->get('lpath'));
@@ -137,10 +137,10 @@ class RequestsModel extends CI_Model
         $zip->open($zipname, ZipArchive::CREATE);
         foreach ($docs as $doc) {
             $tmp = explode('.', $doc);
-            // [0] = userId, [1] = request type, [2] = loan number, [3] = filename, [4] = file extension
+            // [0] = userId, [1] = file uuid, [2] = filename, [3] = file extension
             if ($tmp[0] == $this->session->id || $this->session->type != APPLICANT) {
                 // applicants are not allowed to download documents that are not their own.
-                $filename = $tmp[3] . "." . $tmp[4];
+                $filename = $tmp[2] . "." . $tmp[3];
                 \ChromePhp::log($filename, DropPath . $doc);
                 $zip->addFromString(basename($filename),  file_get_contents(DropPath . $doc));
             }
@@ -181,7 +181,7 @@ class RequestsModel extends CI_Model
                 $result['message'] = "success";
             }
         } catch (Exception $e) {
-            $result['message'] = "Token inválido.";
+            $result['message'] = "Token inv?lido.";
             \ChromePhp::log($e);
         }
         return json_encode($result);

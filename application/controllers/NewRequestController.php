@@ -2,6 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 include (APPPATH. '/libraries/ChromePhp.php');
 use Mailgun\Mailgun;
+use Ramsey\Uuid\Uuid;
 
 class NewRequestController extends CI_Controller {
 
@@ -20,11 +21,14 @@ class NewRequestController extends CI_Controller {
 			// Only agents can upload documents that aren't their own
 			$this->load->view('errors/index.html');
 		} else {
+			// Generate a version 4 (random) UUID object
+			$uuid4 = Uuid::uuid4();
+			$code = $uuid4->toString(); // i.e. 25769c6c-d34d-4bfe-ba98-e0ee856f3e7a
 			$uploadfile = DropPath . $_POST['userId'] . '.' .
-				$_POST['requestNumb'] . '.' . basename($_FILES['file']['name']);
+				$code . '.' . basename($_FILES['file']['name']);
 	        move_uploaded_file($_FILES['file']['tmp_name'], $uploadfile);
 
-	        $result['lpath'] = $_POST['userId'] . '.' . $_POST['requestNumb'] .
+	        $result['lpath'] = $_POST['userId'] . '.' . $code .
 				'.' . basename($_FILES['file']['name']);
 
 	        echo json_encode($result);
@@ -416,13 +420,15 @@ class NewRequestController extends CI_Controller {
 			$imageData = $data['imageData'];
 			$imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i',
 			 	'', $imageData));
-
-			$filepath = DropPath . $data['userId'] . "." . $data['requestNumb'] .
+			// Generate a version 4 (random) UUID object
+			$uuid4 = Uuid::uuid4();
+			$code = $uuid4->toString(); // i.e. 25769c6c-d34d-4bfe-ba98-e0ee856f3e7a
+			$filepath = DropPath . $data['userId'] . "." . $code .
 			 	"." . $data['docName'] . ".png";
 			file_put_contents($filepath, $imageData);
 
 			$result['message'] = "success";
-			$result['lpath'] = $data['userId'] . "." . $data['requestNumb'] .
+			$result['lpath'] = $data['userId'] . "." . $code .
 			 	"." . $data['docName'] . ".png";
 			echo json_encode($result);
 		}

@@ -179,9 +179,7 @@ function userHome($scope, $cookies, $timeout, Helps,
                 $scope.uploading = true;
                 var docs = [];
 
-                var type = Requests.mapLoanTypeAsCode($scope.model.type);
-                var requestNumb = type + '.' + (requests[type] ? requests[type].length + 1 : 1);
-                docs.push(Requests.createRequestDocData(fetchId, requestNumb));
+                docs.push(Requests.createRequestDocData(fetchId));
                 performCreation(docs);
             }
 

@@ -413,13 +413,12 @@ function reqService($q, $http, Constants, $filter, Utils) {
      * Creates POST data for the request doc.
      *
      * @param userId - user applicant's id.
-     * @param requestNumb - number of the request (i.e, [type].[number]).
      * @returns {{lpath: string, description: string, docName: string}}
      */
-    self.createRequestDocData = function (userId, requestNumb) {
+    self.createRequestDocData = function (userId) {
         var docName = 'Constancia';
         return {
-            lpath: userId + '.' + requestNumb + '.' + docName + '.pdf',
+            lpath: userId + '.' + Utils.generateUUID() + '.' + docName + '.pdf',
             description: 'Documento declarativo referente a la solicitud',
             docName: docName
         }

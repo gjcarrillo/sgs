@@ -14,7 +14,8 @@
 		"php": ">=5.2.4",
 		"mailgun/mailgun-php": "^2.1",
 		"php-http/guzzle6-adapter": "^1.1",
-		"php-http/message": "^1.4"
+		"php-http/message": "^1.4",
+		"ramsey/uuid": "^3.5"
 	},
 	"suggest": {
 		"paragonie/random_compat": "Provides better randomness in PHP 5.x"
