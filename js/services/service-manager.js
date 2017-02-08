@@ -127,6 +127,7 @@ function manager($http, $q, Requests) {
                 console.log(response);
                 if (response.data.message === "success") {
                     response.data.requests = Requests.filterRequests(response.data.requests);
+                    response.data.pie.bulbColors = self.generateBulbColors(response.data.pie);
                     qStatus.resolve(response.data);
                 } else {
                     qStatus.reject(response.data.message);
@@ -167,6 +168,7 @@ function manager($http, $q, Requests) {
             function (response) {
                 if (response.data.message === "success") {
                     response.data.requests = Requests.filterRequests(response.data.requests);
+                    response.data.pie.bulbColors = self.generateBulbColors(response.data.pie);
                     qLoanType.resolve(response.data);
                 } else {
                     qLoanType.reject(response.data.message);
@@ -191,6 +193,7 @@ function manager($http, $q, Requests) {
                 console.log(response);
                 if (response.data.message === "success") {
                     response.data.requests = Requests.filterRequests(response.data.requests);
+                    response.data.pie.bulbColors = self.generateBulbColors(response.data.pie);
                     qRequests.resolve(response.data);
                 } else {
                     qRequests.reject(response.data.message);
@@ -221,6 +224,7 @@ function manager($http, $q, Requests) {
                 console.log(response);
                 if (response.data.message === "success") {
                     response.data.requests = Requests.filterRequests(response.data.requests);
+                    response.data.pie.bulbColors = self.generateBulbColors(response.data.pie);
                     qRequests.resolve(response.data);
                 } else {
                     qRequests.reject(response.data.message);
@@ -250,6 +254,7 @@ function manager($http, $q, Requests) {
                 console.log(response);
                 if (response.data.message === "success") {
                     response.data.requests = Requests.filterRequests(response.data.requests);
+                    response.data.pie.bulbColors = self.generateBulbColors(response.data.pie);
                     qRequests.resolve(response.data);
                 } else {
                     qRequests.reject(response.data.message);
@@ -445,6 +450,20 @@ function manager($http, $q, Requests) {
                 }
             });
         return qAgent.promise;
+    };
+
+    /**
+     * Generates the bulb colors that will identify each request's status.
+     */
+    self.generateBulbColors = function (pieData) {
+        var colors = pieData.backgroundColor;
+        var labels = pieData.labels;
+        var bulbColors = {};
+        for (var i = 0; i < labels.length; i++) {
+            bulbColors[labels[i]] = colors[i];
+        }
+
+        return bulbColors;
     };
 
     /**

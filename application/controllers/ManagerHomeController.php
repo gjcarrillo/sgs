@@ -28,11 +28,11 @@ class ManagerHomeController extends CI_Controller {
 				$em = $this->doctrine->em;
 				$user = $em->find('\Entity\User', $_GET['fetchId']);
 				if ($user === null) {
-					$result['error'] = "La cédula ingresada no se encuentra en la base de datos";
+					$result['message'] = "La cédula ingresada no se encuentra en la base de datos";
 				} else {
 					$requests = $user->getRequests();
 					if ($requests->isEmpty()) {
-						$result['error'] = "El usuario no posee solicitudes";
+						$result['message'] = "El usuario no posee solicitudes";
 					} else {
 						$rKey = 0;
                         $statuses = $this->utils->getAllStatuses();
@@ -79,7 +79,7 @@ class ManagerHomeController extends CI_Controller {
 							$rKey++;
 						}
 						if ($result['requests'] == null) {
-							$result['error'] = 'Este afiliado no tiene solicitudes validadas';
+							$result['message'] = 'Este afiliado no tiene solicitudes validadas';
 						} else {
                             // Fill up pie chart information
                             $result['pie']['title'] = "Estadísticas de solicitudes para el afiliado";
@@ -148,7 +148,7 @@ class ManagerHomeController extends CI_Controller {
                 array_push($statuses, RECEIVED);
                 $requests = $requestsRepo->findBy(array("status" => $statuses));
                 if (empty($requests)) {
-                    $result['error'] = "No se encontraron solicitudes pendientes.";
+                    $result['message'] = "No se encontraron solicitudes pendientes.";
                 } else {
                     $rKey = 0;
                     foreach ($requests as $request) {
@@ -178,7 +178,7 @@ class ManagerHomeController extends CI_Controller {
                         $rKey++;
                     }
                     if ($result['requests'] == null) {
-                        $result['error'] = 'Este afiliado no posee solicitudes validadas';
+                        $result['message'] = 'Este afiliado no posee solicitudes validadas';
                     } else {
                         $result['message'] = "success";
                     }
@@ -204,7 +204,7 @@ class ManagerHomeController extends CI_Controller {
 				$requestsRepo = $em->getRepository('\Entity\Request');
                 $requests = $requestsRepo->findBy(array("status" => $status));
                 if (empty($requests)) {
-                    $result['error'] = "No se encontraron solicitudes con estatus " . $_GET['status'];
+                    $result['message'] = "No se encontraron solicitudes con estatus " . $_GET['status'];
                 } else {
 					$rKey = 0;
                     $statuses = $this->utils->getAllStatuses();
@@ -256,7 +256,7 @@ class ManagerHomeController extends CI_Controller {
 						$rKey++;
                     }
                     if ($result['requests'] == null) {
-                        $result['error'] = 'Este afiliado no posee solicitudes validadas';
+                        $result['message'] = 'Este afiliado no posee solicitudes validadas';
                     } else {
                         // Get requests status statistics.
                         foreach ($statuses as $status) {
@@ -347,9 +347,9 @@ class ManagerHomeController extends CI_Controller {
 				$days = $interval->format("%a");
                 if (empty($requests)) {
                     if ($days > 0) {
-                        $result['error'] = "No se han encontrado solicitudes para el rango de fechas especificado";
+                        $result['message'] = "No se han encontrado solicitudes para el rango de fechas especificado";
                     } else {
-                        $result['error'] = "No se han encontrado solicitudes para la fecha especificada";
+                        $result['message'] = "No se han encontrado solicitudes para la fecha especificada";
                     }
                 } else {
 					$rKey = 0;
@@ -401,7 +401,7 @@ class ManagerHomeController extends CI_Controller {
 						$rKey++;
                     }
                     if ($result['requests'] == null) {
-                        $result['error'] = 'Este afiliado no posee solicitudes validadas';
+                        $result['message'] = 'Este afiliado no posee solicitudes validadas';
                     } else {
                         // Fill up pie chart information
                         $result['pie']['title'] = $days > 0 ? (
@@ -474,7 +474,7 @@ class ManagerHomeController extends CI_Controller {
 				$requestsRepo = $em->getRepository('\Entity\Request');
 				$requests = $requestsRepo->findBy(array("loanType" => $loanType));
 				if (empty($requests)) {
-					$result['error'] = "No se encontraron solicitudes del tipo " . $this->utils->mapLoanType($loanType);
+					$result['message'] = "No se encontraron solicitudes del tipo " . $this->utils->mapLoanType($loanType);
 				} else {
 					$rKey = 0;
                     $statuses = $this->utils->getAllStatuses();
@@ -524,7 +524,7 @@ class ManagerHomeController extends CI_Controller {
 						$rKey++;
 					}
                     if ($result['requests'] == null) {
-                        $result['error'] = 'Este afiliado no posee solicitudes validadas';
+                        $result['message'] = 'Este afiliado no posee solicitudes validadas';
                     } else {
                         // Fill up pie chart information
                         $result['pie']['title'] = "Solicitudes de " . $this->utils->mapLoanType($loanType);
@@ -626,9 +626,9 @@ class ManagerHomeController extends CI_Controller {
                     $interval = $from->diff($to);
                     $days = $interval->format("%a");
                     if ($days > 0) {
-                        $result['error'] = "No se han encontrado solicitudes cerradas en el rango de fechas especificado";
+                        $result['message'] = "No se han encontrado solicitudes cerradas en el rango de fechas especificado";
                     } else {
-                        $result['error'] = "No se han encontrado solicitudes cerradas en la fecha especificada";
+                        $result['message'] = "No se han encontrado solicitudes cerradas en la fecha especificada";
                     }
                 } else {
 					$result['message'] = "success";
@@ -649,11 +649,11 @@ class ManagerHomeController extends CI_Controller {
                 $em = $this->doctrine->em;
                 $user = $em->find('\Entity\User', $_GET['userId']);
                 if ($user === null) {
-                    $result['error'] = "La cédula ingresada no se encuentra en la base de datos";
+                    $result['message'] = "La cédula ingresada no se encuentra en la base de datos";
                 } else {
                     $requests = $user->getRequests();
                     if ($requests->isEmpty()) {
-                        $result['error'] = "El usuario especificado no posee solicitudes";
+                        $result['message'] = "El usuario especificado no posee solicitudes";
                     } else {
                         // Perform all approved amount's computation
                         $result['approvedAmount'] = 0;
@@ -749,9 +749,9 @@ class ManagerHomeController extends CI_Controller {
 					$interval = $from->diff($to);
 					$days = $interval->format("%a");
 					if ($days > 0) {
-						$result['error'] = "No se han encontrado solicitudes cerradas en el rango de fechas especificado";
+						$result['message'] = "No se han encontrado solicitudes cerradas en el rango de fechas especificado";
 					} else {
-						$result['error'] = "No se han encontrado solicitudes cerradas en la fecha especificada";
+						$result['message'] = "No se han encontrado solicitudes cerradas en la fecha especificada";
 					}
 				} else {
 					// Fill up report information
@@ -868,7 +868,7 @@ class ManagerHomeController extends CI_Controller {
                 }
                 $em->flush();
                 if (!$count) {
-                    $result['error'] = "No se han detectado cierres de solicitudes esta semana.";
+                    $result['message'] = "No se han detectado cierres de solicitudes esta semana.";
                 } else {
                     // Fill up report information
                     $now = (new DateTime('now', new DateTimeZone('America/Barbados')))->format('d/m/Y - h:i:sa');

@@ -1088,15 +1088,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
             && $scope.selectedLoan === loanIndex) {
             return;
         }
-        if (status === $scope.RECEIVED_STRING) {
-            return {'color':'#FFC107'}; // 500 amber
-        }
-        if (status === $scope.APPROVED_STRING) {
-            return {'color':'#4CAF50'}; // 500 green
-        }
-        if (status === $scope.REJECTED_STRING) {
-            return {'color':'#F44336'}; // 500 red
-        }
+        return {'color': $scope.pie.bulbColors[status]};
     };
 
     $scope.isObjEmpty = function(obj) {
