@@ -73,7 +73,7 @@ class EditRequestController extends CI_Controller {
 				$result['message'] = "success";
 			} catch (Exception $e) {
 				\ChromePhp::log($e);
-				$result['message'] = "error";
+				$result['message'] = $this->utils->getErrorMsg($e);
 			}
 
 			echo json_encode($result);
@@ -164,7 +164,7 @@ class EditRequestController extends CI_Controller {
 				}
 			} catch (Exception $e) {
 				\ChromePhp::log($e);
-				$result['message'] = "error";
+				$result['message'] = $this->utils->getErrorMsg($e);
 			}
 
 			echo json_encode($result);
@@ -206,7 +206,7 @@ class EditRequestController extends CI_Controller {
 				$result['message'] = "success";
 			} catch (Exception $e) {
 				\ChromePhp::log($e);
-				$result['message'] = "error";
+				$result['message'] = $this->utils->getErrorMsg($e);
 			}
 
 			echo json_encode($result);
@@ -245,7 +245,7 @@ class EditRequestController extends CI_Controller {
 				$result['message'] = "success";
 			} catch (Exception $e) {
 				\ChromePhp::log($e);
-				$result['message'] = "error";
+				$result['message'] = $this->utils->getErrorMsg($e);
 			}
 
 			echo json_encode($result);
@@ -253,9 +253,14 @@ class EditRequestController extends CI_Controller {
 	}
 
 	private function sendValidation($reqId) {
-		$this->load->model('emailModel', 'email');
-		$this->email->sendNewRequestEmail($reqId);
-		$this->load->model('historyModel', 'history');
-		$this->history->registerValidationResend($reqId);
+		try {
+			$this->load->model('emailModel', 'email');
+			$this->email->sendNewRequestEmail($reqId);
+			$this->load->model('historyModel', 'history');
+			$this->history->registerValidationResend($reqId);
+		} catch (Exception $e) {
+			\ChromePhp::log($e);
+			throw $e;
+		}
 	}
 }

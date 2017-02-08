@@ -129,7 +129,7 @@ function manager($http, $q, Requests) {
                     response.data.requests = Requests.filterRequests(response.data.requests);
                     qStatus.resolve(response.data);
                 } else {
-                    qStatus.reject(response.data.error);
+                    qStatus.reject(response.data.message);
                 }
 
             });
@@ -146,7 +146,7 @@ function manager($http, $q, Requests) {
                     response.data.requests = Requests.filterRequests(response.data.requests);
                     qPending.resolve(response.data);
                 } else {
-                    qPending.reject(response.data.error);
+                    qPending.reject(response.data.message);
                 }
 
             });
@@ -169,7 +169,7 @@ function manager($http, $q, Requests) {
                     response.data.requests = Requests.filterRequests(response.data.requests);
                     qLoanType.resolve(response.data);
                 } else {
-                    qLoanType.reject(response.data.error);
+                    qLoanType.reject(response.data.message);
                 }
 
             });
@@ -193,7 +193,7 @@ function manager($http, $q, Requests) {
                     response.data.requests = Requests.filterRequests(response.data.requests);
                     qRequests.resolve(response.data);
                 } else {
-                    qRequests.reject(response.data.error);
+                    qRequests.reject(response.data.message);
                 }
             });
         return qRequests.promise;
@@ -223,7 +223,7 @@ function manager($http, $q, Requests) {
                     response.data.requests = Requests.filterRequests(response.data.requests);
                     qRequests.resolve(response.data);
                 } else {
-                    qRequests.reject(response.data.error);
+                    qRequests.reject(response.data.message);
                 }
             });
         return qRequests.promise;
@@ -252,7 +252,7 @@ function manager($http, $q, Requests) {
                     response.data.requests = Requests.filterRequests(response.data.requests);
                     qRequests.resolve(response.data);
                 } else {
-                    qRequests.reject(response.data.error);
+                    qRequests.reject(response.data.message);
                 }
             });
         return qRequests.promise;
@@ -282,7 +282,7 @@ function manager($http, $q, Requests) {
                 if (response.data.message === "success") {
                     qAmount.resolve(response.data.approvedAmount);
                 } else {
-                    qAmount.reject(response.data.error);
+                    qAmount.reject(response.data.message);
                 }
             });
         return qAmount.promise;
@@ -304,7 +304,7 @@ function manager($http, $q, Requests) {
                 if (response.data.message === "success") {
                     qAmount.resolve(response.data);
                 } else {
-                    qAmount.reject(response.data.error);
+                    qAmount.reject(response.data.message);
                 }
             });
         return qAmount.promise;
@@ -325,7 +325,7 @@ function manager($http, $q, Requests) {
                 if (response.data.message === "success") {
                     qReport.resolve(response.data.report);
                 } else {
-                    qReport.reject(response.data.error);
+                    qReport.reject(response.data.message);
                 }
             });
         return qReport.promise;
@@ -354,7 +354,7 @@ function manager($http, $q, Requests) {
                 if (response.data.message === "success") {
                     qReport.resolve(response.data.report);
                 } else {
-                    qReport.reject(response.data.error);
+                    qReport.reject(response.data.message);
                 }
             });
         return qReport.promise;
@@ -372,11 +372,10 @@ function manager($http, $q, Requests) {
         $http.post('index.php/ManageRequestController/updateRequest', JSON.stringify(request))
             .then(
             function (response) {
-                if (response.status == 200) {
+                if (response.data.message == 'success') {
                     qUpdate.resolve();
                 } else {
-                    qUpdate.reject('Ha ocurrido un error al actualizar la solicitud. Por favor ' +
-                                   'intente más tarde.');
+                    qUpdate.reject(response.data.message);
                 }
             });
         return qUpdate.promise;
@@ -412,7 +411,7 @@ function manager($http, $q, Requests) {
         $http.get('index.php/ManageAgentUsers/fetchAllAgents')
             .then(
             function (response) {
-                if (response.status == 200) {
+                if (response.data.message == 'success') {
                     var allAgents = response.data.agents;
                     var agentsList = allAgents.map(function (agent) {
                         return {
@@ -422,7 +421,7 @@ function manager($http, $q, Requests) {
                     });
                     qAgents.resolve(agentsList);
                 } else {
-                    qAgents.reject('Ha ocurrido un error en el sistema. Por favor intente más tarde.');
+                    qAgents.reject(response.data.message);
                 }
             });
         return qAgents.promise;
@@ -439,7 +438,7 @@ function manager($http, $q, Requests) {
         $http.post('index.php/ManageAgentUsers/deleteAgentUser', userId)
             .then(
             function (response) {
-                if (response.status == 200) {
+                if (response.data.message == 'success') {
                     qAgent.resolve();
                 } else {
                     qAgent.reject(response.data.message);
@@ -477,8 +476,7 @@ function manager($http, $q, Requests) {
                 qReport.resolve('index.php/DocumentGenerator/' +
                                 'downloadReport?lpath=' + response.data.lpath);
             } else {
-                qReport.reject('Ha ocurrido un error al intentar generar el reporte. ' +
-                               'Por favor intente más tarde.');
+                qReport.reject(response.data.message);
             }
         });
         return qReport.promise;

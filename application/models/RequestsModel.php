@@ -53,7 +53,7 @@ class RequestsModel extends CI_Model
             }
         } catch (Exception $e) {
             \ChromePhp::log($e);
-            $result['message'] = "error";
+            $result['message'] = $this->utils->getErrorMsg($e);
         }
         return json_encode($result);
     }
@@ -91,7 +91,7 @@ class RequestsModel extends CI_Model
             $em->flush();
             $result['message'] = "success";
         } catch (Exception $e) {
-            $result['message'] = "error";
+            $result['message'] = $this->utils->getErrorMsg($e);
             \ChromePhp::log($e);
         }
         return json_encode($result);
@@ -180,7 +180,7 @@ class RequestsModel extends CI_Model
                 $result['message'] = "success";
             }
         } catch (Exception $e) {
-            $result['message'] = "Token inv?lido.";
+            $result['message'] = $this->utils->getErrorMsg($e);
             \ChromePhp::log($e);
         }
         return json_encode($result);
@@ -206,7 +206,7 @@ class RequestsModel extends CI_Model
                 $result['message'] = "success";
             }
         } catch (Exception $e) {
-            $result['message'] = null;
+            $result['message'] = $this->utils->getErrorMsg($e);
             \ChromePhp::log($e);
         }
         return json_encode($result);
@@ -245,7 +245,7 @@ class RequestsModel extends CI_Model
     }
 
     // Helper function that adds a set of docs to a request in database.
-    public function addDocuments($request, $historyId, $docs) {
+    public function addDocuments($request, $history, $docs) {
         try {
             $em = $this->doctrine->em;
             foreach ($docs as $data) {
@@ -272,7 +272,6 @@ class RequestsModel extends CI_Model
                     $em->merge($request);
                 }
                 // Set History action for this request's corresponding history
-                $history =  $em->find('\Entity\History', $historyId);
                 $action = new \Entity\HistoryAction();
                 $action->setSummary("Adición del documento '" . $data['docName'] . "'.");
                 if (isset($data['description']) && $data['description'] !== "") {
@@ -281,11 +280,9 @@ class RequestsModel extends CI_Model
                 $action->setBelongingHistory($history);
                 $history->addAction($action);
                 $em->persist($action);
-                $em->merge($history);
             }
-            $em->flush();
         } catch (Exception $e) {
-            \ChromePhp::log($e);
+            throw $e;
         }
     }
 
@@ -309,7 +306,7 @@ class RequestsModel extends CI_Model
                 return $span - $monthsPassed;
             }
         } catch (Exception $e) {
-            \ChromePhp::log($e);
+            throw $e;
         }
     }
 }

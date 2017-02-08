@@ -39,7 +39,7 @@ class ManageAgentUsers extends CI_Controller {
 				}
 			} catch (Exception $e) {
 				\ChromePhp::log($e);
-				$result['message'] = "Ha ocurrido un error en sistema.";
+				$result['message'] = $this->utils->getErrorMsg($e);
 			}
 			echo json_encode($result);
 		}
@@ -50,11 +50,16 @@ class ManageAgentUsers extends CI_Controller {
 	 *
 	 * @param $em - doctrine's entity manager.
 	 * @param $user - corresponding user entity.
+	 * @throws Exception
 	 */
 	private function resurrectUser($em, $user) {
-		$user->setStatus("ACTIVE");
-		$em->merge($user);
-		$em->flush();
+		try {
+			$user->setStatus("ACTIVE");
+			$em->merge($user);
+			$em->flush();
+		} catch (Exception $e) {
+			throw $e;
+		}
 	}
 
 	/**
@@ -62,16 +67,22 @@ class ManageAgentUsers extends CI_Controller {
 	 *
 	 * @param $em - doctrine's entity manager.
 	 * @param $data - new user's data.
+	 * @throws Exception
 	 */
 	private function createUser($em, $data) {
-		$user = new \Entity\User();
-		$user->setId($data['id']);
-		$user->setPassword($data['psw']);
-		$user->setName($data['name']);
-		$user->setLastname($data['lastname']);
-		$user->setType(1);
-		$em->persist($user);
-		$em->flush();
+		try {
+			$user = new \Entity\User();
+			$user->setId($data['id']);
+			$user->setPassword($data['psw']);
+			$user->setName($data['name']);
+			$user->setLastname($data['lastname']);
+			$user->setType(1);
+			$em->persist($user);
+			$em->flush();
+		} catch (Exception $e) {
+			throw $e;
+		}
+
 	}
 
 	public function fetchAllAgents() {
@@ -89,7 +100,7 @@ class ManageAgentUsers extends CI_Controller {
 				}
 			} catch (Exception $e) {
 				\ChromePhp::log($e);
-				$result['message'] = "Ha ocurrido un error en sistema.";
+				$result['message'] = $this->utils->getErrorMsg($e);
 			}
 			echo json_encode($result);
 		}
@@ -110,7 +121,7 @@ class ManageAgentUsers extends CI_Controller {
 				$em->flush();
 				$result['message'] = "success";
 			} catch (Exception $e) {
-				$result['message'] = "error";
+				$result['message'] = $this->utils->getErrorMsg($e);
 				\ChromePhp::log($e);
 			}
 			echo json_encode($result);

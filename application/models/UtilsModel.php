@@ -78,6 +78,7 @@ class UtilsModel extends CI_Model
      * Obtains all the requests statuses.
      *
      * @return array with all the statuses.
+     * @throws Exception
      */
     public function getAllStatuses () {
         $theStatuses = STATUSES;
@@ -88,7 +89,7 @@ class UtilsModel extends CI_Model
                 array_push($theStatuses, $status->getValue());
             }
         } catch (Exception $e) {
-            \ChromePhp::log($e);
+            throw $e;
         }
         return $theStatuses;
     }
@@ -97,6 +98,7 @@ class UtilsModel extends CI_Model
      * Obtains the additional (configurable) requests statuses.
      *
      * @return array with all the additional statuses.
+     * @throws Exception
      */
     public function getAdditionalStatuses () {
         $theStatuses = [];
@@ -107,7 +109,7 @@ class UtilsModel extends CI_Model
                 array_push($theStatuses, $status->getValue());
             }
         } catch (Exception $e) {
-            \ChromePhp::log($e);
+            throw $e;
         }
         return $theStatuses;
     }
@@ -192,6 +194,7 @@ class UtilsModel extends CI_Model
      * @param $uid - user's id.
      * @param $loanType - loan type.
      * @return bool {@code true} if said request type has an opened request.
+     * @throws Exception
      */
     public function checkPreviousRequests ($uid, $loanType) {
         try {
@@ -207,10 +210,20 @@ class UtilsModel extends CI_Model
                     $canCreate = false;
                 }
             }
+            return $canCreate;
         } catch (Exception $e) {
-            $canCreate = false;
-            \ChromePhp::log($e);
+            throw $e;
         }
-        return $canCreate;
+    }
+
+    /**
+     * Provides an error message based on exception object.
+     *
+     * @param $e - exception object.
+     * @return string - string containing error message.
+     */
+    public function getErrorMsg($e) {
+        return "Ha ocurrido un error al crear su solicitud. " .
+               $e->getCode() . ": " . $e->getMessage();
     }
 }

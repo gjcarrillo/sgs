@@ -49,7 +49,7 @@ class LoginController extends CI_Controller {
            }
 
        }catch(Exception $e){
-           $result['message'] = "Error";
+           $result['message'] = $this->utils->getErrorMsg($e);
        }
 
        echo json_encode($result);

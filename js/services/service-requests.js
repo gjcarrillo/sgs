@@ -61,8 +61,7 @@ function reqService($q, $http, Constants, $filter, Utils) {
                       if (response.status == 200) {
                           qUpdate.resolve();
                       } else {
-                          qUpdate.reject('Ha ocurrido un problema al intentar actualizar la solicitud. ' +
-                                         'Por favor intente más tarde.');
+                          qUpdate.reject(response.data.message);
                       }
                   });
         return qUpdate.promise;
@@ -82,8 +81,7 @@ function reqService($q, $http, Constants, $filter, Utils) {
                       if (response.status == 200) {
                           qEdit.resolve();
                       } else {
-                          qEdit.reject('Ha ocurrido un problema al intentar editar la solicitud. ' +
-                                         'Por favor intente más tarde.');
+                          qEdit.reject(response.data.message);
                       }
                   });
         return qEdit.promise;
@@ -104,8 +102,7 @@ function reqService($q, $http, Constants, $filter, Utils) {
                     // Update interface
                     qDelete.resolve();
                 } else {
-                    qDelete.reject('Ha ocurrido un error en el sistema. ' +
-                                   'Por favor intente más tarde');
+                    qDelete.reject(response.data.message);
                 }
             }
         );
@@ -188,8 +185,7 @@ function reqService($q, $http, Constants, $filter, Utils) {
                 if (response.status == 200) {
                     updateDoc.resolve();
                 } else {
-                    updateDoc.reject('Ha ocurrido un error al intentar actualizar la descripción del documento.' +
-                                     'Por favor intente más tarde.');
+                    updateDoc.reject(response.data.message);
                 }
             }
         );
@@ -441,8 +437,7 @@ function reqService($q, $http, Constants, $filter, Utils) {
                 if (response.data.message == "success") {
                     qEmail.resolve();
                 } else {
-                    qEmail.reject('Ha ocurrido un error al actualizar la dirección. ' +
-                                  'de correo. Por favor intente más tarde.');
+                    qEmail.reject(response.data.message);
                 }
             });
         return qEmail.promise;
@@ -463,8 +458,7 @@ function reqService($q, $http, Constants, $filter, Utils) {
                 if (response.data.message == "success") {
                     qValidation.resolve();
                 } else {
-                    qValidation.reject('Ha ocurrido un error al actualizar la dirección. ' +
-                                  'de correo. Por favor intente más tarde.');
+                    qValidation.reject(response.data.message);
                 }
             });
         return qValidation.promise;
@@ -530,7 +524,7 @@ function reqService($q, $http, Constants, $filter, Utils) {
                 if (response.data.message == "success") {
                     qUser.resolve(response.data.concurrence);
                 } else {
-                    qUser.reject('Ha ocurrido un error en el sistema. Por favor intente más tarde.');
+                    qUser.reject(response.data.message);
                 }
             });
         return qUser.promise;
@@ -554,7 +548,7 @@ function reqService($q, $http, Constants, $filter, Utils) {
                 if (response.data.message == "success") {
                     qGranting.resolve(response.data.granting);
                 } else {
-                    qGranting.reject('Ha ocurrido un error en el sistema. Por favor intente más tarde.');
+                    qGranting.reject(response.data.message);
                 }
             });
         return qGranting.promise;
@@ -604,7 +598,7 @@ function reqService($q, $http, Constants, $filter, Utils) {
                 if (response.data.message == "success") {
                     qAvailability.resolve(response.data);
                 } else {
-                    qAvailability.reject('Ha ocurrido un error en el sistema. Por favor intente más tarde.');
+                    qAvailability.reject(response.data.message);
                 }
             });
         return qAvailability.promise;

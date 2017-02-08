@@ -55,56 +55,6 @@ function fileUpload($q, Upload, $http) {
     };
 
     /**
-     * Uploads selected image data to server.
-     *
-     * @param data - image data.
-     * @param userId - request owner' ID.
-     * @param requestNumb - Number of the request (i.e, [type].[number]).
-     * @returns {*} - promise with the operation's results.
-     * */
-    self.uploadImage = function (data, userId, requestNumb) {
-        var postData = generateImageData(data, userId, requestNumb);
-        var qImageUpload = $q.defer();
-        $http.post('index.php/NewRequestController/' +
-                   'uploadBase64Images',
-                   JSON.stringify(postData))
-            .then(
-            function (response) {
-                if (response.status == 200) {
-                    // Add doc info
-                    var doc = {
-                        lpath: response.data.lpath,
-                        docName: postData.docName,
-                        description: postData.description
-                    };
-                    qImageUpload.resolve(doc);
-                } else {
-                    qImageUpload.reject('Ha ocurrido un error al subir la foto. ' +
-                                        'Por favor intente más tarde.');
-                    console.log("Image upload error!");
-                    console.log(response);
-                }
-            });
-        return qImageUpload.promise;
-    };
-
-    /**
-     * Generates the necessary data to upload data image to the server.
-     * @param data - image's data.
-     * @param userId - request owner's ID.
-     * @param requestNumb - Number of the request (i.e, [type].[number]).
-     */
-    function generateImageData(data, userId, requestNumb) {
-        return {
-            imageData: data,
-            userId: userId,
-            requestNumb: requestNumb,
-            docName: "Identidad",
-            description: "Comprobación de autorización"
-        };
-    }
-
-    /**
      * Uploads all the specified files.
      *
      * @param files - files to upload.

@@ -37,7 +37,7 @@ class UserInfoController extends CI_Controller {
 					$result['userName'] = $user->getFirstName() . " " . $user->getLastName();
 					$result['message'] = "success";
 				} catch (Exception $e) {
-					$result['message'] = "Error";
+					$result['message'] = $this->utils->getErrorMsg($e);
 					\ChromePhp::log($e);
 				}
 			}

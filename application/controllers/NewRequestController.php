@@ -38,22 +38,27 @@ class NewRequestController extends CI_Controller {
 	/**
 	 * Gets a specific user's concurrence percentage.
 	 */
-	public function getUserConcurrence() {
+	public function getUserConcurrence()
+	{
 		$result['message'] = "error";
-		if ($_GET['userId'] != $_SESSION['id'] && $_SESSION['type'] != AGENT) {
-			$this->load->view('errors/index.html');
-		} else {
-			$this->db->select('*');
-			$this->db->from('db_dt_personales');
-			$this->db->where('cedula', $_GET['userId']);
-			$query = $this->db->get();
-			if (empty($query->result())) {
-				// User info not found! Set concurrence to max.
-				$result['concurrence'] = 100;
+		try {
+			if ($_GET['userId'] != $_SESSION['id'] && $_SESSION['type'] != AGENT) {
+				$this->load->view('errors/index.html');
 			} else {
-				$result['concurrence'] = $query->result()[0]->concurrencia;
-				$result['message'] = "success";
+				$this->db->select('*');
+				$this->db->from('db_dt_personales');
+				$this->db->where('cedula', $_GET['userId']);
+				$query = $this->db->get();
+				if (empty($query->result())) {
+					// User info not found! Set concurrence to max.
+					$result['concurrence'] = 100;
+				} else {
+					$result['concurrence'] = $query->result()[0]->concurrencia;
+					$result['message'] = "success";
+				}
 			}
+		} catch (Exception $e) {
+			$result['message'] = $this->utils->getErrorMsg($e);
 		}
 
 		echo json_encode($result);
@@ -94,7 +99,7 @@ class NewRequestController extends CI_Controller {
 				}
 			} catch (Exception $e) {
 				\ChromePhp::log($e);
-				$result['message'] = 'error';
+				$result['message'] = $this->utils->getErrorMsg($e);
 			}
 		}
 
@@ -150,7 +155,7 @@ class NewRequestController extends CI_Controller {
 				$result['message'] = 'success';
 			} catch (Exception $e) {
 				\ChromePhp::log($e);
-				$result['message'] = 'error';
+				$result['message'] = $this->utils->getErrorMsg($e);
 			}
 		}
 		echo json_encode($result);
@@ -221,51 +226,34 @@ class NewRequestController extends CI_Controller {
 					$user->addRequest($request);
 					$em->persist($request);
 					$em->merge($user);
-					$em->flush();
 					// Create the new request doc.
 					$this->load->model('requestsModel', 'requests');
-					$this->requests->addDocuments($request, $history->getId(), $data['docs']);
+					$this->requests->addDocuments($request, $history, $data['docs']);
 					$this->requests->generateRequestDocument($request);
+					$em->persist($history);
+					$em->flush();
 					// Send request validation token.
 					$this->sendValidation($request->getId());
 					$result['message'] = "success";
 				}
 	        } catch (Exception $e) {
 	             \ChromePhp::log($e);
-	            $result['message'] = "Ha ocurrido un error al crear su solicitud. " .
-									 $e->getCode() . ": " . $e->getMessage();
+				$result['message'] = $this->utils->getErrorMsg($e);
 	        }
 
 	        echo json_encode($result);
 		}
     }
 
-	//public function uploadBase64Images() {
-	//	if ($_SESSION['type'] != APPLICANT) {
-	//		$this->load->view('errors/index.html');
-	//	} else {
-	//		$data = json_decode(file_get_contents('php://input'), true);
-	//		$imageData = $data['imageData'];
-	//		$imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i',
-	//		 	'', $imageData));
-	//		// Generate a version 4 (random) UUID object
-	//		$uuid4 = Uuid::uuid4();
-	//		$code = $uuid4->toString(); // i.e. 25769c6c-d34d-4bfe-ba98-e0ee856f3e7a
-	//		$filepath = DropPath . $data['userId'] . "." . $code .
-	//		 	"." . $data['docName'] . ".png";
-	//		file_put_contents($filepath, $imageData);
-    //
-	//		$result['message'] = "success";
-	//		$result['lpath'] = $data['userId'] . "." . $code .
-	//		 	"." . $data['docName'] . ".png";
-	//		echo json_encode($result);
-	//	}
-	//}
-
 	private function sendValidation($reqId) {
-		$this->load->model('emailModel', 'email');
-		$this->email->sendNewRequestEmail($reqId);
-		$this->load->model('historyModel', 'history');
-		$this->history->registerValidationSending($reqId);
+		try {
+			$this->load->model('emailModel', 'email');
+			$this->email->sendNewRequestEmail($reqId);
+			$this->load->model('historyModel', 'history');
+			$this->history->registerValidationSending($reqId);
+		} catch (Exception $e) {
+			\ChromePhp::log($e);
+			throw $e;
+		}
 	}
 }

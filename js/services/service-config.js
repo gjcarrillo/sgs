@@ -130,7 +130,7 @@ function config ($http, $q) {
                 if (response.data.message === "success") {
                     qReqAmount.resolve();
                 } else {
-                    qReqAmount.reject();
+                    qReqAmount.reject(response.data.message);
                 }
             });
 
@@ -171,7 +171,7 @@ function config ($http, $q) {
                 if (response.data.message === "success") {
                     qSpan.resolve();
                 } else {
-                    qSpan.reject();
+                    qSpan.reject(response.data.message);
                 }
             });
 

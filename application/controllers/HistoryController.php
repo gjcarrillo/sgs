@@ -41,7 +41,7 @@ class HistoryController extends CI_Controller {
 
 			} catch(Exception $e) {
 				\ChromePhp::log($e);
-				$result['message'] = "Error";
+				$result['message'] = $this->utils->getErrorMsg($e);
 			}
 
 			echo json_encode($result);

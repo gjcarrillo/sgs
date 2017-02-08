@@ -25,7 +25,7 @@ class ConfigModel extends CI_Model
             $result['message'] = 'success';
         } catch (Exception $e) {
             \ChromePhp::log($e);
-            $result['message'] = 'error';
+            $result['message'] = $this->utils->getErrorMsg($e);
         }
         return json_encode($result);
     }
@@ -51,7 +51,7 @@ class ConfigModel extends CI_Model
             $result['message'] = 'success';
         } catch (Exception $e) {
             \ChromePhp::log($e);
-            $result['message'] = 'error';
+            $result['message'] = $this->utils->getErrorMsg($e);
         }
         return json_encode($result);
     }
@@ -80,7 +80,7 @@ class ConfigModel extends CI_Model
             $result['message'] = 'success';
         } catch (Exception $e) {
             \ChromePhp::log($e);
-            $result['message'] = 'error';
+            $result['message'] = $this->utils->getErrorMsg($e);
         }
         return json_encode($result);
     }
@@ -97,7 +97,7 @@ class ConfigModel extends CI_Model
             $result['message'] = 'success';
         } catch (Exception $e) {
             \ChromePhp::log($e);
-            $result['message'] = 'error';
+            $result['message'] = $this->utils->getErrorMsg($e);
         }
         return json_encode($result);
     }
@@ -114,7 +114,7 @@ class ConfigModel extends CI_Model
             $result['message'] = 'success';
         } catch (Exception $e) {
             \ChromePhp::log($e);
-            $result['message'] = 'error';
+            $result['message'] = $this->utils->getErrorMsg($e);
         }
         echo json_encode($result);
     }
@@ -158,7 +158,7 @@ class ConfigModel extends CI_Model
             $result['message'] = 'success';
         } catch (Exception $e) {
             \ChromePhp::log($e);
-            $result['message'] = 'error';
+            $result['message'] = $this->utils->getErrorMsg($e);
         }
         return json_encode($result);
     }
@@ -176,7 +176,7 @@ class ConfigModel extends CI_Model
             $result['message'] = 'success';
         } catch (Exception $e) {
             \ChromePhp::log($e);
-            $result['message'] = 'error';
+            $result['message'] = $this->utils->getErrorMsg($e);
         }
         return json_encode($result);
     }
@@ -204,7 +204,7 @@ class ConfigModel extends CI_Model
             $result['message'] = 'success';
         } catch (Exception $e) {
             \ChromePhp::log($e);
-            $result['message'] = 'error';
+            $result['message'] = $this->utils->getErrorMsg($e);
         }
         return json_encode($result);
     }

@@ -63,7 +63,7 @@ class ValidationController extends CI_Controller {
             }
         } catch (Exception $e) {
             \ChromePhp::log($e);
-            $result['message'] = "Token Inválido.";
+            $result['message'] = $this->utils->getErrorMsg($e);
         }
         echo json_encode($result);
     }
@@ -73,17 +73,23 @@ class ValidationController extends CI_Controller {
      *
      * @param $userId - user's id.
      * @return int - user's concurrence level percentage.
+     * @throws Exception
      */
     private function getUserConcurrence($userId) {
-        $this->db->select('*');
-        $this->db->from('db_dt_personales');
-        $this->db->where('cedula', $userId);
-        $query = $this->db->get();
-        if (empty($query->result())) {
-            // User info not found! Set concurrence to max.
-            return 100;
-        } else {
-            return $query->result()[0]->concurrencia;
+        try {
+            $this->db->select('*');
+            $this->db->from('db_dt_personales');
+            $this->db->where('cedula', $userId);
+            $query = $this->db->get();
+            if (empty($query->result())) {
+                // User info not found! Set concurrence to max.
+                return 100;
+            } else {
+                return $query->result()[0]->concurrencia;
+            }
+        } catch (Exception $e) {
+            throw $e;
         }
+
     }
 }
