@@ -29,7 +29,7 @@ class ManageRequestController extends CI_Controller {
 				$history = new \Entity\History();
 				$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
 				$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
-				$history->setTitle($this->utils->getHistoryActionCode('modification'));
+				$history->setTitle($this->utils->getHistoryActionCode('update'));
 				$history->setOrigin($request);
 				$request->addHistory($history);
 				// Register it's corresponding actions

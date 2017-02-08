@@ -134,7 +134,8 @@ define('HISTORY_ACTIONS_CODES', array(
     'closure' => 4,
     'elimination' => 5,
     'report' => 6,
-    'validation' => 7
+    'validation' => 7,
+    'update' => 8
 ));
 define('HISTORY_ACTIONS_NAMES', array(
     1 => 'Creación',
@@ -143,5 +144,6 @@ define('HISTORY_ACTIONS_NAMES', array(
     4 => 'Cierre',
     5 => 'Eliminación',
     6 => 'Reporte',
-    7 => 'Validación'
+    7 => 'Validación',
+    8 => 'Actualización'
 ));

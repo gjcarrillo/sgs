@@ -52,7 +52,7 @@ class EditRequestController extends CI_Controller {
 				$request->addHistory($history);
 				// Register it's corresponding actions
 				if (isset($data['comment']) && $request->getComment() !== $data['comment']) {
-					$history->setTitle($this->utils->getHistoryActionCode('modification'));
+					$history->setTitle($this->utils->getHistoryActionCode('update'));
 					$action = new \Entity\HistoryAction();
 					$action->setSummary("Comentario acerca de la solicitud.");
 					$action->setDetail("Comentario realizado: " . $data['comment']);
@@ -185,7 +185,7 @@ class EditRequestController extends CI_Controller {
 					$history = new \Entity\History();
 					$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
 					$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
-					$history->setTitle($this->utils->getHistoryActionCode('modification'));
+					$history->setTitle($this->utils->getHistoryActionCode('update'));
 					$request = $document->getBelongingRequest();
 					$history->setOrigin($request);
 					$request->addHistory($history);
