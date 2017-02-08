@@ -9,7 +9,7 @@ class ManageRequestController extends CI_Controller {
     }
 
 	public function index() {
-		if ($_SESSION['type'] != 2) {
+		if ($_SESSION['type'] != MANAGER) {
 			$this->load->view('errors/index.html');
 		} else {
 			$this->load->view('manageRequest');
@@ -17,7 +17,7 @@ class ManageRequestController extends CI_Controller {
 	}
 
 	public function updateRequest() {
-		if ($_SESSION['type'] != 2) {
+		if ($_SESSION['type'] != MANAGER) {
 			$this->load->view('errors/index.html');
 		} else {
 			$data = json_decode(file_get_contents('php://input'), true);
@@ -29,21 +29,19 @@ class ManageRequestController extends CI_Controller {
 				$history = new \Entity\History();
 				$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
 				$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
-				// 3 = Modification
-				$history->setTitle(3);
+				$history->setTitle($this->utils->getHistoryActionCode('modification'));
 				$history->setOrigin($request);
 				$request->addHistory($history);
 				// Register it's corresponding actions
 				if (isset($data['status'])) {
-					if ($data['status'] === 'Aprobada' || $data['status'] === 'Rechazada' ) {
-						// 4 = Close
-						$history->setTitle(4);
+					if ($data['status'] === APPROVED || $data['status'] === REJECTED ) {
+						$history->setTitle($this->utils->getHistoryActionCode('closure'));
 						$action = new \Entity\HistoryAction();
 						$action->setSummary("Cierre de solicitud.");
-						if ($data['status'] === 'Aprobada') {
+						if ($data['status'] === APPROVED) {
 							$approvedAmount = number_format($data['approvedAmount'], 2);
 							$action->setDetail(
-								"Sugerencia: " . $this->statusToVerb($data['status']) .
+								"Sugerencia: " . $this->utils->statusToVerb($data['status']) .
 								" solicitud. Monto aprobado: Bs " . $approvedAmount
 							);
 						} else {
@@ -79,7 +77,7 @@ class ManageRequestController extends CI_Controller {
                 }
 				$em->persist($history);
 
-				if ($data['status'] == "Aprobada" && isset($data['approvedAmount'])) {
+				if ($data['status'] == APPROVED && isset($data['approvedAmount'])) {
 					$request->setApprovedAmount($data['approvedAmount']);
 				}
 				if (isset($data['reunion'])) {
@@ -99,9 +97,5 @@ class ManageRequestController extends CI_Controller {
 
 			echo json_encode($result);
 		}
-	}
-
-	public function statusToVerb($status) {
-		return ($status == "Aprobada" ? "aprobar" : "rechazar");
 	}
 }

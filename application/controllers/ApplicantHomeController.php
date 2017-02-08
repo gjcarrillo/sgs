@@ -14,7 +14,7 @@ class ApplicantHomeController extends CI_Controller {
 	}
 
     public function sendValidation() {
-        if ($_SESSION['type'] != 3) {
+        if ($_SESSION['type'] != APPLICANT) {
             $this->load->view('errors/index.html');
         } else {
             try {

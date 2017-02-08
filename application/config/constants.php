@@ -101,7 +101,7 @@ define('JWT_SECRET_KEY', 'NiZhiBuZhiDaoWoShiSheiMa?');
 /* ======================================
                 LOAN TYPES
 =========================================*/
-define('PERSONAL_LOAN', 40);\
+define('PERSONAL_LOAN', 40);
 define('CASH_VOUCHER', 31);
 define('LOAN_TYPES', array(40, 31));
 define('LOAN_TYPES_NAMES', array(
@@ -114,7 +114,10 @@ define('LOAN_TYPES_NAMES', array(
 define('RECEIVED', 'Recibida');
 define('APPROVED', 'Aprobada');
 define('REJECTED', 'Rechazada');
+define('APPROVED_VERB', 'aprobar');
+define('REJECTED_VERB', 'rechazar');
 define('STATUSES', array('Recibida', 'Aprobada', 'Rechazada'));
+define('STATUSES_VERB', array(RECEIVED => 'recibir', APPROVED => 'aprobar', REJECTED => 'rechazar'));
 /* ======================================
                 MAILGUN
 =========================================*/
@@ -126,9 +129,19 @@ define('MAILGUN_SENDER', 'IPAPEDI <noreply@ipapedi.com>');
 =========================================*/
 define('HISTORY_ACTIONS_CODES', array(
     'creation' => 1,
+    'addition' => 2,
+    'modification' => 3,
+    'closure' => 4,
+    'elimination' => 5,
+    'report' => 6,
     'validation' => 7
 ));
 define('HISTORY_ACTIONS_NAMES', array(
     1 => 'Creación',
+    2 => 'Adición',
+    3 => 'Modificación',
+    4 => 'Cierre',
+    5 => 'Eliminación',
+    6 => 'Reporte',
     7 => 'Validación'
 ));

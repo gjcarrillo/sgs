@@ -157,18 +157,18 @@
                             <md-radio-button
                                 ng-repeat="TYPE in LOAN_TYPES"
                                 ng-value="TYPE"
-                                ng-disabled="!allow[TYPE] || opened.hasOpen[TYPE]">
+                                ng-disabled="!model.allow[TYPE] || model.opened.hasOpen[TYPE]">
                                 {{mapLoanType(TYPE)}}
                                 <md-tooltip
-                                    ng-if="!allow[TYPE] || opened.hasOpen[TYPE]"
+                                    ng-if="!model.allow[TYPE] || model.opened.hasOpen[TYPE]"
                                     md-direction="bottom">
-                                    <span ng-if="(opened.hasOpen && allow[TYPE]) ||
-                                        (opened.hasOpen && !allow[TYPE])">
+                                    <span ng-if="(model.opened.hasOpen && model.allow[TYPE]) ||
+                                        (model.opened.hasOpen && !model.allow[TYPE])">
                                         Usted posee una solicitud de {{mapLoanType(TYPE)}} en transcurso.
                                     </span>
-                                    <span ng-if="!opened.hasOpen && !allow[TYPE]">
-                                        No ha{{span === 1 ? '' : 'n'}}
-                                        transcurrido {{span}} {{span == 1 ? 'mes' : 'meses'}}
+                                    <span ng-if="!model.opened.hasOpen && !model.allow[TYPE]">
+                                        No ha{{model.span === 1 ? '' : 'n'}}
+                                        transcurrido {{model.span}} {{model.span == 1 ? 'mes' : 'meses'}}
                                         desde su última otorgación.
                                     </span>
                                 </md-tooltip>

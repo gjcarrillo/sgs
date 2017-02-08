@@ -1,6 +1,6 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-include (APPPATH. '/libraries/ChromePhp.php');
+include_once (APPPATH. '/libraries/ChromePhp.php');
 
 /**
  * Created by PhpStorm.
@@ -24,7 +24,7 @@ class RequestsModel extends CI_Model
             $result['minReqAmount'] = $config->findOneBy(array('key' => 'MIN_AMOUNT'))->getValue();
             $user = $em->find('\Entity\User', $this->input->get('fetchId'));
             if ($user === null) {
-                $result['error'] = "La c?dula ingresada no se encuentra en la base de datos";
+                $result['error'] = "La cédula ingresada no se encuentra en la base de datos";
             } else {
                 $requests = $user->getRequests();
                 $requests = array_reverse($requests->getValues());
@@ -74,14 +74,13 @@ class RequestsModel extends CI_Model
             $history = new \Entity\History();
             $history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
             $history->setUserResponsable($this->session->name . ' ' . $this->session->lastName);
-            // 5 = Elimination
-            $history->setTitle(5);
+            $history->setTitle($this->utils->getHistoryActionCode('elimination'));
             $history->setOrigin($request);
             $request->addHistory($history);
             $em->merge($request);
             // Register it's corresponding action
             $action = new \Entity\HistoryAction();
-            $action->setSummary("Eliminaci?n del documento '" . $doc->getName() . "'.");
+            $action->setSummary("Eliminación del documento '" . $doc->getName() . "'.");
             $action->setBelongingHistory($history);
             $history->addAction($action);
             $em->persist($action);
@@ -159,7 +158,7 @@ class RequestsModel extends CI_Model
         try {
             $em = $this->doctrine->em;
             $urlDecoded = JWT::urlsafeB64Decode($data['rid']);
-            $decoded = JWT::decode($urlDecoded, SECRET_KEY);
+            $decoded = JWT::decode($urlDecoded, JWT_SECRET_KEY);
 
             $request = $em->find('\Entity\Request', $decoded->rid);
             if ($request == null) {
@@ -211,5 +210,106 @@ class RequestsModel extends CI_Model
             \ChromePhp::log($e);
         }
         return json_encode($result);
+    }
+
+    public function generateRequestDocument ($request) {
+        \ChromePhp::log($request);
+        // Get extra data for the pdf template.
+        $data['reqAmount'] = $request->getRequestedAmount();
+        $data['tel'] = $request->getContactNumber();
+        $data['email'] = $request->getContactEmail();
+        $data['due'] = $request->getPaymentDue();
+        $data['userId'] = $request->getUserOwner()->getId();
+        $data['loanType'] = $request->getLoanType();
+        $data['lpath'] = $request->getDocuments()[0]->getLpath();
+        $data['username'] = $request->getUserOwner()->getFirstName() . ' ' . $request->getUserOwner()->getLastName();
+        $data['requestId'] = str_pad($request->getId(), 6, '0', STR_PAD_LEFT);
+        $data['date'] = new DateTime('now', new DateTimeZone('America/Barbados'));
+        $data['loanTypeString'] = $this->utils->mapLoanType($data['loanType']);
+        $data['paymentFee'] = $this->utils->calculatePaymentFee($data['reqAmount'], $data['due'], 12);
+        // Generate the document.
+        \ChromePhp::log("Genrating pdf...");
+        $html = $this->load->view('templates/requestPdf', $data, true); // render the view into HTML
+        $this->load->library('pdf');
+        $pdf = $this->pdf->load();
+        $pdf->WriteHTML($html); // write the HTML into the PDF
+        // Set footer
+        $pdf->SetHTMLFooter (
+            '<p style="font-size: 14px">
+			* Cuotas y plazo de pago sujetos a cambios en base a solicitudes posteriores
+			del afiliado en cuestión.
+		</p>');
+        $pdfFilePath = DropPath . $data['lpath'];
+        $pdf->Output($pdfFilePath, 'F'); // save to file
+        \ChromePhp::log("PDF generation success!");
+    }
+
+    // Helper function that adds a set of docs to a request in database.
+    public function addDocuments($request, $historyId, $docs) {
+        try {
+            $em = $this->doctrine->em;
+            foreach ($docs as $data) {
+                $doc = $em->getRepository('\Entity\Document')->findOneBy(array("lpath" => $data['lpath']));
+                if ($doc !== null) {
+                    // doc already exists, so just merge. Otherwise we'll have
+                    // 'duplicates' in database, because document name is not unique
+                    if (isset($data['description'])) {
+                        $doc->setDescription($data['description']);
+                        $em->merge($doc);
+                    }
+                } else {
+                    // New document
+                    $doc = new \Entity\Document();
+                    $doc->setName($data['docName']);
+                    if (isset($data['description'])) {
+                        $doc->setDescription($data['description']);
+                    }
+                    $doc->setLpath($data['lpath']);
+                    $doc->setBelongingRequest($request);
+                    $request->addDocument($doc);
+
+                    $em->persist($doc);
+                    $em->merge($request);
+                }
+                // Set History action for this request's corresponding history
+                $history =  $em->find('\Entity\History', $historyId);
+                $action = new \Entity\HistoryAction();
+                $action->setSummary("Adición del documento '" . $data['docName'] . "'.");
+                if (isset($data['description']) && $data['description'] !== "") {
+                    $action->setDetail("Descripción: " . $data['description']);
+                }
+                $action->setBelongingHistory($history);
+                $history->addAction($action);
+                $em->persist($action);
+                $em->merge($history);
+            }
+            $em->flush();
+        } catch (Exception $e) {
+            \ChromePhp::log($e);
+        }
+    }
+
+    public function getSpanLeft ($uid, $loanType) {
+        try {
+            $em = $this->doctrine->em;
+            $span = $em->getRepository('\Entity\Config')->findOneBy(array('key' => 'SPAN'))->getValue();
+            $this->db->select('*');
+            $this->db->from('db_dt_prestamos');
+            $this->db->where('cedula', $uid);
+            $this->db->where('concepto', $loanType);
+            $query = $this->db->order_by('otorg_fecha',"desc")->get();
+            if (empty($query->result())) {
+                // User's first request.
+                return 0;
+            } else {
+                $granting = date_create_from_format('d/m/Y', $query->result()[0]->otorg_fecha);
+                $currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
+                $interval = $granting->diff($currentDate);
+                $monthsPassed = $interval->format("%m");
+                return $span - $monthsPassed;
+            }
+        } catch (Exception $e) {
+            \ChromePhp::log($e);
+        }
     }
 }

@@ -138,8 +138,8 @@ function userHome($scope, $cookies, $timeout, Helps,
                 Requests.getAvailabilityData(fetchId).then(
                     function (data) {
                         data.opened = Requests.checkPreviousRequests(requests);
-                        $scope.allow = data.granting.allow;
-                        $scope.opened = data.opened;
+                        $scope.model.allow = data.granting.allow;
+                        $scope.model.opened = data.opened;
                         $scope.model.type = Requests.verifyAvailability(data);
                         if($scope.model.type) {
                             $scope.loading = false;
@@ -334,6 +334,7 @@ function userHome($scope, $cookies, $timeout, Helps,
                 tel: {operator: request.phone.slice(0, 4), value: parseInt(request.phone.slice(5), 10)},
                 email: request.email
             };
+            console.log(request.type);
             $scope.model = obj || model;
             $scope.confirmButton = 'Editar';
             $scope.title = 'Edición de solicitud';
@@ -353,7 +354,7 @@ function userHome($scope, $cookies, $timeout, Helps,
                     .then (
                     function (granting) {
                         verifyGranting(granting);
-                        $scope.opened = Requests.checkPreviousRequests(requests);
+                        $scope.model.opened = Requests.checkPreviousRequests(requests);
                         $scope.loading = false;
                     },
                     function (error) {
@@ -369,12 +370,11 @@ function userHome($scope, $cookies, $timeout, Helps,
              * @param granting - response from getLastRequestsGranting.
              */
             function verifyGranting (granting) {
-                $scope.allow = granting.allow;
-                $scope.span = granting.span;
+                $scope.model.allow = granting.allow;
+                $scope.model.span = granting.span;
                 var allDenied = true;
-                angular.forEach(granting.allow, function(allow, type) {
+                angular.forEach(granting.allow, function(allow) {
                     if (allow) {
-                        $scope.model.type = parseInt(type, 10);
                         allDenied = false;
                     }
                 });

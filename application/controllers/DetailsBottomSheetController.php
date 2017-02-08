@@ -10,7 +10,7 @@ class DetailsBottomSheetController extends CI_Controller {
     }
 
 	public function index() {
-		if ($_SESSION['type'] > 2) {
+		if ($_SESSION['type'] == APPLICANT) {
 			$this->load->view('errors/index.html');
 		} else {
 			$this->load->view('detailsBottomSheet');

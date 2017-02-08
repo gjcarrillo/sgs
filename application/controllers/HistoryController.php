@@ -10,7 +10,7 @@ class HistoryController extends CI_Controller {
     }
 
 	public function index() {
-		if ($_SESSION['type'] > 2) {
+		if ($_SESSION['type'] == APPLICANT) {
 			$this->load->view('errors/index.html');
 		} else {
 			$this->load->view('history');
@@ -18,19 +18,19 @@ class HistoryController extends CI_Controller {
 	}
 
 	public function fetchRequestHistory() {
-		if ($_SESSION['type'] > 2) {
+		if ($_SESSION['type'] == APPLICANT) {
 			$this->load->view('errors/index.html');
 		} else {
 			try {
 				$em = $this->doctrine->em;
 				// Get all current request's history
 				$request = $em->find('\Entity\Request', $_GET['id']);
-				$history = $request->getHistory();
-				$history = array_reverse($history->getValues());
-				foreach ($history as $hKey => $history) {
+				$histories = $request->getHistory();
+				$histories = array_reverse($histories->getValues());
+				foreach ($histories as $hKey => $history) {
 					$result['history'][$hKey]['userResponsable'] = $history->getUserResponsable();
 					$result['history'][$hKey]['date'] = $history->getDate()->format('d/m/Y - h:i:sa');
-					$result['history'][$hKey]['title'] = $history->getTitleByText();
+					$result['history'][$hKey]['title'] = $this->utils->getHistoryActionName($history->getTitle());
 					$actions = $history->getActions();
 					foreach ($actions as $aKey => $action) {
 						$result['history'][$hKey]['actions'][$aKey]['summary'] = $action->getSummary();

@@ -14,19 +14,20 @@ class LoginController extends CI_Controller {
     }
 
     public function authenticate() {
-        $result = null;
+        $data = json_decode($this->input->raw_input_stream, true);
+        $result['message'] = 'Error';
        try {
            $em = $this->doctrine->em;
-           $user = $em->find('\Entity\User', $_GET['id']);
+           $user = $em->find('\Entity\User', $data['id']);
            if($user != null) {
-               if($user->getPassword() == $_GET['password']) {
+               if($user->getPassword() == $data['password']) {
                    if ($user->getStatus() === "ACTIVE") {
                        $result['type'] = $user->getType();
                        $result['name'] = $user->getFirstName();
                        $result['lastName'] = $user->getLastName();
 
                        $dataSession = array(
-                           "id" => $_GET['id'],
+                           "id" => $data['id'],
                            "name" => $user->getFirstName(),
                            "lastName" =>  $user->getLastName(),
                            "type" => $user->getType(),
@@ -67,9 +68,10 @@ class LoginController extends CI_Controller {
             "type" => $data['newType'],
             "logged" => true,
         );
-        if ($_SESSION['type'] == 1 && $data['newType'] == 3) {
+        // Applicant must NEVER be allowed to upgrade it's session.
+        if ($_SESSION['type'] == AGENT && $data['newType'] == APPLICANT) {
             $this->session->set_userdata($dataSession);
-        } else if ($_SESSION['type'] == 2 && $data['newType'] == 3) {
+        } else if ($_SESSION['type'] == MANAGER && $data['newType'] == APPLICANT) {
             $this->session->set_userdata($dataSession);
         } else {
             $this->load->view('errors/index.html');

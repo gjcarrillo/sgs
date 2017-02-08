@@ -11,7 +11,8 @@ function auth($cookies, $location, $http, $rootScope, $q, Agent, Manager) {
 
     self.login = function (username, password) {
         var qLogin = $q.defer();
-        $http.get('index.php/LoginController/authenticate', {params: {id: username, password: password}})
+        var data = {id: username, password: password};
+        $http.post('index.php/LoginController/authenticate', JSON.stringify(data))
             .then(
             function (response) {
                 console.log(response);

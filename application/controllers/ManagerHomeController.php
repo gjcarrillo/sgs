@@ -10,7 +10,7 @@ class ManagerHomeController extends CI_Controller {
     }
 
 	public function index() {
-		if ($_SESSION['type'] != 2) {
+		if ($_SESSION['type'] != MANAGER) {
 			$this->load->view('errors/index.html');
 		} else {
 			$this->load->view('managerHome');
@@ -20,7 +20,7 @@ class ManagerHomeController extends CI_Controller {
 	// Obtain all requests with with all their documents.
 	// NOTICE: sensitive information
 	public function getUserRequests() {
-		if ($_GET['fetchId'] != $_SESSION['id'] && $_SESSION['type'] > 2) {
+		if ($_GET['fetchId'] != $_SESSION['id'] && $_SESSION['type'] == APPLICANT) {
 			// if fetch id is not the same as logged in user, must be an
 			// agent or manager to be able to execute query!
 			$this->load->view('errors/index.html');
@@ -37,7 +37,7 @@ class ManagerHomeController extends CI_Controller {
 						$result['error'] = "El usuario no posee solicitudes";
 					} else {
 						$rKey = 0;
-                        $statuses = $this->getAllStatuses();
+                        $statuses = $this->utils->getAllStatuses();
                         $statusCounter = array();
                         foreach ($statuses as $status) {
                             // Initialize counter array
@@ -70,7 +70,7 @@ class ManagerHomeController extends CI_Controller {
 							$result['report']['data'][$rKey] = array(
 								$rKey+1,
 								$request->getId(),
-								$this->mapLoanType($request->getLoanType()),
+								$this->utils->mapLoanType($request->getLoanType()),
 								$request->getCreationDate()->format('d/m/Y'),
 								$request->getStatus(),
 								$request->getReunion(),
@@ -91,9 +91,9 @@ class ManagerHomeController extends CI_Controller {
                                 $result['pie']['labels'][$sKey] = $status;
                                 $result['pie']['data'][$sKey] = round($statusCounter[$status] * 100 / $total, 2);
                                 $result['pie']['backgroundColor'][$sKey] =
-                                    $this->generatePieBgColor($status, $result['pie']['backgroundColor']);
+                                    $this->utils->generatePieBgColor($status, $result['pie']['backgroundColor']);
                                 $result['pie']['hoverBackgroundColor'][$sKey] =
-                                    $this->generatePieHoverColor($result['pie']['backgroundColor'][$sKey]);
+                                    $this->utils->generatePieHoverColor($result['pie']['backgroundColor'][$sKey]);
                             }
                             // Fill up report information
                             $applicant = $user->getId() . ' - ' . $user->getFirstName() . ' ' . $user->getLastName();
@@ -138,7 +138,7 @@ class ManagerHomeController extends CI_Controller {
 	}
 
     public function fetchPendingRequests() {
-        if ($_SESSION['type'] != 2) {
+        if ($_SESSION['type'] != MANAGER) {
             $this->load->view('errors/index.html');
         } else {
             $result = null;
@@ -146,8 +146,8 @@ class ManagerHomeController extends CI_Controller {
                 $em = $this->doctrine->em;
                 // Look for all requests with the specified status
                 $requestsRepo = $em->getRepository('\Entity\Request');
-                $statuses = $this->getAdditionalStatuses();
-                array_push($statuses, 'Recibida');
+                $statuses = $this->utils->getAdditionalStatuses();
+                array_push($statuses, RECEIVED);
                 $requests = $requestsRepo->findBy(array("status" => $statuses));
                 if (empty($requests)) {
                     $result['error'] = "No se encontraron solicitudes pendientes.";
@@ -195,7 +195,7 @@ class ManagerHomeController extends CI_Controller {
     }
 
     public function fetchRequestsByStatus() {
-        if ($_SESSION['type'] != 2) {
+        if ($_SESSION['type'] != MANAGER) {
             $this->load->view('errors/index.html');
         } else {
             $result = null;
@@ -209,7 +209,7 @@ class ManagerHomeController extends CI_Controller {
                     $result['error'] = "No se encontraron solicitudes con estatus " . $_GET['status'];
                 } else {
 					$rKey = 0;
-                    $statuses = $this->getAllStatuses();
+                    $statuses = $this->utils->getAllStatuses();
                     $statusCounter = array();
                     foreach ($statuses as $status) {
                         // Initialize counter array
@@ -243,15 +243,15 @@ class ManagerHomeController extends CI_Controller {
 						$result['report']['data'][$rKey] = array(
 							$rKey+1,
 							$request->getId(),
-							$this->mapLoanType($request->getLoanType()),
+							$this->utils->utils->mapLoanType($request->getLoanType()),
 							$user->getId() . ' - ' . $user->getFirstName() . ' ' . $user->getLastName(),
 							$request->getCreationDate()->format('d/m/Y')
 						);
-						if ($_GET['status'] === "Aprobada" || $_GET['status'] === 'Rechazada') {
+						if ($_GET['status'] === APPROVED || $_GET['status'] === REJECTED) {
 							array_push($result['report']['data'][$rKey], $request->getReunion());
 						}
 						array_push($result['report']['data'][$rKey], $request->getRequestedAmount());
-						if ($_GET['status'] === "Aprobada") {
+						if ($_GET['status'] === APPROVED) {
 							array_push($result['report']['data'][$rKey], $request->getApprovedAmount());
 						}
 						array_push($result['report']['data'][$rKey], $request->getComment());
@@ -272,9 +272,9 @@ class ManagerHomeController extends CI_Controller {
                             $result['pie']['labels'][$sKey] = $status;
                             $result['pie']['data'][$sKey] = round($statusCounter[$status] * 100 / $total, 2);
                             $result['pie']['backgroundColor'][$sKey] =
-                                $this->generatePieBgColor($status, $result['pie']['backgroundColor']);
+                                $this->utils->generatePieBgColor($status, $result['pie']['backgroundColor']);
                             $result['pie']['hoverBackgroundColor'][$sKey] =
-                                $this->generatePieHoverColor($result['pie']['backgroundColor'][$sKey]);
+                                $this->utils->generatePieHoverColor($result['pie']['backgroundColor'][$sKey]);
                         }
                         // Fill up report information
                         $dataHeader = array(
@@ -284,11 +284,11 @@ class ManagerHomeController extends CI_Controller {
                             'Solicitante',
                             'Fecha de creación'
                         );
-                        if ($_GET['status'] === "Aprobada" || $_GET['status'] === 'Rechazada') {
+                        if ($_GET['status'] === APPROVED || $_GET['status'] === REJECTED) {
                             array_push($dataHeader, 'Nro. de Reunión');
                         }
                         array_push($dataHeader, 'Monto solicitado (Bs)');
-                        if ($_GET['status'] === "Aprobada") {
+                        if ($_GET['status'] === APPROVED) {
                             array_push($dataHeader, 'Monto aprobado (Bs)');
                         }
                         array_push($dataHeader, 'Comentario');
@@ -303,7 +303,7 @@ class ManagerHomeController extends CI_Controller {
                         $result['report']['total'] = array(
                             array("Monto solicitado total", "")
                         );
-                        if ($_GET['status'] === "Aprobada") {
+                        if ($_GET['status'] === APPROVED) {
                             array_push($result['report']['total'], array(
                                                                      "Monto aprobado total",
                                                                      "")
@@ -322,7 +322,7 @@ class ManagerHomeController extends CI_Controller {
     }
 
     public function fetchRequestsByDateInterval() {
-        if ($_SESSION['type'] != 2) {
+        if ($_SESSION['type'] != MANAGER) {
             $this->load->view('errors/index.html');
         } else {
             $result = null;
@@ -355,7 +355,7 @@ class ManagerHomeController extends CI_Controller {
                     }
                 } else {
 					$rKey = 0;
-                    $statuses = $this->getAllStatuses();
+                    $statuses = $this->utils->getAllStatuses();
                     $statusCounter = array();
                     foreach ($statuses as $status) {
                         // Initialize counter array
@@ -391,7 +391,7 @@ class ManagerHomeController extends CI_Controller {
 						$result['report']['data'][$rKey] = array(
 							$rKey+1,
 							$request->getId(),
-							$this->mapLoanType($request->getLoanType()),
+							$this->utils->mapLoanType($request->getLoanType()),
 							$user->getId() . ' - ' . $user->getFirstName() . ' ' . $user->getLastName(),
 							$request->getCreationDate()->format('d/m/Y'),
 							$request->getStatus(),
@@ -416,9 +416,9 @@ class ManagerHomeController extends CI_Controller {
                             $result['pie']['labels'][$sKey] = $status;
                             $result['pie']['data'][$sKey] = round($statusCounter[$status] * 100 / $total, 2);
                             $result['pie']['backgroundColor'][$sKey] =
-                                $this->generatePieBgColor($status, $result['pie']['backgroundColor']);
+                                $this->utils->generatePieBgColor($status, $result['pie']['backgroundColor']);
                             $result['pie']['hoverBackgroundColor'][$sKey] =
-                                $this->generatePieHoverColor($result['pie']['backgroundColor'][$sKey]);
+                                $this->utils->generatePieHoverColor($result['pie']['backgroundColor'][$sKey]);
                         }
                         // Fill up report information
                         $now = (new DateTime('now', new DateTimeZone('America/Barbados')))->format('d/m/Y - h:i:sa');
@@ -465,7 +465,7 @@ class ManagerHomeController extends CI_Controller {
     }
 
 	public function fetchRequestsByLoanType() {
-		if ($_SESSION['type'] != 2) {
+		if ($_SESSION['type'] != MANAGER) {
 			$this->load->view('errors/index.html');
 		} else {
             $result = null;
@@ -476,10 +476,10 @@ class ManagerHomeController extends CI_Controller {
 				$requestsRepo = $em->getRepository('\Entity\Request');
 				$requests = $requestsRepo->findBy(array("loanType" => $loanType));
 				if (empty($requests)) {
-					$result['error'] = "No se encontraron solicitudes del tipo " . $this->mapLoanType($loanType);
+					$result['error'] = "No se encontraron solicitudes del tipo " . $this->utils->mapLoanType($loanType);
 				} else {
 					$rKey = 0;
-                    $statuses = $this->getAllStatuses();
+                    $statuses = $this->utils->getAllStatuses();
                     $statusCounter = array();
                     foreach ($statuses as $status) {
                         // Initialize counter array
@@ -529,16 +529,16 @@ class ManagerHomeController extends CI_Controller {
                         $result['error'] = 'Este afiliado no posee solicitudes validadas';
                     } else {
                         // Fill up pie chart information
-                        $result['pie']['title'] = "Solicitudes de " . $this->mapLoanType($loanType);
+                        $result['pie']['title'] = "Solicitudes de " . $this->utils->mapLoanType($loanType);
                         $total = array_sum($statusCounter);
                         $result['pie']['backgroundColor'] = [];
                         foreach ($statuses as $sKey => $status) {
                             $result['pie']['labels'][$sKey] = $status;
                             $result['pie']['data'][$sKey] = round($statusCounter[$status] * 100 / $total, 2);
                             $result['pie']['backgroundColor'][$sKey] =
-                                $this->generatePieBgColor($status, $result['pie']['backgroundColor']);
+                                $this->utils->generatePieBgColor($status, $result['pie']['backgroundColor']);
                             $result['pie']['hoverBackgroundColor'][$sKey] =
-                                $this->generatePieHoverColor($result['pie']['backgroundColor'][$sKey]);
+                                $this->utils->generatePieHoverColor($result['pie']['backgroundColor'][$sKey]);
                         }
                         // Fill up report information
                         $now = (new DateTime('now', new DateTimeZone('America/Barbados')))->format('d/m/Y - h:i:sa');
@@ -546,7 +546,7 @@ class ManagerHomeController extends CI_Controller {
                             array("SGDP - IPAPEDI"),
                             array("FECHA Y HORA DE GENERACIÓN DE REPORTE: " . $now)
                         );
-                        $result['report']['filename'] = "SOLICITUDES DE '" . $this->mapLoanType($loanType) . "'";
+                        $result['report']['filename'] = "SOLICITUDES DE '" . $this->utils->mapLoanType($loanType) . "'";
                         $result['report']['dataTitle'] = $result['report']['filename'];
                         $result['report']['dataHeader'] = array(
                             'Nro.',
@@ -581,7 +581,7 @@ class ManagerHomeController extends CI_Controller {
 	}
 
     public function getApprovedAmountByDateInterval() {
-        if ($_SESSION['type'] != 2) {
+        if ($_SESSION['type'] != MANAGER) {
             $this->load->view('errors/index.html');
         } else {
             try {
@@ -613,7 +613,7 @@ class ManagerHomeController extends CI_Controller {
 				$result['approvedAmount'] = $count = 0;
 				foreach ($history as $h) {
 					$request = $h->getOrigin();
-					if ($request->getStatus() === "Aprobada") {
+					if ($request->getStatus() === APPROVED) {
 						if (!isset($evaluated[$request->getId()])) {
 							// Perform all approved amount's computation
 							$evaluated[$request->getId()] = true;
@@ -644,7 +644,7 @@ class ManagerHomeController extends CI_Controller {
     }
 
     public function getApprovedAmountById() {
-        if ($_SESSION['type'] != 2) {
+        if ($_SESSION['type'] != MANAGER) {
             $this->load->view('errors/index.html');
         } else {
             try {
@@ -677,7 +677,7 @@ class ManagerHomeController extends CI_Controller {
     }
 
 	public function getClosedReportByDateInterval() {
-		if ($_SESSION['type'] != 2) {
+		if ($_SESSION['type'] != MANAGER) {
 			$this->load->view('errors/index.html');
 		} else {
 			try {
@@ -702,7 +702,7 @@ class ManagerHomeController extends CI_Controller {
 						$qb->expr()->eq('h.title', '?1'),
 						$qb->expr()->between('h.date', '?2', '?3')
 					));
-				$qb->setParameter(1, 4); // 4 = close
+				$qb->setParameter(1, $this->utils->getHistoryActionCode('closure'));
 				$qb->setParameter(2, $from);
 				$qb->setParameter(3, $to);
 				$history = $qb->getQuery()->getResult();
@@ -718,7 +718,7 @@ class ManagerHomeController extends CI_Controller {
 						$result['report']['data'][$count] = array(
 							$count,
 							$request->getId(),
-							$this->mapLoanType($request->getLoanType()),
+							$this->utils->mapLoanType($request->getLoanType()),
 							$userOwner->getId() . ' - ' . $userOwner->getFirstName() . ' ' . $userOwner->getLastName(),
 							$request->getCreationDate()->format('d/m/Y'),
 							$request->getStatus(),
@@ -731,8 +731,7 @@ class ManagerHomeController extends CI_Controller {
 						$newLog = new \Entity\History();
 						$newLog->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
 						$newLog->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
-						// 6 = report generation
-						$newLog->setTitle(6);
+						$newLog->setTitle($this->utils->getHistoryActionCode('report'));
 						$newLog->setOrigin($request);
 						$request->addHistory($newLog);
 						// Register it's corresponding action
@@ -788,225 +787,128 @@ class ManagerHomeController extends CI_Controller {
 		}
 	}
 
-	public function getClosedReportByCurrentWeek() {
-		if ($_SESSION['type'] != 2) {
-			$this->load->view('errors/index.html');
-		} else {
-			try {
-				// start first day of week, end last day of week
-				if (date('D') == 'Mon') {
-					$start = date('d/m/Y');
-				} else {
-					$start = date('d/m/Y', strtotime('last monday'));
-				}
-				if (date('D') == 'Sun') {
-					$end = date('d/m/Y');
-				} else {
-					$end = date('d/m/Y', strtotime('next sunday'));
-				}
-				// from first second of the day
-				$from = date_create_from_format(
-					'd/m/Y H:i:s',
-					$start . ' ' . '00:00:00',
-					new DateTimeZone('America/Barbados')
-				);
-				// to last second of the day
-				$to = date_create_from_format(
-					'd/m/Y H:i:s',
-					$end . ' ' . '23:59:59',
-					new DateTimeZone('America/Barbados')
-				);
-				$em = $this->doctrine->em;
-				$qb = $em->createQueryBuilder();
-				$qb->select(array('h'))
-					->from('\Entity\History', 'h')
-					->where($qb->expr()->andX(
-						$qb->expr()->eq('h.title', '?1'),
-						$qb->expr()->between('h.date', '?2', '?3')
-					));
-				$qb->setParameter(1, 4); // 4 = close
-				$qb->setParameter(2, $from);
-				$qb->setParameter(3, $to);
-				$history = $qb->getQuery()->getResult();
-				$count = 0;
-				$evaluated = [];
-				foreach ($history as $h) {
-					$request = $h->getOrigin();
-					$userOwner = $request->getUserOwner();
-					if (!isset($evaluated[$request->getId()])) {
-						// Gather up report information
-						$evaluated[$request->getId()] = true;
-						$count++;
-						$result['report']['data'][$count] = array(
-							$count,
-							$request->getId(),
-							$this->mapLoanType($request->getLoanType()),
-							$userOwner->getId() . ' - ' . $userOwner->getFirstName() . ' ' . $userOwner->getLastName(),
-							$request->getCreationDate()->format('d/m/Y'),
-							$request->getStatus(),
-							$h->getUserResponsable(),
-							$request->getReunion(),
-							$request->getRequestedAmount(),
-							$request->getApprovedAmount(),
-						);
-						// Add report generation action to history
-						$newLog = new \Entity\History();
-						$newLog->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
-						$newLog->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
-						// 6 = report generation
-						$newLog->setTitle(6);
-						$newLog->setOrigin($request);
-						$request->addHistory($newLog);
-						// Register it's corresponding action
-						$action = new \Entity\HistoryAction();
-						$action->setSummary("Generación de reporte de solcitudes cerradas");
-						$action->setDetail("Solicitudes cerradas entre " . $from->format('d/m/Y') . " y " . $to->format('d/m/Y'));
-						$action->setBelongingHistory($newLog);
-						$newLog->addAction($action);
-						$em->persist($action);
-						$em->persist($newLog);
-						$em->merge($request);
-					}
-				}
-				$em->flush();
-				if (!$count) {
-					$result['error'] = "No se han detectado cierres de solicitudes esta semana.";
-				} else {
-					// Fill up report information
-					$now = (new DateTime('now', new DateTimeZone('America/Barbados')))->format('d/m/Y - h:i:sa');
-					$user = $_SESSION['name'] . " " . $_SESSION['lastName'];
-					$result['report']['header'] = array(
-						array("SGDP - IPAPEDI"),
-						array("REPORTE GENERADO POR: " . $user . ". FECHA Y HORA: " . $now)
-					);
-					$interval = "DEL " . $from->format('d/m/Y') . " HASTA EL " . $to->format('d/m/Y');
-					$filenameInterval = "DEL " . $from->format('d-m-Y') . " HASTA EL " . $to->format('d-m-Y');
-					$dataTitle = "SOLICITUDES CERRADAS " . $interval;
-					$filename =  "SOLICITUDES CERRADAS " . $filenameInterval;
-					$result['report']['filename'] = $filename;
-					$result['report']['dataTitle'] = $dataTitle;
-					$result['report']['dataHeader'] = array(
-						'Nro.', 'Identificador', 'Tipo', 'Solicitante', 'Fecha de creación', 'Estatus', 'Cerrada por',
-						 'Nro. de Reunión', 'Monto solicitado (Bs)', 'Monto aprobado (Bs)'
-					 );
-					$result['report']['total'] = array(
-						array("Monto solicitado total", ""),
-						array("Monto aprobado total", "")
-					);
-					$result['message'] = "success";
-				}
-			} catch (Exception $e) {
-				\ChromePhp::log($e);
-				$result['message'] = "error";
-			}
+	public function getClosedReportByCurrentWeek()
+    {
+        if ($_SESSION['type'] != MANAGER) {
+            $this->load->view('errors/index.html');
+        } else {
+            try {
+                // start first day of week, end last day of week
+                if (date('D') == 'Mon') {
+                    $start = date('d/m/Y');
+                } else {
+                    $start = date('d/m/Y', strtotime('last monday'));
+                }
+                if (date('D') == 'Sun') {
+                    $end = date('d/m/Y');
+                } else {
+                    $end = date('d/m/Y', strtotime('next sunday'));
+                }
+                // from first second of the day
+                $from = date_create_from_format(
+                    'd/m/Y H:i:s',
+                    $start . ' ' . '00:00:00',
+                    new DateTimeZone('America/Barbados')
+                );
+                // to last second of the day
+                $to = date_create_from_format(
+                    'd/m/Y H:i:s',
+                    $end . ' ' . '23:59:59',
+                    new DateTimeZone('America/Barbados')
+                );
+                $em = $this->doctrine->em;
+                $qb = $em->createQueryBuilder();
+                $qb->select(array('h'))
+                   ->from('\Entity\History', 'h')
+                   ->where($qb->expr()->andX(
+                       $qb->expr()->eq('h.title', '?1'),
+                       $qb->expr()->between('h.date', '?2', '?3')
+                   ));
+                $qb->setParameter(1, $this->utils->getHistoryActionCode('closure'));
+                $qb->setParameter(2, $from);
+                $qb->setParameter(3, $to);
+                $history = $qb->getQuery()->getResult();
+                $count = 0;
+                $evaluated = [];
+                foreach ($history as $h) {
+                    $request = $h->getOrigin();
+                    $userOwner = $request->getUserOwner();
+                    if (!isset($evaluated[$request->getId()])) {
+                        // Gather up report information
+                        $evaluated[$request->getId()] = true;
+                        $count++;
+                        $result['report']['data'][$count] = array(
+                            $count,
+                            $request->getId(),
+                            $this->utils->mapLoanType($request->getLoanType()),
+                            $userOwner->getId() . ' - ' . $userOwner->getFirstName() . ' ' . $userOwner->getLastName(),
+                            $request->getCreationDate()->format('d/m/Y'),
+                            $request->getStatus(),
+                            $h->getUserResponsable(),
+                            $request->getReunion(),
+                            $request->getRequestedAmount(),
+                            $request->getApprovedAmount(),
+                        );
+                        // Add report generation action to history
+                        $newLog = new \Entity\History();
+                        $newLog->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
+                        $newLog->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
+                        $newLog->setTitle($this->utils->getHistoryActionCode('report'));
+                        $newLog->setOrigin($request);
+                        $request->addHistory($newLog);
+                        // Register it's corresponding action
+                        $action = new \Entity\HistoryAction();
+                        $action->setSummary("Generación de reporte de solcitudes cerradas");
+                        $action->setDetail("Solicitudes cerradas entre " . $from->format('d/m/Y') . " y " .
+                                           $to->format('d/m/Y'));
+                        $action->setBelongingHistory($newLog);
+                        $newLog->addAction($action);
+                        $em->persist($action);
+                        $em->persist($newLog);
+                        $em->merge($request);
+                    }
+                }
+                $em->flush();
+                if (!$count) {
+                    $result['error'] = "No se han detectado cierres de solicitudes esta semana.";
+                } else {
+                    // Fill up report information
+                    $now = (new DateTime('now', new DateTimeZone('America/Barbados')))->format('d/m/Y - h:i:sa');
+                    $user = $_SESSION['name'] . " " . $_SESSION['lastName'];
+                    $result['report']['header'] = array(
+                        array("SGDP - IPAPEDI"),
+                        array("REPORTE GENERADO POR: " . $user . ". FECHA Y HORA: " . $now)
+                    );
+                    $interval = "DEL " . $from->format('d/m/Y') . " HASTA EL " . $to->format('d/m/Y');
+                    $filenameInterval = "DEL " . $from->format('d-m-Y') . " HASTA EL " . $to->format('d-m-Y');
+                    $dataTitle = "SOLICITUDES CERRADAS " . $interval;
+                    $filename = "SOLICITUDES CERRADAS " . $filenameInterval;
+                    $result['report']['filename'] = $filename;
+                    $result['report']['dataTitle'] = $dataTitle;
+                    $result['report']['dataHeader'] = array(
+                        'Nro.',
+                        'Identificador',
+                        'Tipo',
+                        'Solicitante',
+                        'Fecha de creación',
+                        'Estatus',
+                        'Cerrada por',
+                        'Nro. de Reunión',
+                        'Monto solicitado (Bs)',
+                        'Monto aprobado (Bs)'
+                    );
+                    $result['report']['total'] = array(
+                        array("Monto solicitado total", ""),
+                        array("Monto aprobado total", "")
+                    );
+                    $result['message'] = "success";
+                }
+            } catch (Exception $e) {
+                \ChromePhp::log($e);
+                $result['message'] = "error";
+            }
             \ChromePhp::log($result);
-			echo json_encode($result);
-		}
-	}
-
-	private function mapLoanType($code) {
-		return $code == 40 ? "PRÉSTAMO PERSONAL" : ($code == 31 ? "VALE DE CAJA" : $code);
-	}
-
-    /**
-     * Randomly generates a new hexadecimal color.
-     *
-     * @param $existing - array with existing colors.
-     * @return string - randomly (hex) color that is not present in $existing array.
-     */
-    private function rand_color($existing) {
-        do {
-            $color = sprintf('#%06X', mt_rand(0, 0xFFFFFF));
-        } while (in_array($color, $existing));
-        return $color;
-    }
-
-    /**
-     * Generates a hexadecimal color code for a specified status.
-     *
-     * @param $status - current status to generate a color for.
-     * @param $colors - already used colors (that can't be repeated).
-     * @return string - (hex) color for the specified status.
-     */
-    private function generatePieBgColor($status, $colors) {
-        switch ($status) {
-            case 'Recibida': return '#FFD740'; // A200 amber
-            case 'Aprobada': return '#00C853'; // A700 green
-            case 'Rechazada': return '#FF5252'; // A200 red
-            default: return $this->rand_color($colors);
+            echo json_encode($result);
         }
-    }
-
-    private function generatePieHoverColor($colour) {
-        $brightness = -0.9; // 10% darker
-        return($this->colourBrightness($colour,$brightness));
-    }
-
-    private function colourBrightness($hex, $percent) {
-        // Work out if hash given
-        $hash = '';
-        if (stristr($hex,'#')) {
-            $hex = str_replace('#','',$hex);
-            $hash = '#';
-        }
-        /// HEX TO RGB
-        $rgb = array(hexdec(substr($hex,0,2)), hexdec(substr($hex,2,2)), hexdec(substr($hex,4,2)));
-        //// CALCULATE
-        for ($i=0; $i<3; $i++) {
-            // See if brighter or darker
-            if ($percent > 0) {
-                // Lighter
-                $rgb[$i] = round($rgb[$i] * $percent) + round(255 * (1-$percent));
-            } else {
-                // Darker
-                $positivePercent = $percent - ($percent*2);
-                $rgb[$i] = round($rgb[$i] * $positivePercent) + round(0 * (1-$positivePercent));
-            }
-            // In case rounding up causes us to go to 256
-            if ($rgb[$i] > 255) {
-                $rgb[$i] = 255;
-            }
-        }
-        //// RBG to Hex
-        $hex = '';
-        for($i=0; $i < 3; $i++) {
-            // Convert the decimal digit to hex
-            $hexDigit = dechex($rgb[$i]);
-            // Add a leading zero if necessary
-            if(strlen($hexDigit) == 1) {
-                $hexDigit = "0" . $hexDigit;
-            }
-            // Append to the hex string
-            $hex .= $hexDigit;
-        }
-        return $hash.$hex;
-    }
-
-    private function getAllStatuses () {
-        $theStatuses = array('Recibida', 'Aprobada', 'Rechazada');
-        try {
-            $em = $this->doctrine->em;
-            $statuses = $em->getRepository('\Entity\Config')->findBy(array('key' => 'STATUS'));
-            foreach ($statuses as $status) {
-                array_push($theStatuses, $status->getValue());
-            }
-        } catch (Exception $e) {
-            \ChromePhp::log($e);
-        }
-        return $theStatuses;
-    }
-
-    private function getAdditionalStatuses () {
-        $theStatuses = [];
-        try {
-            $em = $this->doctrine->em;
-            $statuses = $em->getRepository('\Entity\Config')->findBy(array('key' => 'STATUS'));
-            foreach ($statuses as $status) {
-                array_push($theStatuses, $status->getValue());
-            }
-        } catch (Exception $e) {
-            \ChromePhp::log($e);
-        }
-        return $theStatuses;
     }
 }

@@ -10,7 +10,7 @@ class ManageAgentUsers extends CI_Controller {
     }
 
 	public function index() {
-		if ($_SESSION['type'] != 2) {
+		if ($_SESSION['type'] != MANAGER) {
 			$this->load->view('errors/index.html');
 		} else {
 			$this->load->view('manageAgentUsers');
@@ -18,7 +18,7 @@ class ManageAgentUsers extends CI_Controller {
 	}
 
 	public function createNewAgent() {
-		if ($_SESSION['type'] != 2) {
+		if ($_SESSION['type'] != MANAGER) {
 			$this->load->view('errors/index.html');
 		} else {
 			$data = json_decode(file_get_contents('php://input'), true);
@@ -76,13 +76,13 @@ class ManageAgentUsers extends CI_Controller {
 
 	public function fetchAllAgents() {
 		$result = null;
-		if ($_SESSION['type'] != 2) {
+		if ($_SESSION['type'] != MANAGER) {
 			$this->load->view('errors/index.html');
 		} else {
 			try {
 				$em = $this->doctrine->em;
-				// Get all agents (type == 1)
-				$agents = $em->getRepository('\Entity\User')->findBy(array('type' => 1, 'status' => "ACTIVE"));
+				// Get all agents
+				$agents = $em->getRepository('\Entity\User')->findBy(array('type' => AGENT, 'status' => "ACTIVE"));
 				foreach ($agents as $aKey => $agent) {
 					$result['agents'][$aKey] =
 						$agent->getId() . " (" . $agent->getFirstName() . " " . $agent->getLastName() . ")";
@@ -96,7 +96,7 @@ class ManageAgentUsers extends CI_Controller {
 	}
 
 	public function deleteAgentUser() {
-		if ($_SESSION['type'] != 2) {
+		if ($_SESSION['type'] != MANAGER) {
 			$this->load->view('errors/index.html');
 		} else {
 			$data = file_get_contents('php://input');

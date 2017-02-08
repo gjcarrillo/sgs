@@ -19,7 +19,7 @@ class DocumentGenerator extends CI_Controller {
 	 */
 	public function generateSimpleRequestsReport() {
 		$result = null;
-		if ($_SESSION['type'] != 2) {
+		if ($this->session->type != MANAGER) {
 			$this->load->view('errors/index.html');
 		} else {
 			$data = json_decode(file_get_contents('php://input'), true);
@@ -138,7 +138,7 @@ class DocumentGenerator extends CI_Controller {
 	 */
 	public function generateRequestsReport() {
 		$result = null;
-		if ($_SESSION['type'] != 2) {
+		if ($this->session->type != MANAGER) {
 			$this->load->view('errors/index.html');
 		} else {
 			$data = json_decode(file_get_contents('php://input'), true);
@@ -258,7 +258,7 @@ class DocumentGenerator extends CI_Controller {
 	 */
 	public function generateStatusRequestsReport() {
 		$result = null;
-		if ($_SESSION['type'] != 2) {
+		if ($this->session->type != MANAGER) {
 			$this->load->view('errors/index.html');
 		} else {
 			$data = json_decode(file_get_contents('php://input'), true);
@@ -286,13 +286,13 @@ class DocumentGenerator extends CI_Controller {
 			// data offset
 			$offset += count($data['data']);
 			// Extend table for total amounts
-			if ($data['status'] == "Aprobada") {
+			if ($data['status'] == APPROVED) {
 				// Take both reunion number & approved amount cells into account.
 				$this->excel->getActiveSheet()->fromArray((array)$data['total'], NULL, 'G' . $offset);
 				$totalStartCell = $requestedCell = 'G';
 				$totalValCell = 'H';
 				$lastCell = 'I';
-			} else if ($data['status'] == "Rechazada") {
+			} else if ($data['status'] == REJECTED) {
 				// Take reunion number into account
 				$this->excel->getActiveSheet()->fromArray((array)$data['total'], NULL, 'F' . $offset);
 				$totalStartCell = 'F';
@@ -307,7 +307,7 @@ class DocumentGenerator extends CI_Controller {
 			}
 			$this->excel->getActiveSheet()
 				->setCellValue($totalValCell . $offset, '=SUM(' . $requestedCell . '7:' . $requestedCell . ($offset-1) . ')');
-			if ($data['status'] == "Aprobada") {
+			if ($data['status'] == APPROVED) {
 				$this->excel->getActiveSheet()->setCellValue($totalValCell . ($offset+1), '=SUM(H7:H' . ($offset-1) . ')');
 			}
 			// Merge header and dataTitle cells
@@ -331,7 +331,7 @@ class DocumentGenerator extends CI_Controller {
 			);
 			// Table offset
 			$tableOffset = 6 + count($data['data']);
-			$tableExtensionEnd = $data['status'] == "Aprobada" ? $tableOffset+2 : $tableOffset+1;
+			$tableExtensionEnd = $data['status'] == APPROVED ? $tableOffset+2 : $tableOffset+1;
 			// Add table style
 			$this->excel->getActiveSheet()->getStyle('A6:' . $lastCell . $tableOffset)->applyFromArray($tableBorders);
 			// Extend table style for requested & approved total amount
@@ -340,7 +340,7 @@ class DocumentGenerator extends CI_Controller {
 			// Add table header style
 			$this->excel->getActiveSheet()->getStyle('A6:' . $lastCell . '6')->applyFromArray($headerStyle);
 			// Add table data numbers separator
-			$totalStartCell = $data['status'] == "Rechazada" ? chr(ord($totalStartCell) + 1): $totalStartCell;
+			$totalStartCell = $data['status'] == REJECTED ? chr(ord($totalStartCell) + 1): $totalStartCell;
 			$this->excel->getActiveSheet()->getStyle($totalStartCell . 	'7:' . $totalValCell . ($tableOffset+2))->getNumberFormat()
 				->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
 			// Configure columns width
@@ -381,7 +381,7 @@ class DocumentGenerator extends CI_Controller {
 	 */
 	public function generateClosedRequestsReport() {
 		$result = null;
-		if ($_SESSION['type'] != 2) {
+		if ($this->session->type != MANAGER) {
 			$this->load->view('errors/index.html');
 		} else {
 			$data = json_decode(file_get_contents('php://input'), true);
@@ -390,7 +390,7 @@ class DocumentGenerator extends CI_Controller {
 			// activate worksheet number 1
 			$this->excel->setActiveSheetIndex(0);
 			// name the worksheet
-			$this->excel->getActiveSheet()->setTitle("Solicitudes aprobadas");
+			$this->excel->getActiveSheet()->setTitle("Solicitudes cerradas");
 			// Fill the content
 			$this->excel->getActiveSheet()->fromArray((array)$data['header'], NULL, 'A1');
 			// Offset will give **starting** cell
@@ -490,7 +490,7 @@ class DocumentGenerator extends CI_Controller {
 	}
 
 	public function download() {
-		if ($_SESSION['type'] != 2) {
+		if ($this->session->type != MANAGER) {
 			$this->load->view('errors/index.html');
 		} else {
 			header('Content-Disposition: attachment; filename=' . $_GET['docName']);
@@ -500,7 +500,7 @@ class DocumentGenerator extends CI_Controller {
 	}
 
 	public function downloadReport() {
-		if ($_SESSION['type'] != 2) {
+		if ($this->session->type != MANAGER) {
 			$this->load->view('errors/index.html');
 		} else {
 			ignore_user_abort(true);
