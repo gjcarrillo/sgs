@@ -17,14 +17,19 @@ class EmailModel extends CI_Model
         try {
             $em = $this->doctrine->em;
             $request = $em->find('\Entity\Request', $reqId);
-            $tokenData['uid'] = $request->getUserOwner()->getId();
-            $tokenData['rid'] = $reqId;
-            $tokenData['reqAmount'] = $request->getRequestedAmount();
-            $tokenData['tel'] = $request->getContactNumber();
-            $tokenData['email'] = $request->getContactEmail();
-            $tokenData['due'] = $request->getPaymentDue();
-            $tokenData['loanType'] = $request->getLoanType();
-            $this->sendValidationToken($tokenData, $request);
+            $this->load->model('requestsModel', 'requests');
+            if ($this->requests->isRequestValidated($request)) {
+                throw new Exception('Esta solicitud ya ha sido validada.');
+            } else {
+                $tokenData['uid'] = $request->getUserOwner()->getId();
+                $tokenData['rid'] = $reqId;
+                $tokenData['reqAmount'] = $request->getRequestedAmount();
+                $tokenData['tel'] = $request->getContactNumber();
+                $tokenData['email'] = $request->getContactEmail();
+                $tokenData['due'] = $request->getPaymentDue();
+                $tokenData['loanType'] = $request->getLoanType();
+                $this->sendValidationToken($tokenData, $request);
+            }
         } catch (Exception $e) {
             throw $e;
         }

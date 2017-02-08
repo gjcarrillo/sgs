@@ -17,12 +17,10 @@ class ManagerHomeController extends CI_Controller {
 		}
 	}
 
-	// Obtain all requests with with all their documents.
+	// Obtain all valid requests from a user with with all their documents.
 	// NOTICE: sensitive information
 	public function getUserRequests() {
-		if ($_GET['fetchId'] != $_SESSION['id'] && $_SESSION['type'] == APPLICANT) {
-			// if fetch id is not the same as logged in user, must be an
-			// agent or manager to be able to execute query!
+		if ($_SESSION['type'] != MANAGER) {
 			$this->load->view('errors/index.html');
 		} else {
 			try {

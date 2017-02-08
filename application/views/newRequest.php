@@ -97,6 +97,7 @@
                                 ng-model="model.tel.value"
                                 type="number"
                                 name="phone"
+                                min="0"
                                 minlength="7"
                                 maxlength="7"
                                 required

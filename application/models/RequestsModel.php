@@ -63,33 +63,41 @@ class RequestsModel extends CI_Model
             $data = json_decode($this->input->raw_input_stream, true);
             $em = $this->doctrine->em;
             // Delete the document from the server.
-            unlink(DropPath . $data['lpath']);
             // Get the specified doc entity
             $doc = $em->find('\Entity\Document', $data['id']);
             // Get it's request.
             $request = $doc->getBelongingRequest();
-            // Remove this doc from it's request entity
-            $request->removeDocument($doc);
-            // Register History
-            $history = new \Entity\History();
-            $history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
-            $history->setUserResponsable($this->session->name . ' ' . $this->session->lastName);
-            $history->setTitle($this->utils->getHistoryActionCode('elimination'));
-            $history->setOrigin($request);
-            $request->addHistory($history);
-            $em->merge($request);
-            // Register it's corresponding action
-            $action = new \Entity\HistoryAction();
-            $action->setSummary("Eliminación del documento '" . $doc->getName() . "'.");
-            $action->setBelongingHistory($history);
-            $history->addAction($action);
-            $em->persist($action);
-            $em->persist($history);
-            // Delete the document.
-            $em->remove($doc);
-            // Persist the changes in database.
-            $em->flush();
-            $result['message'] = "success";
+            if (!$this->isRequestValidated($request) ||
+                $this->isRequestClosed($request) ||
+                // can't delete auto-generated document.
+                $doc->getLpath() == $request->getDocuments()[0]->getLpath()) {
+                // request must be validated & not yet closed.
+                $result['message'] = 'Esta solicitud no puede ser modificada.';
+            } else {
+                unlink(DropPath . $data['lpath']);
+                // Remove this doc from it's request entity
+                $request->removeDocument($doc);
+                // Register History
+                $history = new \Entity\History();
+                $history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
+                $history->setUserResponsable($this->session->name . ' ' . $this->session->lastName);
+                $history->setTitle($this->utils->getHistoryActionCode('elimination'));
+                $history->setOrigin($request);
+                $request->addHistory($history);
+                $em->merge($request);
+                // Register it's corresponding action
+                $action = new \Entity\HistoryAction();
+                $action->setSummary("Eliminación del documento '" . $doc->getName() . "'.");
+                $action->setBelongingHistory($history);
+                $history->addAction($action);
+                $em->persist($action);
+                $em->persist($history);
+                // Delete the document.
+                $em->remove($doc);
+                // Persist the changes in database.
+                $em->flush();
+                $result['message'] = "success";
+            }
         } catch (Exception $e) {
             $result['message'] = $this->utils->getErrorMsg($e);
             \ChromePhp::log($e);
@@ -165,7 +173,7 @@ class RequestsModel extends CI_Model
                 $result['message'] = 'No existe dicha solicitud.';
             } else if ($request->getUserOwner()->getId() != $_SESSION['id']) {
                 $result['message'] = 'Esta solicitud no le pertenece.';
-            } else if ($request->getValidationDate() !== null) {
+            } else if ($this->isRequestValidated($request) || $this->isRequestClosed($request)) {
                 $result['message'] = 'Esta solicitud no puede ser eliminada.';
             } else {
                 // Must delete all documents belonging to this request first
@@ -191,7 +199,7 @@ class RequestsModel extends CI_Model
             $data = json_decode($this->input->raw_input_stream, true);
             $em = $this->doctrine->em;
             $request = $em->find('\Entity\Request', $data['id']);
-            if ($request->getValidationDate() !== null) {
+            if ($this->isRequestValidated($request) || $this->isRequestClosed($request)) {
                 $result['message'] = 'Esta solicitud no puede ser eliminada.';
             } else {
                 // Must delete all documents belonging to this request first
@@ -213,7 +221,6 @@ class RequestsModel extends CI_Model
     }
 
     public function generateRequestDocument ($request) {
-        \ChromePhp::log($request);
         // Get extra data for the pdf template.
         $data['reqAmount'] = $request->getRequestedAmount();
         $data['tel'] = $request->getContactNumber();
@@ -246,43 +253,48 @@ class RequestsModel extends CI_Model
 
     // Helper function that adds a set of docs to a request in database.
     public function addDocuments($request, $history, $docs) {
-        try {
-            $em = $this->doctrine->em;
-            foreach ($docs as $data) {
-                $doc = $em->getRepository('\Entity\Document')->findOneBy(array("lpath" => $data['lpath']));
-                if ($doc !== null) {
-                    // doc already exists, so just merge. Otherwise we'll have
-                    // 'duplicates' in database, because document name is not unique
-                    if (isset($data['description'])) {
-                        $doc->setDescription($data['description']);
-                        $em->merge($doc);
-                    }
-                } else {
-                    // New document
-                    $doc = new \Entity\Document();
-                    $doc->setName($data['docName']);
-                    if (isset($data['description'])) {
-                        $doc->setDescription($data['description']);
-                    }
-                    $doc->setLpath($data['lpath']);
-                    $doc->setBelongingRequest($request);
-                    $request->addDocument($doc);
+        if ($this->isRequestClosed($request)) {
+            // request must not yet closed.
+            throw new Exception('Esta solicitud no puede ser modificada.');
+        } else {
+            try {
+                $em = $this->doctrine->em;
+                foreach ($docs as $data) {
+                    $doc = $em->getRepository('\Entity\Document')->findOneBy(array("lpath" => $data['lpath']));
+                    if ($doc !== null) {
+                        // doc already exists, so just merge. Otherwise we'll have
+                        // 'duplicates' in database, because document name is not unique
+                        if (isset($data['description'])) {
+                            $doc->setDescription($data['description']);
+                            $em->merge($doc);
+                        }
+                    } else {
+                        // New document
+                        $doc = new \Entity\Document();
+                        $doc->setName($data['docName']);
+                        if (isset($data['description'])) {
+                            $doc->setDescription($data['description']);
+                        }
+                        $doc->setLpath($data['lpath']);
+                        $doc->setBelongingRequest($request);
+                        $request->addDocument($doc);
 
-                    $em->persist($doc);
-                    $em->merge($request);
+                        $em->persist($doc);
+                        $em->merge($request);
+                    }
+                    // Set History action for this request's corresponding history
+                    $action = new \Entity\HistoryAction();
+                    $action->setSummary("Adición del documento '" . $data['docName'] . "'.");
+                    if (isset($data['description']) && $data['description'] !== "") {
+                        $action->setDetail("Descripción: " . $data['description']);
+                    }
+                    $action->setBelongingHistory($history);
+                    $history->addAction($action);
+                    $em->persist($action);
                 }
-                // Set History action for this request's corresponding history
-                $action = new \Entity\HistoryAction();
-                $action->setSummary("Adición del documento '" . $data['docName'] . "'.");
-                if (isset($data['description']) && $data['description'] !== "") {
-                    $action->setDetail("Descripción: " . $data['description']);
-                }
-                $action->setBelongingHistory($history);
-                $history->addAction($action);
-                $em->persist($action);
+            } catch (Exception $e) {
+                throw $e;
             }
-        } catch (Exception $e) {
-            throw $e;
         }
     }
 
@@ -305,6 +317,36 @@ class RequestsModel extends CI_Model
                 $monthsPassed = $interval->format("%m");
                 return $span - $monthsPassed;
             }
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * Determines whether the corresponding request is closed or not.
+     *
+     * @param $request - doctrine request object.
+     * @return bool {@code true} if specified request is closed. {@code false} otherwise.
+     * @throws Exception
+     */
+    public function isRequestClosed($request) {
+        try {
+            return ($request->getStatus() == APPROVED || $request->getStatus() == REJECTED);
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * Determines whether the corresponding request was already validated.
+     *
+     * @param $request - doctrine request object.
+     * @return bool {@code true} if specified request is valid. {@code false} otherwise.
+     * @throws Exception
+     */
+    public function isRequestValidated($request) {
+        try {
+            return $request->getValidationDate() !== null;
         } catch (Exception $e) {
             throw $e;
         }

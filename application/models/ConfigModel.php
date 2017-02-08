@@ -93,13 +93,10 @@ class ConfigModel extends CI_Model
             $config = $em->getRepository('\Entity\Config');
             // Get the max. request amount
             $maxAmount = $config->findOneBy(array("key" => 'MAX_AMOUNT'));
-            $result['maxAmount'] = $maxAmount === null ? null : $maxAmount->getValue();
-            $result['message'] = 'success';
+            return $maxAmount === null ? null : $maxAmount->getValue();
         } catch (Exception $e) {
-            \ChromePhp::log($e);
-            $result['message'] = $this->utils->getErrorMsg($e);
+            throw $e;
         }
-        return json_encode($result);
     }
 
     /** Min. requested amount configuration **/
@@ -110,13 +107,10 @@ class ConfigModel extends CI_Model
             $config = $em->getRepository('\Entity\Config');
             // Get the min. request amount
             $minAmount = $config->findOneBy(array("key" => 'MIN_AMOUNT'));
-            $result['minAmount'] = $minAmount === null ? null : $minAmount->getValue();
-            $result['message'] = 'success';
+            return $minAmount === null ? null : $minAmount->getValue();
         } catch (Exception $e) {
-            \ChromePhp::log($e);
-            $result['message'] = $this->utils->getErrorMsg($e);
+            throw $e;
         }
-        echo json_encode($result);
     }
 
     /**

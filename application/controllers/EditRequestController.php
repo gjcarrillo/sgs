@@ -25,7 +25,6 @@ class EditRequestController extends CI_Controller {
 	}
 
 	public function emailEditionDialog() {
-		\ChromePhp::log($_SESSION['type']);
 		if ($_SESSION['type'] != APPLICANT) {
 			$this->load->view('errors/index.html');
 		} else {
@@ -42,35 +41,41 @@ class EditRequestController extends CI_Controller {
 				$em = $this->doctrine->em;
 				// Update request
 				$request = $em->find('\Entity\Request', $data['id']);
-				// Register History
-				$history = new \Entity\History();
-				$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
-				$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
-				// Addition (in case edition was only documents addition)
-				$history->setTitle($this->utils->getHistoryActionCode('addition'));
-				$history->setOrigin($request);
-				$request->addHistory($history);
-				// Register it's corresponding actions
-				if (isset($data['comment']) && $request->getComment() !== $data['comment']) {
-					$history->setTitle($this->utils->getHistoryActionCode('update'));
-					$action = new \Entity\HistoryAction();
-					$action->setSummary("Comentario acerca de la solicitud.");
-					$action->setDetail("Comentario realizado: " . $data['comment']);
-					$action->setBelongingHistory($history);
-					$history->addAction($action);
-					$em->persist($action);
-				}
-				$em->persist($history);
-				$request->setStatus($data['status']);
-				if (isset($data['comment'])) {
-					$request->setComment($data['comment']);
-				}
-				$em->merge($request);
-				$em->flush();
 				$this->load->model('requestsModel', 'requests');
-				$this->requests->addDocuments($request, $history->getId(), $data['newDocs']);
-				$em->clear();
-				$result['message'] = "success";
+				if (!$this->requests->isRequestValidated($request) || $this->requests->isRequestClosed($request)) {
+					// request must be validated and not yet closed.
+					throw new Exception('Esta solicitud no puede ser modificada.');
+				} else {
+					// Register History
+					$history = new \Entity\History();
+					$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
+					$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
+					// Addition (in case edition was only documents addition)
+					$history->setTitle($this->utils->getHistoryActionCode('addition'));
+					$history->setOrigin($request);
+					$request->addHistory($history);
+					// Register it's corresponding actions
+					if (isset($data['comment']) && $request->getComment() !== $data['comment']) {
+						$history->setTitle($this->utils->getHistoryActionCode('update'));
+						$action = new \Entity\HistoryAction();
+						$action->setSummary("Comentario acerca de la solicitud.");
+						$action->setDetail("Comentario realizado: " . $data['comment']);
+						$action->setBelongingHistory($history);
+						$history->addAction($action);
+						$em->persist($action);
+					}
+					$em->persist($history);
+					$request->setStatus($data['status']);
+					if (isset($data['comment'])) {
+						$request->setComment($data['comment']);
+					}
+					$em->merge($request);
+					$this->load->model('requestsModel', 'requests');
+					$this->requests->addDocuments($request, $history, $data['newDocs']);
+					$em->persist($history);
+					$em->flush();
+					$result['message'] = "success";
+				}
 			} catch (Exception $e) {
 				\ChromePhp::log($e);
 				$result['message'] = $this->utils->getErrorMsg($e);
@@ -91,7 +96,7 @@ class EditRequestController extends CI_Controller {
 				$em = $this->doctrine->em;
 				// Update request
 				$request = $em->find('\Entity\Request', $data['rid']);
-				if ($request->getValidationDate() != null) {
+				if ($request->getValidationDate()) {
 					$result['message'] = 'Información de solicitud ya validada.';
 				} else {
 					// Register History
@@ -156,10 +161,10 @@ class EditRequestController extends CI_Controller {
 					// we can register History without any previous validation.
 					$em->persist($history);
 					$em->merge($request);
-					$em->flush();
 					$this->load->model('requestsModel', 'requests');
 					$this->requests->generateRequestDocument($request);
-					$this->sendValidation($request->getId());;
+					$this->sendValidation($request->getId());
+					$em->flush();
 					$result['message'] = "success";
 				}
 			} catch (Exception $e) {
@@ -178,32 +183,37 @@ class EditRequestController extends CI_Controller {
 			$data = json_decode(file_get_contents('php://input'), true);
 			try {
 				$em = $this->doctrine->em;
-				// Update document's description
 				$document = $em->find('\Entity\Document', $data['id']);
-				// Register History
-				if ($document->getDescription() != $data['description']) {
-					$history = new \Entity\History();
-					$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
-					$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
-					$history->setTitle($this->utils->getHistoryActionCode('update'));
-					$request = $document->getBelongingRequest();
-					$history->setOrigin($request);
-					$request->addHistory($history);
-					$em->merge($request);
-					// Register it's corresponding action
-					$action = new \Entity\HistoryAction();
-					$action->setSummary("Descripción del documento '" . $document->getName() . "' modificada.");
-					$action->setDetail("Nueva descripción: " . $data['description']);
-					$action->setBelongingHistory($history);
-					$history->addAction($action);
-					$em->persist($action);
-					$em->persist($history);
-					// Update description
-					$document->setDescription($data['description']);
-					$em->merge($document);
-					$em->flush();
+				$request = $document->setBelongingRequest();
+				if (!$this->requests->isRequestValidated($request) || $this->requests->isRequestClosed($request)) {
+					// request must be validated and not yet closed.
+					throw new Exception('Esta solicitud no puede ser modificada.');
+				} else {
+					// Register History
+					if ($document->getDescription() != $data['description']) {
+						$history = new \Entity\History();
+						$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
+						$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
+						$history->setTitle($this->utils->getHistoryActionCode('update'));
+						$request = $document->getBelongingRequest();
+						$history->setOrigin($request);
+						$request->addHistory($history);
+						$em->merge($request);
+						// Register it's corresponding action
+						$action = new \Entity\HistoryAction();
+						$action->setSummary("Descripción del documento '" . $document->getName() . "' modificada.");
+						$action->setDetail("Nueva descripción: " . $data['description']);
+						$action->setBelongingHistory($history);
+						$history->addAction($action);
+						$em->persist($action);
+						$em->persist($history);
+						// Update doc description
+						$document->setDescription($data['description']);
+						$em->merge($document);
+						$em->flush();
+					}
+					$result['message'] = "success";
 				}
-				$result['message'] = "success";
 			} catch (Exception $e) {
 				\ChromePhp::log($e);
 				$result['message'] = $this->utils->getErrorMsg($e);
@@ -222,27 +232,31 @@ class EditRequestController extends CI_Controller {
 				$em = $this->doctrine->em;
 				// Update request
 				$request = $em->find('\Entity\Request', $data['reqId']);
-				$request->setContactEmail($data['newAddress']);
-				// Register History
-				$history = new \Entity\History();
-				$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
-				$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
-				// Register it's corresponding actions
-				$history->setTitle($this->utils->getHistoryActionCode('modification'));
-				$history->setOrigin($request);
-				$action = new \Entity\HistoryAction();
-				$action->setSummary("Cambio de correo electrónico.");
-				$action->setDetail("Nuevo correo electrónico: " . $data['newAddress']);
-				$action->setBelongingHistory($history);
-				$history->addAction($action);
-				$em->persist($action);
-				$em->persist($history);
-				$em->merge($request);
-				$em->flush();
-				$em->clear();
-				$this->load->model('requestsModel', 'requests');
-				$this->requests->generateRequestDocument($request);
-				$result['message'] = "success";
+				if ($request->getValidationDate()) {
+					$result['message'] = 'Información de solicitud ya validada.';
+				} else {
+					$request->setContactEmail($data['newAddress']);
+					// Register History
+					$history = new \Entity\History();
+					$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
+					$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
+					// Register it's corresponding actions
+					$history->setTitle($this->utils->getHistoryActionCode('modification'));
+					$history->setOrigin($request);
+					$action = new \Entity\HistoryAction();
+					$action->setSummary("Cambio de correo electrónico.");
+					$action->setDetail("Nuevo correo electrónico: " . $data['newAddress']);
+					$action->setBelongingHistory($history);
+					$history->addAction($action);
+					$em->persist($action);
+					$em->persist($history);
+					$em->merge($request);
+					$em->flush();
+					$em->clear();
+					$this->load->model('requestsModel', 'requests');
+					$this->requests->generateRequestDocument($request);
+					$result['message'] = "success";
+				}
 			} catch (Exception $e) {
 				\ChromePhp::log($e);
 				$result['message'] = $this->utils->getErrorMsg($e);

@@ -1,7 +1,6 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 include (APPPATH. '/libraries/ChromePhp.php');
-use Mailgun\Mailgun;
 use Ramsey\Uuid\Uuid;
 
 class NewRequestController extends CI_Controller {
@@ -12,8 +11,12 @@ class NewRequestController extends CI_Controller {
     }
 
 	public function index() {
-		// Everyone can create requests
-		$this->load->view('newRequest');
+		if ($this->session->type == MANAGER) {
+			$this->load->view('errors/index.html');
+		} else {
+			// Managers can't create requests
+			$this->load->view('newRequest');
+		}
 	}
 
     public function upload() {
@@ -38,8 +41,7 @@ class NewRequestController extends CI_Controller {
 	/**
 	 * Gets a specific user's concurrence percentage.
 	 */
-	public function getUserConcurrence()
-	{
+	public function getUserConcurrence() {
 		$result['message'] = "error";
 		try {
 			if ($_GET['userId'] != $_SESSION['id'] && $_SESSION['type'] != AGENT) {
@@ -167,15 +169,35 @@ class NewRequestController extends CI_Controller {
 			// Only agents can create requests for other people
 			$this->load->view('errors/index.html');
 		} else {
-	        try {
+			// Validate incoming data.
+			try {
+				$em = $this->doctrine->em;
+				$this->load->model('requestsModel', 'requests');
+				$this->load->model('configModel');
+				$maxAmount = $this->configModel->getMaxReqAmount();
+				$minAmount = $this->configModel->getMinReqAmount();
+				$terms = REQUESTS_TERMS;
+				$loanTypes = LOAN_TYPES;
 				if (!$this->utils->checkPreviousRequests($data['userId'], $data['loanType'])) {
+					// Another request of same type is already open.
 					$result['message'] = 'Usted ya posee una solicitud del tipo ' .
 										 $this->utils->mapLoanType($data['loanType']) . ' en transcurso.';
+				} else if ($this->requests->getSpanLeft($data['userId'], $data['loanType']) > 0) {
+					// Span between requests of same type not yet through.
+					$span = $em->getRepository('\Entity\Config')->findOneBy(array('key' => 'SPAN'))->getValue();
+					$result['message'] = "No ha" . ($span == 1 ? "" : "n") .
+										 " transcurrido al menos " . $span . ($span == 1 ? " mes " : " meses ") .
+										 "desde su última otorgación de préstamo del tipo: " .
+										 $this->utils->mapLoanType($data['loanType']);
+				} else if ($data['reqAmount'] < $minAmount || $data['reqAmount'] > $maxAmount) {
+					$result['message'] = 'Monto solicitado no válido.';
+				} else if (!in_array($data['due'], $terms)) {
+					$result['message'] = 'Plazo de pago no válido.';
+				} else if (!in_array($data['loanType'], $loanTypes)) {
+					$result['message'] = 'Tipo de préstamo inválido.';
 				} else {
-					$em = $this->doctrine->em;
-					// New request
-					$request = new \Entity\Request();
 					// Register History first
+					$request = new \Entity\Request();
 					$history = new \Entity\History();
 					$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
 					$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
@@ -229,9 +251,9 @@ class NewRequestController extends CI_Controller {
 					// Create the new request doc.
 					$this->load->model('requestsModel', 'requests');
 					$this->requests->addDocuments($request, $history, $data['docs']);
-					$this->requests->generateRequestDocument($request);
 					$em->persist($history);
 					$em->flush();
+					$this->requests->generateRequestDocument($request);
 					// Send request validation token.
 					$this->sendValidation($request->getId());
 					$result['message'] = "success";
@@ -252,7 +274,6 @@ class NewRequestController extends CI_Controller {
 			$this->load->model('historyModel', 'history');
 			$this->history->registerValidationSending($reqId);
 		} catch (Exception $e) {
-			\ChromePhp::log($e);
 			throw $e;
 		}
 	}

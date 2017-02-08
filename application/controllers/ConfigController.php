@@ -57,8 +57,15 @@ class ConfigController extends CI_Controller
         if ($_SESSION['type'] != MANAGER) {
             $this->load->view('errors/index.html');
         } else {
-            $this->load->model('configModel');
-            echo $this->configModel->getMaxReqAmount();
+            try {
+                $this->load->model('configModel');
+                $result['maxAmount'] = $this->configModel->getMaxReqAmount();
+                $result['message'] = 'success';
+            } catch (Exception $e) {
+                \ChromePhp::log($e);
+                $result['message'] = $this->utils->getErrorMsg($e);
+            }
+            echo json_encode($result);
         }
     }
 
@@ -67,8 +74,15 @@ class ConfigController extends CI_Controller
         if ($_SESSION['type'] != MANAGER) {
             $this->load->view('errors/index.html');
         } else {
-            $this->load->model('configModel');
-            echo $this->configModel->getMinReqAmount();
+            try {
+                $this->load->model('configModel');
+                $result['minAmount'] = $this->configModel->getMinReqAmount();
+                $result['message'] = 'success';
+            } catch (Exception $e) {
+                \ChromePhp::log($e);
+                $result['message'] = $this->utils->getErrorMsg($e);
+            }
+            echo json_encode($result);
         }
     }
 
