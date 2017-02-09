@@ -53,9 +53,9 @@ class ValidationController extends CI_Controller {
                                  Si no ha recibido dicho correo luego de 10 minutos, puede solicitar reenvío del
                                  mismo a través del sistema.";
             } else {
-                $request->setValidationDate(new DateTime('now', new DateTimeZone('America/Barbados')));
                 $this->load->model('historyModel', 'history');
-                $this->history->registerValidation($request);
+                $this->history->registerValidation($request->getId());
+                $request->setValidationDate(new DateTime('now', new DateTimeZone('America/Barbados')));
                 $em->merge($request);
                 $em->flush();
                 $em->clear();
