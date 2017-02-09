@@ -843,8 +843,14 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
         });
 
         function DialogController($scope, $mdDialog, doc) {
-            $scope.description = '';
+            $scope.description = doc.description;
+
+            $scope.missingField = function () {
+              return typeof $scope.description === "undefined" ||
+                     $scope.description == doc.description;
+            };
             $scope.saveEdition = function () {
+                if ($scope.missingField()) {return;}
                 doc.description = $scope.description;
                 Requests.updateDocDescription(doc).then(
                     function () {},
