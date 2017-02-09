@@ -99,7 +99,7 @@
                                         </ul>
                                         <br/>
                                         <br/>
-                                        Si lo desea, puede ver los detalles de su solicitud a través del sistema haciendo clic en el botón a continuación.
+                                        Si lo desea, puede ingresar al sistema para ver los detalles de su solicitud haciendo clic en el botón a continuación.
                                     </td>
                                 </tr>
                                 <tr style="font-family: 'Open Sans, Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">

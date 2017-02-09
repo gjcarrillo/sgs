@@ -50,14 +50,12 @@ class EditRequestController extends CI_Controller {
 					$history = new \Entity\History();
 					$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
 					$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
-					// Addition (in case edition was only documents addition)
-					$history->setTitle($this->utils->getHistoryActionCode('addition'));
+					$history->setTitle($this->utils->getHistoryActionCode('update'));
 					$history->setOrigin($request);
 					$request->addHistory($history);
 					$changes = '';
 					// Register it's corresponding actions
 					if (isset($data['comment']) && $request->getComment() !== $data['comment']) {
-						$history->setTitle($this->utils->getHistoryActionCode('update'));
 						$action = new \Entity\HistoryAction();
 						$action->setSummary("Comentario acerca de la solicitud.");
 						$action->setDetail("Comentario realizado: " . $data['comment']);
@@ -188,7 +186,8 @@ class EditRequestController extends CI_Controller {
 			try {
 				$em = $this->doctrine->em;
 				$document = $em->find('\Entity\Document', $data['id']);
-				$request = $document->setBelongingRequest();
+				$request = $document->getBelongingRequest();
+				$this->load->model('requestsModel', 'requests');
 				if (!$this->requests->isRequestValidated($request) || $this->requests->isRequestClosed($request)) {
 					// request must be validated and not yet closed.
 					throw new Exception('Esta solicitud no puede ser modificada.');
@@ -205,8 +204,10 @@ class EditRequestController extends CI_Controller {
 						$em->merge($request);
 						// Register it's corresponding action
 						$action = new \Entity\HistoryAction();
-						$action->setSummary("Descripción del documento '" . $document->getName() . "' modificada.");
+						$action->setSummary("Descripción del documento '" . $document->getName() . "' actualizada.");
 						$action->setDetail("Nueva descripción: " . $data['description']);
+						$changes = "<li>Descripción del document '" . $document->getName() . "' actualizada. " .
+								   "Nueva descripción: " . $data['description'] . "</li>";
 						$action->setBelongingHistory($history);
 						$history->addAction($action);
 						$em->persist($action);
@@ -214,6 +215,8 @@ class EditRequestController extends CI_Controller {
 						// Update doc description
 						$document->setDescription($data['description']);
 						$em->merge($document);
+						$this->load->model('emailModel', 'email');
+						$this->email->sendRequestUpdateEmail($request->getId(), $changes);
 						$em->flush();
 					}
 					$result['message'] = "success";

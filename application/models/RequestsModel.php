@@ -88,12 +88,15 @@ class RequestsModel extends CI_Model
                 // Register it's corresponding action
                 $action = new \Entity\HistoryAction();
                 $action->setSummary("Eliminación del documento '" . $doc->getName() . "'.");
+                $changes = "<li>Eliminación del documento '" . $doc->getName() . "'.</li>";
                 $action->setBelongingHistory($history);
                 $history->addAction($action);
                 $em->persist($action);
                 $em->persist($history);
                 // Delete the document.
                 $em->remove($doc);
+                $this->load->model('emailModel', 'email');
+                $this->email->sendRequestUpdateEmail($request->getId(), $changes);
                 // Persist the changes in database.
                 $em->flush();
                 $result['message'] = "success";

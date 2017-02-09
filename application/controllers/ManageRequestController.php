@@ -32,6 +32,7 @@ class ManageRequestController extends CI_Controller {
 				} else {
 					// Register History
 					$history = new \Entity\History();
+					$changes = '';
 					$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
 					$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
 					$history->setTitle($this->utils->getHistoryActionCode('update'));
@@ -63,11 +64,15 @@ class ManageRequestController extends CI_Controller {
 							$history->addAction($action);
 							$em->persist($action);
 						}
+						$changes = $changes .
+								   "<li>Cambio de estatus: <s>" . $request->getStatus() .
+								   "</s> " . $data['status'] . "." . "</li>";
 					}
 					if (isset($data['comment']) && $request->getComment() !== $data['comment']) {
 						$action = new \Entity\HistoryAction();
 						$action->setSummary("Comentario acerca de la solicitud.");
 						$action->setDetail("Comentario realizado: " . $data['comment']);
+						$changes = $changes . '<li>Comentario realizado: ' . $data['comment'] . '</li>';
 						$action->setBelongingHistory($history);
 						$history->addAction($action);
 						$em->persist($action);
@@ -76,6 +81,7 @@ class ManageRequestController extends CI_Controller {
 						$action = new \Entity\HistoryAction();
 						$action->setSummary("Número de reunión especificado.");
 						$action->setDetail("Reunión #" . $data['reunion']);
+						$changes = $changes . '<li>Número de reunión especificado: ' . $data['reunion'] . '</li>';
 						$action->setBelongingHistory($history);
 						$history->addAction($action);
 						$em->persist($action);
@@ -93,6 +99,8 @@ class ManageRequestController extends CI_Controller {
 						$request->setComment($data['comment']);
 					}
 					$em->merge($request);
+					$this->load->model('emailModel', 'email');
+					$this->email->sendRequestUpdateEmail($request->getId(), $changes);
 					$em->flush();
 					$result['message'] = "success";
 				}
