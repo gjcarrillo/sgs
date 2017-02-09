@@ -251,7 +251,8 @@ class RequestsModel extends CI_Model
         \ChromePhp::log("PDF generation success!");
     }
 
-    // Helper function that adds a set of docs to a request in database.
+    // Helper function that adds a set of docs to a request in database & returns an html string with
+    // registered changes (for email notification).
     public function addDocuments($request, $history, $docs) {
         if ($this->isRequestClosed($request)) {
             // request must not yet closed.
@@ -259,6 +260,7 @@ class RequestsModel extends CI_Model
         } else {
             try {
                 $em = $this->doctrine->em;
+                $changes = '';
                 foreach ($docs as $data) {
                     $doc = $em->getRepository('\Entity\Document')->findOneBy(array("lpath" => $data['lpath']));
                     if ($doc !== null) {
@@ -285,13 +287,17 @@ class RequestsModel extends CI_Model
                     // Set History action for this request's corresponding history
                     $action = new \Entity\HistoryAction();
                     $action->setSummary("Adición del documento '" . $data['docName'] . "'.");
+                    $changes = $changes . "<li>Adición del documento '" . $data['docName'] . "'. ";
                     if (isset($data['description']) && $data['description'] !== "") {
                         $action->setDetail("Descripción: " . $data['description']);
+                        $changes = $changes .
+                                   'Descripción: ' .$data['description'] . '.</li>';
                     }
                     $action->setBelongingHistory($history);
                     $history->addAction($action);
                     $em->persist($action);
                 }
+                return $changes;
             } catch (Exception $e) {
                 throw $e;
             }

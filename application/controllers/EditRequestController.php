@@ -54,12 +54,14 @@ class EditRequestController extends CI_Controller {
 					$history->setTitle($this->utils->getHistoryActionCode('addition'));
 					$history->setOrigin($request);
 					$request->addHistory($history);
+					$changes = '';
 					// Register it's corresponding actions
 					if (isset($data['comment']) && $request->getComment() !== $data['comment']) {
 						$history->setTitle($this->utils->getHistoryActionCode('update'));
 						$action = new \Entity\HistoryAction();
 						$action->setSummary("Comentario acerca de la solicitud.");
 						$action->setDetail("Comentario realizado: " . $data['comment']);
+						$changes = $changes . '<li>Comentario realizado: ' . $data['comment'] . '</li>';
 						$action->setBelongingHistory($history);
 						$history->addAction($action);
 						$em->persist($action);
@@ -71,8 +73,10 @@ class EditRequestController extends CI_Controller {
 					}
 					$em->merge($request);
 					$this->load->model('requestsModel', 'requests');
-					$this->requests->addDocuments($request, $history, $data['newDocs']);
+					$changes = $changes . $this->requests->addDocuments($request, $history, $data['newDocs']);
 					$em->persist($history);
+					$this->load->model('emailModel', 'email');
+					$this->email->sendRequestUpdateEmail($request->getId(), $changes);
 					$em->flush();
 					$result['message'] = "success";
 				}

@@ -35,6 +35,22 @@ class EmailModel extends CI_Model
         }
     }
 
+    public function sendRequestUpdateEmail($reqId, $changes) {
+        try {
+            $em = $this->doctrine->em;
+            $request = $em->find('\Entity\Request', $reqId);
+            $mailData['updates'] = $changes;
+            $mailData['homeUrl'] = $this->config->base_url();
+            $mailData['reqId'] = $reqId;
+            $mailData['email'] = $request->getContactEmail();
+            $mailData['subject'] = 'Actualización de Solicitud';
+            $html = $this->load->view('templates/updateEmail', $mailData, true); // render the view into HTML
+            $this->sendEmail($mailData['email'], $mailData['subject'], $html);
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
     private function sendValidationToken($tokenData, $request) {
         try {
             $loanTypes = LOAN_TYPES_NAMES;
@@ -50,8 +66,7 @@ class EmailModel extends CI_Model
             $mailData['loanTypeString'] = $loanTypes[$request->getLoanType()];
             $mailData['due'] = $request->getPaymentDue();
             $mailData['paymentFee'] = $this->utils->calculatePaymentFee($mailData['reqAmount'], $mailData['due'], 12);
-            $mailData['subject'] = '[Solicitud ' . str_pad($mailData['reqId'], 6, '0', STR_PAD_LEFT) .
-                                   '] Confirmación de Nueva Solicitud';
+            $mailData['subject'] = 'Confirmación de Nueva Solicitud';
             $mailData['validationURL'] = $this->config->base_url() . '#validate/' . $encodedURL;
             $reqTokenData['rid'] = $request->getId();
             $mailData['deleteURL'] = $this->config->base_url() . '#delete/' . $this->createToken($reqTokenData);
