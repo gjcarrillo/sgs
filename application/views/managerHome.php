@@ -217,6 +217,19 @@
                                 </md-button>
                             </div>
                         </div>
+                        <!-- Query pending requests -->
+                        <div ng-show="model.query == 9" layout="column" layout-padding>
+                            <br/>
+                            <span>Lista y estadísticas de solicitudes pendientes</span>
+                            <div layout layout-align="center center">
+                                <md-button
+                                    ng-disabled="!model.perform[9]"
+                                    ng-click="fetchPendingRequests(9)"
+                                    class="md-raised md-primary">
+                                    <md-icon>search</md-icon>Consultar
+                                </md-button>
+                            </div>
+                        </div>
                         <!-- Query by interval of dates -->
                         <div ng-show="model.query == 2" layout="column" layout-padding>
                             <div>
@@ -550,12 +563,26 @@
     <!-- Content -->
     <div layout="column" flex>
         <main class="main-w-footer">
+            <div
+                class="full-content-height"
+                layout layout-align="center center"
+                ng-if="!req.docs &&
+                    !showApprovedAmount &&
+                    pieLoading &&
+                    !pieloaded &&
+                    pieError == ''">
+                <div layout="column" layout-align="center center">
+                    <md-progress-circular md-diameter="90" md-mode="indeterminate"></md-progress-circular>
+                </div>
+            </div>
+
             <!-- Watermark -->
             <div
                 class="full-content-height"
                 layout layout-align="center center"
                 ng-if="!req.docs &&
                     !showApprovedAmount &&
+                    !pieLoading &&
                     !pieloaded &&
                     pieError == ''">
                 <div class="watermark" layout="column" layout-align="center center">

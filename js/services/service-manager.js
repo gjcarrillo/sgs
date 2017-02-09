@@ -19,6 +19,7 @@ function manager($http, $q, Requests) {
         {category: 'req', name: 'Por cédula', id: 0},
         {category: 'req', name: 'Por estatus', id: 1},
         {category: 'req', name: 'Por tipo', id: 8},
+        {category: 'req', name: 'Por atender', id: 9},
         {category: 'date', name: 'Intervalo de fecha', id: 2},
         {category: 'date', name: 'Fecha exacta', id: 3},
         {category: 'money', name: 'Intervalo de fecha', id: 4},
@@ -76,6 +77,7 @@ function manager($http, $q, Requests) {
             {category: 'req', name: 'Por cédula', id: 0},
             {category: 'req', name: 'Por estatus', id: 1},
             {category: 'req', name: 'Por tipo', id: 8},
+            {category: 'req', name: 'Por atender', id: 9},
             {category: 'date', name: 'Intervalo de fecha', id: 2},
             {category: 'date', name: 'Fecha exacta', id: 3},
             {category: 'money', name: 'Intervalo de fecha', id: 4},
@@ -145,6 +147,7 @@ function manager($http, $q, Requests) {
                 console.log(response);
                 if (response.data.message === "success") {
                     response.data.requests = Requests.filterRequests(response.data.requests);
+                    response.data.pie.bulbColors = self.generateBulbColors(response.data.pie);
                     qPending.resolve(response.data);
                 } else {
                     qPending.reject(response.data.message);
@@ -476,8 +479,9 @@ function manager($http, $q, Requests) {
     self.generateExcelReport = function (type, reportData) {
         var qReport = $q.defer();
         var url = '';
-        if (type == 0 || type == 8) {
-            reportData.sheetTitle = type == 0 ? "Reporte de afiliado" : "Reporte por tipo";
+        if (type == 0 || type == 8 || type == 9) {
+            reportData.sheetTitle = type == 0 ? "Reporte de afiliado" :
+                (type == 8 ? "Reporte por tipo" : "Solicitudes por atender");
             url = 'index.php/DocumentGenerator/generateSimpleRequestsReport';
         } else if (type == 2 || type == 3) {
             reportData.sheetTitle = reportData.sheetTitle = "Reporte por fechas";

@@ -151,6 +151,12 @@ class ManagerHomeController extends CI_Controller {
                     $result['message'] = "No se encontraron solicitudes pendientes.";
                 } else {
                     $rKey = 0;
+                    $statuses = $this->utils->getAllStatuses();
+                    $statusCounter = array();
+                    foreach ($statuses as $status) {
+                        // Initialize counter array
+                        $statusCounter[$status] = 0;
+                    }
                     foreach ($requests as $request) {
                         if ($request->getValidationDate() === null) continue;
                         $user = $request->getUserOwner();
@@ -175,11 +181,65 @@ class ManagerHomeController extends CI_Controller {
                             $result['requests'][$rKey]['docs'][$dKey]['description'] = $doc->getDescription();
                             $result['requests'][$rKey]['docs'][$dKey]['lpath'] = $doc->getLpath();
                         }
+                        // Gather pie chart information
+                        $statusCounter[$request->getStatus()] ++;
+                        // Gather up report information
+                        $result['report']['data'][$rKey] = array(
+                            $rKey+1,
+                            $request->getId(),
+                            $user->getId() . ' - ' . $user->getFirstName() . ' ' . $user->getLastName(),
+                            $request->getCreationDate()->format('d/m/Y'),
+                            $request->getStatus(),
+                            $request->getReunion(),
+                            $request->getRequestedAmount(),
+                            $request->getApprovedAmount(),
+                            $request->getComment()
+                        );
                         $rKey++;
                     }
                     if ($result['requests'] == null) {
                         $result['message'] = 'Este afiliado no posee solicitudes validadas';
                     } else {
+                        // Fill up pie chart information
+                        $result['pie']['title'] = "Solicitudes pendientes";
+                        $total = array_sum($statusCounter);
+                        $result['pie']['backgroundColor'] = [];
+                        foreach ($statuses as $sKey => $status) {
+                            $result['pie']['labels'][$sKey] = $status;
+                            $result['pie']['data'][$sKey] = round($statusCounter[$status] * 100 / $total, 2);
+                            $result['pie']['backgroundColor'][$sKey] =
+                                $this->utils->generatePieBgColor($status, $result['pie']['backgroundColor']);
+                            $result['pie']['hoverBackgroundColor'][$sKey] =
+                                $this->utils->generatePieHoverColor($result['pie']['backgroundColor'][$sKey]);
+                        }
+                        // Fill up report information
+                        $now = (new DateTime('now', new DateTimeZone('America/Barbados')))->format('d/m/Y - h:i:sa');
+                        $result['report']['header'] = array(
+                            array("SGDP - IPAPEDI"),
+                            array("FECHA Y HORA DE GENERACIÓN DE REPORTE: " . $now)
+                        );
+                        $result['report']['filename'] = "SOLICITUDES PENDIENTES";
+                        $result['report']['dataTitle'] = $result['report']['filename'];
+                        $result['report']['dataHeader'] = array(
+                            'Nro.',
+                            'Identificador',
+                            'Solicitante',
+                            'Fecha de creación',
+                            'Estatus',
+                            'Nro. de Reunión',
+                            'Monto solicitado (Bs)',
+                            'Monto aprobado (Bs)',
+                            'Comentario'
+                        );
+                        $result['report']['total'] = array(
+                            array("Monto solicitado total", ""),
+                            array("Monto aprobado total", "")
+                        );
+                        $result['report']['stats']['title'] = "ESTADÍSTICAS DE SOLICITUDES";
+                        $result['report']['stats']['dataHeader'] = array('Estatus', 'Cantidad', 'Porcentaje');
+                        foreach ($statuses as $sKey => $status) {
+                            $result['report']['stats']['data'][$sKey] = array($status, '', '');
+                        }
                         $result['message'] = "success";
                     }
                 }

@@ -152,6 +152,26 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
         );
     };
 
+    $scope.fetchPendingRequests = function(index) {
+        $scope.loading = true;
+        Manager.fetchPendingRequests().then(
+            function (data) {
+                $scope.requests = data.requests;
+                $scope.showOptions = false;
+                $scope.showResult = index;
+                $scope.pieloaded = true;
+                $scope.pie = data.pie;
+                drawPie(data.pie);
+                $scope.report = data.report;
+                $scope.loading = false;
+            },
+            function (error) {
+                $scope.fetchError = error;
+                $scope.loading = false;
+            }
+        );
+    };
+
     $scope.fetchRequestsByDateInterval = function(from, to, index) {
         resetContent();
         $scope.loading = true;
@@ -1017,7 +1037,8 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
         return $scope.showResult == 1 ||
             $scope.showResult == 2 ||
             $scope.showResult == 3 ||
-            $scope.showResult == 8;
+            $scope.showResult == 8 ||
+            $scope.showResult == 9;
     };
 
     /**
@@ -1114,7 +1135,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
 
     function updatePie() {
         $scope.req = {};
-        $scope.loadingContent = true;
+        $scope.pieLoading = true;
         if ($scope.showResult == 0) {
             // update user's pie
             Manager.getUserRequests($scope.fetchId)
@@ -1123,11 +1144,11 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                     $scope.report = data.report;
                     $scope.pie = data.pie;
                     drawPie(data.pie);
-                    $scope.loadingContent = false;
+                    $scope.pieLoading = false;
                     $scope.pieloaded = true;
                 },
                 function (error) {
-                    $scope.loadingContent = false;
+                    $scope.pieLoading = false;
                     $scope.pieError = error;
                 }
             );
@@ -1140,11 +1161,11 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                     $scope.report = data.report;
                     $scope.pie = data.pie;
                     drawPie(data.pie);
-                    $scope.loadingContent = false;
+                    $scope.pieLoading = false;
                     $scope.pieloaded = true;
                 },
                 function (error) {
-                    $scope.loadingContent = false;
+                    $scope.pieLoading = false;
                     $scope.pieError = error;
                 }
             );
@@ -1164,11 +1185,42 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                     $scope.report = data.report;
                     $scope.pie = data.pie;
                     drawPie(data.pie);
-                    $scope.loadingContent = false;
+                    $scope.pieLoading = false;
                     $scope.pieloaded = true;
                 },
                 function (error) {
-                    $scope.loadingContent = false;
+                    $scope.pieLoading = false;
+                    $scope.pieError = error;
+                }
+            );
+        } else if ($scope.showResult == 8) {
+            Manager.fetchRequestsByLoanType($scope.model.perform[8].loanType)
+                .then(
+                function (data) {
+                    $scope.report = data.report;
+                    $scope.pie = data.pie;
+                    drawPie(data.pie);
+                    $scope.pieLoading = false;
+                    $scope.pieloaded = true;
+                },
+                function (error) {
+                    $scope.pieLoading = false;
+                    $scope.pieError = error;
+                }
+            );
+
+        } else if ($scope.showResult == 9) {
+            Manager.fetchPendingRequests()
+                .then(
+                function (data) {
+                    $scope.report = data.report;
+                    $scope.pie = data.pie;
+                    drawPie(data.pie);
+                    $scope.pieLoading = false;
+                    $scope.pieloaded = true;
+                },
+                function (error) {
+                    $scope.pieLoading = false;
                     $scope.pieError = error;
                 }
             );
