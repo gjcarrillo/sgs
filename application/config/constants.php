@@ -87,7 +87,7 @@ defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest auto
 /* ======================================
              UPLOADS PATH
 =========================================*/
-define('DropPath','C:/Users/Kristopher/Dropbox/');
+define('DropPath', getenv('DROP_PATH'));
 /* ======================================
              TYPES OF USERS
 =========================================*/
@@ -97,7 +97,7 @@ define('MANAGER', 2);
 /* ======================================
              JWT SECRET KEY
 =========================================*/
-define('JWT_SECRET_KEY', 'NiZhiBuZhiDaoWoShiSheiMa?');
+define('JWT_SECRET_KEY', getenv('JWT_SECRET_KEY'));
 /* ======================================
                 LOAN TYPES
 =========================================*/
@@ -121,7 +121,7 @@ define('STATUSES_VERB', array(RECEIVED => 'recibir', APPROVED => 'aprobar', REJE
 /* ======================================
                 MAILGUN
 =========================================*/
-define('MAILGUN_PRIVATE_KEY', 'key-53747f43c23bd393d8172814c60e17ba');
+define('MAILGUN_PRIVATE_KEY', getenv('MAILGUN_PRIVATE_KEY'));
 define('MAILGUN_SENDER_DOMAIN', 'sandbox5acc2f3be9df4e80baaa6a9884d6299b.mailgun.org');
 define('MAILGUN_SENDER', 'IPAPEDI <noreply@ipapedi.com>');
 /* ======================================
