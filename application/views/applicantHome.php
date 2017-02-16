@@ -318,7 +318,7 @@
     </div>
 </div>
 <!-- FAB -->
-<div class="relative">
+<div ng-show="contentAvailable" class="relative">
     <md-button
         id="new-req-fab"
         ng-click="openNewRequestDialog($event)"
