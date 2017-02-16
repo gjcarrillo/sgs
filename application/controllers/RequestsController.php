@@ -47,21 +47,14 @@ class RequestsController extends CI_Controller {
     }
 
     public function deleteRequestView() {
-        if ($this->session->type != APPLICANT) {
-            // View only accessible for applicants
-            $this->load('errors/index.html');
-        } else {
-            $this->load->view('deleteRequest');
-        }
+        // Validations are performed when executing (automatically) deleteRequestJWT
+        $this->load->view('deleteRequest');
     }
 
     public function deleteRequestJWT() {
-        if ($this->session->type != APPLICANT) {
-            $this->load->view('errors/index.html');
-        } else {
-            $this->load->model('requestsModel', 'requests');
-            echo $this->requests->deleteRequestJWT();
-        }
+        // Validations are performed when executing deletion function
+        $this->load->model('requestsModel', 'requests');
+        echo $this->requests->deleteRequestJWT();
     }
 
     public function deleteRequestUI() {

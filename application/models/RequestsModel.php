@@ -121,7 +121,7 @@ class RequestsModel extends CI_Model
             if ($parsed[3] === "pdf") {
                 // Don't force downloads on pdf files
                 header('Content-type: application/pdf');
-                header('Content-Disposition: inline; filename="' . $parsed[2] . '.' . $parsed[4] . '"');
+                header('Content-Disposition: inline; filename="' . $parsed[2] . '.' . $parsed[3] . '"');
             } else if ($parsed[3] === "png"
                        || $parsed[3] === "jpg"
                        || $parsed[3] === "jpeg"
