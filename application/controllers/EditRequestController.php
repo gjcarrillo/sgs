@@ -96,78 +96,99 @@ class EditRequestController extends CI_Controller {
 		} else {
 			try {
 				$em = $this->doctrine->em;
-				// Update request
-				$request = $em->find('\Entity\Request', $data['rid']);
-				if ($request->getValidationDate()) {
-					$result['message'] = 'Información de solicitud ya validada.';
+				$this->load->model('requestsModel', 'requests');
+				$this->load->model('configModel');
+				$maxAmount = $this->configModel->getMaxReqAmount();
+				$minAmount = $this->configModel->getMinReqAmount();
+				$terms = REQUESTS_TERMS;
+				$loanTypes = LOAN_TYPES;
+				if ($this->requests->getSpanLeft($data['userId'], $data['loanType']) > 0) {
+					// Span between requests of same type not yet through.
+					$span = $em->getRepository('\Entity\Config')->findOneBy(array('key' => 'SPAN'))->getValue();
+					$result['message'] = "No ha" . ($span == 1 ? "" : "n") .
+										 " transcurrido al menos " . $span . ($span == 1 ? " mes " : " meses ") .
+										 "desde su última otorgación de préstamo del tipo: " .
+										 $this->utils->mapLoanType($data['loanType']);
+				} else if ($data['reqAmount'] < $minAmount || $data['reqAmount'] > $maxAmount) {
+					$result['message'] = 'Monto solicitado no válido.';
+				} else if (!in_array($data['due'], $terms)) {
+					$result['message'] = 'Plazo de pago no válido.';
+				} else if (!in_array($data['loanType'], $loanTypes)) {
+					$result['message'] = 'Tipo de préstamo inválido.';
 				} else {
-					// Register History
-					$history = new \Entity\History();
-					$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
-					$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
-					$history->setTitle($this->utils->getHistoryActionCode('modification'));
-					$history->setOrigin($request);
-					$request->addHistory($history);
-					// Register it's corresponding actions
-					if ($request->getRequestedAmount() != $data['reqAmount']) {
-						$action = new \Entity\HistoryAction();
-						$action->setSummary("Monto solicitado cambiado.");
-						$action->setDetail("Cambiado de Bs " . number_format($request->getRequestedAmount(), 2) .
-										   " a Bs " . number_format($data['reqAmount'], 2));
-						$action->setBelongingHistory($history);
-						$request->setRequestedAmount($data['reqAmount']);
-						$history->addAction($action);
-						$em->persist($action);
+					// Update request
+					$request = $em->find('\Entity\Request', $data['rid']);
+					if ($request->getValidationDate()) {
+						$result['message'] = 'Información de solicitud ya validada.';
+					} else {
+						// Register History
+						$history = new \Entity\History();
+						$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
+						$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
+						$history->setTitle($this->utils->getHistoryActionCode('modification'));
+						$history->setOrigin($request);
+						$request->addHistory($history);
+						// Register it's corresponding actions
+						if ($request->getRequestedAmount() != $data['reqAmount']) {
+							$action = new \Entity\HistoryAction();
+							$action->setSummary("Monto solicitado cambiado.");
+							$action->setDetail("Cambiado de Bs " . number_format($request->getRequestedAmount(), 2) .
+											   " a Bs " . number_format($data['reqAmount'], 2));
+							$action->setBelongingHistory($history);
+							$request->setRequestedAmount($data['reqAmount']);
+							$history->addAction($action);
+							$em->persist($action);
+						}
+						if ($request->getLoanType() != $data['loanType']) {
+							$action = new \Entity\HistoryAction();
+							$action->setSummary("Tipo de préstamo cambiado.");
+							$action->setDetail("Cambiado de " . $this->utils->mapLoanType($request->getLoanType()) .
+											   " a " . $this->utils->mapLoanType($data['loanType']));
+							$action->setBelongingHistory($history);
+							$request->setLoanType($data['loanType']);
+							$history->addAction($action);
+							$em->persist($action);
+						}
+						if ($request->getPaymentDue() != $data['due']) {
+							$action = new \Entity\HistoryAction();
+							$action->setSummary("Plazo para pagar cambiado.");
+							$action->setDetail("Cambiado de " . $request->getPaymentDue() .
+											   " meses a " . $data['due'] . " meses");
+							$action->setBelongingHistory($history);
+							$request->setPaymentDue($data['due']);
+							$history->addAction($action);
+							$em->persist($action);
+						}
+						if ($request->getContactNumber() != $data['tel']) {
+							$action = new \Entity\HistoryAction();
+							$action->setSummary("Número celular cambiado.");
+							$action->setDetail("Cambiado de " . $request->getContactNumber() .
+											   " a " . $data['tel']);
+							$action->setBelongingHistory($history);
+							$request->setContactNumber($data['tel']);
+							$history->addAction($action);
+							$em->persist($action);
+						}
+						if ($request->getContactEmail() != $data['email']) {
+							$action = new \Entity\HistoryAction();
+							$action->setSummary("Correo electrónico cambiado.");
+							$action->setDetail("Cambiado de  " . $request->getContactEmail() .
+											   " a " . $data['email']);
+							$action->setBelongingHistory($history);
+							$request->setContactEmail($data['email']);
+							$history->addAction($action);
+							$em->persist($action);
+						}
+						// This function will be called if at least one field was edited, so
+						// we can register History without any previous validation.
+						$em->persist($history);
+						$em->merge($request);
+						$this->load->model('requestsModel', 'requests');
+						$this->requests->generateRequestDocument($request);
+						$this->sendValidation($request->getId());
+						$em->flush();
+						$result['message'] = "success";
 					}
-					if ($request->getLoanType() != $data['loanType']) {
-						$action = new \Entity\HistoryAction();
-						$action->setSummary("Tipo de préstamo cambiado.");
-						$action->setDetail("Cambiado de " . $this->utils->mapLoanType($request->getLoanType()) .
-										   " a " . $this->utils->mapLoanType($data['loanType']));
-						$action->setBelongingHistory($history);
-						$request->setLoanType($data['loanType']);
-						$history->addAction($action);
-						$em->persist($action);
-					}
-					if ($request->getPaymentDue() != $data['due']) {
-						$action = new \Entity\HistoryAction();
-						$action->setSummary("Plazo para pagar cambiado.");
-						$action->setDetail("Cambiado de " . $request->getPaymentDue() .
-										   " meses a " . $data['due'] . " meses");
-						$action->setBelongingHistory($history);
-						$request->setPaymentDue($data['due']);
-						$history->addAction($action);
-						$em->persist($action);
-					}
-					if ($request->getContactNumber() != $data['tel']) {
-						$action = new \Entity\HistoryAction();
-						$action->setSummary("Número celular cambiado.");
-						$action->setDetail("Cambiado de " . $request->getContactNumber() .
-										   " a " . $data['tel']);
-						$action->setBelongingHistory($history);
-						$request->setContactNumber($data['tel']);
-						$history->addAction($action);
-						$em->persist($action);
-					}
-					if ($request->getContactEmail() != $data['email']) {
-						$action = new \Entity\HistoryAction();
-						$action->setSummary("Correo electrónico cambiado.");
-						$action->setDetail("Cambiado de  " .$request->getContactEmail() .
-										   " a " . $data['email']);
-						$action->setBelongingHistory($history);
-						$request->setContactEmail($data['email']);
-						$history->addAction($action);
-						$em->persist($action);
-					}
-					// This function will be called if at least one field was edited, so
-					// we can register History without any previous validation.
-					$em->persist($history);
-					$em->merge($request);
-					$this->load->model('requestsModel', 'requests');
-					$this->requests->generateRequestDocument($request);
-					$this->sendValidation($request->getId());
-					$em->flush();
-					$result['message'] = "success";
 				}
 			} catch (Exception $e) {
 				\ChromePhp::log($e);

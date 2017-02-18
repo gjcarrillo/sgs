@@ -58,7 +58,7 @@ function reqService($q, $http, Constants, $filter, Utils) {
         $http.post('index.php/EditRequestController/updateRequest',
                    JSON.stringify(postData))
             .then(function (response) {
-                      if (response.status == 200) {
+                      if (response.data.message == "success") {
                           qUpdate.resolve();
                       } else {
                           qUpdate.reject(response.data.message);
@@ -78,7 +78,8 @@ function reqService($q, $http, Constants, $filter, Utils) {
         $http.post('index.php/EditRequestController/editRequest',
                    JSON.stringify(postData))
             .then(function (response) {
-                      if (response.status == 200) {
+                             console.log(response);
+                      if (response.data.message == "success") {
                           qEdit.resolve();
                       } else {
                           qEdit.reject(response.data.message);
@@ -182,7 +183,7 @@ function reqService($q, $http, Constants, $filter, Utils) {
         $http.post('index.php/EditRequestController/' +
                    'updateDocDescription', JSON.stringify(doc)).then(
             function (response) {
-                if (response.status == 200) {
+                if (response.data.message == "success") {
                     updateDoc.resolve();
                 } else {
                     updateDoc.reject(response.data.message);
