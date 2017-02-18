@@ -58,9 +58,8 @@ function login($scope, Auth, $state, Constants, $timeout, Utils) {
         var supported = Utils.getSupportedBrowsers();
         var browser = bowser.name;
         var version = bowser.version;
-        console.log(bowser.name, bowser.version);
-        if ((md.is('iPhone') && md.version('iPhone') < 8) ||
-            (md.is('AndroidOS') && md.version('Android') < 4.2) ||
+        if ((md.is('iPhone') && md.version('iPhone') < supported['iPhone']) ||
+            (md.is('AndroidOS') && md.version('Android') < supported['Android']) ||
             (version < supported[browser])) {
             $state.go('incompatibility');
         }

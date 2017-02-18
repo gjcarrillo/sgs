@@ -24,7 +24,7 @@ function incompatible($scope, Utils, $state) {
         error += 'Se ha detectado que está utilizando el navegador ' + browser + ' ' + version + ', ' +
                  'y se requiere mínimo ' + browser + ' ' + supported[browser] + '<br/><br/>';
     } else {
-        //$state.go('login');
+        $state.go('login');
     }
     error += 'Lista de navegadores y versiones compatibles: <br/>';
     for (var key in supported) {
