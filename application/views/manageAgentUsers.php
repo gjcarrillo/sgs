@@ -68,7 +68,7 @@
                                         required
                                         name="psw"
                                         type="password"
-                                        ng-model="model.psw"
+                                        ng-model="model.password"
                                         placeholder="***********"/>
                                     <div ng-messages="userForm.psw.$error" ng-show="userForm.psw.$dirty">
                                         <div ng-message="required">¡Este campo es obligatorio!</div>
@@ -82,7 +82,7 @@
                                     Nombre
                                 </div>
                                 <md-input-container id="user-name" style="margin:0" class="md-block" md-no-float>
-                                    <input name="name" required type="text" ng-model="model.name" placeholder="Ej: Carlos"/>
+                                    <input name="name" required type="text" ng-model="model.firstName" placeholder="Ej: Carlos"/>
                                     <div ng-messages="userForm.name.$error" ng-show="userForm.name.$dirty">
                                         <div ng-message="required">¡Este campo es obligatorio!</div>
                                     </div>
@@ -97,7 +97,7 @@
                                         name="lastname"
                                         required
                                         type="text"
-                                        ng-model="model.lastname"
+                                        ng-model="model.lastName"
                                         placeholder="Ej: Gutierrez"/>
                                     <div ng-messages="userForm.lastname.$error" ng-show="userForm.lastname.$dirty">
                                         <div ng-message="required">¡Este campo es obligatorio!</div>

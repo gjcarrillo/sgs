@@ -787,7 +787,7 @@ abstract class CI_DB_driver {
 				return FALSE;
 			}
 		}
-
+		$this->db_select(); //<-----------------  Added this line
 		return $this->_execute($sql);
 	}
 

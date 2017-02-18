@@ -47,10 +47,11 @@ class NewRequestController extends CI_Controller {
 			if ($_GET['userId'] != $_SESSION['id'] && $_SESSION['type'] != AGENT) {
 				$this->load->view('errors/index.html');
 			} else {
-				$this->db->select('*');
-				$this->db->from('db_dt_personales');
-				$this->db->where('cedula', $_GET['userId']);
-				$query = $this->db->get();
+				$this->ipapedi_db = $this->load->database('ipapedi_db', true);
+				$this->ipapedi_db->select('*');
+				$this->ipapedi_db->from('db_dt_personales');
+				$this->ipapedi_db->where('cedula', $_GET['userId']);
+				$query = $this->ipapedi_db->get();
 				if (empty($query->result())) {
 					// User info not found! Set concurrence to max.
 					$result['concurrence'] = 100;
@@ -81,21 +82,29 @@ class NewRequestController extends CI_Controller {
 				$result['granting']['span'] = $span;
 				$loanTypes = LOAN_TYPES;
 				foreach ($loanTypes as $type) {
-					$this->db->select('*');
-					$this->db->from('db_dt_prestamos');
-					$this->db->where('cedula', $_GET['userId']);
-					$this->db->where('concepto', $type);
-					$query = $this->db->order_by('otorg_fecha',"desc")->get();
+					$this->ipapedi_db = $this->load->database('ipapedi_db', true);
+					$this->ipapedi_db->select('*');
+					$this->ipapedi_db->from('db_dt_prestamos');
+					$this->ipapedi_db->where('cedula', $_GET['userId']);
+					$this->ipapedi_db->where('concepto', $type);
+					$query = $this->ipapedi_db->order_by('otorg_fecha',"desc")->get();
 					if (empty($query->result())) {
 						// Seems like this is their first request. Grant permission to create!
 						$result['granting']['allow'][$type] = true;
 					} else {
 						$granting = date_create_from_format('d/m/Y', $query->result()[0]->otorg_fecha);
-						$currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
-						$interval = $granting->diff($currentDate);
-						$monthsPassed = $interval->format("%m");
-						$monthsLeft = $span - $monthsPassed;
-						$result['granting']['allow'][$type] = $monthsLeft <= 0;
+						if (!$granting) {
+							// No granting date found in granting entry. Perhaps it was rejected?
+							// Go ahead and allow this request type creation
+							// TODO: CONFIRM IF THIS IS THE ACTION TO TAKE IN THIS CASE
+							$result['granting']['allow'][$type] = true;
+						} else {
+							$currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
+							$interval = $granting->diff($currentDate);
+							$monthsPassed = $interval->format("%m");
+							$monthsLeft = $span - $monthsPassed;
+							$result['granting']['allow'][$type] = $monthsLeft <= 0;
+						}
 					}
 					$result['message'] = 'success';
 				}
@@ -123,31 +132,42 @@ class NewRequestController extends CI_Controller {
 				$result['granting']['allDenied'] = true;
 				$loanTypes = LOAN_TYPES;
 				foreach ($loanTypes as $type) {
-					$this->db->select('*');
-					$this->db->from('db_dt_prestamos');
-					$this->db->where('cedula', $_GET['userId']);
-					$this->db->where('concepto', $type);
+					$this->ipapedi_db = $this->load->database('ipapedi_db', true);
+					$this->ipapedi_db->select('*');
+					$this->ipapedi_db->from('db_dt_prestamos');
+					$this->ipapedi_db->where('cedula', $_GET['userId']);
+					$this->ipapedi_db->where('concepto', $type);
 					// get last granting date for corresponding request type.
-					$query = $this->db->order_by('otorg_fecha',"desc")->get();
+					$query = $this->ipapedi_db->order_by('otorg_fecha',"desc")->get();
 					if (empty($query->result())) {
 						// Seems like this is their first request. Grant permission to create!
 						$result['granting']['allow'][$type] = true;
 					} else {
 						$granting = date_create_from_format('d/m/Y', $query->result()[0]->otorg_fecha);
-						$currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
-						$interval = $granting->diff($currentDate);
-						$monthsPassed = $interval->format("%m");
-						$monthsLeft = $span - $monthsPassed;
-						if ($monthsLeft <= 0) {
-							$result['granting']['allow'][$type] = $monthsLeft <= 0;
-							$result['granting']['allDenied'] = false;
+						\ChromePhp::log($query->result()[0]);
+						\ChromePhp::log($granting);
+						if (!$granting) {
+							// No granting date found in granting entry. Perhaps it was rejected?
+							// Go ahead and allow this request type creation
+							// TODO: CONFIRM IF THIS IS THE ACTION TO TAKE IN THIS CASE
+							$result['granting']['allow'][$type] = true;
+						} else {
+							$currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
+							$interval = $granting->diff($currentDate);
+							$monthsPassed = $interval->format("%m");
+							$monthsLeft = $span - $monthsPassed;
+							if ($monthsLeft <= 0) {
+								$result['granting']['allow'][$type] = $monthsLeft <= 0;
+								$result['granting']['allDenied'] = false;
+							}
 						}
 					}
 				}
-				$this->db->select('*');
-				$this->db->from('db_dt_personales');
-				$this->db->where('cedula', $_GET['userId']);
-				$query = $this->db->get();
+				$this->ipapedi_db = $this->load->database('ipapedi_db', true);
+				$this->ipapedi_db->select('*');
+				$this->ipapedi_db->from('db_dt_personales');
+				$this->ipapedi_db->where('cedula', $_GET['userId']);
+				$query = $this->ipapedi_db->get();
 				if (empty($query->result())) {
 					// User info not found! Set concurrence to max.
 					$result['concurrence'] = 100;

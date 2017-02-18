@@ -634,9 +634,9 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
             $scope.missingField = function() {
                 return (
                     typeof $scope.userId === "undefined" ||
-                    typeof $scope.model.psw === "undefined" ||
-                    typeof $scope.model.name === "undefined" ||
-                    typeof $scope.model.lastname === "undefined"
+                    typeof $scope.model.password === "undefined" ||
+                    typeof $scope.model.firstName === "undefined" ||
+                    typeof $scope.model.lastName === "undefined"
                 );
             };
 

@@ -19,30 +19,18 @@ class UserInfoController extends CI_Controller {
 
 	public function getUserInfo() {
 		$result['message'] = "error";
-
-		if ($_SESSION['type'] == APPLICANT) {
-			$this->load->view('errors/index.html');
-		} else {
-			$this->db->select('*');
-			$this->db->from('db_dt_personales');
-			$this->db->where('cedula', $_GET['userId']);
-			$query = $this->db->get();
-			if (empty($query->result())) {
-				$result['message'] = "No se encontró información para el afiliado";
+		try {
+			if ($_SESSION['type'] == APPLICANT) {
+				$this->load->view('errors/index.html');
 			} else {
-				$result['data'] = $query->result()[0];
-				try {
-					$em = $this->doctrine->em;
-					$user = $em->find('\Entity\User', $_GET['userId']);
-					$result['userName'] = $user->getFirstName() . " " . $user->getLastName();
-					$result['message'] = "success";
-				} catch (Exception $e) {
-					$result['message'] = $this->utils->getErrorMsg($e);
-					\ChromePhp::log($e);
-				}
+				$this->load->model('userModel', 'users');
+				$result = $this->users->getIpapediUserInfo($this->input->get('userId'));
+				$result['message'] = "success";
 			}
+		} catch (Exception $e) {
+			\ChromePhp::log($e);
+			$result['message'] = $this->utils->getErrorMsg($e);
 		}
-
 		echo json_encode($result);
 	}
 }

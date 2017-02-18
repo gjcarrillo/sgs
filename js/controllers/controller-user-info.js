@@ -2,9 +2,9 @@ angular
     .module('sgdp')
     .controller('UserInfoController', info);
 
-info.$inject = ['$scope', '$http', '$mdMedia'];
+info.$inject = ['$scope', '$http', '$mdMedia', 'Utils'];
 
-function info($scope, $http, $mdMedia) {
+function info($scope, $http, $mdMedia, Utils) {
     'use strict';
 
     // If no data has been sent, show nothing.
@@ -19,6 +19,8 @@ function info($scope, $http, $mdMedia) {
             if (response.data.message = "success") {
                 $scope.userData = response.data.data;
                 $scope.userName = response.data.userName;
+            } else {
+                Utils.showAlertDialog('Oops!', response.data.message);
             }
             $scope.loading = false;
         });

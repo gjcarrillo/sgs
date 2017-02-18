@@ -400,6 +400,7 @@ function manager($http, $q, Requests) {
         $http.post('index.php/ManageAgentUsers/createNewAgent', userData)
             .then(
             function (response) {
+                console.log(response);
                 if (response.data.message == "success") {
                     qAgent.resolve();
                 } else {

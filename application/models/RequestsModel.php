@@ -311,16 +311,24 @@ class RequestsModel extends CI_Model
         try {
             $em = $this->doctrine->em;
             $span = $em->getRepository('\Entity\Config')->findOneBy(array('key' => 'SPAN'))->getValue();
-            $this->db->select('*');
-            $this->db->from('db_dt_prestamos');
-            $this->db->where('cedula', $uid);
-            $this->db->where('concepto', $loanType);
-            $query = $this->db->order_by('otorg_fecha',"desc")->get();
+
+            $this->ipapedi_db = $this->load->database('ipapedi_db', true);
+            $this->ipapedi_db->select('*');
+            $this->ipapedi_db->from('db_dt_prestamos');
+            $this->ipapedi_db->where('cedula', $uid);
+            $this->ipapedi_db->where('concepto', $loanType);
+            $query = $this->ipapedi_db->order_by('otorg_fecha',"desc")->get();
             if (empty($query->result())) {
                 // User's first request.
                 return 0;
             } else {
                 $granting = date_create_from_format('d/m/Y', $query->result()[0]->otorg_fecha);
+                if (!$granting) {
+                    // No granting date found in granting entry. Perhaps it was rejected?
+                    // Go ahead and allow this request type creation
+                    // TODO: CONFIRM IF THIS IS THE ACTION TO TAKE IN THIS CASE
+                    return 0;
+                }
                 $currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
                 $interval = $granting->diff($currentDate);
                 $monthsPassed = $interval->format("%m");

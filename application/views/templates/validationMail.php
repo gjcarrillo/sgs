@@ -193,7 +193,7 @@
                                         <p style="font-family: 'Open Sans',Helvetica,Arial,'Lucida Grande',sans-serif; box-sizing: border-box; text-align: left; font-size: 16px; color: #000; line-height: 1.75em; font-weight: 300; margin: 20px 0 0;">
                                             Si existe algún error con la información provista, por favor realice la correspondiente edición a través del sistema y volveremos a enviar el correo de validación con la información actualizada.
                                             <br/>
-                                            <br> En caso de haber realizado la solicitud por error, puede eliminarla haciendo clic "Eliminar solicitud", o si lo desea, a través del sistema.
+                                            <br> En caso de haber realizado la solicitud por error, puede eliminarla haciendo clic en "Eliminar solicitud", o si lo desea, a través del sistema.
                                             <br/>
                                             <br/>
                                         </p>

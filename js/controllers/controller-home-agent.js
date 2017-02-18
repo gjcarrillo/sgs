@@ -602,6 +602,8 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
                     function (granting) {
                         verifyGranting(granting);
                         $scope.model.opened = Requests.checkPreviousRequests(requests);
+                        // On-edition request should not be disabled (as we know it's still open)
+                        $scope.model.opened.hasOpen[request.type] = false;
                         $scope.loading = false;
                     },
                     function (error) {

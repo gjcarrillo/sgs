@@ -77,10 +77,11 @@ class ValidationController extends CI_Controller {
      */
     private function getUserConcurrence($userId) {
         try {
-            $this->db->select('*');
-            $this->db->from('db_dt_personales');
-            $this->db->where('cedula', $userId);
-            $query = $this->db->get();
+            $this->ipapedi_db = $this->load->database('ipapedi_db', true);
+            $this->ipapedi_db->select('*');
+            $this->ipapedi_db->from('db_dt_personales');
+            $this->ipapedi_db->where('cedula', $userId);
+            $query = $this->ipapedi_db->get();
             if (empty($query->result())) {
                 // User info not found! Set concurrence to max.
                 return 100;
