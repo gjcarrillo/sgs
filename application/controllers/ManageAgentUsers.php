@@ -22,12 +22,16 @@ class ManageAgentUsers extends CI_Controller {
 			$this->load->view('errors/index.html');
 		} else {
 			$data = json_decode(file_get_contents('php://input'), true);
-			\ChromePhp::log($data);
 			try {
 				$em = $this->doctrine->em;
 				$user = $em->find('\Entity\User', $data['id']);
 				if ($user != null && $user->getStatus() == "ACTIVO") {
-					$result['message'] = "La cédula " . $data['id'] . " ya se encuentra registrada";
+					if ($user->getType() != APPLICANT) {
+						$result['message'] = "La cédula " . $data['id'] . " ya se encuentra registrada";
+					} else {
+						$result['created'] = false;
+						$result['message'] = "success";
+					}
 				} else {
 					$this->load->model('userModel', 'users');
 					if ($user != null) {
@@ -39,8 +43,43 @@ class ManageAgentUsers extends CI_Controller {
 						$data['status'] = "ACTIVO";
 						$this->users->createUser($data);
 					}
+					$result['created'] = true;
 					$result['message'] = "success";
 				}
+			} catch (Exception $e) {
+				\ChromePhp::log($e);
+				$result['message'] = $this->utils->getErrorMsg($e);
+			}
+			echo json_encode($result);
+		}
+	}
+
+	public function upgradeUser () {
+		if ($this->session->type != MANAGER) {
+			$this->load->view('errors/index.html');
+		} else {
+			$data = json_decode(file_get_contents('php://input'), true);
+			try {
+				$this->load->model('userModel', 'users');
+				$this->users->upgradeUser($data['userId']);
+				$result['message'] = "success";
+			} catch (Exception $e) {
+				\ChromePhp::log($e);
+				$result['message'] = $this->utils->getErrorMsg($e);
+			}
+			echo json_encode($result);
+		}
+	}
+
+	public function degradeUser () {
+		if ($this->session->type != MANAGER) {
+			$this->load->view('errors/index.html');
+		} else {
+			$data = json_decode(file_get_contents('php://input'), true);
+			try {
+				$this->load->model('userModel', 'users');
+				$this->users->degradeUser($data['userId']);
+				$result['message'] = "success";
 			} catch (Exception $e) {
 				\ChromePhp::log($e);
 				$result['message'] = $this->utils->getErrorMsg($e);
@@ -80,7 +119,7 @@ class ManageAgentUsers extends CI_Controller {
 			try {
 				$em = $this->doctrine->em;
 				$agent = $em->find('\Entity\User', $data);
-				$agent->setType(APPLICANT);
+				$agent->setStatus("INACTIVO");
 				// Persist the changes in database.
 				$em->merge($agent);
 				$em->flush();

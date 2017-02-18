@@ -112,11 +112,11 @@
                     </div>
                 </md-content>
             </md-tab>
-            <md-tab label="Eliminar" md-on-select="selectedTab = 2">
+            <md-tab label="Revocar" md-on-select="selectedTab = 2">
                 <md-content>
                     <div layout="column" layout-padding>
                         <span class="grey-color">
-                            Por favor escoja el usuario a eliminar
+                            Por favor escoja el usuario agente al cual revocar privilegios
                         </span>
                         <md-input-container
                             id="select-agent"
@@ -150,9 +150,9 @@
         <md-button
             id="remove-btn"
             ng-disabled="!selectedUser"
-            ng-hide="uploading || selectedTab == 1" ng-click="deleteAgent()"
+            ng-hide="uploading || selectedTab == 1" ng-click="degradeUser()"
             class="md-primary">
-            Eliminar
+            Revocar
         </md-button>
         <md-progress-circular ng-show="uploading" md-mode="indeterminate" md-diameter="60"></md-progress-circular>
         <md-button ng-disabled="uploading" ng-click="closeDialog()" class="md-primary">

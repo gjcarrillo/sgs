@@ -26,7 +26,7 @@ function utils($mdDialog, Constants) {
     self.showConfirmDialog = function (title, body, pos, neg, ev, smaller) {
         var confirm = $mdDialog.confirm()
             .title(title)
-            .textContent(body)
+            .htmlContent(body)
             .css(smaller ? 'smaller-dialog-content' : '')
             .ariaLabel(title)
             .targetEvent(ev)

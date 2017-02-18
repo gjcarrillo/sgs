@@ -53,6 +53,40 @@ class UserModel extends CI_Model
         }
     }
 
+    public function upgradeUser ($uid) {
+        try {
+            $em = $this->doctrine->em;
+            $user = $em->find('\Entity\User', $uid);
+            if ($user->getType() != APPLICANT) {
+                // User most be APPLICANT for upgrading to AGENT.
+                throw new Exception ('No se pueden otorgar diferentes privilegios a este usuario.');
+            } else {
+                $user->setType(AGENT);
+                $em->merge($user);
+                $em->flush();
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function degradeUser ($uid) {
+        try {
+            $em = $this->doctrine->em;
+            $user = $em->find('\Entity\User', $uid);
+            if ($user->getType() != AGENT) {
+                // User most be AGENT for degrading to APPLICANT
+                throw new Exception ('No se pueden otorgar diferentes privilegios a este usuario.');
+            } else {
+                $user->setType(APPLICANT);
+                $em->merge($user);
+                $em->flush();
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
     public function getIpapediUserInfo($uid) {
         $result['message'] = "error";
         try {

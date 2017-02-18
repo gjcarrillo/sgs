@@ -657,11 +657,34 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 $scope.model.id = $scope.idPrefix + $scope.userId;
                 Manager.createNewAgent($scope.model)
                     .then(
-                    function () {
-                        $mdDialog.hide();
+                    function (created) {
+                        if (created) {
+                            $mdDialog.hide();
+                            Utils.showAlertDialog('Operación exitosa',
+                                                  'El nuevo usuario Gestor ha sido registrado exitosamente');
+                        } else {
+                            Utils.showConfirmDialog(
+                                'Advertencia',
+                                'El usuario ' + $scope.model.id + ' se encuentra registrado.<br/><br/> ' +
+                                '¿Desea concederle privilegios de AGENTE?',
+                                'Sí', 'Cancelar', $event, true
+                            ).then(
+                                function() {
+                                    // Re-open parent dialog and perform request creation
+                                    Manager.upgradeApplicant($scope.model.id).then(
+                                        function () {
+                                            Utils.showAlertDialog('Operación exitosa',
+                                                                  'Se han otorgado privilegios de AGENTE al usuario '
+                                                                  + $scope.model.id);
+                                        },
+                                        function (error) {
+                                            Utils.showAlertDialog('Oops!', error);
+                                        }
+                                    );
+                                }
+                            );
+                        }
                         $scope.uploading = false;
-                        Utils.showAlertDialog('Operación exitosa',
-                                              'El nuevo usuario Gestor ha sido registrado exitosamente');
                     },
                     function (error) {
                         $scope.uploading = false;
@@ -700,17 +723,18 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 }
             };
 
-            $scope.deleteAgent = function() {
+            $scope.degradeUser = function() {
                 $scope.errorMsg = '';
                 $scope.uploading = true;
-                Manager.deleteAgentUser($scope.selectedUser.value)
+                Manager.degradeAgent($scope.selectedUser.value)
                     .then(
                     function () {
                         // Close dialog and alert user that operation was successful.
                         $mdDialog.hide();
                         $scope.uploading = false;
                         Utils.showAlertDialog('Operación exitosa',
-                                              'El usuario elegido ha sido eliminado del sistema exitosamente');
+                                              'Los privilegios de AGENTE han sido revocados del usuario ' +
+                                              $scope.selectedUser.value);
                     },
                     function (error) {
                         $scope.uploading = false;

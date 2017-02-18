@@ -402,12 +402,52 @@ function manager($http, $q, Requests) {
             function (response) {
                 console.log(response);
                 if (response.data.message == "success") {
-                    qAgent.resolve();
+                    qAgent.resolve(response.data.created);
                 } else {
                     qAgent.reject(response.data.message);
                 }
             });
         return qAgent.promise;
+    };
+
+    /**
+     * Upgrades a user from APPLICANT to AGENT
+     * @param uid
+     * @returns {*} - promise containing the operation's result.
+     */
+    self.upgradeApplicant = function (uid) {
+        var qUser = $q.defer();
+        $http.post('index.php/ManageAgentUsers/upgradeUser', {userId: uid})
+            .then(
+            function (response) {
+                console.log(response);
+                if (response.data.message == "success") {
+                    qUser.resolve();
+                } else {
+                    qUser.reject(response.data.message);
+                }
+            });
+        return qUser.promise;
+    };
+
+    /**
+     * Upgrades a user from AGENT to APPLICANT
+     * @param uid
+     * @returns {*} - promise containing the operation's result.
+     */
+    self.degradeAgent = function (uid) {
+        var qUser = $q.defer();
+        $http.post('index.php/ManageAgentUsers/degradeUser', {userId: uid})
+            .then(
+            function (response) {
+                console.log(response);
+                if (response.data.message == "success") {
+                    qUser.resolve();
+                } else {
+                    qUser.reject(response.data.message);
+                }
+            });
+        return qUser.promise;
     };
 
     /**
