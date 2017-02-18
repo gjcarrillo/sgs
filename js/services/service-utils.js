@@ -12,6 +12,16 @@ function utils($mdDialog, Constants) {
 
     var self = this;
 
+    var supportedBrowsers = {
+        Chrome: 22,
+        Firefox: 22,
+        IE: 11,
+        Opera: 12.10,
+        Safari: 6.2,
+        Android: 4.2,
+        iPhone: 8
+    };
+
     /**
      * Shows a material design confirmation dialog.
      *
@@ -121,6 +131,16 @@ function utils($mdDialog, Constants) {
           var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
           return v.toString(16);
       });
+    };
+
+    /**
+     * Returns an object of supported browser/os versions.
+     *
+     * @returns {{Chrome: number, Firefox: number, IE: number, Opera: number, Safari: number, Android: number, iPhone:
+     *     number}}
+     */
+    self.getSupportedBrowsers = function () {
+        return supportedBrowsers;
     };
 
     return self;

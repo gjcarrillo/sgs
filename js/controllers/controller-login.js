@@ -2,13 +2,16 @@ angular
     .module('sgdp.login')
     .controller('LoginController', login);
 
-login.$inject = ['$scope', 'Auth', '$state', 'Constants', '$timeout'];
+login.$inject = ['$scope', 'Auth', '$state', 'Constants', '$timeout', 'Utils'];
 
-function login($scope, Auth, $state, Constants, $timeout) {
+function login($scope, Auth, $state, Constants, $timeout, Utils) {
     'use strict';
     $scope.idPrefix = "V";
     $scope.model = {};
     $scope.loginImagePath = "images/avatar_circle.png";
+
+    // Check for cross-compatibility first!
+    checkCompatibilityRequirements();
 
     $scope.login = function() {
         if (typeof $scope.model.login === "undefined" || $scope.model.login == "" ||
@@ -49,4 +52,17 @@ function login($scope, Auth, $state, Constants, $timeout) {
             $scope.idPrefix = $scope.backup;
         }
     };
+
+    function checkCompatibilityRequirements() {
+        var md = new MobileDetect(window.navigator.userAgent);
+        var supported = Utils.getSupportedBrowsers();
+        var browser = bowser.name;
+        var version = bowser.version;
+        console.log(bowser.name, bowser.version);
+        if ((md.is('iPhone') && md.version('iPhone') < 8) ||
+            (md.is('AndroidOS') && md.version('Android') < 4.2) ||
+            (version < supported[browser])) {
+            $state.go('incompatibility');
+        }
+    }
 }

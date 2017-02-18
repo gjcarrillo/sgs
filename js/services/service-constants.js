@@ -18,7 +18,7 @@ var obj = {
         APPROVED: 'Aprobada',
         REJECTED: 'Rechazada'
     },
-    BASEURL: 'http://localhost:8080/sgdp/'
+    BASEURL: 'http://192.168.1.106:8080/sgdp/'
 };
 
 constants.constant('Constants', obj);

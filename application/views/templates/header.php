@@ -41,6 +41,7 @@
         <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-perspective.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-validation.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-delete.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-incompatibility.js"></script>
 
         <!-- Plugins -->
         <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/moment/min/moment.min.js"></script>
@@ -48,6 +49,8 @@
         <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/ng-file-upload/dist/ng-file-upload.min.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/ng-file-upload/dist/ng-file-upload-shim.min.js"></script>
         <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/lodash/lodash.min.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/mobile-detect/mobile-detect.min.js"></script>
+        <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/bowser/bowser.min.js"></script>
 
         <!-- Modified version of trip js plugin. Fixed for truly responsive design :) -->
         <script type="text/javascript" src="<?php echo base_url(); ?>lib/trip.js/trip.js"></script>

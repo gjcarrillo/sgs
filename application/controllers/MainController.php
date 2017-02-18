@@ -9,4 +9,8 @@ class MainController extends CI_Controller {
 	{
 		$this->load->view('templates/header');
 	}
+
+	public function incompatible () {
+        $this->load->view('incompatible');
+	}
 }

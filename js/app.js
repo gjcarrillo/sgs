@@ -55,6 +55,11 @@ sgdp.config(function ($stateProvider, $urlRouterProvider, $mdThemingProvider,
             templateUrl: 'index.php/UserInfoController',
             controller: 'UserInfoController'
         })
+        .state('incompatibility', {
+            url: '/incompatible',
+            templateUrl: 'index.php/MainController/incompatible',
+            controller: 'IncompatibilityController'
+        })
         .state('validate', {
             url: '/validate/:token',
             templateUrl: 'index.php/ValidationController',
@@ -168,7 +173,8 @@ sgdp.run(['$rootScope', '$location', '$state', 'Auth', '$cookies', '$http',
                   if (!Auth.isLoggedIn() &&
                       url != "/login" &&
                       !url.startsWith('/validate') &&
-                      !url.startsWith('/delete')) {
+                      !url.startsWith('/delete') &&
+                      !url.startsWith('/incompatible')) {
                       // if user is not logged in and is trying to access
                       // private content, send to login.
                       e.preventDefault();
