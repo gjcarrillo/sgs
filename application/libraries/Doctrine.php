@@ -32,9 +32,9 @@ class Doctrine
         // Con esta configuración, tus archivos del modelo necesitan estar en application/models/Entity
         // Ejemplo: Al crear un nuevo Entity\User cargamos la clase desde application/models/Entity/User.php
         $models_namespace = 'Entity';
-        $models_path = APPPATH . 'models';
-        $proxies_dir = APPPATH . 'models/Proxies';
-        $metadata_paths = array(APPPATH . 'models');
+        $models_path = APPPATH . 'models/orm';
+        $proxies_dir = APPPATH . 'models/orm/Proxies';
+        $metadata_paths = array(APPPATH . 'models/orm');
 
         // Establezca $ dev_mode = TRUE para deshabilitar el almacenamiento en caché mientras desarrollas
         // 5th param = false will force Doctrine to use the not-simple AnnotationReader which can handle our models now.
