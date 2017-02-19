@@ -14,12 +14,12 @@ function incompatible($scope, Utils, $state) {
     var version = bowser.version;
     var supported = Utils.getSupportedBrowsers();
 
-    if ((md.is('iPhone') && md.version('iPhone') < supported['iPhone'])){
+    if ((md.is('iPhone') && md.version('iPhone') < supported.iPhone)){
         error += 'Se ha detectado que la versión de su software es iOS ' + md.version('iPhone') + ', ' +
-                 'y se require mínimo iOS .' + supported['iPhone'] +'<br/><br/>';
-    } else if (md.is('AndroidOS') && md.version('Android') < supported['Android']){
+                 'y se require mínimo iOS .' + supported.iPhone +'<br/><br/>';
+    } else if (md.is('AndroidOS') && md.version('Android') < supported.Android){
         error += 'Se ha detectado que la versión de su software es Android ' + md.version('Android') + ', ' +
-                 'y se require mínimo Android ' + supported['Android'] +'<br/><br/>';
+                 'y se require mínimo Android ' + supported.Android +'<br/><br/>';
     } else if (version < supported[browser]) {
         error += 'Se ha detectado que está utilizando el navegador ' + browser + ' ' + version + ', ' +
                  'y se requiere mínimo ' + browser + ' ' + supported[browser] + '<br/><br/>';

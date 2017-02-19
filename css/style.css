@@ -1,4 +1,4 @@
-main, body, .bg, .document-container {
+html, main, body, .bg, .document-container {
   background-color: #EEEEEE;
 }
 
@@ -32,16 +32,15 @@ footer {
     color: #827717;
 }
 
+.incompatibility-wrapper {
+    padding-top: 40px;
+}
+
 .incompatibility-error {
     background-color: #F44336;
     color: white;
     padding: 16px;
-    /*width : 80%;*/
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    -webkit-transform: translate(-50%, -50%);
+    margin: 0 40px;
 }
 
 .validation-card {
