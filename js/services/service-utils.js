@@ -19,7 +19,7 @@ function utils($mdDialog, Constants) {
         Opera: 12.10,
         Safari: 6.2,
         Android: 4.2,
-        iPhone: 8
+        iPhone: 7
     };
 
     /**
