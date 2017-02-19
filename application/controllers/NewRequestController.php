@@ -174,6 +174,9 @@ class NewRequestController extends CI_Controller {
 				} else {
 					$result['concurrence'] = $query->result()[0]->concurrencia;
 				}
+				$user = $em->find('Entity\User', $_GET['userId']);
+				$result['userPhone'] = $user->getPhone();
+				$result['userEmail'] = $user->getEmail();
 				$result['message'] = 'success';
 			} catch (Exception $e) {
 				\ChromePhp::log($e);

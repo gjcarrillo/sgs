@@ -117,6 +117,30 @@ class User extends \Entity\User implements \Doctrine\ORM\Proxy\Proxy
         return parent::getStatus();
     }
 
+    public function setPhone($phone)
+    {
+        $this->__load();
+        return parent::setPhone($phone);
+    }
+
+    public function getPhone()
+    {
+        $this->__load();
+        return parent::getPhone();
+    }
+
+    public function setEmail($email)
+    {
+        $this->__load();
+        return parent::setEmail($email);
+    }
+
+    public function getEmail()
+    {
+        $this->__load();
+        return parent::getEmail();
+    }
+
     public function addRequest(\Entity\Request $requests)
     {
         $this->__load();
@@ -138,7 +162,7 @@ class User extends \Entity\User implements \Doctrine\ORM\Proxy\Proxy
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'password', 'first_name', 'lastName', 'type', 'status', 'requests');
+        return array('__isInitialized__', 'id', 'password', 'first_name', 'lastName', 'type', 'status', 'phone', 'email', 'requests');
     }
 
     public function __clone()

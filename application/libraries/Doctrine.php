@@ -2,12 +2,12 @@
 use Doctrine\Common\ClassLoader,
     Doctrine\ORM\Tools\Setup,
     Doctrine\ORM\EntityManager;
+require_once BASEPATH . '/dotenv/autoloader.php';
 
 class Doctrine
 {
 
     public $em;
-
     public function __construct()
     {
         //adsadsadsadsa
@@ -16,13 +16,15 @@ class Doctrine
 
         // Carga la configuración de la base de datos desde CodeIgniter
         require __DIR__ . '/../config/database.php';
+        $dotenv = new Dotenv\Dotenv(BASEPATH . '../');
+        $dotenv->load();
 
         $connection_options = array(
             'driver'        => 'pdo_mysql',
-            'user'          => $db['default']['username'],
-            'password'      => $db['default']['password'],
-            'host'          => $db['default']['hostname'],
-            'dbname'        => $db['default']['database'],
+            'user'          => getenv('DB_USERNAME'),
+            'password'      => getenv('DB_PASSWORD'),
+            'host'          => getenv('DB_HOST'),
+            'dbname'        => getenv('DB_DATABASE'),
             'charset'       => $db['default']['char_set'],
             'driverOptions' => array(
                 'charset'   => $db['default']['char_set'],

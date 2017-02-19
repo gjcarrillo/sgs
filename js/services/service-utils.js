@@ -68,7 +68,7 @@ function utils($mdDialog, Constants) {
      *
      * @param n - number to format.
      * @param width - desired number's width.
-     * @param z - (optional) character to used in padding.
+     * @param z - (optional) character to used in padding. Defaults to '0'
      *
      * @returns {*} String containing the new formatted number.
      */

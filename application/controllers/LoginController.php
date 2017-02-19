@@ -81,6 +81,8 @@ class LoginController extends CI_Controller {
                     $data['lastName'] = implode(" ", $nameParts);
                     $data['status'] = $oldUser->estado;
                     $data['type'] = APPLICANT;
+                    $data['phone'] = $oldUser->telefono;
+                    $data['email'] = $oldUser->correo;
                     $this->users->createUser($data);
 
                     $result['type'] = APPLICANT;

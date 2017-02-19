@@ -22,7 +22,7 @@
                             <div layout="column" flex="45" flex-xs="100">
                                 <br/>
                                 <div class="grey-color">
-                                    Cédula de identidad
+                                    Cédula de identidad *
                                 </div>
                                 <div layout layout-align-gt-xs="start start" flex-xs="100">
                                     <md-input-container
@@ -48,6 +48,7 @@
                                         md-no-float>
                                        <input
                                            placeholder="Ej: 123456789"
+                                           type="number"
                                            required
                                            name="id"
                                            aria-label="userId"
@@ -61,7 +62,7 @@
                             <div layout="column" flex="45" flex-xs="100" flex-offset="10" flex-offset-xs="0">
                                 <br/>
                                 <div class="grey-color">
-                                    Contraseña
+                                    Contraseña *
                                 </div>
                                 <md-input-container id="user-psw" style="margin:0" class="md-block" md-no-float>
                                     <input
@@ -79,7 +80,7 @@
                         <div layout layout-xs="column" layout-padding>
                             <div layout="column" flex="45" flex-xs="100">
                                 <div class="grey-color">
-                                    Nombre
+                                    Nombre *
                                 </div>
                                 <md-input-container id="user-name" style="margin:0" class="md-block" md-no-float>
                                     <input name="name" required type="text" ng-model="model.firstName" placeholder="Ej: Carlos"/>
@@ -90,7 +91,7 @@
                             </div>
                             <div layout="column" flex="45" flex-xs="100" flex-offset="10" flex-offset-xs="0">
                                 <div class="grey-color">
-                                    Apellido
+                                    Apellido *
                                 </div>
                                 <md-input-container id="user-lastname" style="margin:0" class="md-block" md-no-float>
                                     <input
@@ -101,6 +102,43 @@
                                         placeholder="Ej: Gutierrez"/>
                                     <div ng-messages="userForm.lastname.$error" ng-show="userForm.lastname.$dirty">
                                         <div ng-message="required">¡Este campo es obligatorio!</div>
+                                    </div>
+                                </md-input-container>
+                            </div>
+                        </div>
+                        <div layout layout-xs="column" layout-padding>
+                            <div layout="column" flex="45" flex-xs="100">
+                                <div class="grey-color">
+                                    Teléfono
+                                </div>
+                                <md-input-container id="user-phone" style="margin:0" class="md-block" md-no-float>
+                                    <input
+                                        ng-model="model.phone"
+                                        type="number"
+                                        name="phone"
+                                        min="1"
+                                        minlength="10"
+                                        maxlength="10"
+                                        placeholder="Ej: 4141234567"/>
+                                    <div ng-messages="userForm.phone.$error" ng-show="userForm.phone.$dirty">
+                                        <div ng-message="minlength">Ehemplo: 4123456789.</div>
+                                        <div ng-message="maxlength">El número debe tener 10 dígitos.</div>
+                                    </div>
+                                </md-input-container>
+                            </div>
+                            <div layout="column" flex="45" flex-xs="100" flex-offset="10" flex-offset-xs="0">
+                                <div class="grey-color">
+                                    Correo
+                                </div>
+                                <md-input-container id="user-email" style="margin:0" class="md-block" md-no-float>
+                                    <input
+                                        name="email"
+                                        type="email"
+                                        pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$"
+                                        ng-model="model.email"
+                                        placeholder="ejemplo@dominio.com"/>
+                                    <div ng-messages="userForm.email.$error" ng-show="userForm.email.$dirty">
+                                        <div ng-message="pattern">Formato: ejemplo@dominio.com</div>
                                     </div>
                                 </md-input-container>
                             </div>

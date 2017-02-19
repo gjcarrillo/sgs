@@ -56,6 +56,7 @@
                             class="md-block">
                             <input
                                 type="number"
+                                min="0"
                                 placeholder="Ej: 123456789"
                                 ng-model="model.login"
                                 ng-keyup="$event.keyCode == 13 && login()">

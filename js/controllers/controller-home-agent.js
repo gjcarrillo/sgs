@@ -133,7 +133,7 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
             $scope.LOAN_TYPES = Constants.LoanTypes;
             // obj could have a reference to user data, saved
             // before confirmation dialog was opened.
-            $scope.model = obj || {due: 24, tel: {operator: '0412'}};
+            $scope.model = obj || {due: 24};
             $scope.confirmButton = 'Crear';
             $scope.title = 'Nueva solicitud de préstamo';
 
@@ -176,22 +176,8 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
             $scope.missingField = function () {
                 return typeof $scope.model.reqAmount === "undefined" ||
                        typeof $scope.model.type === "undefined" ||
-                       !$scope.model.tel.value ||
+                       !$scope.model.phone ||
                        !$scope.model.email;
-            };
-
-            // TODO: Try to implement this onSelectOpen and onSelectClose
-            // fix as a DIRECTIVE! Used un multiple views...
-            var backup;
-            $scope.onSelectOpen = function () {
-                backup = $scope.model.tel.operator;
-                $scope.model.tel.operator = null;
-            };
-
-            $scope.onSelectClose = function () {
-                if ($scope.model.tel.operator === null) {
-                    $scope.model.tel.operator = backup;
-                }
             };
 
             // Creates new request in database.
@@ -240,7 +226,7 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
                 var postData = {
                     userId: fetchId,
                     reqAmount: $scope.model.reqAmount,
-                    tel: $scope.model.tel.operator + '-' + $scope.model.tel.value,
+                    tel: Utils.pad($scope.model.phone, 11),
                     due: $scope.model.due,
                     loanType: parseInt($scope.model.type, 10),
                     email: $scope.model.email,
@@ -286,7 +272,7 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
                     content = "Ingrese la cantidad de Bs. solicitado por el afiliado.";
                     Helps.addFieldHelp(tripToShowNavigation, "#req-amount", content, 's');
                 }
-                if (!$scope.model.tel.value) {
+                if (!$scope.model.phone) {
                     // Phone number field
                     content = "Ingrese el número telefónico del afiliado, a través " +
                               "del cual se le estará contactando.";
@@ -643,11 +629,10 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
 
             $scope.missingField = function () {
                 return (typeof $scope.model.reqAmount === "undefined"
-                       || typeof $scope.model.tel.value === "undefined"
+                       || typeof $scope.model.phone === "undefined"
                        || typeof $scope.model.email === "undefined")
                        || ($scope.model.reqAmount === request.reqAmount &&
-                           $scope.model.tel.value === parseInt(request.phone.slice(5), 10) &&
-                           $scope.model.tel.operator === request.phone.slice(0, 4) &&
+                           $scope.model.phone === request.phone &&
                            $scope.model.email === request.email &&
                            parseInt($scope.model.due, 10) === request.due &&
                            $scope.model.type === request.type);
@@ -677,7 +662,7 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
                     rid: request.id,
                     userId: fetchId,
                     reqAmount: $scope.model.reqAmount,
-                    tel: $scope.model.tel.operator + '-' + $scope.model.tel.value,
+                    tel: Utils.pad($scope.model.phone, 11),
                     due: $scope.model.due,
                     loanType: $scope.model.type,
                     email: $scope.model.email
@@ -750,7 +735,7 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
                     Helps.addFieldHelp(tripToShowNavigation, "#req-amount",
                                        content, 's');
                 }
-                if (!$scope.model.tel.value) {
+                if (!$scope.model.phone) {
                     // Requested amount field
                     content = "Ingrese su número telefónico, a través " +
                               "del cual nos estaremos comunicando con usted.";

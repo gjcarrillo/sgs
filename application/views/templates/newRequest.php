@@ -75,36 +75,22 @@
                     </div>
                     <div layout layout-align="start start" style="max-width:200px">
                         <md-input-container
-                                class="no-vertical-margin"
-                                md-no-float>
-                            <md-select
-                                aria-label="telephone operator"
-                                md-on-open="onSelectOpen()"
-                                md-on-close="onSelectClose()"
-                                ng-model="model.tel.operator">
-                                <md-option value="0412">0412</md-option>
-                                <md-option value="0414">0414</md-option>
-                                <md-option value="0424">0424</md-option>
-                                <md-option value="0416">0416</md-option>
-                                <md-option value="0426">0426</md-option>
-                            </md-select>
-                        </md-input-container>
-                        <md-input-container
                             id="phone-numb"
                             md-no-float
                             class="no-vertical-margin">
                             <input
-                                ng-model="model.tel.value"
+                                ng-model="model.phone"
                                 type="number"
                                 name="phone"
-                                min="0"
-                                minlength="7"
-                                maxlength="7"
+                                min="1"
+                                minlength="10"
+                                maxlength="10"
                                 required
-                                placeholder="Ej: 1234567"/>
+                                placeholder="Ej: 4141234567"/>
                             <div ng-messages="applicantForm.phone.$error" ng-show="applicantForm.phone.$dirty">
                                 <div ng-message="required">¡Este campo es obligatorio!</div>
-                                <div ng-message="maxlength">El número debe tener 7 dígitos.</div>
+                                <div ng-message="minlength">Ehemplo: 4123456789.</div>
+                                <div ng-message="maxlength">El número debe tener 10 dígitos.</div>
                             </div>
                         </md-input-container>
                     </div>

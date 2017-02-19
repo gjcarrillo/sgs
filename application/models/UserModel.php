@@ -46,6 +46,8 @@ class UserModel extends CI_Model
             $user->setLastname($data['lastName']);
             $user->setType($data['type']);
             $user->setStatus($data['status']);
+            $user->setPhone($data['phone']);
+            $user->setEmail($data['email']);
             $em->persist($user);
             $em->flush();
         } catch (Exception $e) {

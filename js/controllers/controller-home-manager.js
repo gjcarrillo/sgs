@@ -654,8 +654,10 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
             $scope.createNewAgent = function() {
                 $scope.errorMsg = '';
                 $scope.uploading = true;
-                $scope.model.id = $scope.idPrefix + $scope.userId;
-                Manager.createNewAgent($scope.model)
+                var postData = JSON.parse(JSON.stringify($scope.model));
+                postData.id = $scope.idPrefix + $scope.userId;
+                postData.phone = Utils.pad($scope.model.phone, 11);
+                Manager.createNewAgent(postData)
                     .then(
                     function (created) {
                         if (created) {
@@ -765,6 +767,8 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                     "gestor ingresará al sistema.";
                 var contentName = "Ingrese el nombre del gestor.";
                 var contentLastName = "Ingrese el apellido del gestor.";
+                var contentPhone = "Ingrese el número telefónico (opcional).";
+                var contentEmail = "Ingrese el correo electrónico (opcional).";
                 if (typeof $scope.userId === "undefined") {
                     Helps.addFieldHelp(trip, "#user-id",
                         contentId, responsivePos);
@@ -780,6 +784,14 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 if (typeof $scope.model.lastname === "undefined") {
                     Helps.addFieldHelp(trip, "#user-lastname",
                         contentLastName, responsivePos);
+                }
+                if (typeof $scope.model.phone === "undefined") {
+                    Helps.addFieldHelp(trip, "#user-phone",
+                                       contentPhone, responsivePos);
+                }
+                if (typeof $scope.model.phone === "undefined") {
+                    Helps.addFieldHelp(trip, "#user-email",
+                                       contentEmail, responsivePos);
                 }
                 if (!$scope.missingField()) {
                     var content = "Haga click en REGISTRAR para crear " +

@@ -57,6 +57,20 @@ class User
     private $status;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="phone", type="string", length=15, precision=0, scale=0, nullable=true, unique=false)
+     */
+    private $phone;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="email", type="string", length=255, precision=0, scale=0, nullable=true, unique=false)
+     */
+    private $email;
+
+    /**
      * @var \Doctrine\Common\Collections\Collection
      *
      * @ORM\OneToMany(targetEntity="Entity\Request", mappedBy="userOwner")
@@ -207,6 +221,52 @@ class User
     public function getStatus()
     {
         return $this->status;
+    }
+
+    /**
+     * Set phone
+     *
+     * @param string $phone
+     * @return User
+     */
+    public function setPhone($phone)
+    {
+        $this->phone = $phone;
+
+        return $this;
+    }
+
+    /**
+     * Get phone
+     *
+     * @return string
+     */
+    public function getPhone()
+    {
+        return $this->phone;
+    }
+
+    /**
+     * Set email
+     *
+     * @param string $email
+     * @return User
+     */
+    public function setEmail($email)
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    /**
+     * Get email
+     *
+     * @return string
+     */
+    public function getEmail()
+    {
+        return $this->email;
     }
 
     /**
