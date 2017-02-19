@@ -13,7 +13,7 @@ class AgentHomeController extends CI_Controller {
         if ($this->session->type != AGENT) {
 			$this->load->view('errors/index.html');
 		} else {
-			$this->load->view('agentHome');
+			$this->load->view('templates/agentHome');
 		}
     }
 

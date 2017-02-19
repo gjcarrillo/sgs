@@ -12,7 +12,7 @@ class EditRequestController extends CI_Controller {
 		if ($_SESSION['type'] != AGENT) {
 			$this->load->view('errors/index.html');
 		} else {
-			$this->load->view('editRequest');
+			$this->load->view('templates/editRequest');
 		}
 	}
 
@@ -20,7 +20,7 @@ class EditRequestController extends CI_Controller {
 		if ($_SESSION['type'] != AGENT) {
 			$this->load->view('errors/index.html');
 		} else {
-			$this->load->view('editDocDescription');
+			$this->load->view('templates/editDocDescription');
 		}
 	}
 
@@ -28,7 +28,7 @@ class EditRequestController extends CI_Controller {
 		if ($_SESSION['type'] != APPLICANT) {
 			$this->load->view('errors/index.html');
 		} else {
-			$this->load->view('editEmail');
+			$this->load->view('templates/editEmail');
 		}
 	}
 

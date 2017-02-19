@@ -13,7 +13,7 @@ class HistoryController extends CI_Controller {
 		if ($_SESSION['type'] == APPLICANT) {
 			$this->load->view('errors/index.html');
 		} else {
-			$this->load->view('history');
+			$this->load->view('templates/history');
 		}
 	}
 

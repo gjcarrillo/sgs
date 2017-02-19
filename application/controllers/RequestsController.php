@@ -48,7 +48,7 @@ class RequestsController extends CI_Controller {
 
     public function deleteRequestView() {
         // Validations are performed when executing (automatically) deleteRequestJWT
-        $this->load->view('deleteRequest');
+        $this->load->view('templates/deleteRequest');
     }
 
     public function deleteRequestJWT() {

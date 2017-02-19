@@ -142,21 +142,3 @@
     </md-content>
 </main>
 <md-divider></md-divider>
-<footer hide-xs>
-    <div layout layout-align="space-around center">
-        <span>&copy; IPAPEDI 2016</span>
-        <span>Desarrollado por
-            <a class="md-accent" href="https://ve.linkedin.com/in/kristopherch" target="_blank">
-                Kristopher Perdomo
-            </a></span>
-        <md-button class="md-accent" href="http://www.ipapedi.com" target="_blank">IPAPEDI</md-button>
-    </div>
-</footer>
-<footer hide-gt-xs>
-    <div layout layout-align="center center" layout-padding>
-        <span>&copy; <a href="http://www.ipapedi.com" target="_blank">IPAPEDI</a> 2016,
-            por <a href="https://ve.linkedin.com/in/kristopherch" target="_blank">Kristopher Perdomo</a></span>
-    </div>
-</footer>
-</body>
-</html>

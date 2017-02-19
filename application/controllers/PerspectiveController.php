@@ -13,7 +13,7 @@ class PerspectiveController extends CI_Controller {
         if ($_SESSION['type'] == APPLICANT) {
 			$this->load->view('errors/index.html');
 		} else {
-			$this->load->view('perspective');
+			$this->load->view('templates/perspective');
 		}
     }
 }

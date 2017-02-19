@@ -13,7 +13,7 @@ class ManageAgentUsers extends CI_Controller {
 		if ($_SESSION['type'] != MANAGER) {
 			$this->load->view('errors/index.html');
 		} else {
-			$this->load->view('manageAgentUsers');
+			$this->load->view('templates/manageAgentUsers');
 		}
 	}
 

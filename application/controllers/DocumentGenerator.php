@@ -8,10 +8,6 @@ class DocumentGenerator extends CI_Controller {
         $this->load->library('session');
     }
 
-    public function index() {
-        $this->load->view('DocumentGenerator');
-    }
-
 	/**
 	 * Generates a simple (w/o conditions or exceptions) requets report.
 	 * Currently used for specific user requests & reports by loan type.

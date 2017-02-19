@@ -10,7 +10,7 @@ class ValidationController extends CI_Controller {
     }
 
     public function index() {
-        $this->load->view('validation');
+        $this->load->view('templates/validation');
     }
 
     public function validate() {

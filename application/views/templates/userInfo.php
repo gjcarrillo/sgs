@@ -1,7 +1,7 @@
 <md-toolbar layout-padding>
     <div class="md-toolbar-tools">
         <h2 class="md-headline">
-            <span>{{appName}}</span>
+            <span>Detalles de usuario</span>
         </h2>
         <span flex></span>
         <md-button class="md-icon-button" ng-click="showHelp()" aria-label="Help">

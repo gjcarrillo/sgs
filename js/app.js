@@ -22,53 +22,114 @@ sgdp.config(function ($stateProvider, $urlRouterProvider, $mdThemingProvider,
     $stateProvider
         .state('login', {
             url: '/login',
-            templateUrl: 'index.php/LoginController',
-            controller: 'LoginController'
+            views: {
+                'content': {
+                    templateUrl: 'index.php/LoginController',
+                    controller: 'LoginController'
+                },
+                'footer': {
+                    templateUrl: 'index.php/MainController/footer'
+                }
+            }
         })
         .state('applicantHome', {
             url: '/applicantHome',
-            templateUrl: 'index.php/ApplicantHomeController',
-            controller: 'ApplicantHomeController'
+            views: {
+                'content': {
+                    templateUrl: 'index.php/ApplicantHomeController',
+                    controller: 'ApplicantHomeController'
+                },
+                'footer': {
+                    templateUrl: 'index.php/MainController/footer'
+                }
+            }
         })
         .state('agentHome', {
             url: '/agentHome',
-            templateUrl: 'index.php/AgentHomeController',
-            controller: 'AgentHomeController'
+            views: {
+                'content': {
+                    templateUrl: 'index.php/AgentHomeController',
+                    controller: 'AgentHomeController'
+                },
+                'footer': {
+                    templateUrl: 'index.php/MainController/footer'
+                }
+            }
         })
         .state('managerHome', {
             url: '/managerHome',
-            templateUrl: 'index.php/ManagerHomeController',
-            controller: 'ManagerHomeController'
+            views: {
+                'content': {
+                    templateUrl: 'index.php/ManagerHomeController',
+                    controller: 'ManagerHomeController'
+                },
+                'footer': {
+                    templateUrl: 'index.php/MainController/footer'
+                }
+            }
         })
         .state('history', {
             url: '/history',
-            templateUrl: 'index.php/HistoryController',
-            controller: 'HistoryController'
+            views: {
+                'content': {
+                    templateUrl: 'index.php/HistoryController',
+                    controller: 'HistoryController'
+                }
+            }
         })
         .state('perspective', {
             url: '/perspective',
-            templateUrl: 'index.php/PerspectiveController',
-            controller: 'PerspectiveController'
+            views: {
+                'content': {
+                    templateUrl: 'index.php/PerspectiveController',
+                    controller: 'PerspectiveController'
+                },
+                'footer': {
+                    templateUrl: 'index.php/MainController/footer'
+                }
+            }
         })
         .state('userInfo', {
             url: '/userInfo',
-            templateUrl: 'index.php/UserInfoController',
-            controller: 'UserInfoController'
+            views: {
+                'content': {
+                    templateUrl: 'index.php/UserInfoController',
+                    controller: 'UserInfoController'
+                }
+            }
         })
         .state('incompatibility', {
             url: '/incompatible',
-            templateUrl: 'index.php/MainController/incompatible',
-            controller: 'IncompatibilityController'
+            views: {
+                'content': {
+                    templateUrl: 'index.php/MainController/incompatible',
+                    controller: 'IncompatibilityController'
+                }
+            }
         })
         .state('validate', {
             url: '/validate/:token',
-            templateUrl: 'index.php/ValidationController',
-            controller: 'ValidationController'
+            views: {
+                'content': {
+                    templateUrl: 'index.php/ValidationController',
+                    controller: 'ValidationController'
+                },
+                'footer': {
+                    templateUrl: 'index.php/MainController/footer'
+                }
+            }
         })
         .state('delete', {
             url: '/delete/:rid',
-            templateUrl: 'index.php/RequestsController/deleteRequestView',
-            controller: 'DeleteController'
+            views: {
+                'content': {
+                    templateUrl: 'index.php/RequestsController/deleteRequestView',
+                    controller: 'DeleteController'
+                },
+                'footer': {
+                    templateUrl: 'index.php/MainController/footer'
+                }
+            }
         });
     // $locationProvider.html5Mode(true);
     // Application theme
@@ -161,9 +222,6 @@ sgdp.config(function ($stateProvider, $urlRouterProvider, $mdThemingProvider,
 
 sgdp.run(['$rootScope', '$location', '$state', 'Auth', '$cookies', '$http',
           function ($rootScope, $location, $state, Auth, $cookies, $http) {
-              $rootScope.appName = "SGDP";
-              $rootScope.pageTitle = "SGDP";
-
               $rootScope.logout = function () {
                   $http.get('index.php/LoginController/logout');
                   Auth.logout();

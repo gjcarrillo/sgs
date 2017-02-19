@@ -13,7 +13,7 @@ class ManagerHomeController extends CI_Controller {
 		if ($_SESSION['type'] != MANAGER) {
 			$this->load->view('errors/index.html');
 		} else {
-			$this->load->view('managerHome');
+			$this->load->view('templates/managerHome');
 		}
 	}
 

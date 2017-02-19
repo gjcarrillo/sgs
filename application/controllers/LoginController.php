@@ -10,7 +10,7 @@ class LoginController extends CI_Controller {
     }
 
     public function index() {
-        $this->load->view('login');
+        $this->load->view('templates/login');
     }
 
     public function authenticate() {

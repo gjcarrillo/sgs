@@ -15,7 +15,7 @@ class NewRequestController extends CI_Controller {
 			$this->load->view('errors/index.html');
 		} else {
 			// Managers can't create requests
-			$this->load->view('newRequest');
+			$this->load->view('templates/newRequest');
 		}
 	}
 

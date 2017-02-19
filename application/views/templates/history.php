@@ -6,7 +6,7 @@
             </md-icon>
         </md-button>
         <h2 style="padding-right:10px;" class="md-headline">
-            <span>{{appName}}</span>
+            <span>Historial</span>
         </h2>
         <span flex></span>
         <!-- Filter search bar -->
@@ -66,7 +66,7 @@
         <md-card class="history-card">
             <md-card-title>
                 <div class="md-toolbar-tools">
-                    <h2 class="md-headline">Historial de acciones</h2>
+                    <h2 class="md-headline">Cantidad de acciones: {{history.length}}</h2>
                 </div>
             </md-card-title>
             <md-divider></md-divider>

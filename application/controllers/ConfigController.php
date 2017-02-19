@@ -19,7 +19,7 @@ class ConfigController extends CI_Controller
         if ($this->session->type != MANAGER) {
             $this->load->view('errors/index.html');
         } else {
-            $this->load->view('systemConfig');
+            $this->load->view('templates/systemConfig');
         }
     }
 

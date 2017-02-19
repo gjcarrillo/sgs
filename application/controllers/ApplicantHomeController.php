@@ -10,7 +10,7 @@ class ApplicantHomeController extends CI_Controller {
     }
 
 	public function index() {
-        $this->load->view('applicantHome');
+        $this->load->view('templates/applicantHome');
 	}
 
     public function sendValidation() {

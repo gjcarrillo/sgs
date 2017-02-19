@@ -307,6 +307,11 @@ md-select.no-md-select .md-select-value {
     margin-bottom: 0;
 }
 
+.footer-text {
+    margin: 6px 8px;
+    line-height: 36px;
+}
+
 .perspective-svg {
     color: grey;
     height: 128px;

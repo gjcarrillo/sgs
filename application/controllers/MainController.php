@@ -2,15 +2,15 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 class MainController extends CI_Controller {
 
-	/**
-	 * Load Headers
-	 */
-	public function index()
-	{
-		$this->load->view('templates/header');
+	public function index() {
+		$this->load->view('index');
+	}
+
+	public function footer() {
+        $this->load->view('templates/footer');
 	}
 
 	public function incompatible () {
-        $this->load->view('incompatible');
+        $this->load->view('templates/incompatible');
 	}
 }
