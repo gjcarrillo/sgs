@@ -114,7 +114,7 @@
                     <md-card-content>
                         <p style="color: #2E7D32">
                             Descargue <a href="<?php echo base_url() . 'public/manual.pdf'; ?>" target="_blank">
-                                aquí</a> el Manual del Usuario para conocer a fondo las funcionalidades de este sistema.
+                                aquí</a> el Manual del Usuario para conocer a fondo las funcionalidades del sistema.
                         </p>
                     </md-card-content>
                 </md-card>
