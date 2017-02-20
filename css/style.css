@@ -18,11 +18,14 @@ footer {
 
 .login-card {
     width: 40%;
-    margin-bottom: 60px;
 }
 
 .help-card {
     max-width: 60%;
+}
+
+.manual-card {
+    margin: 16px;
 }
 
 .help-title {

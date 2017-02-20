@@ -182,6 +182,9 @@ sgdp.config(function ($stateProvider, $urlRouterProvider, $mdThemingProvider,
     $mdThemingProvider.theme('help-card').backgroundPalette('lime', {
         'default': '100'
     });
+    $mdThemingProvider.theme('manual-card').backgroundPalette('green', {
+        'default': '50'
+    });
     $mdThemingProvider.theme('default')
         .primaryPalette('darkBlue')
         .accentPalette('red');

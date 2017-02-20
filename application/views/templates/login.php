@@ -2,26 +2,28 @@
 <md-toolbar layout-padding>
     <div layout layout-align="center center" class="md-toolbar-tools">
         <h1 class="md-headline" style="text-align:center">
-            <span>Sistema de Gestión de Documentos de Préstamo</span>
+            <span>Inicio de sesión - Sistema de Gestión de Solicitudes</span>
         </h1>
     </div>
 </md-toolbar>
 <!-- Content -->
 <main class="main-w-footer">
-    <div ng-hide="recovery.recoveryView" layout="column" layout-align="center center" layout-padding>
+    <div layout="column" layout-align="center center" layout-padding>
         <!-- <h1 class="md-title" style="font-weight:300; text-align:center">Todos tus documentos. Un solo lugar.</h1> -->
-        <span class="md-subhead">Inicie sesión para ingresar al sistema</span>
+        <!--<span class="md-subhead">Inicie sesión para ingresar al sistema</span>-->
     </div>
     <md-content>
         <div layout="column" layout-align="center center" style="background:#EEEEEE">
+            <md-card md-theme="help-card" class="login-card">
+                <md-card-content>
+                    <p>
+                        <md-icon style="color:#827717">info_outline</md-icon> Estimado usuario,
+                        para iniciar sesión por favor utilice las mismas credenciales utilizadas
+                        para acceder a IPAPEDI en linea.
+                    </p>
+                </md-card-content>
+            </md-card>
             <md-card class="login-card">
-                <md-card-title layout layout-align="center center">
-                    <md-card-title-media>
-                        <div class="md-media-md card-media">
-                            <img ng-src="{{loginImagePath}}" class="md-avatar" alt="Login Image">
-                        </div>
-                    </md-card-title-media>
-                </md-card-title>
                 <br/>
                 <md-card-content>
                     <div layout flex-xs="90" flex-gt-xs="80">
@@ -107,7 +109,16 @@
                     <br/>
                 </md-card-content>
             </md-card>
-
+            <div layout="column" layout-align="center center">
+                <md-card md-theme="manual-card" class="manual-card">
+                    <md-card-content>
+                        <p style="color: #2E7D32">
+                            Descargue <a href="<?php echo base_url() . 'public/manual.pdf'; ?>" target="_blank">
+                                aquí</a> el Manual del Usuario para conocer a fondo las funcionalidades de este sistema.
+                        </p>
+                    </md-card-content>
+                </md-card>
+            </div>
         </div>
     </md-content>
 </main>
