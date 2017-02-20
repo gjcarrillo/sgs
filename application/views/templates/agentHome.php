@@ -394,7 +394,9 @@
                                             <p>{{doc.description}}</p>
                                         </div>
                                         <md-button
-                                            ng-if="doc.name =='Constancia'"
+                                            ng-if="doc.name =='Constancia' ||
+                                                req.status == APPROVED_STRING ||
+                                                req.status == REJECTED_STRING"
                                             class="md-icon-button">
                                             <md-icon class="md-secondary">
                                                 file_download
@@ -402,7 +404,9 @@
                                         </md-button>
                                         <md-menu
                                             id="request-docs-actions"
-                                            ng-if="doc.name !='Constancia'">
+                                            ng-if="doc.name !='Constancia' &&
+                                                req.status != APPROVED_STRING &&
+                                                req.status != REJECTED_STRING">
                                             <md-button
                                                 ng-click="$mdOpenMenu($event)"
                                                 class="md-icon-button"
