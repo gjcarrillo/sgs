@@ -664,7 +664,7 @@ class ManagerHomeController extends CI_Controller {
 						$qb->expr()->eq('h.title', '?1'),
 						$qb->expr()->between('h.date', '?2', '?3')
 					));
-                $qb->setParameter(1, 4);
+                $qb->setParameter(1, $this->utils->getHistoryActionName('closure'));
 				$qb->setParameter(2, $from);
                 $qb->setParameter(3, $to);
                 $history = $qb->getQuery()->getResult();

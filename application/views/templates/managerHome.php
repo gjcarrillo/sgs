@@ -47,7 +47,7 @@
                 <md-menu-item>
                     <md-button ng-click="openManageUserAgentDialog($event)" aria-label="Manage Agents">
                         <md-icon>account_box</md-icon>
-                        Administrar gestores
+                        Administrar agentes
                     </md-button>
                 </md-menu-item>
                 <md-menu-item>

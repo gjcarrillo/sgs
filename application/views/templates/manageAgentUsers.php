@@ -2,7 +2,7 @@
     <!-- Dialog title -->
     <md-toolbar>
         <div class="md-toolbar-tools">
-            <h2>Administración de gestores</h2>
+            <h2>Administración de agentes</h2>
             <span flex></span>
             <md-button class="md-icon-button" ng-click="showHelp()" aria-label="Help">
                 <md-icon>help_outline</md-icon>
