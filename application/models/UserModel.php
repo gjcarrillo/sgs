@@ -78,7 +78,7 @@ class UserModel extends CI_Model
             $user = $em->find('\Entity\User', $uid);
             if ($user->getType() != AGENT) {
                 // User most be AGENT for degrading to APPLICANT
-                throw new Exception ('No se pueden otorgar diferentes privilegios a este usuario.');
+                throw new Exception ('No se puede revocar privilegios a este usuario.');
             } else {
                 $user->setType(APPLICANT);
                 $em->merge($user);
