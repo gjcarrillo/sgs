@@ -66,30 +66,37 @@ class Request
     /**
      * @var integer
      *
-     * @ORM\Column(name="paymentDue", type="smallint", precision=2, scale=0, nullable=false, unique=false)
+     * @ORM\Column(name="payment_due", type="smallint", precision=2, scale=0, nullable=false, unique=false)
      */
     private $paymentDue;
 
     /**
      * @var integer
      *
-     * @ORM\Column(name="loanType", type="smallint", precision=2, scale=0, nullable=false, unique=false)
+     * @ORM\Column(name="loan_type", type="smallint", precision=2, scale=0, nullable=false, unique=false)
      */
     private $loanType;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="contactNumb", type="string", length=15, precision=0, scale=0, nullable=false, unique=false)
+     * @ORM\Column(name="contact_numb", type="string", length=15, precision=0, scale=0, nullable=false, unique=false)
      */
     private $contactNumber;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="contactEmail", type="string", length=255, precision=0, scale=0, nullable=false, unique=false)
+     * @ORM\Column(name="contact_email", type="string", length=255, precision=0, scale=0, nullable=false, unique=false)
      */
     private $contactEmail;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="validation_date", type="datetime", precision=0, scale=0, nullable=true, unique=false)
+     */
+    private $validationDate;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
@@ -114,13 +121,6 @@ class Request
      * })
      */
     private $userOwner;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="validation_date", type="datetime", precision=0, scale=0, nullable=true, unique=false)
-     */
-    private $validationDate;
 
     /**
      * Constructor
@@ -162,29 +162,6 @@ class Request
     public function getCreationDate()
     {
         return $this->creationDate;
-    }
-
-    /**
-     * Set validationDate
-     *
-     * @param \DateTime $validationDate
-     * @return Request
-     */
-    public function setValidationDate($validationDate)
-    {
-        $this->validationDate = $validationDate;
-
-        return $this;
-    }
-
-    /**
-     * Get validationDate
-     *
-     * @return \DateTime
-     */
-    public function getValidationDate()
-    {
-        return $this->validationDate;
     }
 
     /**
@@ -392,6 +369,29 @@ class Request
     public function getContactEmail()
     {
         return $this->contactEmail;
+    }
+
+    /**
+     * Set validationDate
+     *
+     * @param \DateTime $validationDate
+     * @return Request
+     */
+    public function setValidationDate($validationDate)
+    {
+        $this->validationDate = $validationDate;
+
+        return $this;
+    }
+
+    /**
+     * Get validationDate
+     *
+     * @return \DateTime
+     */
+    public function getValidationDate()
+    {
+        return $this->validationDate;
     }
 
     /**

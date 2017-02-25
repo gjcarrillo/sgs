@@ -28,11 +28,10 @@ class History
      */
     private $date;
 
-
     /**
      * @var string
      *
-     * @ORM\Column(name="user_responsable", type="string", length=255, precision=0, scale=0, nullable=false, unique=false)
+     * @ORM\Column(name="user_responsible", type="string", length=255, precision=0, scale=0, nullable=false, unique=false)
      */
     private $userResponsable;
 
@@ -42,7 +41,6 @@ class History
      * @ORM\Column(name="title", type="smallint", precision=2, scale=0, nullable=false, unique=false)
      */
     private $title;
-
 
     /**
      * @var \Doctrine\Common\Collections\Collection
@@ -126,6 +124,29 @@ class History
     }
 
     /**
+     * Set title
+     *
+     * @param integer $title
+     * @return History
+     */
+    public function setTitle($title)
+    {
+        $this->title = $title;
+
+        return $this;
+    }
+
+    /**
+     * Get title
+     *
+     * @return integer
+     */
+    public function getTitle()
+    {
+        return $this->title;
+    }
+
+    /**
      * Add actions
      *
      * @param \Entity\HistoryAction $actions
@@ -180,28 +201,4 @@ class History
     {
         return $this->origin;
     }
-
-    /**
-     * Set title
-     *
-     * @param string $title
-     * @return History
-     */
-    public function setTitle($title)
-    {
-        $this->title = $title;
-
-        return $this;
-    }
-
-    /**
-     * Get title
-     *
-     * @return string
-     */
-    public function getTitle()
-    {
-        return $this->title;
-    }
-
 }
