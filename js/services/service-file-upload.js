@@ -25,7 +25,7 @@ function fileUpload($q, Upload, $http) {
         var qUpload = $q.defer();
 
         file.upload = Upload.upload({
-            url: 'index.php/NewRequestController/upload',
+            url: 'NewRequestController/upload',
             data: {
                 file: file,
                 userId: userId,
@@ -71,7 +71,7 @@ function fileUpload($q, Upload, $http) {
 
         angular.forEach(files, function (file, index) {
             file.upload = Upload.upload({
-                url: 'index.php/NewRequestController/upload',
+                url: 'NewRequestController/upload',
                 data: {
                     file: file,
                     userId: userId,

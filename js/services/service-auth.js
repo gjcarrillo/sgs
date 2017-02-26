@@ -84,7 +84,7 @@ function auth($cookies, $location, $http, $rootScope, $q, Agent, Manager) {
 
     self.updateSession = function (newType) {
         var qSession = $q.defer();
-        $http.post('index.php/LoginController/updateSession', {newType: newType})
+        $http.post('LoginController/updateSession', {newType: newType})
             .then(
             function (response) {
                 if (response.status == 200) {

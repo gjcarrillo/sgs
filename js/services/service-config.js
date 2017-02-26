@@ -18,7 +18,7 @@ function config ($http, $q) {
      */
     self.getStatuses = function () {
         var qStatuses = $q.defer();
-        $http.get('index.php/ConfigController/getStatuses')
+        $http.get('ConfigController/getStatuses')
             .then(
             function (response) {
                 if (response.data.message === "success") {
@@ -39,7 +39,7 @@ function config ($http, $q) {
      */
     self.getStatusesForConfig = function() {
         var qStatuses = $q.defer();
-        $http.get('index.php/ConfigController/getStatusesForConfig')
+        $http.get('ConfigController/getStatusesForConfig')
             .then(
             function (response) {
                 console.log(response);
@@ -61,7 +61,7 @@ function config ($http, $q) {
      */
     self.saveStatuses = function (statuses) {
         var qStatuses = $q.defer();
-        $http.post('index.php/ConfigController/saveStatuses', {statuses: statuses})
+        $http.post('ConfigController/saveStatuses', {statuses: statuses})
             .then(
             function (response) {
                 if (response.data.message === "success") {
@@ -81,7 +81,7 @@ function config ($http, $q) {
      */
     self.getMaxReqAmount = function () {
         var qReqAmount = $q.defer();
-        $http.get('index.php/ConfigController/getMaxReqAmount')
+        $http.get('ConfigController/getMaxReqAmount')
             .then(
             function (response) {
                 if (response.data.message === "success") {
@@ -101,7 +101,7 @@ function config ($http, $q) {
      */
     self.getMinReqAmount = function () {
         var qReqAmount = $q.defer();
-        $http.get('index.php/ConfigController/getMinReqAmount')
+        $http.get('ConfigController/getMinReqAmount')
             .then(
             function (response) {
                 if (response.data.message === "success") {
@@ -123,7 +123,7 @@ function config ($http, $q) {
      */
     self.updateReqAmount = function (minAmount, maxAmount) {
         var qReqAmount = $q.defer();
-        $http.post('index.php/ConfigController/setReqAmount',
+        $http.post('ConfigController/setReqAmount',
             {minAmount: minAmount, maxAmount: maxAmount})
             .then(
             function (response) {
@@ -144,7 +144,7 @@ function config ($http, $q) {
      */
     self.getRequestsSpan = function () {
         var qSpan = $q.defer();
-        $http.get('index.php/ConfigController/getRequestsSpan')
+        $http.get('ConfigController/getRequestsSpan')
             .then(
             function (response) {
                 if (response.data.message === "success") {
@@ -165,7 +165,7 @@ function config ($http, $q) {
      */
     self.updateRequestsSpan = function (span) {
         var qSpan = $q.defer();
-        $http.post('index.php/ConfigController/updateRequestsSpan', {span: span})
+        $http.post('ConfigController/updateRequestsSpan', {span: span})
             .then(
             function (response) {
                 if (response.data.message === "success") {

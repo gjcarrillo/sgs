@@ -28,7 +28,7 @@ function reqService($q, $http, Constants, $filter, Utils) {
      */
     self.getUserRequests = function (fetchId) {
         var qReq = $q.defer();
-        $http.get('index.php/RequestsController/getUserRequests',
+        $http.get('RequestsController/getUserRequests',
             {params: {fetchId: fetchId}})
             .then(
             function (response) {

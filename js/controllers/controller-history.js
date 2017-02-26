@@ -16,7 +16,7 @@ function history($scope, $http, $mdBottomSheet, $mdMedia, $timeout) {
     // Take the stored data of interest
     var request = JSON.parse(sessionStorage.getItem("req"));
 
-    $http.get('index.php/HistoryController/fetchRequestHistory', {params:request})
+    $http.get('HistoryController/fetchRequestHistory', {params:request})
         .then(function (response) {
             if (response.data.message === "success") {
                 $scope.history = response.data.history;
@@ -26,7 +26,7 @@ function history($scope, $http, $mdBottomSheet, $mdMedia, $timeout) {
 
     $scope.showListBottomSheet = function(selectedHistory) {
         $mdBottomSheet.show({
-            templateUrl: 'index.php/DetailsBottomSheetController',
+            templateUrl: 'DetailsBottomSheetController',
             locals:{
                 actions:selectedHistory.actions
             },

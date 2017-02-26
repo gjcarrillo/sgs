@@ -122,7 +122,7 @@ function manager($http, $q, Requests) {
      */
     self.fetchRequestsByStatus = function (status) {
         var qStatus = $q.defer();
-        $http.get('index.php/ManagerHomeController/fetchRequestsByStatus',
+        $http.get('ManagerHomeController/fetchRequestsByStatus',
             {params: {status: status}})
             .then(
             function (response) {
@@ -141,7 +141,7 @@ function manager($http, $q, Requests) {
 
     self.fetchPendingRequests = function () {
         var qPending = $q.defer();
-        $http.get('index.php/ManagerHomeController/fetchPendingRequests')
+        $http.get('ManagerHomeController/fetchPendingRequests')
             .then(
             function (response) {
                 console.log(response);
@@ -165,7 +165,7 @@ function manager($http, $q, Requests) {
      */
     self.fetchRequestsByLoanType = function (loanType) {
         var qLoanType = $q.defer();
-        $http.get('index.php/ManagerHomeController/fetchRequestsByLoanType',
+        $http.get('ManagerHomeController/fetchRequestsByLoanType',
             {params: {loanType: loanType}})
             .then(
             function (response) {
@@ -189,7 +189,7 @@ function manager($http, $q, Requests) {
      */
     self.getUserRequests = function (fetchId) {
         var qRequests = $q.defer();
-        $http.get('index.php/ManagerHomeController/getUserRequests',
+        $http.get('ManagerHomeController/getUserRequests',
             {params: {fetchId: fetchId}})
             .then(
             function (response) {
@@ -214,7 +214,7 @@ function manager($http, $q, Requests) {
      */
     self.fetchRequestsByDateInterval = function (from, to) {
         var qRequests = $q.defer();
-        $http.get('index.php/ManagerHomeController/' +
+        $http.get('ManagerHomeController/' +
                   'fetchRequestsByDateInterval',
             {
                 params: {
@@ -244,7 +244,7 @@ function manager($http, $q, Requests) {
      */
     self.fetchRequestsByExactDate = function (date) {
         var qRequests = $q.defer();
-        $http.get('index.php/ManagerHomeController/' +
+        $http.get('ManagerHomeController/' +
                   'fetchRequestsByDateInterval',
             {
                 params: {
@@ -276,7 +276,7 @@ function manager($http, $q, Requests) {
      */
     self.getApprovedAmountByDateInterval = function (from, to) {
         var qAmount = $q.defer();
-        $http.get('index.php/ManagerHomeController/' +
+        $http.get('ManagerHomeController/' +
                   'getApprovedAmountByDateInterval',
             {
                 params: {
@@ -304,7 +304,7 @@ function manager($http, $q, Requests) {
      */
     self.getApprovedAmountById = function (userId) {
         var qAmount = $q.defer();
-        $http.get('index.php/ManagerHomeController/getApprovedAmountById',
+        $http.get('ManagerHomeController/getApprovedAmountById',
             {params: {userId: userId}})
             .then(
             function (response) {
@@ -325,7 +325,7 @@ function manager($http, $q, Requests) {
      */
     self.getClosedReportByCurrentWeek = function () {
         var qReport = $q.defer();
-        $http.get('index.php/ManagerHomeController/' +
+        $http.get('ManagerHomeController/' +
                   'getClosedReportByCurrentWeek')
             .then(
             function (response) {
@@ -348,7 +348,7 @@ function manager($http, $q, Requests) {
      */
     self.getClosedReportByDateInterval = function (from, to) {
         var qReport = $q.defer();
-        $http.get('index.php/ManagerHomeController/' +
+        $http.get('ManagerHomeController/' +
                   'getClosedReportByDateInterval',
             {
                 params: {
@@ -377,7 +377,7 @@ function manager($http, $q, Requests) {
     self.updateRequest = function (request) {
         var qUpdate = $q.defer();
 
-        $http.post('index.php/ManageRequestController/updateRequest', JSON.stringify(request))
+        $http.post('ManageRequestController/updateRequest', JSON.stringify(request))
             .then(
             function (response) {
                 if (response.data.message == 'success') {
@@ -397,7 +397,7 @@ function manager($http, $q, Requests) {
      */
     self.createNewAgent = function (userData) {
         var qAgent = $q.defer();
-        $http.post('index.php/ManageAgentUsers/createNewAgent', userData)
+        $http.post('ManageAgentUsers/createNewAgent', userData)
             .then(
             function (response) {
                 console.log(response);
@@ -417,7 +417,7 @@ function manager($http, $q, Requests) {
      */
     self.upgradeApplicant = function (uid) {
         var qUser = $q.defer();
-        $http.post('index.php/ManageAgentUsers/upgradeUser', {userId: uid})
+        $http.post('ManageAgentUsers/upgradeUser', {userId: uid})
             .then(
             function (response) {
                 console.log(response);
@@ -437,7 +437,7 @@ function manager($http, $q, Requests) {
      */
     self.degradeAgent = function (uid) {
         var qUser = $q.defer();
-        $http.post('index.php/ManageAgentUsers/degradeUser', {userId: uid})
+        $http.post('ManageAgentUsers/degradeUser', {userId: uid})
             .then(
             function (response) {
                 console.log(response);
@@ -457,7 +457,7 @@ function manager($http, $q, Requests) {
      */
     self.fetchAllAgents = function () {
         var qAgents = $q.defer();
-        $http.get('index.php/ManageAgentUsers/fetchAllAgents')
+        $http.get('ManageAgentUsers/fetchAllAgents')
             .then(
             function (response) {
                 if (response.data.message == 'success') {
@@ -484,7 +484,7 @@ function manager($http, $q, Requests) {
      */
     self.deleteAgentUser = function (userId) {
         var qAgent = $q.defer();
-        $http.post('index.php/ManageAgentUsers/deleteAgentUser', userId)
+        $http.post('ManageAgentUsers/deleteAgentUser', userId)
             .then(
             function (response) {
                 if (response.data.message == 'success') {
@@ -523,21 +523,21 @@ function manager($http, $q, Requests) {
         if (type == 0 || type == 8 || type == 9) {
             reportData.sheetTitle = type == 0 ? "Reporte de afiliado" :
                 (type == 8 ? "Reporte por tipo" : "Solicitudes por atender");
-            url = 'index.php/DocumentGenerator/generateSimpleRequestsReport';
+            url = 'DocumentGenerator/generateSimpleRequestsReport';
         } else if (type == 2 || type == 3) {
             reportData.sheetTitle = reportData.sheetTitle = "Reporte por fechas";
-            url = 'index.php/DocumentGenerator/generateRequestsReport';
+            url = 'DocumentGenerator/generateRequestsReport';
         } else if (type == 1) {
-            url = 'index.php/DocumentGenerator/generateStatusRequestsReport';
+            url = 'DocumentGenerator/generateStatusRequestsReport';
         } else {
             // Approved requests report
-            url = 'index.php/DocumentGenerator/generateClosedRequestsReport';
+            url = 'DocumentGenerator/generateClosedRequestsReport';
         }
         var report = JSON.stringify(reportData);
         $http.post(url, report).then(function (response) {
             console.log(response);
             if (response.data.message == "success") {
-                qReport.resolve('index.php/DocumentGenerator/' +
+                qReport.resolve('DocumentGenerator/' +
                                 'downloadReport?lpath=' + response.data.lpath);
             } else {
                 qReport.reject(response.data.message);
