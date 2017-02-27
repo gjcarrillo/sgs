@@ -335,7 +335,7 @@ function userHome($scope, $cookies, $timeout, Helps,
                 reqAmount: request.reqAmount,
                 type: request.type,
                 due: request.due,
-                tel: {operator: request.phone.slice(0, 4), value: parseInt(request.phone.slice(5), 10)},
+                phone: parseInt(request.phone),
                 email: request.email
             };
             console.log(request.type);

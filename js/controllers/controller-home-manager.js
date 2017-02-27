@@ -667,17 +667,17 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                         } else {
                             Utils.showConfirmDialog(
                                 'Advertencia',
-                                'El usuario ' + $scope.model.id + ' se encuentra registrado.<br/><br/> ' +
+                                'El usuario ' + postData.id + ' se encuentra registrado.<br/><br/> ' +
                                 '¿Desea concederle privilegios de AGENTE?',
                                 'Sí', 'Cancelar', $event, true
                             ).then(
                                 function() {
                                     // Re-open parent dialog and perform request creation
-                                    Manager.upgradeApplicant($scope.model.id).then(
+                                    Manager.upgradeApplicant(postData.id).then(
                                         function () {
                                             Utils.showAlertDialog('Operación exitosa',
                                                                   'Se han otorgado privilegios de AGENTE al usuario '
-                                                                  + $scope.model.id);
+                                                                  + postData.id);
                                         },
                                         function (error) {
                                             Utils.showAlertDialog('Oops!', error);

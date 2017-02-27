@@ -39,6 +39,7 @@
                             md-no-float
                             class="md-icon-right no-vertical-margin">
                             <input
+                                ng-readonly="uploading"
                                 ng-model="model.reqAmount"
                                 type="number"
                                 min="{{minReqAmount}}"
@@ -49,7 +50,7 @@
                                 placeholder="Ej: 300000.25"/>
                                 <md-icon
                                     class="pointer"
-                                    ng-click="setMax()">
+                                    ng-click="uploading ? null : setMax()">
                                     all_out
                                     <md-tooltip md-direction="bottom">Max</md-tooltip>
                                 </md-icon>
@@ -79,6 +80,7 @@
                             md-no-float
                             class="no-vertical-margin">
                             <input
+                                ng-readonly="uploading"
                                 ng-model="model.phone"
                                 type="number"
                                 name="phone"
@@ -106,6 +108,7 @@
                             md-no-float
                             class="no-vertical-margin">
                             <input type="email"
+                                   ng-readonly="uploading"
                                    name="email"
                                    required
                                    pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$"
@@ -129,10 +132,10 @@
                         <b>Plazo para pagar</b>:
                     </p>
                     <md-radio-group ng-model="model.due">
-                        <md-radio-button value="24">24 meses</md-radio-button>
-                        <md-radio-button value="36">36 meses</md-radio-button>
-                        <md-radio-button value="48">48 meses</md-radio-button>
-                        <md-radio-button value="60">60 meses</md-radio-button>
+                        <md-radio-button ng-disabled="uploading" value="24">24 meses</md-radio-button>
+                        <md-radio-button ng-disabled="uploading" value="36">36 meses</md-radio-button>
+                        <md-radio-button ng-disabled="uploading" value="48">48 meses</md-radio-button>
+                        <md-radio-button ng-disabled="uploading" value="60">60 meses</md-radio-button>
                     </md-radio-group>
                 </div>
                 <div layout="column">
@@ -144,7 +147,7 @@
                             <md-radio-button
                                 ng-repeat="TYPE in LOAN_TYPES"
                                 ng-value="TYPE"
-                                ng-disabled="!model.allow[TYPE] || model.opened.hasOpen[TYPE]">
+                                ng-disabled="uploading || !model.allow[TYPE] || model.opened.hasOpen[TYPE]">
                                 {{mapLoanType(TYPE)}}
                                 <md-tooltip
                                     ng-if="!model.allow[TYPE] || model.opened.hasOpen[TYPE]"
