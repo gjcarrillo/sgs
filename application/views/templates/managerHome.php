@@ -121,6 +121,32 @@
                                 </md-select>
                             </md-input-container>
                         </div>
+                        <!-- Query by request ID -->
+                        <div ng-show="model.query == 10" layout-padding layout="column">
+                            <br/>
+                            <div>
+                                Ingrese el ID de la solicitud
+                            </div>
+                            <md-input-container
+                                class="no-vertical-margin"
+                                md-no-float>
+                                <input
+                                    placeholder="Ej: 253"
+                                    type="number"
+                                    min="0"
+                                    aria-label="requestId"
+                                    ng-model="model.perform[10].id"
+                                    ng-keyup="$event.keyCode == 13 && fetchRequestById(model.perform[10].id)">
+                            </md-input-container>
+                            <div layout layout-align="center center">
+                                <md-button
+                                    ng-disabled="!model.perform[10].id"
+                                    ng-click="fetchRequestById(model.perform[10].id)"
+                                    class="md-raised md-primary">
+                                    <md-icon>search</md-icon>Consultar
+                                </md-button>
+                            </div>
+                        </div>
                         <!-- Query by specific user -->
                         <div ng-show="model.query == 0" layout-padding layout="column">
                             <br/>

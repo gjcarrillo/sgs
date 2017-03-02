@@ -16,6 +16,7 @@ function manager($http, $q, Requests) {
     data.model = {};
     data.model.query = -1;
     data.queries = [
+        {category: 'req', name: 'Por ID', id: 10},
         {category: 'req', name: 'Por cédula', id: 0},
         {category: 'req', name: 'Por estatus', id: 1},
         {category: 'req', name: 'Por tipo', id: 8},
@@ -74,6 +75,7 @@ function manager($http, $q, Requests) {
         self.data.model = {};
         self.data.model.query = -1;
         self.data.queries = [
+            {category: 'req', name: 'Por ID', id: 10},
             {category: 'req', name: 'Por cédula', id: 0},
             {category: 'req', name: 'Por estatus', id: 1},
             {category: 'req', name: 'Por tipo', id: 8},
@@ -179,6 +181,28 @@ function manager($http, $q, Requests) {
 
             });
         return qLoanType.promise;
+    };
+
+    /**
+     * Gets the user request by ID.
+     *
+     * @param rid - request's id.
+     * @returns {*} - promise containing the operation's result.
+     */
+    self.getRequestById = function (rid) {
+        var qRequests = $q.defer();
+        $http.get('ManagerHomeController/getRequestById',
+            {params: {rid: rid}})
+            .then(
+            function (response) {
+                console.log(response);
+                if (response.data.message === "success") {
+                    qRequests.resolve(response.data.request);
+                } else {
+                    qRequests.reject(response.data.message);
+                }
+            });
+        return qRequests.promise;
     };
 
     /**

@@ -63,18 +63,6 @@ class Request extends \Entity\Request implements \Doctrine\ORM\Proxy\Proxy
         return parent::getCreationDate();
     }
 
-    public function setValidationDate($validationDate)
-    {
-        $this->__load();
-        return parent::setValidationDate($validationDate);
-    }
-
-    public function getValidationDate()
-    {
-        $this->__load();
-        return parent::getValidationDate();
-    }
-
     public function setComment($comment)
     {
         $this->__load();
@@ -181,6 +169,18 @@ class Request extends \Entity\Request implements \Doctrine\ORM\Proxy\Proxy
     {
         $this->__load();
         return parent::getContactEmail();
+    }
+
+    public function setValidationDate($validationDate)
+    {
+        $this->__load();
+        return parent::setValidationDate($validationDate);
+    }
+
+    public function getValidationDate()
+    {
+        $this->__load();
+        return parent::getValidationDate();
     }
 
     public function addDocument(\Entity\Document $documents)

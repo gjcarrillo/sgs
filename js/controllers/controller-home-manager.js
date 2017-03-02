@@ -81,6 +81,24 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
             });
     }
 
+    $scope.fetchRequestById = function(rid) {
+        resetContent();
+        $scope.loading = true;
+        console.log(rid);
+        Manager.getRequestById(rid)
+            .then(
+            function (data) {
+                $scope.selectRequest('', -1);
+                $scope.req = data;
+                $scope.loading = false;
+            },
+            function (error) {
+                $scope.fetchError = error;
+                $scope.loading = false;
+            }
+        );
+    };
+
     $scope.fetchUserRequests = function(index) {
         resetContent();
         $scope.loading = true;

@@ -17,8 +17,50 @@ class ManagerHomeController extends CI_Controller {
 		}
 	}
 
+    public function getRequestById() {
+        if ($_SESSION['type'] != MANAGER) {
+            $this->load->view('errors/index.html');
+        } else {
+            try {
+                $result['message'] = 'Ha ocurrido un error en el servidor. Por favor intente más tarde.';
+                $em = $this->doctrine->em;
+                $request = $em->find('\Entity\Request', $_GET['rid']);
+                if ($request === null) {
+                    $result['message'] = 'No se ha encontrado solicitud con ID ' .
+                                         str_pad($_GET['rid'], 6, '0', STR_PAD_LEFT);
+                } else if ($request->getValidationDate() === null) {
+                    $result['message'] = 'Esta solicitud no ha sido validada';
+                } else {
+                    $result['request']['id'] = $request->getId();
+                    $result['request']['creationDate'] = $request->getCreationDate()->format('d/m/y');
+                    $result['request']['comment'] = $request->getComment();
+                    $result['request']['reqAmount'] = $request->getRequestedAmount();
+                    $result['request']['approvedAmount'] = $request->getApprovedAmount();
+                    $result['request']['reunion'] = $request->getReunion();
+                    $result['request']['status'] = $request->getStatus();
+                    $result['request']['type'] = $request->getLoanType();
+                    $result['request']['phone'] = $request->getContactNumber();
+                    $result['request']['due'] = $request->getPaymentDue();
+                    $result['request']['email'] = $request->getContactEmail();
+                    $result['request']['validationDate'] = $request->getValidationDate();
+                    $docs = $request->getDocuments();
+                    foreach ($docs as $dKey => $doc) {
+                        $result['request']['docs'][$dKey]['id'] = $doc->getId();
+                        $result['request']['docs'][$dKey]['name'] = $doc->getName();
+                        $result['request']['docs'][$dKey]['description'] = $doc->getDescription();
+                        $result['request']['docs'][$dKey]['lpath'] = $doc->getLpath();
+                    }
+                    $result['message'] = 'success';
+                }
+            } catch (Exception $e) {
+                \ChromePhp::log($e);
+                $result['message'] = $this->utils->getErrorMsg($e);
+            }
+            echo json_encode($result);
+        }
+    }
+
 	// Obtain all valid requests from a user with with all their documents.
-	// NOTICE: sensitive information
 	public function getUserRequests() {
 		if ($_SESSION['type'] != MANAGER) {
 			$this->load->view('errors/index.html');
