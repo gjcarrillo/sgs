@@ -31,8 +31,8 @@ class Doctrine
             ),
         );
 
-        // Con esta configuración, tus archivos del modelo necesitan estar en application/models/Entity
-        // Ejemplo: Al crear un nuevo Entity\User cargamos la clase desde application/models/Entity/User.php
+        // Con esta configuración, tus archivos del modelo necesitan estar en application/models/orm/Entity
+        // Ejemplo: Al crear un nuevo Entity\User cargamos la clase desde application/models/orm/Entity/User.php
         $models_namespace = 'Entity';
         $models_path = APPPATH . 'models/orm';
         $proxies_dir = APPPATH . 'models/orm/Proxies';

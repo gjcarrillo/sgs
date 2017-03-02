@@ -31,7 +31,7 @@
                         <md-icon
                             class="perspective-svg"
                             md-svg-src="assignment"></md-icon>
-                        <div class="md-grid-text">Gestor</div>
+                        <div class="md-grid-text">Agente</div>
                     </div>
                 </md-button>
             </md-list-item>
@@ -59,13 +59,13 @@
                 <md-divider></md-divider>
                 <md-card-content>
                     <p>
-                        <b>AFILIADO</b>: Consulta sus propias solicitudes.
+                        <b>AFILIADO</b>: Consulta y crea sus propias solicitudes.
                     </p>
                     <p id="agent-help">
-                        <b>GESTOR</b>: Gestiona sus solicitudes o las de otros afiliados.
+                        <b>AGENTE</b>: Consulta y crea solicitudes para cualquier afiliado.
                     </p>
                     <p id="manager-help">
-                        <b>GERENTE</b>: Administra las solicitudes del sistema y genera reportes.
+                        <b>GERENTE</b>: Gestiona las solicitudes del sistema y genera reportes.
                     </p>
                 </md-card-content>
             </md-card>

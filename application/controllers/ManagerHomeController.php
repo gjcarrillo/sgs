@@ -198,7 +198,7 @@ class ManagerHomeController extends CI_Controller {
                         $rKey++;
                     }
                     if ($result['requests'] == null) {
-                        $result['message'] = 'Este afiliado no posee solicitudes validadas';
+                        $result['message'] = 'No se encontraron solicitudes validadas';
                     } else {
                         // Fill up pie chart information
                         $result['pie']['title'] = "Solicitudes pendientes";
@@ -316,7 +316,7 @@ class ManagerHomeController extends CI_Controller {
 						$rKey++;
                     }
                     if ($result['requests'] == null) {
-                        $result['message'] = 'Este afiliado no posee solicitudes validadas';
+                        $result['message'] = 'No se encontraron solicitudes validadas';
                     } else {
                         // Get requests status statistics.
                         foreach ($statuses as $status) {
@@ -461,7 +461,7 @@ class ManagerHomeController extends CI_Controller {
 						$rKey++;
                     }
                     if ($result['requests'] == null) {
-                        $result['message'] = 'Este afiliado no posee solicitudes validadas';
+                        $result['message'] = 'No se encontraron solicitudes validadas';
                     } else {
                         // Fill up pie chart information
                         $result['pie']['title'] = $days > 0 ? (
@@ -584,7 +584,7 @@ class ManagerHomeController extends CI_Controller {
 						$rKey++;
 					}
                     if ($result['requests'] == null) {
-                        $result['message'] = 'Este afiliado no posee solicitudes validadas';
+                        $result['message'] = 'No se encontraron solicitudes validadas';
                     } else {
                         // Fill up pie chart information
                         $result['pie']['title'] = "Solicitudes de " . $this->utils->mapLoanType($loanType);
