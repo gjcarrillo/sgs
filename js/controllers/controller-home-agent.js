@@ -632,7 +632,7 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
                        || typeof $scope.model.phone === "undefined"
                        || typeof $scope.model.email === "undefined")
                        || ($scope.model.reqAmount === request.reqAmount &&
-                           $scope.model.phone === request.phone &&
+                           Utils.pad($scope.model.phone, 11) === request.phone &&
                            $scope.model.email === request.email &&
                            parseInt($scope.model.due, 10) === request.due &&
                            $scope.model.type === request.type);
