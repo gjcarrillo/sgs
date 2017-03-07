@@ -76,6 +76,20 @@ footer {
     margin-top: 30px;
 }
 
+/* when showing the element */
+.request-show.ng-hide-remove {
+    -webkit-animation-duration: 0.5s;
+    animation-duration: 1s;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+    -webkit-animation-name: fadeIn;
+    animation-name: fadeIn;
+}
+
+.fadeIn {
+    animation-duration: 0.5s !important;
+}
+
 .information-card {
     max-width: 75%;
     background-color: #fff;

@@ -48,8 +48,6 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
     $scope.selectRequest = function (i, j) {
         $scope.selectedReq = i;
         $scope.selectedLoan = j;
-        console.log(i);
-        console.log(j);
         if (i != '' && j != -1) {
             $scope.req = $scope.requests[i][j];
         }
@@ -72,7 +70,7 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
         $scope.requests = [];
         closeAllReqList();
         $scope.loading = true;
-        $scope.req = {};
+        $scope.req = null;
         $scope.fetchError = "";
         Requests.getUserRequests($scope.fetchId).then(
             function (data) {
@@ -93,7 +91,7 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
 
     // Calculates the request's payment fee.
     $scope.calculatePaymentFee = function() {
-        return Requests.calculatePaymentFee($scope.req.reqAmount, $scope.req.due, 12);
+        return $scope.req ? Requests.calculatePaymentFee($scope.req.reqAmount, $scope.req.due, 12) : 0;
     };
 
     // Helper function for formatting numbers with leading zeros
@@ -153,6 +151,8 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
                     function (data) {
                         data.opened = Requests.checkPreviousRequests(requests);
                         $scope.model.allow = data.granting.allow;
+                        $scope.model.phone = parseInt(data.userPhone, 10);
+                        $scope.model.email = data.userEmail;
                         $scope.model.opened = data.opened;
                         $scope.model.type = Requests.verifyAvailability(data);
                         if($scope.model.type) {
@@ -799,7 +799,7 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
                 Requests.deleteRequestUI($scope.req).then(
                     function () {
                         // Update interface
-                        $scope.req = {};
+                        $scope.req = null;
                         updateRequestListUI($scope.fetchId, -1, 'Solicitud eliminada',
                                             'La solicitud fue eliminada exitosamente.',
                                             true, true, -1);
@@ -903,7 +903,7 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
             } else {
                 showMobileSearchbarHelp(Helps.getDialogsHelpOpt());
             }
-        } else if (!$scope.req.docs) {
+        } else if (!$scope.req) {
             // User has not selected any request yet, tell him to do it.
             showSidenavHelp(Helps.getDialogsHelpOpt());
         } else {

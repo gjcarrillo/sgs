@@ -52,7 +52,7 @@ function manager($http, $q, Requests) {
     data.pendingRequests = {};
     data.selectedPendingReq = '';
     data.selectedPendingLoan = -1;
-    data.req = {}; // Selected request obj.
+    data.req = null; // Selected request obj.
     data.showList = Requests.initializeListType();
     data.showPendingList = Requests.initializeListType();
     // End of data initialization.
@@ -111,7 +111,7 @@ function manager($http, $q, Requests) {
         self.data.pendingRequests = {};
         self.data.selectedPendingReq = '';
         self.data.selectedPendingLoan = -1;
-        self.data.req = {}; // Selected request obj.
+        self.data.req = null; // Selected request obj.
         self.data.showList = Requests.initializeListType();
         self.data.showPendingList = Requests.initializeListType();
     };

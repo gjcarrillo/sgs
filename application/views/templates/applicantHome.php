@@ -94,7 +94,7 @@
             </div>
             <!-- Watermark -->
             <div
-                ng-if="fetchError == '' && !req.docs"
+                ng-if="fetchError == '' && !req"
                 class="full-content-height"
                 layout="column" layout-align="center center">
                 <div ng-if="!loading" class="watermark" layout="column" layout-align="center center">
@@ -103,9 +103,9 @@
             </div>
             <!-- The actual content -->
             <md-content
-                ng-hide="!req.docs"
-                class="document-container">
-                <div layout="column" layout-align="center center">
+                ng-hide="!req"
+                class="document-container request-show">
+                <div animate-on-change="req" layout="column" layout-align="center center">
                     <md-card id="validation-card" class="validation-card" ng-if="!req.validationDate">
                         <md-card-content>
                             <p>

@@ -15,6 +15,8 @@
     <!--Import custom style.css -->
     <link type="text/css" rel="stylesheet" href="<?php echo base_url(); ?>css/style.css"/>
 
+    <link rel="stylesheet" href="<?php echo base_url(); ?>node_modules/animate.css/animate.min.css">
+
     <link href="images/favicon.ico" type="image/x-icon" rel="shortcut icon">
 
     <!--Let browser know website is optimized for mobile-->
@@ -63,6 +65,7 @@
     <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-validation.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-delete.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-incompatibility.js"></script>
+    <script type="text/javascript" src="<?php echo base_url(); ?>js/directives/directive-animate-change.js"></script>
 
     <!-- Plugins -->
     <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/moment/min/moment.min.js"></script>

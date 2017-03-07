@@ -367,7 +367,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
 
     // Calculates the request's payment fee.
     $scope.calculatePaymentFee = function() {
-        return Requests.calculatePaymentFee($scope.req.reqAmount, $scope.req.due, 12);
+        return $scope.req ? Requests.calculatePaymentFee($scope.req.reqAmount, $scope.req.due, 12) : 0;
     };
 
     // Helper function for formatting numbers with leading zeros
@@ -1179,7 +1179,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
             updatePie();
             setDataChanged(false);
         } else {
-            $scope.req = {};
+            $scope.req = null;
             if ($scope.pieError == '') { $scope.pieloaded = true; }
         }
         // Un-select requests
@@ -1188,7 +1188,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
     };
 
     function updatePie() {
-        $scope.req = {};
+        $scope.req = null;
         $scope.pieLoading = true;
         if ($scope.showResult == 0) {
             // update user's pie
@@ -1319,13 +1319,13 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
     }
 
     $scope.showHelp = function() {
-        if ($scope.pieloaded && Utils.isObjEmpty($scope.req)) {
+        if ($scope.pieloaded && !$scope.req) {
             if ($scope.showResult == 0) {
                 showSingleUserResultHelp(Helps.getDialogsHelpOpt());
             } else if ($scope.fetchedRequests()) {
                 showMultipleUsersResultHelp(Helps.getDialogsHelpOpt());
             }
-        } else if (Utils.isObjEmpty($scope.req)) {
+        } else if (!$scope.req) {
             // User has not selected any request yet, tell him to do it.
             showSidenavHelp(Helps.getDialogsHelpOpt());
         } else {
@@ -1507,12 +1507,12 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
      * Helper function that resets UI for all query results
      */
     function resetContent() {
-        $scope.requests = {};
+        $scope.requests = null;
         $scope.selectedReq = '';
         $scope.selectedLoan = -1;
         $scope.selectedPendingReq = '';
         $scope.selectedPendingLoan = -1;
-        $scope.req = {};
+        $scope.req = null;
         $scope.showList = Requests.initializeListType();
         $scope.showApprovedAmount = false;
         $scope.fetchError = '';

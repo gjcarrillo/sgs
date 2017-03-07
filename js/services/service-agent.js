@@ -16,7 +16,7 @@ function agent (Requests) {
     data.selectedReq = '';
     data.selectedLoan = -1;
     data.requests = {};
-    data.req = {}; // Will contain the selected request object.
+    data.req = null; // Will contain the selected request object.
     data.fetchError = '';
     data.showList = Requests.initializeListType();
     data.fetchId = '';
@@ -47,7 +47,7 @@ function agent (Requests) {
         self.data.selectedReq = '';
         self.data.selectedLoan = -1;
         self.data.requests = {};
-        self.data.req = {};
+        self.data.req = null;
         self.data.fetchError = '';
         self.data.showList = Requests.initializeListType();
         self.data.fetchId = '';

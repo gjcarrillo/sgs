@@ -12,7 +12,7 @@ function userHome($scope, $cookies, $timeout, Helps,
     $scope.selectedReq = '';
     $scope.selectedLoan = -1;
     $scope.requests = {};
-    $scope.req = {};
+    $scope.req = null;
     $scope.showList = Requests.initializeListType();
     $scope.fetchError = '';
     // contentAvailable will indicate whether sidenav can be visible
@@ -58,8 +58,6 @@ function userHome($scope, $cookies, $timeout, Helps,
     $scope.selectRequest = function (i, j) {
         $scope.selectedReq = i;
         $scope.selectedLoan = j;
-        console.log(i);
-        console.log(j);
         if (i != '' && j != -1) {
             $scope.req = $scope.requests[i][j];
         }
@@ -68,7 +66,7 @@ function userHome($scope, $cookies, $timeout, Helps,
 
     // Calculates the request's payment fee.
     $scope.calculatePaymentFee = function() {
-        return Requests.calculatePaymentFee($scope.req.reqAmount, $scope.req.due, 12);
+        return $scope.req ? Requests.calculatePaymentFee($scope.req.reqAmount, $scope.req.due, 12) : 0;
     };
 
     /**
@@ -604,7 +602,7 @@ function userHome($scope, $cookies, $timeout, Helps,
                 Requests.deleteRequestUI($scope.req).then(
                     function () {
                         // Update interface
-                        $scope.req = {};
+                        $scope.req = null;
                         updateRequestListUI(fetchId, -1, 'Solicitud eliminada',
                                             'La solicitud fue eliminada exitosamente.',
                                             true, true, -1);
@@ -704,7 +702,7 @@ function userHome($scope, $cookies, $timeout, Helps,
 
 
     $scope.showHelp = function () {
-        if (!$scope.req.docs) {
+        if (!$scope.req) {
             // User has not selected any request yet, tell him to do it.
             showSidenavHelp(Helps.getDialogsHelpOpt());
         } else {

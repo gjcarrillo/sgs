@@ -592,7 +592,7 @@
             <div
                 class="full-content-height"
                 layout layout-align="center center"
-                ng-if="!req.docs &&
+                ng-if="!req &&
                     !showApprovedAmount &&
                     pieLoading &&
                     !pieloaded &&
@@ -606,7 +606,7 @@
             <div
                 class="full-content-height"
                 layout layout-align="center center"
-                ng-if="!req.docs &&
+                ng-if="!req &&
                     !showApprovedAmount &&
                     !pieLoading &&
                     !pieloaded &&
@@ -617,7 +617,7 @@
             </div>
             <!-- Pie chart statistics result -->
             <div layout layout-align="center center" class="full-content-height"
-                ng-show="pieloaded && !req.docs &&  pieError == ''">
+                ng-show="pieloaded && !req &&  pieError == ''">
                 <div
                     id="piechart-tour"
                     layout="column"
@@ -648,7 +648,7 @@
             <!-- Pie error -->
             <div
                 class="full-content-height md-padding"
-                ng-if="pieError != '' && !req.docs"
+                ng-if="pieError != '' && !req"
                 layout layout-align="center center">
                 <div layout="column" layout-align="center center" class="md-whiteframe-z2 pie-error-card">
                     <span style="color:red">{{pieError}}</span>
@@ -666,9 +666,9 @@
             </div>
             <!-- The actual content -->
             <md-content
-                ng-show="req.docs"
-                class="document-container">
-                <div layout="column" layout-align="center center">
+                ng-show="req"
+                class="document-container request-show">
+                <div animate-on-change="req" layout="column" layout-align="center center">
                     <md-card class="valid-documents-card">
                         <md-card-content>
                             <md-list>
