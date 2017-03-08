@@ -8,7 +8,12 @@
 </md-toolbar>
 <!-- Content -->
 <main class="main-w-footer">
-    <md-content class="bg">
+    <md-content class="bg"
+                perspective
+                agent-btn="go-agent"
+                manager-btn="go-manager"
+                agent-help="agent-help"
+                manager-help="manager-help">
         <div layout="column" layout-align="center center">
             <h1 class="md-title" style="text-align:center">{{welcomeMsg}}</h1>
             <span style="text-align:center" class="md-subhead">¿Con qué tipo de cuenta desea ingresar al sistema?</span>

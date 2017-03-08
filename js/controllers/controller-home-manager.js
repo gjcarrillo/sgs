@@ -84,7 +84,6 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
     $scope.fetchRequestById = function(rid) {
         resetContent();
         $scope.loading = true;
-        console.log(rid);
         Manager.getRequestById(rid)
             .then(
             function (data) {
@@ -356,7 +355,6 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
     };
 
     $scope.loadStatuses = function() {
-        $scope.onStatusOpen();
         return Config.getStatuses().then(
             function (statuses) {
                 $scope.statuses = Requests.getAllStatuses();
@@ -658,17 +656,6 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 );
             };
 
-            $scope.onIdOpen = function() {
-                $scope.backup = $scope.idPrefix;
-                $scope.idPrefix = null;
-            };
-
-            $scope.onIdClose = function() {
-                if ($scope.idPrefix === null) {
-                    $scope.idPrefix = $scope.backup;
-                }
-            };
-
             $scope.createNewAgent = function() {
                 $scope.errorMsg = '';
                 $scope.uploading = true;
@@ -719,7 +706,6 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
             $scope.selectedUser = null;
 
             $scope.fetchAllAgents = function () {
-                $scope.onUsersOpen();
                 return Manager.fetchAllAgents()
                     .then(
                     function (agents) {
@@ -729,18 +715,6 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                         Utils.showAlertDialog('Oops!', error);
                     }
                 );
-            };
-
-            // TODO: Implement directive.
-            $scope.onUsersOpen = function() {
-                $scope.userBackup = $scope.selectedUser;
-                $scope.selectedUser = null;
-            };
-
-            $scope.onUsersClose = function() {
-                if ($scope.selectedUser === null) {
-                    $scope.selectedUser = $scope.userBackup;
-                }
             };
 
             $scope.degradeUser = function() {
@@ -1095,56 +1069,12 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
             $scope.showResult == 9;
     };
 
-    /**
-     * onOpen & onClose select helpers which
-     * 'fixes' selection usability problem (selection menu translation)
-     */
-    // TODO: Implement directive.
-    $scope.onQueryOpen = function() {
-        $scope.backup = $scope.selectedQuery;
-        $scope.selectedQuery = -1;
-    };
     $scope.onQueryClose = function() {
-        if ($scope.selectedQuery === -1) {
-            $scope.selectedQuery = $scope.backup;
+        if ($scope.model.query != $scope.selectedQuery) {
+            $scope.fetchError = '';
         }
         $scope.model.query = $scope.selectedQuery;
-        // re-initialize any error message
-        $scope.fetchError = '';
         $scope.approvalReportError = '';
-    };
-
-    $scope.onStatusOpen = function() {
-        $scope.backup = $scope.model.perform[1].status;
-        $scope.model.perform[1].status = null;
-    };
-
-    $scope.onStatusClose = function() {
-        if ($scope.model.perform[1].status === null) {
-            $scope.model.perform[1].status = $scope.backup;
-        }
-    };
-
-    $scope.onTypeOpen = function() {
-        $scope.backup = $scope.model.perform[8].loanType;
-        $scope.model.perform[8].loanType = null;
-    };
-
-    $scope.onTypeClose = function() {
-        if ($scope.model.perform[8].loanType === null) {
-            $scope.model.perform[8].loanType = $scope.backup;
-        }
-    };
-
-    $scope.onIdOpen = function() {
-        $scope.backup = $scope.idPrefix;
-        $scope.idPrefix = null;
-    };
-
-    $scope.onIdClose = function() {
-        if ($scope.idPrefix === null) {
-            $scope.idPrefix = $scope.backup;
-        }
     };
 
     /**

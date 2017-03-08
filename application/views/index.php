@@ -66,6 +66,8 @@
     <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-delete.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-incompatibility.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/directives/directive-animate-change.js"></script>
+    <script type="text/javascript" src="<?php echo base_url(); ?>js/directives/directive-select-fix.js"></script>
+    <script type="text/javascript" src="<?php echo base_url(); ?>js/directives/directive-perspective.js"></script>
 
     <!-- Plugins -->
     <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/moment/min/moment.min.js"></script>

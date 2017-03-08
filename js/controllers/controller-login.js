@@ -42,17 +42,6 @@ function login($scope, Auth, $state, Constants, $timeout, Utils) {
         }
     };
 
-    $scope.onIdOpen = function() {
-        $scope.backup = $scope.idPrefix;
-        $scope.idPrefix = null;
-    };
-
-    $scope.onIdClose = function() {
-        if ($scope.idPrefix === null) {
-            $scope.idPrefix = $scope.backup;
-        }
-    };
-
     function checkCompatibilityRequirements() {
         var md = new MobileDetect(window.navigator.userAgent);
         var supported = Utils.getSupportedBrowsers();

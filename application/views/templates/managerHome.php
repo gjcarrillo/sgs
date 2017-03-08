@@ -99,7 +99,7 @@
                         <div layout="column" layout-align="center center" layout-padding>
                             <md-input-container class="requestItems" style="padding:0;margin:0;padding-bottom:10px">
                                 <md-select
-                                    md-on-open="onQueryOpen()"
+                                    md-select-fix="selectedQuery"
                                     md-on-close="onQueryClose()"
                                     placeholder="Seleccione su consulta"
                                     ng-model="selectedQuery">
@@ -158,8 +158,7 @@
                                     class="no-vertical-margin"
                                     md-no-float>
                                     <md-select
-                                        md-on-open="onIdOpen()"
-                                        md-on-close="onIdClose()"
+                                        md-select-fix="idPrefix"
                                         aria-label="V or E ID"
                                         ng-model="idPrefix">
                                         <md-option value="V">
@@ -199,6 +198,7 @@
                                 class="no-vertical-margin"
                                 md-no-float>
                                 <md-select
+                                    md-select-fix="model.perform[1].status"
                                     md-on-open="loadStatuses()"
                                     md-on-close="onStatusClose()"
                                     placeholder="Estatus"
@@ -225,8 +225,7 @@
                                 class="no-vertical-margin"
                                 md-no-float>
                                 <md-select
-                                    md-on-open="onTypeOpen()"
-                                    md-on-close="onTypeClose()"
+                                    md-select-fix="model.perform[8].loanType"
                                     placeholder="Tipo"
                                     ng-model="model.perform[8].loanType">
                                     <md-option ng-repeat="(lKey, loanType) in loanTypes" ng-value="loanType">
@@ -324,8 +323,7 @@
                                     class="no-vertical-margin"
                                     md-no-float>
                                     <md-select
-                                        md-on-open="onIdOpen()"
-                                        md-on-close="onIdClose()"
+                                        md-select-fix="idPrefix"
                                         aria-label="V or E ID"
                                         ng-model="idPrefix">
                                         <md-option value="V">
@@ -374,7 +372,7 @@
                         <div layout="column" layout-align="center center" layout-padding>
                             <md-input-container class="requestItems" style="padding:0;margin:0;padding-bottom:10px">
                                 <md-select
-                                    md-on-open="onQueryOpen()"
+                                    md-select-fix="selectedQuery"
                                     md-on-close="onQueryClose()"
                                     placeholder="Seleccione el rango"
                                     ng-model="selectedQuery">

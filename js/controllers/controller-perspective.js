@@ -2,38 +2,22 @@ angular
     .module('sgdp.login')
     .controller('PerspectiveController', selection);
 
-selection.$inject = ['$scope', '$rootScope', '$state', '$cookies', 'Constants', 'Auth'];
+selection.$inject = ['$scope', '$state', 'Constants', 'Auth'];
 
-function selection($scope, $rootScope, $state, $cookies, Constants, Auth) {
+function selection($scope, $state, Constants, Auth) {
     'use strict';
 
+    console.log(Auth);
+    var user = Auth.getLocalSession();
     var now = new Date();
-    var id = $cookies.getObject('session').id;
-    var name = $cookies.getObject('session').name;
-    var lastName = $cookies.getObject('session').lastName;
-    var timeToExpire =  new Date(now.getFullYear()+1, now.getMonth(), now.getDate());
+    user.timeToExpire = new Date(now.getFullYear()+1, now.getMonth(), now.getDate());
 
-    $scope.welcomeMsg = "Bienvenido, " + name + ".";
+    $scope.welcomeMsg = "Bienvenido, " + user.firstName + ".";
 
-    if (userType(Constants.Users.MANAGER)) {
-        // User is manager, disable go-agent
-        $("#go-agent").toggle();
-        $("#agent-help").toggle();
-    } else if (userType(Constants.Users.AGENT)) {
-        // If user is agent, disable go-manager
-        $("#go-manager").toggle();
-        $("#manager-help").toggle();
-    }
     $scope.goApplicant = function() {
         // re-write the session cookie
-        $cookies.putObject('session', {
-            id: id,
-            type: Constants.Users.APPLICANT,
-            name: name,
-            lastName: lastName
-        }, {
-            expires : timeToExpire
-        });
+        user.type = Constants.Users.APPLICANT;
+        Auth.setLocalSession(user);
         Auth.updateSession(Constants.Users.APPLICANT)
             .then (
             function () {
@@ -46,18 +30,12 @@ function selection($scope, $rootScope, $state, $cookies, Constants, Auth) {
     };
 
     $scope.goAgent = function() {
-        if (userType(Constants.Users.AGENT)) {
+        if (Auth.userType(Constants.Users.AGENT)) {
             $state.go("agentHome");
         } else {
             // re-write the session cookie
-            $cookies.putObject('session', {
-                id: id,
-                type: Constants.Users.AGENT,
-                name: name,
-                lastName: lastName
-            }, {
-                expires : timeToExpire
-            });
+            user.type = Constants.Users.AGENT;
+            Auth.setLocalSession(user);
             Auth.updateSession(Constants.Users.AGENT)
                 .then (
                 function () {
@@ -71,18 +49,12 @@ function selection($scope, $rootScope, $state, $cookies, Constants, Auth) {
     };
 
     $scope.goManager = function() {
-        if (userType(Constants.Users.MANAGER)) {
+        if (Auth.userType(Constants.Users.MANAGER)) {
             $state.go('managerHome');
         } else {
             // re-write the session cookie
-            $cookies.putObject('session', {
-                id: id,
-                type: Constants.Users.MANAGER,
-                name: name,
-                lastName: lastName
-            }, {
-                expires : timeToExpire
-            });
+            user.type = Constants.Users.MANAGER;
+            Auth.setLocalSession(user);
             Auth.updateSession(Constants.Users.MANAGER)
                 .then (
                 function () {
@@ -94,8 +66,4 @@ function selection($scope, $rootScope, $state, $cookies, Constants, Auth) {
             );
         }
     };
-
-    function userType(type) {
-        return type == $cookies.getObject('session').type;
-    }
 }

@@ -40,8 +40,7 @@
                             flex-offset-xs="10"
                             class="md-block">
                             <md-select
-                                md-on-open="onIdOpen()"
-                                md-on-close="onIdClose()"
+                                md-select-fix="idPrefix"
                                 ng-model="idPrefix"
                                 aria-label="V or E ID">
                                 <md-option value="V">

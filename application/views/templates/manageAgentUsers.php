@@ -29,8 +29,7 @@
                                         style="margin:0"
                                         md-no-float>
                                         <md-select
-                                            md-on-open="onIdOpen()"
-                                            md-on-close="onIdClose()"
+                                            md-select-fix="idPrefix"
                                             aria-label="V or E ID"
                                             ng-model="idPrefix">
                                             <md-option value="V">
@@ -163,8 +162,8 @@
                             <md-select
                                 placeholder="Elija el usuario"
                                 ng-model="selectedUser"
+                                md-select-fix="selectedUser"
                                 md-on-open="fetchAllAgents()"
-                                md-on-close="onUsersClose()"
                                 style="min-width: 200px;">
                                 <md-option ng-value="user" ng-repeat="user in userAgents">{{user.display}}</md-option>
                             </md-select>
