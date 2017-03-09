@@ -13,4 +13,8 @@ class MainController extends CI_Controller {
 	public function incompatible () {
         $this->load->view('templates/incompatible');
 	}
+
+	public function overlay () {
+		$this->load->view('templates/overlay');
+	}
 }

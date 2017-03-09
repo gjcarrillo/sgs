@@ -2,9 +2,9 @@ angular
     .module('sgdp')
     .controller('HistoryController', history);
 
-history.$inject = ['$scope', '$http', '$mdBottomSheet', '$mdMedia', '$timeout'];
+history.$inject = ['$scope', '$http', '$mdBottomSheet', '$timeout'];
 
-function history($scope, $http, $mdBottomSheet, $mdMedia, $timeout) {
+function history($scope, $http, $mdBottomSheet, $timeout) {
     'use strict';
     // This will enable / disable search bar in mobile screens
     $scope.searchEnabled = false;

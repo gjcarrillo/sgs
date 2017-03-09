@@ -38,6 +38,8 @@
         </div>
         <md-divider></md-divider>
     </div>
+    <!-- Overlay -->
+    <overlay ng-if="overlay"/>
     <!-- Sidenav -->
     <md-sidenav
         id="requests-list"

@@ -495,6 +495,7 @@ function userHome($scope, $cookies, $timeout, Helps,
             'Cancelar',
             ev, true).then(
             function() {
+                $scope.overlay = true;
                 Requests.deleteRequestUI($scope.req).then(
                     function () {
                         // Update interface
@@ -504,6 +505,7 @@ function userHome($scope, $cookies, $timeout, Helps,
                                             true, true, -1);
                     },
                     function (errorMsg) {
+                        $scope.overlay = false;
                         Utils.showAlertDialog('Oops!', errorMsg);
                     }
                 );
@@ -529,11 +531,12 @@ function userHome($scope, $cookies, $timeout, Helps,
                 }
                 // Close dialog and alert user that operation was
                 // successful
+                $scope.overlay = false;
                 $mdDialog.hide();
                 Utils.showAlertDialog(dialogTitle, dialogContent);
             },
             function (errorMsg) {
-                console.log("REFRESHING ERROR!");
+                $scope.overlay = false;
                 console.log(errorMsg);
             }
         );

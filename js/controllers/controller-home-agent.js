@@ -267,10 +267,11 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
                 // Close dialog and alert user that operation was
                 // successful
                 $mdDialog.hide();
+                $scope.overlay = false;
                 Utils.showAlertDialog(dialogTitle, dialogContent);
             },
             function (errorMsg) {
-                console.log("REFRESHING ERROR!");
+                $scope.overlay = false;
                 console.log(errorMsg);
             }
         );
@@ -416,6 +417,7 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
                                             updateContent, false, parseInt(postData.type, 10));
                     },
                     function (errorMsg) {
+                        $scope.overlay = false;
                         console.log(errorMsg);
                         Utils.showAlertDialog('Oops!', errorMsg);
                     }
@@ -634,6 +636,7 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
             'Cancelar',
             ev, true).then(
             function() {
+                $scope.overlay = true;
                 Requests.deleteDocument(
                     $scope.req.docs[dKey]
                 ).then(
@@ -655,12 +658,13 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
     $scope.deleteRequest = function (ev) {
         Utils.showConfirmDialog(
             'Confirmación de eliminación',
-            'Al eliminar la solicitud, también eliminará ' +
+            'Al eliminar la solicitud, también se eliminarán ' +
             'todos los datos asociados a ella.',
             'Continuar',
             'Cancelar',
             ev, true).then(
             function() {
+                $scope.overlay = true;
                 Requests.deleteRequestUI($scope.req).then(
                     function () {
                         // Update interface
@@ -670,6 +674,7 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
                                             true, true, -1);
                     },
                     function (errorMsg) {
+                        $scope.overlay = false;
                         Utils.showAlertDialog('Oops!', errorMsg);
                     }
                 );

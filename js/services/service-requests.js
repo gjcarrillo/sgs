@@ -139,7 +139,7 @@ function reqService($q, $http, Constants, $filter, Utils) {
      */
     self.deleteRequestJWT = function (rid) {
         var qEliminate = $q.defer();
-        $http.post('index.php/RequestsController/deleteRequestJWT', {rid: rid})
+        $http.post('RequestsController/deleteRequestJWT', {rid: rid})
             .then(
             function (response) {
                 console.log(response);
@@ -164,7 +164,7 @@ function reqService($q, $http, Constants, $filter, Utils) {
     self.validate = function(token) {
         var qVal = $q.defer();
 
-        $http.get('index.php/ValidationController/validate', {params: {token: token}})
+        $http.get('ValidationController/validate', {params: {token: token}})
             .then(
             function (response) {
                 console.log(response);
@@ -180,7 +180,7 @@ function reqService($q, $http, Constants, $filter, Utils) {
 
     self.updateDocDescription = function (doc) {
         var updateDoc = $q.defer();
-        $http.post('index.php/EditRequestController/' +
+        $http.post('EditRequestController/' +
                    'updateDocDescription', JSON.stringify(doc)).then(
             function (response) {
                 if (response.data.message == "success") {
@@ -393,7 +393,7 @@ function reqService($q, $http, Constants, $filter, Utils) {
      */
     self.createRequest = function (postData) {
         var qReqCreation = $q.defer();
-        $http.post('index.php/NewRequestController/createRequest',
+        $http.post('NewRequestController/createRequest',
                    JSON.stringify(postData))
             .then(function (response) {
                       console.log(response);
@@ -431,7 +431,7 @@ function reqService($q, $http, Constants, $filter, Utils) {
         var qEmail = $q.defer();
 
         var postData = {reqId: reqId, newAddress: newAddress};
-        $http.post('index.php/EditRequestController/updateEmail', postData)
+        $http.post('EditRequestController/updateEmail', postData)
             .then(
             function (response) {
                 console.log(response);
@@ -452,7 +452,7 @@ function reqService($q, $http, Constants, $filter, Utils) {
     self.sendValidation = function(reqId) {
         var qValidation = $q.defer();
 
-        $http.post('index.php/ApplicantHomeController/sendValidation', reqId)
+        $http.post('ApplicantHomeController/sendValidation', reqId)
             .then(
             function (response) {
                 console.log(response);
@@ -472,7 +472,7 @@ function reqService($q, $http, Constants, $filter, Utils) {
      * @returns {string} - Formed URL containing link to download doc.
      */
     self.getDocDownloadUrl = function (docPath) {
-        return 'index.php/RequestsController/download?lpath=' + docPath;
+        return 'RequestsController/download?lpath=' + docPath;
     };
 
     /**
@@ -487,7 +487,7 @@ function reqService($q, $http, Constants, $filter, Utils) {
         angular.forEach(docs, function (doc) {
             paths.push(doc.lpath);
         });
-        return 'index.php/RequestsController/downloadAll?docs=' + JSON.stringify(paths);
+        return 'RequestsController/downloadAll?docs=' + JSON.stringify(paths);
     };
 
     /**
@@ -518,7 +518,7 @@ function reqService($q, $http, Constants, $filter, Utils) {
     self.getUserConcurrence = function (userId) {
         var qUser = $q.defer();
 
-        $http.get('index.php/NewRequestController/getUserConcurrence', {params: {userId: userId}})
+        $http.get('NewRequestController/getUserConcurrence', {params: {userId: userId}})
             .then(
             function (response) {
                 console.log(response);
@@ -541,7 +541,7 @@ function reqService($q, $http, Constants, $filter, Utils) {
     self.getLastRequestsGranting = function (userId) {
         var qGranting = $q.defer();
 
-        $http.get('index.php/NewRequestController/getLastRequestsGranting',
+        $http.get('NewRequestController/getLastRequestsGranting',
             {params: {userId: userId}})
             .then(
             function (response) {
@@ -591,7 +591,7 @@ function reqService($q, $http, Constants, $filter, Utils) {
     self.getAvailabilityData = function (userId) {
         var qAvailability = $q.defer();
 
-        $http.get('index.php/NewRequestController/getAvailabilityData',
+        $http.get('NewRequestController/getAvailabilityData',
             {params: {userId: userId}})
             .then(
             function (response) {

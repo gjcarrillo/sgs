@@ -61,7 +61,7 @@ class RequestsController extends CI_Controller {
         $data = json_decode($this->input->raw_input_stream, true);
         $em = $this->doctrine->em;
         $request = $em->find('\Entity\Request', $data['id']);
-        if ($this->session->id != $request->getUserOwner()->getId() && $this->session->type['type'] != AGENT) {
+        if ($this->session->id != $request->getUserOwner()->getId() && $this->session->type != AGENT) {
             // Only agents can delete a requests that aren't their own.
             $this->load->view('errors/index.html');
         } else {

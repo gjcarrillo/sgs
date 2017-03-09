@@ -2,9 +2,9 @@ angular
     .module('sgdp')
     .controller('UserInfoController', info);
 
-info.$inject = ['$scope', '$http', '$mdMedia', 'Utils'];
+info.$inject = ['$scope', '$http', 'Utils'];
 
-function info($scope, $http, $mdMedia, Utils) {
+function info($scope, $http, Utils) {
     'use strict';
 
     // If no data has been sent, show nothing.
