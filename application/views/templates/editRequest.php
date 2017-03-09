@@ -4,7 +4,7 @@
         <div class="md-toolbar-tools">
             <h2>Edición de solicitud</h2>
             <span flex></span>
-            <md-button class="md-icon-button" ng-click="showHelp()" aria-label="Help">
+            <md-button class="md-icon-button" agent-update-help ng-click="showHelp()" aria-label="Help">
                 <md-icon>help_outline</md-icon>
                 <md-tooltip md-direction="top">Ayuda</md-tooltip>
             </md-button>
@@ -50,12 +50,16 @@
                         <md-icon
                             ng-show="files.length == 0"
                             class="pointer grey-color">
+                            <md-tooltip>
+                                Subir archivo
+                            </md-tooltip>
                             file_upload
                         </md-icon>
                         <md-icon
                             ng-show="files.length > 0"
                             ng-click="deleteFiles($event)"
                             class="grey-color">
+                            <md-tooltip>Descartar todos los archivos</md-tooltip>
                             delete
                         </md-icon>
                     </md-input-container>
@@ -74,8 +78,18 @@
                     </md-card-title>
                     <!-- Add description / Delete doc actions -->
                     <md-card-actions ng-hide="isDescriptionEnabled(dKey) || uploading" layout="row" layout-align="end center">
-                        <md-button class="md-icon-button" ng-click="enableDescription(dKey)"><md-icon>message</md-icon></md-button>
-                        <md-button class="md-icon-button" ng-click="removeDoc(dKey)"><md-icon>delete</md-icon></md-button>
+                        <md-button class="md-icon-button" ng-click="enableDescription(dKey)">
+                            <md-icon>
+                                <md-tooltip>Agregar descripción</md-tooltip>
+                                message
+                            </md-icon>
+                        </md-button>
+                        <md-button class="md-icon-button" ng-click="removeDoc(dKey)">
+                            <md-icon>
+                                <md-tooltip>Descartar archivo</md-tooltip>
+                                delete
+                            </md-icon>
+                        </md-button>
                     </md-card-actions>
                     <!-- Add description input -->
                     <md-card-actions

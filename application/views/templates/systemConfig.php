@@ -4,7 +4,7 @@
         <div class="md-toolbar-tools">
             <h2>Configuración del sistema</h2>
             <span flex></span>
-            <md-button class="md-icon-button" ng-click="showHelp()" aria-label="Help">
+            <md-button class="md-icon-button" config-help ng-click="showHelp()" aria-label="Help">
                 <md-icon>help_outline</md-icon>
                 <md-tooltip md-direction="top">Ayuda</md-tooltip>
             </md-button>

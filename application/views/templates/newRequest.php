@@ -4,7 +4,11 @@
         <div class="md-toolbar-tools">
             <h2>{{title}}</h2>
             <span flex></span>
-            <md-button ng-if="!loading" class="md-icon-button" ng-click="showHelp()" aria-label="Help">
+            <md-button ng-if="!loading"
+                       create-help=""
+                       class="md-icon-button"
+                       ng-click="showHelp()"
+                       aria-label="Help">
                 <md-icon>help_outline</md-icon>
                 <md-tooltip md-direction="top">Ayuda</md-tooltip>
             </md-button>

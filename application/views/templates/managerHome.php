@@ -22,7 +22,7 @@
                 <md-icon>settings</md-icon>
                 <md-tooltip md-direction="bottom">Configuración del sistema</md-tooltip>
             </md-button>
-            <md-button class="md-icon-button" ng-click="showHelp()" aria-label="Help">
+            <md-button class="md-icon-button" ng-click="showHelp()" manager-help aria-label="Help">
                 <md-icon>help_outline</md-icon>
                 <md-tooltip md-direction="bottom">Ayuda</md-tooltip>
             </md-button>
@@ -57,7 +57,7 @@
                     </md-button>
                 </md-menu-item>
                 <md-menu-item>
-                    <md-button ng-click="showHelp()" aria-label="Help">
+                    <md-button ng-click="showHelp()" manager-help aria-label="Help">
                         <md-icon>help_outline</md-icon>
                         Ayuda
                     </md-button>

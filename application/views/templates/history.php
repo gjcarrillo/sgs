@@ -31,7 +31,7 @@
             <md-icon>search</md-icon>
             <md-tooltip md-direction="bottom">Buscar</md-tooltip>
         </md-button>
-        <md-button class="md-icon-button" ng-click="showHelp()" aria-label="Help">
+        <md-button class="md-icon-button" history-help ng-click="showHelp()" aria-label="Help">
             <md-icon>help_outline</md-icon>
             <md-tooltip md-direction="down">Ayuda</md-tooltip>
         </md-button>

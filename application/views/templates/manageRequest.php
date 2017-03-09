@@ -4,7 +4,7 @@
         <div class="md-toolbar-tools">
             <h2>Edición de solicitud</h2>
             <span flex></span>
-            <md-button class="md-icon-button" ng-click="showHelp()" aria-label="Help">
+            <md-button class="md-icon-button" manage-request-help ng-click="showHelp()" aria-label="Help">
                 <md-icon>help_outline</md-icon>
                 <md-tooltip md-direction="top">Ayuda</md-tooltip>
             </md-button>
@@ -43,6 +43,7 @@
                             md-no-float>
                         <md-select
                             style="min-width: 100px"
+                            md-select-fix="model.status"
                             md-on-open="loadStatuses()"
                             aria-label="Nuevo Estatus"
                             ng-model="model.status">

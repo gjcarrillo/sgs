@@ -34,29 +34,4 @@ function info($scope, $http, $mdMedia, Utils) {
             return {'color':'red'};
         }
     };
-
-    $scope.showHelp = function() {
-        var options = {
-            showNavigation : true,
-            showCloseBox : true,
-            delay : -1,
-            tripTheme: "dark",
-            prevLabel: "Anterior",
-            nextLabel: "Siguiente",
-            finishLabel: "Entendido"
-        };
-        showUserInfoHelp(options);
-    };
-
-    function showUserInfoHelp(options) {
-        options.showHeader = true;
-        var responsivePos = $mdMedia('xs') ? 's' : 'e';
-        var tripToShowNavigation = new Trip([
-            { sel : $("#info-card"),
-                content : "Esta tarjeta muestra información personal de interés del afiliado " +
-                $scope.userName,
-                position : responsivePos, header: "Información del afiliado", expose: true, animation: 'fadeInUp' }
-        ], options);
-        tripToShowNavigation.start();
-    }
 }

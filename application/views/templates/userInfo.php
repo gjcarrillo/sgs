@@ -4,7 +4,7 @@
             <span>Detalles de usuario</span>
         </h2>
         <span flex></span>
-        <md-button class="md-icon-button" ng-click="showHelp()" aria-label="Help">
+        <md-button class="md-icon-button" user-info-help ng-click="showHelp()" aria-label="Help">
             <md-icon>help_outline</md-icon>
             <md-tooltip md-direction="bottom">Ayuda</md-tooltip>
         </md-button>

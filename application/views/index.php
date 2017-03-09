@@ -68,6 +68,7 @@
     <script type="text/javascript" src="<?php echo base_url(); ?>js/directives/directive-animate-change.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/directives/directive-select-fix.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/directives/directive-perspective.js"></script>
+    <script type="text/javascript" src="<?php echo base_url(); ?>js/directives/directive-helps.js"></script>
 
     <!-- Plugins -->
     <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/moment/min/moment.min.js"></script>

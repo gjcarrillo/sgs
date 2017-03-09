@@ -7,7 +7,6 @@ selection.$inject = ['$scope', '$state', 'Constants', 'Auth'];
 function selection($scope, $state, Constants, Auth) {
     'use strict';
 
-    console.log(Auth);
     var user = Auth.getLocalSession();
     var now = new Date();
     user.timeToExpire = new Date(now.getFullYear()+1, now.getMonth(), now.getDate());
