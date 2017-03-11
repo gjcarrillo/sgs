@@ -17,16 +17,16 @@ function auth($cookies, $location, $http, $rootScope, $q, Agent, Manager, Consta
             function (response) {
                 console.log(response);
                 if (response.data.message === "success") {
-                    var now = new Date();
-                    // 1 year exp date
-                    var timeToExpire = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
+                    //var now = new Date();
+                    //// 1 year exp date
+                    //var timeToExpire = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
                     // create the session cookie
                     self.setLocalSession({
                         id: username,
                         type: response.data.type,
                         firstName: response.data.name,
-                        lastName: response.data.lastName,
-                        timeToExpire: timeToExpire
+                        lastName: response.data.lastNameN
+                        //timeToExpire: timeToExpire
                     });
                     qLogin.resolve(response.data.type);
 

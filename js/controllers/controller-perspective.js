@@ -8,8 +8,8 @@ function selection($scope, $state, Constants, Auth) {
     'use strict';
 
     var user = Auth.getLocalSession();
-    var now = new Date();
-    user.timeToExpire = new Date(now.getFullYear()+1, now.getMonth(), now.getDate());
+    //var now = new Date();
+    //user.timeToExpire = new Date(now.getFullYear()+1, now.getMonth(), now.getDate());
 
     $scope.welcomeMsg = "Bienvenido, " + user.firstName + ".";
 
