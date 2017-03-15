@@ -22,6 +22,7 @@ function userHome($scope, $cookies, $timeout, Helps,
     $scope.listTitle = Requests.getRequestsListTitle();
 
     var fetchId = $cookies.getObject('session').id;
+    console.log(fetchId, $cookies.getObject('session'));
     $scope.loading = true;
     // Fetch user's requests
     Requests.getUserRequests(fetchId).then(

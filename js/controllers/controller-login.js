@@ -2,9 +2,9 @@ angular
     .module('sgdp.login')
     .controller('LoginController', login);
 
-login.$inject = ['$scope', 'Auth', '$state', 'Constants', '$timeout', 'Utils'];
+login.$inject = ['$scope', 'Auth', '$state', 'Constants', '$timeout', 'Utils', '$stateParams'];
 
-function login($scope, Auth, $state, Constants, $timeout, Utils) {
+function login($scope, Auth, $state, Constants, $timeout, Utils, $stateParams) {
     'use strict';
     $scope.idPrefix = "V";
     $scope.model = {};
@@ -12,6 +12,24 @@ function login($scope, Auth, $state, Constants, $timeout, Utils) {
 
     // Check for cross-compatibility first!
     checkCompatibilityRequirements();
+
+    // Transitioning....
+    if ($stateParams.token) {
+        Auth.verifyUser($stateParams.token).then (
+            function (type) {
+                if (type == Constants.Users.APPLICANT) {
+                    // if applicant then redirect to home
+                    $state.go("applicantHome");
+                } else {
+                    // if agent or manager, allow perspective selection
+                    $state.go("perspective");
+                }
+            },
+            function (error) {
+                $scope.message = error;
+            }
+        );
+    }
 
     $scope.login = function() {
         if (typeof $scope.model.login === "undefined" || $scope.model.login == "" ||

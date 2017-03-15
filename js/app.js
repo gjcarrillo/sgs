@@ -94,6 +94,15 @@ sgdp.config(function ($stateProvider, $urlRouterProvider, $mdThemingProvider,
                 }
             }
         })
+        .state('transition', {
+            url: '/transition/:token',
+            views: {
+                'content': {
+                    templateUrl: 'index.php/LoginController/transition',
+                    controller: 'LoginController'
+                }
+            }
+        })
         .state('userInfo', {
             url: '/userInfo',
             views: {
@@ -240,7 +249,8 @@ sgdp.run(['$rootScope', '$location', '$state', 'Auth', '$cookies', '$http',
                       url != "/login" &&
                       !url.startsWith('/validate') &&
                       !url.startsWith('/delete') &&
-                      !url.startsWith('/incompatible')) {
+                      !url.startsWith('/incompatible') &&
+                      !url.startsWith('/transition')) {
                       // if user is not logged in and is trying to access
                       // private content, send to login.
                       e.preventDefault();

@@ -44,6 +44,7 @@ class LoginController extends CI_Controller {
         try {
             if($user->getPassword() == $data['password']) {
                 if (trim($user->getStatus()) === "ACTIVO") {
+                    $result['id'] = $user->getId();
                     $result['type'] = $user->getType();
                     $result['name'] = $user->getFirstName();
                     $result['lastName'] = $user->getLastName();
@@ -85,6 +86,7 @@ class LoginController extends CI_Controller {
                     $data['email'] = $oldUser->correo;
                     $this->users->createUser($data);
 
+                    $result['id'] = $data['id'];
                     $result['type'] = APPLICANT;
                     $result['name'] = $data['firstName'];
                     $result['lastName'] = $data['lastName'];
@@ -129,5 +131,41 @@ class LoginController extends CI_Controller {
         } else {
             $this->load->view('errors/index.html');
         }
+    }
+
+    public function transition() {
+        $this->load->view('templates/transition');
+    }
+
+    public function verifyUser () {
+        $result['message'] = 'Error';
+        try {
+            $data = json_decode($this->input->raw_input_stream, true);
+            $urlDecoded = JWT::urlsafeB64Decode($data['token']);
+            $decoded = JWT::decode($urlDecoded, JWT_SECRET_KEY);
+            \ChromePhp::log($decoded);
+            $data['id'] = $decoded->uid;
+            $data['password'] = $decoded->psw;
+            $em = $this->doctrine->em;
+            $user = $em->find('\Entity\User', $data['id']);
+            if($user != null) {
+                // User in our database. See if passwords match & allow access.
+                $result = $this->authenticateUser($user, $data);
+            } else {
+                // Look for user in ipapedi database.
+                $this->load->model('userModel', 'users');
+                $oldUser = $this->users->findIpapediUser($data['id']);
+                if ($oldUser == null) {
+                    $result['message'] = "La cédula ingresada no se encuentra registrada";
+                } else {
+                    $result = $this->authenticateIpapediUser($oldUser, $data);
+                }
+            }
+
+        } catch(Exception $e){
+            $result['message'] = $this->utils->getErrorMsg($e);
+        }
+
+        echo json_encode($result);
     }
 }

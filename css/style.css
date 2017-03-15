@@ -383,6 +383,10 @@ md-select.no-md-select .md-select-value {
     width: 100vw;
 }
 
+.margin-16 {
+    margin: 16px;
+}
+
 md-list-item.md-2-line .md-list-item-text h3,
 md-list-item.md-2-line>.md-no-style .md-list-item-text h3,
 md-list-item.md-3-line .md-list-item-text h3,

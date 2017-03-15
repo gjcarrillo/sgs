@@ -25,7 +25,7 @@ function auth($cookies, $location, $http, $rootScope, $q, Agent, Manager, Consta
                         id: username,
                         type: response.data.type,
                         firstName: response.data.name,
-                        lastName: response.data.lastNameN
+                        lastName: response.data.lastName
                         //timeToExpire: timeToExpire
                     });
                     qLogin.resolve(response.data.type);
@@ -108,6 +108,29 @@ function auth($cookies, $location, $http, $rootScope, $q, Agent, Manager, Consta
                 lastName: user.lastName
             });
         }
+    };
+
+    self.verifyUser = function (token) {
+        var qLogin = $q.defer();
+        $http.post('index.php/LoginController/verifyUser', {token: token}).then(
+            function (response) {
+                console.log(response);
+                if (response.data.message === "success") {
+                    // create the session cookie
+                    self.setLocalSession({
+                        id: response.data.id,
+                        type: response.data.type,
+                        firstName: response.data.name,
+                        lastName: response.data.lastName
+                    });
+                    qLogin.resolve(response.data.type);
+
+                } else {
+                    qLogin.reject(response.data.message);
+                }
+            }
+        );
+        return qLogin.promise;
     };
 
     self.getLocalSession = function () {
