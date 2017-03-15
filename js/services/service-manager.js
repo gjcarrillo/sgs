@@ -486,13 +486,18 @@ function manager($http, $q, Requests) {
             function (response) {
                 if (response.data.message == 'success') {
                     var allAgents = response.data.agents;
-                    var agentsList = allAgents.map(function (agent) {
-                        return {
-                            value: agent.split('(')[0].trim(),
-                            display: agent
-                        };
-                    });
-                    qAgents.resolve(agentsList);
+                    if (allAgents) {
+                        var agentsList = allAgents.map(function (agent) {
+                            return {
+                                value: agent.split('(')[0].trim(),
+                                display: agent
+                            };
+                        });
+                        qAgents.resolve(agentsList);
+                    } else {
+                        qAgents.resolve(null);
+                    }
+
                 } else {
                     qAgents.reject(response.data.message);
                 }

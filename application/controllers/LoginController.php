@@ -80,7 +80,7 @@ class LoginController extends CI_Controller {
                     $data['firstName'] = $nameParts[0];
                     array_shift($nameParts);
                     $data['lastName'] = implode(" ", $nameParts);
-                    $data['status'] = $oldUser->estado;
+                    $data['status'] = trim($oldUser->estado);
                     $data['type'] = APPLICANT;
                     $data['phone'] = $oldUser->telefono;
                     $data['email'] = $oldUser->correo;
@@ -118,7 +118,7 @@ class LoginController extends CI_Controller {
                 if (trim($oldUser->estado) == "ACTIVO" || trim($oldUser->estado) == "activo") {
                     $data['firstName'] = $oldUser->nombre;
                     $data['lastName'] = "";
-                    $data['status'] = $oldUser->estado;
+                    $data['status'] = trim($oldUser->estado);
                     $data['type'] = MANAGER;
                     $data['phone'] = null;
                     $data['email'] = null;
@@ -199,13 +199,22 @@ class LoginController extends CI_Controller {
                     } else {
                         $result = $this->authenticateIpapediUser($oldUser, $data);
                     }
-                } else {
+                } else if ($decoded->type == "admin") {
                     // admin
                     $oldUser = $this->users->findIpapediAdmin($data['id']);
                     if ($oldUser == null) {
                         $result['message'] = "El administrador especificado no se encuentra registrado";
                     } else {
                         $result = $this->authenticateIpapediAdmin($oldUser, $data);
+                    }
+                } else if ($decoded->type == "agent") {
+                    // Agent. See if passwords match & allow access.
+                    $em = $this->doctrine->em;
+                    $user = $em->find('\Entity\User', $data['id']);
+                    if($user == null) {
+                        $result['message'] = "El usuario " . $user->getId() . " no se encuentra registrado";
+                    } else {
+                        $result = $this->authenticateUser($user, $data);
                     }
                 }
             }

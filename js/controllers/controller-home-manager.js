@@ -615,15 +615,18 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 $scope.errorMsg = '';
                 $scope.uploading = true;
                 var postData = JSON.parse(JSON.stringify($scope.model));
-                postData.id = $scope.idPrefix + $scope.userId;
-                postData.phone = Utils.pad($scope.model.phone, 11);
+                postData.id = $scope.userId;
+                if ($scope.model.phone) {
+                    postData.phone = Utils.pad($scope.model.phone, 11);
+                }
+                console.log(postData);
                 Manager.createNewAgent(postData)
                     .then(
                     function (created) {
                         if (created) {
                             $mdDialog.hide();
                             Utils.showAlertDialog('Operación exitosa',
-                                                  'El nuevo usuario Gestor ha sido registrado exitosamente');
+                                                  'El nuevo usuario Agente ha sido registrado exitosamente');
                         } else {
                             Utils.showConfirmDialog(
                                 'Advertencia',

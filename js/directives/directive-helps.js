@@ -792,8 +792,8 @@ app.directive('manageAgentsHelp', function(Helps, $mdMedia) {
                 var responsivePos = $mdMedia('xs') ? 'n' : 's';
                 var trip = new Trip([], options);
 
-                var contentId = "Ingrese la cédula de identidad del " +
-                                "nuevo gestor.";
+                var contentId = "Ingrese el ID de usuario del " +
+                                "nuevo agente.";
                 var contentPsw = "Ingrese la contraseña con que el nuevo " +
                                  "gestor ingresará al sistema.";
                 var contentName = "Ingrese el nombre del gestor.";

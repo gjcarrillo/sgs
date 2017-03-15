@@ -15,7 +15,7 @@ class User
     /**
      * @var string
      *
-     * @ORM\Column(name="id", type="string", length=10, precision=0, scale=0, nullable=false, unique=true)
+     * @ORM\Column(name="id", type="string", length=20, precision=0, scale=0, nullable=false, unique=true)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="NONE")
      */
@@ -24,7 +24,7 @@ class User
     /**
      * @var string
      *
-     * @ORM\Column(name="password", type="string", length=100, precision=0, scale=0, nullable=false, unique=false)
+     * @ORM\Column(name="password", type="string", length=255, precision=0, scale=0, nullable=false, unique=false)
      */
     private $password;
 

@@ -22,38 +22,27 @@
                             <div layout="column" flex="45" flex-xs="100">
                                 <br/>
                                 <div class="grey-color">
-                                    Cédula de identidad *
+                                    ID de Agente *
                                 </div>
                                 <div layout layout-align-gt-xs="start start" flex-xs="100">
-                                    <md-input-container
-                                        style="margin:0"
-                                        md-no-float>
-                                        <md-select
-                                            md-select-fix="idPrefix"
-                                            aria-label="V or E ID"
-                                            ng-model="idPrefix">
-                                            <md-option value="V">
-                                                V
-                                            </md-option>
-                                            <md-option value="E">
-                                                E
-                                            </md-option>
-                                        </md-select>
-                                    </md-input-container>
                                     <md-input-container
                                         id="user-id"
                                         style="margin:0"
                                         flex-xs="100"
                                         md-no-float>
                                        <input
-                                           placeholder="Ej: 123456789"
-                                           type="number"
+                                           placeholder="Ej: carlitos"
+                                           type="text"
+                                           ng-minlength="5"
+                                           ng-maxlength="20"
                                            required
                                            name="id"
                                            aria-label="userId"
                                            ng-model="userId"/>
                                        <div ng-messages="userForm.id.$error" ng-show="userForm.id.$dirty">
                                            <div ng-message="required">¡Este campo es obligatorio!</div>
+                                           <div ng-message="minlength">Debe contener mínimo 5 caracteres</div>
+                                           <div ng-message="maxlength">Debe contener máximo 20 caracteres</div>
                                        </div>
                                     </md-input-container>
                                 </div>
@@ -68,10 +57,14 @@
                                         required
                                         name="psw"
                                         type="password"
+                                        ng-maxlength="255"
+                                        ng-minlength="9"
                                         ng-model="model.password"
                                         placeholder="***********"/>
                                     <div ng-messages="userForm.psw.$error" ng-show="userForm.psw.$dirty">
                                         <div ng-message="required">¡Este campo es obligatorio!</div>
+                                        <div ng-message="minlength">Debe contener mínimo 9 caracteres</div>
+                                        <div ng-message="maxlength">Debe contener máximo 255 caracteres</div>
                                     </div>
                                 </md-input-container>
                             </div>

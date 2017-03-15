@@ -47,7 +47,7 @@ function auth($cookies, $location, $http, $rootScope, $q, Agent, Manager, Consta
         // Clear login form
         $rootScope.model = {};
         // redirect to IPAPEDI login page
-        if (type == Constants.Users.MANAGER) {
+        if (type == Constants.Users.MANAGER || type == Constants.Users.AGENT) {
             window.location.replace(Constants.IPAPEDI_URL + 'administracion');
         } else {
             window.location.replace(Constants.IPAPEDI_URL);
