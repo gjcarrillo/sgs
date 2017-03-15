@@ -11,7 +11,7 @@ var sgdp = angular.module("sgdp",
         "sgdp.service-agent",
         "sgdp.directive-animate-change",
         "sgdp.directive-select-fix",
-        "sgdp.directive-perspective",
+        //"sgdp.directive-perspective",
         "sgdp.directive-helps",
         "sgdp.directive-overlay",
         "ui.router",
@@ -82,18 +82,18 @@ sgdp.config(function ($stateProvider, $urlRouterProvider, $mdThemingProvider,
                 }
             }
         })
-        .state('perspective', {
-            url: '/perspective',
-            views: {
-                'content': {
-                    templateUrl: 'index.php/PerspectiveController',
-                    controller: 'PerspectiveController'
-                },
-                'footer': {
-                    templateUrl: 'index.php/MainController/footer'
-                }
-            }
-        })
+        //.state('perspective', {
+        //    url: '/perspective',
+        //    views: {
+        //        'content': {
+        //            templateUrl: 'index.php/PerspectiveController',
+        //            controller: 'PerspectiveController'
+        //        },
+        //        'footer': {
+        //            templateUrl: 'index.php/MainController/footer'
+        //        }
+        //    }
+        //})
         .state('transition', {
             url: '/transition/:token',
             views: {
@@ -237,8 +237,8 @@ sgdp.config(function ($stateProvider, $urlRouterProvider, $mdThemingProvider,
 });
 
 
-sgdp.run(['$rootScope', '$location', '$state', 'Auth', '$cookies', '$http',
-          function ($rootScope, $location, $state, Auth, $cookies, $http) {
+sgdp.run(['$rootScope', '$location', '$state', 'Auth', '$cookies', '$http', 'Constants',
+          function ($rootScope, $location, $state, Auth, $cookies, $http, Constants) {
               $rootScope.logout = function () {
                   $http.get('index.php/LoginController/logout');
                   Auth.logout();
@@ -254,7 +254,7 @@ sgdp.run(['$rootScope', '$location', '$state', 'Auth', '$cookies', '$http',
                       // if user is not logged in and is trying to access
                       // private content, send to login.
                       e.preventDefault();
-                      $state.go('login');
+                      window.location.replace(Constants.IPAPEDI_URL);
                   } else if (Auth.isLoggedIn() && url == "/login") {
                       // if user Is logged in and is trying to access login page
                       // send to home page
@@ -290,9 +290,9 @@ sgdp.run(['$rootScope', '$location', '$state', 'Auth', '$cookies', '$http',
                       case '/userInfo':
                           // check for agent or manager rights
                           return userType <= 2;
-                      case '/perspective':
-                          // check for agent or manager rights
-                          return userType <= 2;
+                      //case '/perspective':
+                      //    // check for agent or manager rights
+                      //    return userType <= 2;
                   }
                   //  Going to login (.otherwise('login')), so keep going!
                   return true;

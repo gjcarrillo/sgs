@@ -30,6 +30,23 @@ class UserModel extends CI_Model
         }
     }
 
+    public function findIpapediAdmin($id) {
+        try {
+            $this->ipapedi_db = $this->load->database('ipapedi_db', true);
+            $this->ipapedi_db->select('*');
+            $this->ipapedi_db->from('admins_ipapedi');
+            $this->ipapedi_db->where('nombre', $id);
+            $query = $this->ipapedi_db->get();
+            if (empty($query->result())) {
+                return null;
+            } else {
+                return $query->result()[0];
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
     /**
      * Creates a new user in database.
      *
@@ -41,7 +58,7 @@ class UserModel extends CI_Model
             $em = $this->doctrine->em;
             $user = new \Entity\User();
             $user->setId($data['id']);
-            $user->setPassword($data['password']);
+            $user->setPassword(base64_encode($data['password']));
             $user->setFirstName($data['firstName']);
             $user->setLastname($data['lastName']);
             $user->setType($data['type']);

@@ -20,7 +20,7 @@ class LoginController extends CI_Controller {
            $em = $this->doctrine->em;
            $user = $em->find('\Entity\User', $data['id']);
            if($user != null) {
-               // User in out database. See if passwords match & allow access.
+               // User in our database. See if passwords match & allow access.
                $result = $this->authenticateUser($user, $data);
            } else {
                // Look for user in ipapedi database.
@@ -42,8 +42,8 @@ class LoginController extends CI_Controller {
 
     private function authenticateUser($user, $data) {
         try {
-            if($user->getPassword() == $data['password']) {
-                if (trim($user->getStatus()) === "ACTIVO") {
+            if($user->getPassword() == base64_encode($data['password'])) {
+                if (trim($user->getStatus()) === "ACTIVO" || trim($user->getStatus()) === "activo") {
                     $result['id'] = $user->getId();
                     $result['type'] = $user->getType();
                     $result['name'] = $user->getFirstName();
@@ -72,10 +72,10 @@ class LoginController extends CI_Controller {
 
     private function authenticateIpapediUser($oldUser, $data) {
         try {
-            if ($oldUser->contrasena != $data['password']) {
+            if ($oldUser->contrasena != base64_encode($data['password'])) {
                 $result['message'] = "Contraseña incorrecta";
             } else {
-                if (trim($oldUser->estado) == "ACTIVO") {
+                if (trim($oldUser->estado) == "ACTIVO" || trim($oldUser->estado) == "activo") {
                     $nameParts = explode(" ", $oldUser->nombre);
                     $data['firstName'] = $nameParts[0];
                     array_shift($nameParts);
@@ -95,6 +95,44 @@ class LoginController extends CI_Controller {
                         "name" => $data['firstName'],
                         "lastName" =>  $data['lastName'],
                         "type" => APPLICANT,
+                        "logged" => true,
+                    );
+                    $this->session->set_userdata($dataSession);
+
+                    $result['message'] = "success";
+                } else {
+                    $result['message'] = "Usuario INACTIVO. Por favor contacte a un administrador.";
+                }
+                return $result;
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    private function authenticateIpapediAdmin($oldUser, $data) {
+        try {
+            if ($oldUser->contrasena != base64_encode($data['password'])) {
+                $result['message'] = "Contraseña incorrecta";
+            } else {
+                if (trim($oldUser->estado) == "ACTIVO" || trim($oldUser->estado) == "activo") {
+                    $data['firstName'] = $oldUser->nombre;
+                    $data['lastName'] = "";
+                    $data['status'] = $oldUser->estado;
+                    $data['type'] = MANAGER;
+                    $data['phone'] = null;
+                    $data['email'] = null;
+                    $this->users->createUser($data);
+
+                    $result['id'] = $data['id'];
+                    $result['type'] = MANAGER;
+                    $result['name'] = $data['firstName'];
+                    $result['lastName'] = $data['lastName'];
+                    $dataSession = array(
+                        "id" => $data['id'],
+                        "name" => $data['firstName'],
+                        "lastName" =>  $data['lastName'],
+                        "type" => MANAGER,
                         "logged" => true,
                     );
                     $this->session->set_userdata($dataSession);
@@ -143,7 +181,6 @@ class LoginController extends CI_Controller {
             $data = json_decode($this->input->raw_input_stream, true);
             $urlDecoded = JWT::urlsafeB64Decode($data['token']);
             $decoded = JWT::decode($urlDecoded, JWT_SECRET_KEY);
-            \ChromePhp::log($decoded);
             $data['id'] = $decoded->uid;
             $data['password'] = $decoded->psw;
             $em = $this->doctrine->em;
@@ -154,11 +191,22 @@ class LoginController extends CI_Controller {
             } else {
                 // Look for user in ipapedi database.
                 $this->load->model('userModel', 'users');
-                $oldUser = $this->users->findIpapediUser($data['id']);
-                if ($oldUser == null) {
-                    $result['message'] = "La cédula ingresada no se encuentra registrada";
+                if ($decoded->type == "applicant") {
+                    // applicant
+                    $oldUser = $this->users->findIpapediUser($data['id']);
+                    if ($oldUser == null) {
+                        $result['message'] = "La cédula ingresada no se encuentra registrada";
+                    } else {
+                        $result = $this->authenticateIpapediUser($oldUser, $data);
+                    }
                 } else {
-                    $result = $this->authenticateIpapediUser($oldUser, $data);
+                    // admin
+                    $oldUser = $this->users->findIpapediAdmin($data['id']);
+                    if ($oldUser == null) {
+                        $result['message'] = "El administrador especificado no se encuentra registrado";
+                    } else {
+                        $result = $this->authenticateIpapediAdmin($oldUser, $data);
+                    }
                 }
             }
 

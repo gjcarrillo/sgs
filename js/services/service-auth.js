@@ -39,15 +39,19 @@ function auth($cookies, $location, $http, $rootScope, $q, Agent, Manager, Consta
     };
 
     self.logout = function () {
-        console.log('logging out...');
+        var type = $cookies.getObject('session').type;
         // remove cookie
         $cookies.remove('session');
-        // redirect to login page
-        $location.path("/login");
         // Remove possible data on browser's session storage
         cleanBrowser();
         // Clear login form
         $rootScope.model = {};
+        // redirect to IPAPEDI login page
+        if (type == Constants.Users.MANAGER) {
+            window.location.replace(Constants.IPAPEDI_URL + 'administracion');
+        } else {
+            window.location.replace(Constants.IPAPEDI_URL);
+        }
     };
 
     self.permission = function () {

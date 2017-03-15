@@ -2,9 +2,9 @@ angular
     .module('sgdp.login')
     .controller('LoginController', login);
 
-login.$inject = ['$scope', 'Auth', '$state', 'Constants', '$timeout', 'Utils', '$stateParams'];
+login.$inject = ['$scope', 'Auth', '$state', '$timeout', 'Utils', '$stateParams'];
 
-function login($scope, Auth, $state, Constants, $timeout, Utils, $stateParams) {
+function login($scope, Auth, $state, $timeout, Utils, $stateParams) {
     'use strict';
     $scope.idPrefix = "V";
     $scope.model = {};
@@ -16,14 +16,8 @@ function login($scope, Auth, $state, Constants, $timeout, Utils, $stateParams) {
     // Transitioning....
     if ($stateParams.token) {
         Auth.verifyUser($stateParams.token).then (
-            function (type) {
-                if (type == Constants.Users.APPLICANT) {
-                    // if applicant then redirect to home
-                    $state.go("applicantHome");
-                } else {
-                    // if agent or manager, allow perspective selection
-                    $state.go("perspective");
-                }
+            function () {
+                Auth.sendHome();
             },
             function (error) {
                 $scope.message = error;
@@ -39,14 +33,8 @@ function login($scope, Auth, $state, Constants, $timeout, Utils, $stateParams) {
             $scope.loading = true;
             Auth.login($scope.idPrefix + $scope.model.login, $scope.model.password)
                 .then (
-                function (type) {
-                    if (type == Constants.Users.APPLICANT) {
-                        // if applicant then redirect to home
-                        $state.go("applicantHome");
-                    } else {
-                        // if agent or manager, allow perspective selection
-                        $state.go("perspective");
-                    }
+                function () {
+                    Auth.sendHome();
                     $timeout(function () {
                         $scope.loading = false;
                     }, 1000);
