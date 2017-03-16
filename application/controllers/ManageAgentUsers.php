@@ -26,14 +26,12 @@ class ManageAgentUsers extends CI_Controller {
 				$em = $this->doctrine->em;
 				$user = $em->find('\Entity\User', $data['id']);
 				if ($user != null && ($user->getStatus() == "ACTIVO" || $user->getStatus() == "activo")) {
-					\ChromePhp::log('1');
 					if ($user->getType() == AGENT) {
 						$result['message'] = "El agente " . $data['id'] . " ya se encuentra registrado";
 					} else if ($user->getType() == MANAGER) {
 						$result['message'] = "El usuario " . $data['id'] . " posee privilegios de GERENTE.";
 					} else {
-						$result['created'] = false;
-						$result['message'] = "success";
+						$result['message'] = "El usuario " . $data['id'] . " posee privilegios de AFILIADO.";
 					}
 				} else {
 					$this->load->model('userModel', 'users');

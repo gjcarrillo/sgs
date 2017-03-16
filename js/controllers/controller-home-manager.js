@@ -627,27 +627,6 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                             $mdDialog.hide();
                             Utils.showAlertDialog('Operación exitosa',
                                                   'El nuevo usuario Agente ha sido registrado exitosamente');
-                        } else {
-                            Utils.showConfirmDialog(
-                                'Advertencia',
-                                'El usuario ' + postData.id + ' se encuentra registrado.<br/><br/> ' +
-                                '¿Desea concederle privilegios de AGENTE?',
-                                'Sí', 'Cancelar', $event, true
-                            ).then(
-                                function() {
-                                    // Re-open parent dialog and perform request creation
-                                    Manager.upgradeApplicant(postData.id).then(
-                                        function () {
-                                            Utils.showAlertDialog('Operación exitosa',
-                                                                  'Se han otorgado privilegios de AGENTE al usuario '
-                                                                  + postData.id);
-                                        },
-                                        function (error) {
-                                            Utils.showAlertDialog('Oops!', error);
-                                        }
-                                    );
-                                }
-                            );
                         }
                         $scope.uploading = false;
                     },
@@ -678,7 +657,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
             $scope.degradeUser = function() {
                 $scope.errorMsg = '';
                 $scope.uploading = true;
-                Manager.degradeAgent($scope.selectedUser.value)
+                Manager.deleteAgentUser($scope.selectedUser.value)
                     .then(
                     function () {
                         // Close dialog and alert user that operation was successful.
