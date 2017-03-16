@@ -596,6 +596,10 @@ function userHome($scope, $cookies, $timeout, Helps,
         location.href = Requests.getAllDocsDownloadUrl($scope.req.docs);
     };
 
+    $scope.downloadManual = function () {
+        window.open(Constants.BASEURL + 'public/manualUsuario.pdf');
+    };
+
     $scope.openMenu = function () {
         $mdSidenav('left').toggle();
     };

@@ -389,6 +389,10 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
         location.href = Requests.getAllDocsDownloadUrl($scope.req.docs);
     };
 
+    $scope.downloadManual = function () {
+        window.open(Constants.BASEURL + 'public/manualGerente.pdf');
+    };
+
     function preserveState() {
         var data = {};
         data.model = $scope.model;

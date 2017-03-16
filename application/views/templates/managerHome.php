@@ -22,10 +22,34 @@
                 <md-icon>settings</md-icon>
                 <md-tooltip md-direction="bottom">Configuración del sistema</md-tooltip>
             </md-button>
-            <md-button class="md-icon-button" ng-click="showHelp()" manager-help aria-label="Help">
-                <md-icon>help_outline</md-icon>
-                <md-tooltip md-direction="bottom">Ayuda</md-tooltip>
-            </md-button>
+            <md-menu>
+                <md-button
+                    ng-click="$mdOpenMenu($event)"
+                    class="md-icon-button"
+                    aria-label="Help">
+                    <md-icon>
+                        help_outline
+                    </md-icon>
+                    <md-tooltip md-direction="bottom">Ayuda</md-tooltip>
+                </md-button>
+                <md-menu-content>
+                    <md-menu-item>
+                        <md-button manager-help ng-click="showHelp()" aria-label="Tutorial">
+                            <md-icon>live_help</md-icon>
+                            Diálogo de ayuda
+                            <md-tooltip md-direction="bottom">Ayuda</md-tooltip>
+                        </md-button>
+                    </md-menu-item>
+                    <md-menu-item>
+                        <md-button ng-click="downloadManual()">
+                            <md-icon class="md-secondary">
+                                file_download
+                            </md-icon>
+                            Descargar manual
+                        </md-button>
+                    </md-menu-item>
+                </md-menu-content>
+            </md-menu>
             <md-button class="md-icon-button" ng-click="logout()" aria-label="Logout">
                 <md-icon>exit_to_app</md-icon>
                 <md-tooltip md-direction="bottom">Cerrar sesión</md-tooltip>

@@ -752,6 +752,10 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
         window.open(Requests.getDocDownloadUrl(doc.lpath));
     };
 
+    $scope.downloadManual = function () {
+        window.open(Constants.BASEURL + 'public/manualAgente.pdf');
+    };
+
     $scope.downloadAll = function () {
         location.href = Requests.getAllDocsDownloadUrl($scope.req.docs);
     };
