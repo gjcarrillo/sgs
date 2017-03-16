@@ -122,8 +122,8 @@ define('STATUSES_VERB', array(RECEIVED => 'recibir', APPROVED => 'aprobar', REJE
                 MAILGUN
 =========================================*/
 define('MAILGUN_PRIVATE_KEY', getenv('MAILGUN_PRIVATE_KEY'));
-define('MAILGUN_SENDER_DOMAIN', 'sandbox5acc2f3be9df4e80baaa6a9884d6299b.mailgun.org');
-define('MAILGUN_SENDER', 'IPAPEDI <noreply@ipapedi.com>');
+define('MAILGUN_SENDER_DOMAIN', getenv('MAILGUN_SENDER_DOMAIN'));
+define('MAILGUN_SENDER', getenv('MAILGUN_SENDER'));
 /* ======================================
              HISTORY ACTIONS
 =========================================*/
