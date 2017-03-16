@@ -159,10 +159,28 @@ class User extends \Entity\User implements \Doctrine\ORM\Proxy\Proxy
         return parent::getRequests();
     }
 
+    public function addRequestLog(\Entity\History $requestLogs)
+    {
+        $this->__load();
+        return parent::addRequestLog($requestLogs);
+    }
+
+    public function removeRequestLog(\Entity\History $requestLogs)
+    {
+        $this->__load();
+        return parent::removeRequestLog($requestLogs);
+    }
+
+    public function getRequestLogs()
+    {
+        $this->__load();
+        return parent::getRequestLogs();
+    }
+
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'password', 'first_name', 'lastName', 'type', 'status', 'phone', 'email', 'requests');
+        return array('__isInitialized__', 'id', 'password', 'first_name', 'lastName', 'type', 'status', 'phone', 'email', 'requests', 'requestLogs');
     }
 
     public function __clone()

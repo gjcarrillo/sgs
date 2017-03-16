@@ -24,7 +24,7 @@ class HistoryModel extends CI_Model
                 // Register History
                 $history = new \Entity\History();
                 $history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
-                $history->setUserResponsable($this->session->name . ' ' . $this->session->name);
+                $history->setUserResponsible($this->users->getUser($this->session->id));
                 // Register it's corresponding actions
                 $history->setTitle($this->utils->getHistoryActionCode('validation'));
                 $history->setOrigin($request);
@@ -57,7 +57,7 @@ class HistoryModel extends CI_Model
                 // Register History
                 $history = new \Entity\History();
                 $history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
-                $history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
+                $history->setUserResponsible($this->users->getUser($this->session->id));
                 // Register it's corresponding actions
                 $history->setTitle($this->utils->getHistoryActionCode('validation'));
                 $history->setOrigin($request);
@@ -88,7 +88,7 @@ class HistoryModel extends CI_Model
             } else {
                 $history = new \Entity\History();
                 $history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
-                $history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
+                $history->setUserResponsible($this->users->getUser($this->session->id));
                 // Register it's corresponding actions
                 $history->setTitle($this->utils->getHistoryActionCode('validation'));
                 $history->setOrigin($request);

@@ -2,9 +2,9 @@ angular
     .module('sgdp')
     .controller('UserInfoController', info);
 
-info.$inject = ['$scope', '$http', 'Utils'];
+info.$inject = ['$scope', '$http', 'Utils', 'Constants'];
 
-function info($scope, $http, Utils) {
+function info($scope, $http, Utils, Constants) {
     'use strict';
 
     // If no data has been sent, show nothing.
@@ -19,6 +19,8 @@ function info($scope, $http, Utils) {
             if (response.data.message = "success") {
                 $scope.userData = response.data.data;
                 $scope.userName = response.data.userName;
+                $scope.picture = response.data.picture ? Constants.IPAPEDI_URL + 'img/profiles_img/' +
+                                                         response.data.picture : 'images/avatar_circle.png';
             } else {
                 Utils.showAlertDialog('Oops!', response.data.message);
             }

@@ -21,7 +21,7 @@
         <md-card id="info-card" class="user-info-card">
             <md-card-header>
                 <md-card-avatar>
-                    <img class="md-user-avatar" src="images/avatar_circle.png"/>
+                    <img class="md-user-avatar" ng-src="{{picture}}"/>
                 </md-card-avatar>
                 <md-card-header-text>
                     <div class="md-toolbar-tools">

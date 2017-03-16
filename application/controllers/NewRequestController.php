@@ -223,7 +223,7 @@ class NewRequestController extends CI_Controller {
 					$request = new \Entity\Request();
 					$history = new \Entity\History();
 					$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
-					$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
+					$history->setUserResponsible($this->users->getUser($this->session->id));
 					$history->setTitle($this->utils->getHistoryActionCode('creation'));
 					$history->setOrigin($request);
 					$request->addHistory($history);

@@ -6,7 +6,7 @@ class HistoryController extends CI_Controller {
 
 	public function __construct() {
         parent::__construct();
-        $this->load->library('session');
+		$this->load->library('session');
     }
 
 	public function index() {
@@ -24,13 +24,16 @@ class HistoryController extends CI_Controller {
 			try {
 				$em = $this->doctrine->em;
 				// Get all current request's history
-				$request = $em->find('\Entity\Request', $_GET['id']);
+				$request = $em->find('\Entity\Request', $this->input->get('id'));
 				$histories = $request->getHistory();
 				$histories = array_reverse($histories->getValues());
 				foreach ($histories as $hKey => $history) {
-					$result['history'][$hKey]['userResponsable'] = $history->getUserResponsable();
+					$user = $history->getUserResponsible();
+					$result['history'][$hKey]['userResponsible'] = $user->getId() .
+																   ' (' . $user->getFirstName() . ' ' . $user->getLastName() . ')';
 					$result['history'][$hKey]['date'] = $history->getDate()->format('d/m/Y - h:i:sa');
 					$result['history'][$hKey]['title'] = $this->utils->getHistoryActionName($history->getTitle());
+					$result['history'][$hKey]['picture'] = $this->users->getUserProfileImg($user->getId());
 					$actions = $history->getActions();
 					foreach ($actions as $aKey => $action) {
 						$result['history'][$hKey]['actions'][$aKey]['summary'] = $action->getSummary();

@@ -34,7 +34,6 @@ class ManageAgentUsers extends CI_Controller {
 						$result['message'] = "El usuario " . $data['id'] . " posee privilegios de AFILIADO.";
 					}
 				} else {
-					$this->load->model('userModel', 'users');
 					if ($user != null) {
 						// User was most likely inactive.
 						$this->users->resurrectUser($user->getId());
@@ -61,7 +60,6 @@ class ManageAgentUsers extends CI_Controller {
 		} else {
 			$data = json_decode(file_get_contents('php://input'), true);
 			try {
-				$this->load->model('userModel', 'users');
 				$this->users->upgradeUser($data['userId']);
 				$result['message'] = "success";
 			} catch (Exception $e) {
@@ -78,7 +76,6 @@ class ManageAgentUsers extends CI_Controller {
 		} else {
 			$data = json_decode(file_get_contents('php://input'), true);
 			try {
-				$this->load->model('userModel', 'users');
 				$this->users->degradeUser($data['userId']);
 				$result['message'] = "success";
 			} catch (Exception $e) {

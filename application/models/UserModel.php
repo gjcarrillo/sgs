@@ -110,6 +110,16 @@ class UserModel extends CI_Model
         }
     }
 
+    public function getUser ($uid) {
+        try {
+            $em = $this->doctrine->em;
+            $user = $em->find('\Entity\User', $uid);
+            return $user;
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
     public function getIpapediUserInfo($uid) {
         $result['message'] = "error";
         try {
@@ -132,6 +142,7 @@ class UserModel extends CI_Model
                     // If user data exists, user should be in ipapedi's database so the following should never happen.
                     if (!empty($query->result())) {
                         $result['userName'] = $query->result()[0]->nombre;
+                        $result['picture'] = $query->result()[0]->foto;
                     } else {
                         $em = $this->doctrine->em;
                         $user = $em->find('Entity\User', $uid);
@@ -139,6 +150,24 @@ class UserModel extends CI_Model
                     }
                 }
                 return $result;
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+
+    public function getUserProfileImg($uid) {
+        try {
+            $this->ipapedi_db = $this->load->database('ipapedi_db', true);
+            $this->ipapedi_db->select('*');
+            $this->ipapedi_db->from('usuario_docente');
+            $this->ipapedi_db->where('cedula', $uid);
+            $query = $this->ipapedi_db->get();
+            if (empty($query->result())) {
+                return null;
+            } else {
+                return $query->result()[0]->foto;
             }
         } catch (Exception $e) {
             throw $e;

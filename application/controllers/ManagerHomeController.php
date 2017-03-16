@@ -830,7 +830,7 @@ class ManagerHomeController extends CI_Controller {
 						// Add report generation action to history
 						$newLog = new \Entity\History();
 						$newLog->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
-						$newLog->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
+                        $newLog->setUserResponsible($this->users->getUser($this->session->id));
 						$newLog->setTitle($this->utils->getHistoryActionCode('report'));
 						$newLog->setOrigin($request);
 						$request->addHistory($newLog);
@@ -952,7 +952,7 @@ class ManagerHomeController extends CI_Controller {
                         // Add report generation action to history
                         $newLog = new \Entity\History();
                         $newLog->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
-                        $newLog->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
+                        $newLog->setUserResponsible($this->users->getUser($this->session->id));
                         $newLog->setTitle($this->utils->getHistoryActionCode('report'));
                         $newLog->setOrigin($request);
                         $request->addHistory($newLog);

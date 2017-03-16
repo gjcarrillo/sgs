@@ -2,12 +2,13 @@ angular
     .module('sgdp')
     .controller('HistoryController', history);
 
-history.$inject = ['$scope', '$http', '$mdBottomSheet', '$timeout'];
+history.$inject = ['$scope', '$http', '$mdBottomSheet', '$timeout', 'Constants'];
 
-function history($scope, $http, $mdBottomSheet, $timeout) {
+function history($scope, $http, $mdBottomSheet, $timeout, Constants) {
     'use strict';
     // This will enable / disable search bar in mobile screens
     $scope.searchEnabled = false;
+    $scope.ABS_IMG_URL = Constants.IPAPEDI_URL + 'img/profiles_img/';
 
     // If no data has been sent, show nothing.
     if (sessionStorage.getItem("req") === null) { return; }

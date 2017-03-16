@@ -49,7 +49,7 @@ class EditRequestController extends CI_Controller {
 					// Register History
 					$history = new \Entity\History();
 					$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
-					$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
+					$history->setUserResponsible($this->users->getUser($this->session->id));
 					$history->setTitle($this->utils->getHistoryActionCode('update'));
 					$history->setOrigin($request);
 					$request->addHistory($history);
@@ -124,7 +124,7 @@ class EditRequestController extends CI_Controller {
 						// Register History
 						$history = new \Entity\History();
 						$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
-						$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
+						$history->setUserResponsible($this->users->getUser($this->session->id));
 						$history->setTitle($this->utils->getHistoryActionCode('modification'));
 						$history->setOrigin($request);
 						$request->addHistory($history);
@@ -217,7 +217,7 @@ class EditRequestController extends CI_Controller {
 					if ($document->getDescription() != $data['description']) {
 						$history = new \Entity\History();
 						$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
-						$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
+						$history->setUserResponsible($this->users->getUser($this->session->id));
 						$history->setTitle($this->utils->getHistoryActionCode('update'));
 						$request = $document->getBelongingRequest();
 						$history->setOrigin($request);
@@ -267,7 +267,7 @@ class EditRequestController extends CI_Controller {
 					// Register History
 					$history = new \Entity\History();
 					$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
-					$history->setUserResponsable($_SESSION['name'] . ' ' . $_SESSION['lastName']);
+					$history->setUserResponsible($this->users->getUser($this->session->id));
 					// Register it's corresponding actions
 					$history->setTitle($this->utils->getHistoryActionCode('modification'));
 					$history->setOrigin($request);

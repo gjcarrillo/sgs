@@ -78,9 +78,12 @@
                             id="action-summary"
                             class="md-3-line noright"
                             ng-click="showListBottomSheet(hist)">
-                            <md-icon  ng-style="{'color':'#2196F3', 'font-size':'36px'}">account_circle</md-icon>
+                            <!--<md-icon  ng-style="{'color':'#2196F3', 'font-size':'36px'}">account_circle</md-icon>-->
+                            <img ng-src="{{hist.picture ? ABS_IMG_URL + hist.picture : 'images/avatar_circle.png'}}"
+                                 class="md-avatar"
+                                 alt="{{'profileImg'}}" />
                             <div class="md-list-item-text" layout="column">
-                               <h3>{{hist.userResponsable}}</h3>
+                               <h3>{{hist.userResponsible}}</h3>
                                <h4>{{hist.title}}</h4>
                                <p>{{hist.date}}</p>
                              </div>

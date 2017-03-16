@@ -24,7 +24,6 @@ class LoginController extends CI_Controller {
                $result = $this->authenticateUser($user, $data);
            } else {
                // Look for user in ipapedi database.
-               $this->load->model('userModel', 'users');
                $oldUser = $this->users->findIpapediUser($data['id']);
                if ($oldUser == null) {
                    $result['message'] = "La cédula ingresada no se encuentra registrada";
@@ -190,7 +189,6 @@ class LoginController extends CI_Controller {
                 $result = $this->authenticateUser($user, $data);
             } else {
                 // Look for user in ipapedi database.
-                $this->load->model('userModel', 'users');
                 if ($decoded->type == "applicant") {
                     // applicant
                     $oldUser = $this->users->findIpapediUser($data['id']);

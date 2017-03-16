@@ -80,7 +80,7 @@ class RequestsModel extends CI_Model
                 // Register History
                 $history = new \Entity\History();
                 $history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
-                $history->setUserResponsable($this->session->name . ' ' . $this->session->lastName);
+                $history->setUserResponsible($this->users->getUser($this->session->id));
                 $history->setTitle($this->utils->getHistoryActionCode('elimination'));
                 $history->setOrigin($request);
                 $request->addHistory($history);

@@ -29,18 +29,21 @@ class History
     private $date;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="user_responsible", type="string", length=255, precision=0, scale=0, nullable=false, unique=false)
-     */
-    private $userResponsable;
-
-    /**
      * @var integer
      *
      * @ORM\Column(name="title", type="smallint", precision=2, scale=0, nullable=false, unique=false)
      */
     private $title;
+
+    /**
+     * @var \Entity\User
+     *
+     * @ORM\ManyToOne(targetEntity="Entity\User", inversedBy="history")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="user_responsible", referencedColumnName="id", nullable=false, onDelete="CASCADE")
+     * })
+     */
+    private $userResponsible;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
@@ -101,29 +104,6 @@ class History
     }
 
     /**
-     * Set userResponsable
-     *
-     * @param string $userResponsable
-     * @return History
-     */
-    public function setUserResponsable($userResponsable)
-    {
-        $this->userResponsable = $userResponsable;
-
-        return $this;
-    }
-
-    /**
-     * Get userResponsable
-     *
-     * @return string
-     */
-    public function getUserResponsable()
-    {
-        return $this->userResponsable;
-    }
-
-    /**
      * Set title
      *
      * @param integer $title
@@ -144,6 +124,29 @@ class History
     public function getTitle()
     {
         return $this->title;
+    }
+
+    /**
+     * Set userResponsible
+     *
+     * @param \Entity\User $userResponsible
+     * @return History
+     */
+    public function setUserResponsible(\Entity\User $userResponsible)
+    {
+        $this->userResponsible = $userResponsible;
+
+        return $this;
+    }
+
+    /**
+     * Get userResponsible
+     *
+     * @return \Entity\User
+     */
+    public function getUserResponsible()
+    {
+        return $this->userResponsible;
     }
 
     /**

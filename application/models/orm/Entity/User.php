@@ -78,11 +78,19 @@ class User
     private $requests;
 
     /**
+     * @var \Doctrine\Common\Collections\Collection
+     *
+     * @ORM\OneToMany(targetEntity="Entity\History", mappedBy="userResponsible")
+     */
+    private $requestLogs;
+
+    /**
      * Constructor
      */
     public function __construct()
     {
         $this->requests = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->requestLogs = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     /**
@@ -300,5 +308,38 @@ class User
     public function getRequests()
     {
         return $this->requests;
+    }
+
+    /**
+     * Add requestLogs
+     *
+     * @param \Entity\History $requestLogs
+     * @return User
+     */
+    public function addRequestLog(\Entity\History $requestLogs)
+    {
+        $this->requestLogs[] = $requestLogs;
+
+        return $this;
+    }
+
+    /**
+     * Remove requestLogs
+     *
+     * @param \Entity\History $requestLogs
+     */
+    public function removeRequestLog(\Entity\History $requestLogs)
+    {
+        $this->requestLogs->removeElement($requestLogs);
+    }
+
+    /**
+     * Get requestLogs
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getRequestLogs()
+    {
+        return $this->requestLogs;
     }
 }

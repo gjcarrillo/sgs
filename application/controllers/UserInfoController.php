@@ -23,7 +23,6 @@ class UserInfoController extends CI_Controller {
 			if ($_SESSION['type'] == APPLICANT) {
 				$this->load->view('errors/index.html');
 			} else {
-				$this->load->model('userModel', 'users');
 				$result = $this->users->getIpapediUserInfo($this->input->get('userId'));
 				$result['message'] = "success";
 			}
