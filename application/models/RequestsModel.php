@@ -236,7 +236,9 @@ class RequestsModel extends CI_Model
         $data['requestId'] = str_pad($request->getId(), 6, '0', STR_PAD_LEFT);
         $data['date'] = new DateTime('now', new DateTimeZone('America/Barbados'));
         $data['loanTypeString'] = $this->utils->mapLoanType($data['loanType']);
-        $data['paymentFee'] = $this->utils->calculatePaymentFee($data['reqAmount'], $data['due'], 12);
+        $data['paymentFee'] = $this->utils->calculatePaymentFee($data['reqAmount'],
+                                                                $data['due'],
+                                                                $this->utils->getInterestRate($data['loanType']));
         // Generate the document.
         \ChromePhp::log("Genrating pdf...");
         $html = $this->load->view('templates/requestPdf', $data, true); // render the view into HTML
@@ -364,6 +366,33 @@ class RequestsModel extends CI_Model
     public function isRequestValidated($request) {
         try {
             return $request->getValidationDate() !== null;
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * Adds the granting date when request is approved.
+     *
+     * @param $request - request Entity.
+     * @throws Exception
+     */
+    public function addGrantingDate($request) {
+        try {
+            $this->ipapedi_db = $this->load->database('ipapedi_db', true);
+            $newData = array(
+                'cedula' => $request->getUserOwner()->getId(),
+                'concepto' => $request->getLoanType(),
+                'otorg_fecha' => (new DateTime('now', new DateTimeZone('America/Barbados')))->format('d/m/Y'),
+                'otorg_monto' => $request->getApprovedAmount(),
+                'otorg_inter' => $this->utils->getInterestRate($request->getLoanType()),
+                'otorg_plazo' => $request->getPaymentDue(),
+                'otorg_cuota' => $this->utils->calculatePaymentFee(
+                    $request->getApprovedAmount(),
+                    $request->getPaymentDue(),
+                    $this->utils->getInterestRate($request->getLoanType()))
+            );
+            $this->ipapedi_db->insert('db_dt_prestamos', $newData);
         } catch (Exception $e) {
             throw $e;
         }

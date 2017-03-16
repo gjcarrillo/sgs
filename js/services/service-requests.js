@@ -641,6 +641,15 @@ function reqService($q, $http, Constants, $filter, Utils) {
         return available;
     };
 
-
+    self.getInterestRate = function (loanType) {
+        switch (loanType) {
+            case Constants.LoanTypes.PERSONAL:
+                return 12;
+            case Constants.LoanTypes.CASH_VOUCHER:
+                return 2;
+            default:
+                return 12;
+        }
+    };
     return self;
 }

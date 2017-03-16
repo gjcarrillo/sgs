@@ -67,7 +67,9 @@ function userHome($scope, $cookies, $timeout, Helps,
 
     // Calculates the request's payment fee.
     $scope.calculatePaymentFee = function() {
-        return $scope.req ? Requests.calculatePaymentFee($scope.req.reqAmount, $scope.req.due, 12) : 0;
+        return $scope.req ? Requests.calculatePaymentFee($scope.req.reqAmount,
+                                                         $scope.req.due,
+                                                         Requests.getInterestRate($scope.req.type)) : 0;
     };
 
     /**
@@ -141,6 +143,7 @@ function userHome($scope, $cookies, $timeout, Helps,
                         $scope.model.phone = parseInt(data.userPhone, 10);
                         $scope.model.email = data.userEmail;
                         $scope.model.allow = data.granting.allow;
+                        $scope.model.span = data.granting.span;
                         $scope.model.opened = data.opened;
                         $scope.model.type = Requests.verifyAvailability(data);
                         if($scope.model.type) {
@@ -166,7 +169,9 @@ function userHome($scope, $cookies, $timeout, Helps,
 
             $scope.calculatePaymentFee = function() {
                 if ($scope.model.reqAmount) {
-                    return Requests.calculatePaymentFee($scope.model.reqAmount, $scope.model.due, 12);
+                    return Requests.calculatePaymentFee($scope.model.reqAmount,
+                                                        $scope.model.due,
+                                                        Requests.getInterestRate($scope.model.type));
                 } else {
                     return 0;
                 }
@@ -361,7 +366,9 @@ function userHome($scope, $cookies, $timeout, Helps,
 
             $scope.calculatePaymentFee = function() {
                 if ($scope.model.reqAmount) {
-                    return Requests.calculatePaymentFee($scope.model.reqAmount, $scope.model.due, 12);
+                    return Requests.calculatePaymentFee($scope.model.reqAmount,
+                                                        $scope.model.due,
+                                                        Requests.getInterestRate($scope.model.type));
                 } else {
                     return 0;
                 }

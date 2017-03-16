@@ -90,7 +90,10 @@ class ManageRequestController extends CI_Controller {
 
 					if ($data['status'] == APPROVED && isset($data['approvedAmount'])) {
 						$request->setApprovedAmount($data['approvedAmount']);
+						// TODO: Update last granting data appropriately. Still missing some data.
+						$this->requests->addGrantingDate($request);
 					}
+					\ChromePhp::log('asdasdassa');
 					if (isset($data['reunion'])) {
 						$request->setReunion($data['reunion']);
 					}

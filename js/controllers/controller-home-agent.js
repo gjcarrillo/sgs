@@ -91,7 +91,9 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
 
     // Calculates the request's payment fee.
     $scope.calculatePaymentFee = function() {
-        return $scope.req ? Requests.calculatePaymentFee($scope.req.reqAmount, $scope.req.due, 12) : 0;
+        return $scope.req ? Requests.calculatePaymentFee($scope.req.reqAmount, 
+                                                         $scope.req.due, 
+                                                         Requests.getInterestRate($scope.req.loanType)) : 0;
     };
 
     // Helper function for formatting numbers with leading zeros
@@ -215,7 +217,9 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
 
             $scope.calculatePaymentFee = function() {
                 if ($scope.model.reqAmount) {
-                    return Requests.calculatePaymentFee($scope.model.reqAmount, $scope.model.due, 12);
+                    return Requests.calculatePaymentFee($scope.model.reqAmount,
+                                                        $scope.model.due,
+                                                        Requests.getInterestRate($scope.model.type));
                 } else {
                     return 0;
                 }
@@ -559,7 +563,9 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
 
             $scope.calculatePaymentFee = function() {
                 if ($scope.model.reqAmount) {
-                    return Requests.calculatePaymentFee($scope.model.reqAmount, $scope.model.due, 12);
+                    return Requests.calculatePaymentFee($scope.model.reqAmount, 
+                                                        $scope.model.due, 
+                                                        Requests.getInterestRate($scope.model.type));
                 } else {
                     return 0;
                 }

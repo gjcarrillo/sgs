@@ -156,11 +156,10 @@
                                 <md-tooltip
                                     ng-if="!model.allow[TYPE] || model.opened.hasOpen[TYPE]"
                                     md-direction="bottom">
-                                    <span ng-if="(model.opened.hasOpen && model.allow[TYPE]) ||
-                                        (model.opened.hasOpen && !model.allow[TYPE])">
+                                    <span ng-if="model.opened.hasOpen[TYPE]">
                                         Usted posee una solicitud de {{mapLoanType(TYPE)}} en transcurso.
                                     </span>
-                                    <span ng-if="!model.opened.hasOpen && !model.allow[TYPE]">
+                                    <span ng-if="!model.opened.hasOpen[TYPE] && !model.allow[TYPE]">
                                         No ha{{model.span === 1 ? '' : 'n'}}
                                         transcurrido {{model.span}} {{model.span == 1 ? 'mes' : 'meses'}}
                                         desde su última otorgación.

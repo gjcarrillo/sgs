@@ -365,7 +365,9 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
 
     // Calculates the request's payment fee.
     $scope.calculatePaymentFee = function() {
-        return $scope.req ? Requests.calculatePaymentFee($scope.req.reqAmount, $scope.req.due, 12) : 0;
+        return $scope.req ? Requests.calculatePaymentFee($scope.req.reqAmount,
+                                                         $scope.req.due,
+                                                         Requests.getInterestRate($scope.req.loanType)) : 0;
     };
 
     // Helper function for formatting numbers with leading zeros

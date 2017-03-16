@@ -144,8 +144,6 @@ class NewRequestController extends CI_Controller {
 						$result['granting']['allow'][$type] = true;
 					} else {
 						$granting = date_create_from_format('d/m/Y', $query->result()[0]->otorg_fecha);
-						\ChromePhp::log($query->result()[0]);
-						\ChromePhp::log($granting);
 						if (!$granting) {
 							// No granting date found in granting entry. Perhaps it was rejected?
 							// Go ahead and allow this request type creation
