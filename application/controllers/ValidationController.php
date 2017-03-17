@@ -62,7 +62,6 @@ class ValidationController extends CI_Controller {
                 $result['message'] = "success";
             }
         } catch (Exception $e) {
-            \ChromePhp::log($e);
             $result['message'] = $this->utils->getErrorMsg($e);
         }
         echo json_encode($result);

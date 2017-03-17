@@ -78,7 +78,6 @@ function reqService($q, $http, Constants, $filter, Utils) {
         $http.post('index.php/EditRequestController/editRequest',
                    JSON.stringify(postData))
             .then(function (response) {
-                             console.log(response);
                       if (response.data.message == "success") {
                           qEdit.resolve();
                       } else {
@@ -142,7 +141,6 @@ function reqService($q, $http, Constants, $filter, Utils) {
         $http.post('RequestsController/deleteRequestJWT', {rid: rid})
             .then(
             function (response) {
-                console.log(response);
                 if (response.data.message == 'success') {
                     qEliminate.resolve();
                 } else {
@@ -167,7 +165,6 @@ function reqService($q, $http, Constants, $filter, Utils) {
         $http.get('ValidationController/validate', {params: {token: token}})
             .then(
             function (response) {
-                console.log(response);
                 if (response.data.message === "success") {
                     qVal.resolve();
                 } else {
@@ -396,7 +393,6 @@ function reqService($q, $http, Constants, $filter, Utils) {
         $http.post('NewRequestController/createRequest',
                    JSON.stringify(postData))
             .then(function (response) {
-                      console.log(response);
                       if (response.data.message == "success") {
                           qReqCreation.resolve();
                       } else {
@@ -434,7 +430,6 @@ function reqService($q, $http, Constants, $filter, Utils) {
         $http.post('EditRequestController/updateEmail', postData)
             .then(
             function (response) {
-                console.log(response);
                 if (response.data.message == "success") {
                     qEmail.resolve();
                 } else {
@@ -455,7 +450,6 @@ function reqService($q, $http, Constants, $filter, Utils) {
         $http.post('ApplicantHomeController/sendValidation', reqId)
             .then(
             function (response) {
-                console.log(response);
                 if (response.data.message == "success") {
                     qValidation.resolve();
                 } else {
@@ -521,7 +515,6 @@ function reqService($q, $http, Constants, $filter, Utils) {
         $http.get('NewRequestController/getUserConcurrence', {params: {userId: userId}})
             .then(
             function (response) {
-                console.log(response);
                 if (response.data.message == "success") {
                     qUser.resolve(response.data.concurrence);
                 } else {
@@ -545,7 +538,6 @@ function reqService($q, $http, Constants, $filter, Utils) {
             {params: {userId: userId}})
             .then(
             function (response) {
-                console.log(response);
                 if (response.data.message == "success") {
                     qGranting.resolve(response.data.granting);
                 } else {
@@ -595,7 +587,6 @@ function reqService($q, $http, Constants, $filter, Utils) {
             {params: {userId: userId}})
             .then(
             function (response) {
-                console.log(response);
                 if (response.data.message == "success") {
                     qAvailability.resolve(response.data);
                 } else {

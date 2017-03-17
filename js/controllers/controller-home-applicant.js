@@ -22,7 +22,6 @@ function userHome($scope, $cookies, $timeout, Helps,
     $scope.listTitle = Requests.getRequestsListTitle();
 
     var fetchId = $cookies.getObject('session').id;
-    console.log(fetchId, $cookies.getObject('session'));
     $scope.loading = true;
     // Fetch user's requests
     Requests.getUserRequests(fetchId).then(
@@ -290,7 +289,6 @@ function userHome($scope, $cookies, $timeout, Helps,
                 phone: parseInt(request.phone),
                 email: request.email
             };
-            console.log(request.type);
             $scope.model = obj || model;
             $scope.confirmButton = 'Editar';
             $scope.title = 'Edición de solicitud';
@@ -545,7 +543,6 @@ function userHome($scope, $cookies, $timeout, Helps,
             },
             function (errorMsg) {
                 $scope.overlay = false;
-                console.log(errorMsg);
             }
         );
     }

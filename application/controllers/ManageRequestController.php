@@ -93,7 +93,6 @@ class ManageRequestController extends CI_Controller {
 						// TODO: Update last granting data appropriately. Still missing some data.
 						$this->requests->addGrantingDate($request);
 					}
-					\ChromePhp::log('asdasdassa');
 					if (isset($data['reunion'])) {
 						$request->setReunion($data['reunion']);
 					}
@@ -108,7 +107,6 @@ class ManageRequestController extends CI_Controller {
 					$result['message'] = "success";
 				}
 			} catch (Exception $e) {
-				\ChromePhp::log($e);
 				$result['message'] = $this->utils->getErrorMsg($e);
 			}
 

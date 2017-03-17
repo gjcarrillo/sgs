@@ -52,7 +52,6 @@ class RequestsModel extends CI_Model
                 $result['message'] = "success";
             }
         } catch (Exception $e) {
-            \ChromePhp::log($e);
             $result['message'] = $this->utils->getErrorMsg($e);
         }
         return json_encode($result);
@@ -103,7 +102,6 @@ class RequestsModel extends CI_Model
             }
         } catch (Exception $e) {
             $result['message'] = $this->utils->getErrorMsg($e);
-            \ChromePhp::log($e);
         }
         return json_encode($result);
     }
@@ -151,7 +149,6 @@ class RequestsModel extends CI_Model
             if ($tmp[0] == $this->session->id || $this->session->type != APPLICANT) {
                 // applicants are not allowed to download documents that are not their own.
                 $filename = $tmp[2] . "." . $tmp[3];
-                \ChromePhp::log($filename, DropPath . $doc);
                 $zip->addFromString(basename($filename),  file_get_contents(DropPath . $doc));
             }
         }
@@ -192,7 +189,6 @@ class RequestsModel extends CI_Model
             }
         } catch (Exception $e) {
             $result['message'] = $this->utils->getErrorMsg($e);
-            \ChromePhp::log($e);
         }
         return json_encode($result);
     }
@@ -218,7 +214,6 @@ class RequestsModel extends CI_Model
             }
         } catch (Exception $e) {
             $result['message'] = $this->utils->getErrorMsg($e);
-            \ChromePhp::log($e);
         }
         return json_encode($result);
     }
@@ -240,7 +235,6 @@ class RequestsModel extends CI_Model
                                                                 $data['due'],
                                                                 $this->utils->getInterestRate($data['loanType']));
         // Generate the document.
-        \ChromePhp::log("Genrating pdf...");
         $html = $this->load->view('templates/requestPdf', $data, true); // render the view into HTML
         $this->load->library('pdf');
         $pdf = $this->pdf->load();
@@ -253,7 +247,6 @@ class RequestsModel extends CI_Model
 		</p>');
         $pdfFilePath = DropPath . $data['lpath'];
         $pdf->Output($pdfFilePath, 'F'); // save to file
-        \ChromePhp::log("PDF generation success!");
     }
 
     // Helper function that adds a set of docs to a request in database & returns an html string with

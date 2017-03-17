@@ -42,7 +42,6 @@ function config ($http, $q) {
         $http.get('ConfigController/getStatusesForConfig')
             .then(
             function (response) {
-                console.log(response);
                 if (response.data.message === "success") {
                     qStatuses.resolve(response.data.statuses);
                 } else {
@@ -67,7 +66,6 @@ function config ($http, $q) {
                 if (response.data.message === "success") {
                     qStatuses.resolve();
                 } else {
-                    console.log(response);
                     qStatuses.reject(response.data.message);
                 }
             });

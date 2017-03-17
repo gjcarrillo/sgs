@@ -24,7 +24,6 @@ class ConfigModel extends CI_Model
             }
             $result['message'] = 'success';
         } catch (Exception $e) {
-            \ChromePhp::log($e);
             $result['message'] = $this->utils->getErrorMsg($e);
         }
         return json_encode($result);
@@ -50,7 +49,6 @@ class ConfigModel extends CI_Model
             }
             $result['message'] = 'success';
         } catch (Exception $e) {
-            \ChromePhp::log($e);
             $result['message'] = $this->utils->getErrorMsg($e);
         }
         return json_encode($result);
@@ -79,7 +77,6 @@ class ConfigModel extends CI_Model
             }
             $result['message'] = 'success';
         } catch (Exception $e) {
-            \ChromePhp::log($e);
             $result['message'] = $this->utils->getErrorMsg($e);
         }
         return json_encode($result);
@@ -151,7 +148,6 @@ class ConfigModel extends CI_Model
             }
             $result['message'] = 'success';
         } catch (Exception $e) {
-            \ChromePhp::log($e);
             $result['message'] = $this->utils->getErrorMsg($e);
         }
         return json_encode($result);
@@ -169,7 +165,6 @@ class ConfigModel extends CI_Model
             $result['span'] = $span === null ? null : $span->getValue();
             $result['message'] = 'success';
         } catch (Exception $e) {
-            \ChromePhp::log($e);
             $result['message'] = $this->utils->getErrorMsg($e);
         }
         return json_encode($result);
@@ -197,7 +192,6 @@ class ConfigModel extends CI_Model
             }
             $result['message'] = 'success';
         } catch (Exception $e) {
-            \ChromePhp::log($e);
             $result['message'] = $this->utils->getErrorMsg($e);
         }
         return json_encode($result);

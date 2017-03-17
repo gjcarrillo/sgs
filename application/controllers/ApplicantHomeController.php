@@ -25,7 +25,6 @@ class ApplicantHomeController extends CI_Controller {
                 $this->history->registerValidationResend($reqId);
                 $result['message'] = "success";
             } catch (Exception $e) {
-                \ChromePhp::log($e);
                 $result['message'] = $this->utils->getErrorMsg($e);
             }
             echo json_encode($result);

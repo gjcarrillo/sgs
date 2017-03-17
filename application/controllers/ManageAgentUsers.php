@@ -47,7 +47,6 @@ class ManageAgentUsers extends CI_Controller {
 					$result['message'] = "success";
 				}
 			} catch (Exception $e) {
-				\ChromePhp::log($e);
 				$result['message'] = $this->utils->getErrorMsg($e);
 			}
 			echo json_encode($result);
@@ -63,7 +62,6 @@ class ManageAgentUsers extends CI_Controller {
 				$this->users->upgradeUser($data['userId']);
 				$result['message'] = "success";
 			} catch (Exception $e) {
-				\ChromePhp::log($e);
 				$result['message'] = $this->utils->getErrorMsg($e);
 			}
 			echo json_encode($result);
@@ -79,7 +77,6 @@ class ManageAgentUsers extends CI_Controller {
 				$this->users->degradeUser($data['userId']);
 				$result['message'] = "success";
 			} catch (Exception $e) {
-				\ChromePhp::log($e);
 				$result['message'] = $this->utils->getErrorMsg($e);
 			}
 			echo json_encode($result);
@@ -101,7 +98,6 @@ class ManageAgentUsers extends CI_Controller {
 				}
 				$result['message'] = "success";
 			} catch (Exception $e) {
-				\ChromePhp::log($e);
 				$result['message'] = $this->utils->getErrorMsg($e);
 			}
 			echo json_encode($result);
@@ -113,7 +109,6 @@ class ManageAgentUsers extends CI_Controller {
 			$this->load->view('errors/index.html');
 		} else {
 			$data = file_get_contents('php://input');
-			\ChromePhp::log($data);
 			try {
 				$em = $this->doctrine->em;
 				$agent = $em->find('\Entity\User', $data);
@@ -124,7 +119,6 @@ class ManageAgentUsers extends CI_Controller {
 				$result['message'] = "success";
 			} catch (Exception $e) {
 				$result['message'] = $this->utils->getErrorMsg($e);
-				\ChromePhp::log($e);
 			}
 			echo json_encode($result);
 		}

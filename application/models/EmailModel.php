@@ -97,7 +97,6 @@ class EmailModel extends CI_Model
                 'html'    => $html
             );
             $mgClient->sendMessage(MAILGUN_SENDER_DOMAIN, $email);
-            \ChromePhp::log("Message sent!");
         } catch (Exception $e) {
             throw $e;
         }

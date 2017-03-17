@@ -79,7 +79,6 @@ class EditRequestController extends CI_Controller {
 					$result['message'] = "success";
 				}
 			} catch (Exception $e) {
-				\ChromePhp::log($e);
 				$result['message'] = $this->utils->getErrorMsg($e);
 			}
 
@@ -89,7 +88,6 @@ class EditRequestController extends CI_Controller {
 
 	public function editRequest() {
 		$data = json_decode(file_get_contents('php://input'), true);
-		\ChromePhp::log($data);
 		if ($data['userId'] != $_SESSION['id'] && $_SESSION['type'] != AGENT) {
 			// Only agents can edit requests for other people
 			$this->load->view('errors/index.html');
@@ -191,7 +189,6 @@ class EditRequestController extends CI_Controller {
 					}
 				}
 			} catch (Exception $e) {
-				\ChromePhp::log($e);
 				$result['message'] = $this->utils->getErrorMsg($e);
 			}
 
@@ -243,7 +240,6 @@ class EditRequestController extends CI_Controller {
 					$result['message'] = "success";
 				}
 			} catch (Exception $e) {
-				\ChromePhp::log($e);
 				$result['message'] = $this->utils->getErrorMsg($e);
 			}
 
@@ -286,7 +282,6 @@ class EditRequestController extends CI_Controller {
 					$result['message'] = "success";
 				}
 			} catch (Exception $e) {
-				\ChromePhp::log($e);
 				$result['message'] = $this->utils->getErrorMsg($e);
 			}
 
@@ -301,7 +296,6 @@ class EditRequestController extends CI_Controller {
 			$this->load->model('historyModel', 'history');
 			$this->history->registerValidationResend($reqId);
 		} catch (Exception $e) {
-			\ChromePhp::log($e);
 			throw $e;
 		}
 	}

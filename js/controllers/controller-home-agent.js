@@ -276,7 +276,6 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
             },
             function (errorMsg) {
                 $scope.overlay = false;
-                console.log(errorMsg);
             }
         );
     }
@@ -422,7 +421,6 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
                     },
                     function (errorMsg) {
                         $scope.overlay = false;
-                        console.log(errorMsg);
                         Utils.showAlertDialog('Oops!', errorMsg);
                     }
                 );
