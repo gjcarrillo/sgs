@@ -16,7 +16,7 @@ function info($scope, $http, Utils, Constants) {
     $http.get('UserInfoController/getUserInfo', {params:{userId:fetchId}})
         .then(function(response) {
             console.log(response);
-            if (response.data.message = "success") {
+            if (response.data.message == "success") {
                 $scope.userData = response.data.data;
                 $scope.userName = response.data.userName;
                 $scope.picture = response.data.picture ? Constants.IPAPEDI_URL + 'img/profiles_img/' +
