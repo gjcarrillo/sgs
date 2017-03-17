@@ -108,7 +108,6 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 $scope.requests = data.requests;
                 $scope.showOptions = false;
                 $scope.showResult = index;
-                console.log($scope.showResult);
                 $scope.pieloaded = true;
                 $scope.report = data.report;
                 $scope.pie = data.pie;
@@ -149,7 +148,6 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
     $scope.fetchRequestsByLoanType = function(loanType, index) {
         resetContent();
         $scope.loading = true;
-        console.log(loanType);
         Manager.fetchRequestsByLoanType(loanType)
             .then(
             function (data) {
@@ -625,7 +623,6 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 if ($scope.model.phone) {
                     postData.phone = Utils.pad($scope.model.phone, 11);
                 }
-                console.log(postData);
                 Manager.createNewAgent(postData)
                     .then(
                     function (created) {

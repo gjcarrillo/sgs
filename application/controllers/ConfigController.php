@@ -62,7 +62,6 @@ class ConfigController extends CI_Controller
                 $result['maxAmount'] = $this->configModel->getMaxReqAmount();
                 $result['message'] = 'success';
             } catch (Exception $e) {
-                \ChromePhp::log($e);
                 $result['message'] = $this->utils->getErrorMsg($e);
             }
             echo json_encode($result);
@@ -79,7 +78,6 @@ class ConfigController extends CI_Controller
                 $result['minAmount'] = $this->configModel->getMinReqAmount();
                 $result['message'] = 'success';
             } catch (Exception $e) {
-                \ChromePhp::log($e);
                 $result['message'] = $this->utils->getErrorMsg($e);
             }
             echo json_encode($result);

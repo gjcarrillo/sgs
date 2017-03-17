@@ -109,7 +109,6 @@ class NewRequestController extends CI_Controller {
 					$result['message'] = 'success';
 				}
 			} catch (Exception $e) {
-				\ChromePhp::log($e);
 				$result['message'] = $this->utils->getErrorMsg($e);
 			}
 		}
@@ -177,7 +176,6 @@ class NewRequestController extends CI_Controller {
 				$result['userEmail'] = $user->getEmail();
 				$result['message'] = 'success';
 			} catch (Exception $e) {
-				\ChromePhp::log($e);
 				$result['message'] = $this->utils->getErrorMsg($e);
 			}
 		}
@@ -280,7 +278,6 @@ class NewRequestController extends CI_Controller {
 					$result['message'] = "success";
 				}
 	        } catch (Exception $e) {
-	             \ChromePhp::log($e);
 				$result['message'] = $this->utils->getErrorMsg($e);
 	        }
 

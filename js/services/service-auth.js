@@ -15,7 +15,6 @@ function auth($cookies, $location, $http, $rootScope, $q, Agent, Manager, Consta
         $http.post('index.php/LoginController/authenticate', JSON.stringify(data))
             .then(
             function (response) {
-                console.log(response);
                 if (response.data.message === "success") {
                     //var now = new Date();
                     //// 1 year exp date
@@ -118,7 +117,6 @@ function auth($cookies, $location, $http, $rootScope, $q, Agent, Manager, Consta
         var qLogin = $q.defer();
         $http.post('index.php/LoginController/verifyUser', {token: token}).then(
             function (response) {
-                console.log(response);
                 if (response.data.message === "success") {
                     // create the session cookie
                     self.setLocalSession({

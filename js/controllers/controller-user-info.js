@@ -15,7 +15,6 @@ function info($scope, $http, Utils, Constants) {
     var fetchId = sessionStorage.getItem("fetchId");
     $http.get('UserInfoController/getUserInfo', {params:{userId:fetchId}})
         .then(function(response) {
-            console.log(response);
             if (response.data.message = "success") {
                 $scope.userData = response.data.data;
                 $scope.userName = response.data.userName;

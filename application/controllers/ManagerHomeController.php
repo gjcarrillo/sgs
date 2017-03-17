@@ -53,7 +53,6 @@ class ManagerHomeController extends CI_Controller {
                     $result['message'] = 'success';
                 }
             } catch (Exception $e) {
-                \ChromePhp::log($e);
                 $result['message'] = $this->utils->getErrorMsg($e);
             }
             echo json_encode($result);
@@ -170,7 +169,6 @@ class ManagerHomeController extends CI_Controller {
 					}
 				}
 			} catch (Exception $e) {
-				\ChromePhp::log($e);
                 $result['message'] = $this->utils->getErrorMsg($e);
             }
 			echo json_encode($result);
@@ -286,7 +284,6 @@ class ManagerHomeController extends CI_Controller {
                     }
                 }
             } catch (Exception $e) {
-                \ChromePhp::log($e);
                 $result['message'] = $this->utils->getErrorMsg($e);
             }
 
@@ -413,7 +410,6 @@ class ManagerHomeController extends CI_Controller {
                     }
 				}
             } catch (Exception $e) {
-                \ChromePhp::log($e);
                 $result['message'] = $this->utils->getErrorMsg($e);
             }
 
@@ -557,7 +553,6 @@ class ManagerHomeController extends CI_Controller {
                     }
                 }
             } catch (Exception $e) {
-                \ChromePhp::log($e);
                 $result['message'] = $this->utils->getErrorMsg($e);
             }
             echo json_encode($result);
@@ -672,7 +667,6 @@ class ManagerHomeController extends CI_Controller {
                     }
 				}
 			} catch (Exception $e) {
-				\ChromePhp::log($e);
                 $result['message'] = $this->utils->getErrorMsg($e);
             }
 
@@ -736,7 +730,6 @@ class ManagerHomeController extends CI_Controller {
 					$result['message'] = "success";
 				}
             } catch (Exception $e) {
-                \ChromePhp::log($e);
                 $result['message'] = $this->utils->getErrorMsg($e);
             }
             echo json_encode($result);
@@ -769,7 +762,6 @@ class ManagerHomeController extends CI_Controller {
                     }
                 }
             } catch (Exception $e) {
-                \ChromePhp::log($e);
                 $result['message'] = $this->utils->getErrorMsg($e);
             }
             echo json_encode($result);
@@ -880,7 +872,6 @@ class ManagerHomeController extends CI_Controller {
 					$result['message'] = "success";
 				}
 			} catch (Exception $e) {
-				\ChromePhp::log($e);
                 $result['message'] = $this->utils->getErrorMsg($e);
             }
 			echo json_encode($result);
@@ -1004,10 +995,8 @@ class ManagerHomeController extends CI_Controller {
                     $result['message'] = "success";
                 }
             } catch (Exception $e) {
-                \ChromePhp::log($e);
                 $result['message'] = $this->utils->getErrorMsg($e);
             }
-            \ChromePhp::log($result);
             echo json_encode($result);
         }
     }

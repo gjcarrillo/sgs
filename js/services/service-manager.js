@@ -128,7 +128,6 @@ function manager($http, $q, Requests) {
             {params: {status: status}})
             .then(
             function (response) {
-                console.log(response);
                 if (response.data.message === "success") {
                     response.data.requests = Requests.filterRequests(response.data.requests);
                     response.data.pie.bulbColors = self.generateBulbColors(response.data.pie);
@@ -146,7 +145,6 @@ function manager($http, $q, Requests) {
         $http.get('ManagerHomeController/fetchPendingRequests')
             .then(
             function (response) {
-                console.log(response);
                 if (response.data.message === "success") {
                     response.data.requests = Requests.filterRequests(response.data.requests);
                     response.data.pie.bulbColors = self.generateBulbColors(response.data.pie);
@@ -195,7 +193,6 @@ function manager($http, $q, Requests) {
             {params: {rid: rid}})
             .then(
             function (response) {
-                console.log(response);
                 if (response.data.message === "success") {
                     qRequests.resolve(response.data.request);
                 } else {
@@ -217,7 +214,6 @@ function manager($http, $q, Requests) {
             {params: {fetchId: fetchId}})
             .then(
             function (response) {
-                console.log(response);
                 if (response.data.message === "success") {
                     response.data.requests = Requests.filterRequests(response.data.requests);
                     response.data.pie.bulbColors = self.generateBulbColors(response.data.pie);
@@ -248,7 +244,6 @@ function manager($http, $q, Requests) {
             })
             .then(
             function (response) {
-                console.log(response);
                 if (response.data.message === "success") {
                     response.data.requests = Requests.filterRequests(response.data.requests);
                     response.data.pie.bulbColors = self.generateBulbColors(response.data.pie);
@@ -278,7 +273,6 @@ function manager($http, $q, Requests) {
             })
             .then(
             function (response) {
-                console.log(response);
                 if (response.data.message === "success") {
                     response.data.requests = Requests.filterRequests(response.data.requests);
                     response.data.pie.bulbColors = self.generateBulbColors(response.data.pie);
@@ -310,7 +304,6 @@ function manager($http, $q, Requests) {
             })
             .then(
             function (response) {
-                console.log(response);
                 if (response.data.message === "success") {
                     qAmount.resolve(response.data.approvedAmount);
                 } else {
@@ -332,7 +325,6 @@ function manager($http, $q, Requests) {
             {params: {userId: userId}})
             .then(
             function (response) {
-                console.log(response);
                 if (response.data.message === "success") {
                     qAmount.resolve(response.data);
                 } else {
@@ -353,7 +345,6 @@ function manager($http, $q, Requests) {
                   'getClosedReportByCurrentWeek')
             .then(
             function (response) {
-                console.log(response);
                 if (response.data.message === "success") {
                     qReport.resolve(response.data.report);
                 } else {
@@ -382,7 +373,6 @@ function manager($http, $q, Requests) {
             })
             .then(
             function (response) {
-                console.log(response);
                 if (response.data.message === "success") {
                     qReport.resolve(response.data.report);
                 } else {
@@ -424,7 +414,6 @@ function manager($http, $q, Requests) {
         $http.post('ManageAgentUsers/createNewAgent', userData)
             .then(
             function (response) {
-                console.log(response);
                 if (response.data.message == "success") {
                     qAgent.resolve(response.data.created);
                 } else {
@@ -444,7 +433,6 @@ function manager($http, $q, Requests) {
         $http.post('ManageAgentUsers/upgradeUser', {userId: uid})
             .then(
             function (response) {
-                console.log(response);
                 if (response.data.message == "success") {
                     qUser.resolve();
                 } else {
@@ -464,7 +452,6 @@ function manager($http, $q, Requests) {
         $http.post('ManageAgentUsers/degradeUser', {userId: uid})
             .then(
             function (response) {
-                console.log(response);
                 if (response.data.message == "success") {
                     qUser.resolve();
                 } else {
@@ -564,7 +551,6 @@ function manager($http, $q, Requests) {
         }
         var report = JSON.stringify(reportData);
         $http.post(url, report).then(function (response) {
-            console.log(response);
             if (response.data.message == "success") {
                 qReport.resolve('DocumentGenerator/' +
                                 'downloadReport?lpath=' + response.data.lpath);

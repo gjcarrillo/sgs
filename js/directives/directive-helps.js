@@ -946,7 +946,7 @@ app.directive('historyHelp', function($mdMedia) {
                     { sel : $("#action-summary"),
                         content : "Por cada acción realizada, se proporciona el nombre del " +
                                   "usuario que ejecutó la acción, tipo de acción realizada y fecha-hora de ejecución." +
-                                  " Para ver más detalles acerca de la acción realizada, haga click encima del item.",
+                                  " Para ver más detalles acerca de la acción realizada, haga clic encima del item.",
                         position : "s", header: "Resumen de acciones", animation: 'fadeInUp' }
                 ], options);
 
@@ -960,7 +960,7 @@ app.directive('historyHelp', function($mdMedia) {
                 } else {
                     tripToShowNavigation.tripData.push(
                         { sel : $("#toggle-search"),
-                            content : "También puede hacer click en la lupa y " +
+                            content : "También puede hacer clic en la lupa y " +
                                       "filtrar la lista de acciones escribiendo contenido clave. " +
                                       "Ej: 05/08/2016",
                             position : "s", header: "Filtro de búsqueda", animation: 'fadeInUp' }

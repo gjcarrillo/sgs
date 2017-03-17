@@ -23,7 +23,6 @@ function selection($scope, $state, Constants, Auth) {
                 $state.go("applicantHome");
             },
             function (error) {
-                console.log(error);
             }
         );
     };
@@ -41,7 +40,6 @@ function selection($scope, $state, Constants, Auth) {
                     $state.go("agentHome");
                 },
                 function (error) {
-                    console.log(error);
                 }
             );
         }
@@ -60,7 +58,6 @@ function selection($scope, $state, Constants, Auth) {
                     $state.go("managerHome");
                 },
                 function (error) {
-                    console.log(error);
                 }
             );
         }
