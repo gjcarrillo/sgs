@@ -382,7 +382,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
     };
 
     $scope.downloadDoc = function(doc) {
-        window.open(Requests.getDocDownloadUrl(doc.lpath));
+        window.open(Requests.getDocDownloadUrl(doc.id));
     };
 
     $scope.downloadAll = function() {

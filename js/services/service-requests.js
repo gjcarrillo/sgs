@@ -462,11 +462,11 @@ function reqService($q, $http, Constants, $filter, Utils) {
     /**
      * Returns a specific doc's download link.
      *
-     * @param docPath - Doc's name on disk.
+     * @param docId - Doc's id.
      * @returns {string} - Formed URL containing link to download doc.
      */
-    self.getDocDownloadUrl = function (docPath) {
-        return 'RequestsController/download?lpath=' + docPath;
+    self.getDocDownloadUrl = function (docId) {
+        return 'RequestsController/download?doc=' + docId;
     };
 
     /**
@@ -479,7 +479,7 @@ function reqService($q, $http, Constants, $filter, Utils) {
         // Bits of pre-processing before passing objects to URL
         var paths = [];
         angular.forEach(docs, function (doc) {
-            paths.push(doc.lpath);
+            paths.push(doc.id);
         });
         return 'RequestsController/downloadAll?docs=' + JSON.stringify(paths);
     };

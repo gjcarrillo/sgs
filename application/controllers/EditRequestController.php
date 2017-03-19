@@ -73,9 +73,9 @@ class EditRequestController extends CI_Controller {
 					$this->load->model('requestsModel', 'requests');
 					$changes = $changes . $this->requests->addDocuments($request, $history, $data['newDocs']);
 					$em->persist($history);
+					$em->flush();
 					$this->load->model('emailModel', 'email');
 					$this->email->sendRequestUpdateEmail($request->getId(), $changes);
-					$em->flush();
 					$result['message'] = "success";
 				}
 			} catch (Exception $e) {

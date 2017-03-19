@@ -43,6 +43,13 @@ class Document
     private $lpath;
 
     /**
+     * @var integer
+     *
+     * @ORM\Column(name="storage", type="smallint", precision=2, scale=0, nullable=false, unique=false)
+     */
+    private $storage = 1;
+
+    /**
      * @var \Entity\Request
      *
      * @ORM\ManyToOne(targetEntity="Entity\Request", inversedBy="documents")
@@ -130,6 +137,29 @@ class Document
     public function getLpath()
     {
         return $this->lpath;
+    }
+
+    /**
+     * Set storage
+     *
+     * @param integer $storage
+     * @return Document
+     */
+    public function setStorage($storage)
+    {
+        $this->storage = $storage;
+
+        return $this;
+    }
+
+    /**
+     * Get storage
+     *
+     * @return integer
+     */
+    public function getStorage()
+    {
+        return $this->storage;
     }
 
     /**

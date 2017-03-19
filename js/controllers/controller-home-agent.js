@@ -753,7 +753,7 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
     }
 
     $scope.downloadDoc = function (doc) {
-        window.open(Requests.getDocDownloadUrl(doc.lpath));
+        window.open(Requests.getDocDownloadUrl(doc.id));
     };
 
     $scope.downloadManual = function () {

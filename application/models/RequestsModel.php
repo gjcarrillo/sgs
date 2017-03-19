@@ -12,6 +12,7 @@ class RequestsModel extends CI_Model
 {
     public function __construct() {
         parent::__construct();
+        $this->load->model('driveModel');
         $this->load->library('session');
     }
 
@@ -73,7 +74,15 @@ class RequestsModel extends CI_Model
                 // request must be validated & not yet closed.
                 $result['message'] = 'Esta solicitud no puede ser modificada.';
             } else {
-                unlink(DropPath . $data['lpath']);
+                if ($doc->getStorage() == REMOTE) {
+                    // Delete document from drive
+                    $parsed = explode('.', $doc->getLpath());
+                    // [0] = userId, [1] = file uuid, [2] = filename, [3] = file extension
+                    $this->driveModel->deleteDocument($parsed[1]);
+                } else {
+                    // Delete document from local storage.
+                    unlink(DropPath . $data['lpath']);
+                }
                 // Remove this doc from it's request entity
                 $request->removeDocument($doc);
                 // Register History
@@ -107,8 +116,10 @@ class RequestsModel extends CI_Model
     }
 
     public function downloadDocument () {
+        $em = $this->doctrine->em;
+        $doc = $em->find('\Entity\Document', $this->input->get('doc'));
         // [0] = userId, [1] = file uuid, [2] = filename, [3] = file extension
-        $parsed = explode('.', $this->input->get('lpath'));
+        $parsed = explode('.', $doc->getLpath());
         // Get the Id of the document's owner.
         $userOwner = $parsed[0];
         if ($userOwner != $this->session->id && $this->session->type == APPLICANT) {
@@ -133,23 +144,35 @@ class RequestsModel extends CI_Model
                 header('Content-Disposition: attachment; filename="' . $parsed[2] . '.' . $parsed[3] . '"');
             }
             // The document source
-            readfile(DropPath . $this->input->get('lpath'));
+            if ($doc->getStorage() == REMOTE) {
+                $contents = $this->driveModel->getDocumentContents($parsed[1]);
+                echo $contents;
+            } else {
+                readfile(DropPath . $doc->getLpath());
+            }
         }
     }
 
     public function downloadAllDocuments () {
-        $docs = json_decode($this->input->get('docs'));
+        $em = $this->doctrine->em;
+        $docs = (json_decode($this->input->get('docs')));
         // Create the ZIP
         $zipname = time() . ".zip";
         $zip = new ZipArchive;
         $zip->open($zipname, ZipArchive::CREATE);
-        foreach ($docs as $doc) {
-            $tmp = explode('.', $doc);
+        foreach ($docs as $docId) {
+            $doc = $em->find('\Entity\Document', $docId);
+            $tmp = explode('.', $doc->getLpath());
             // [0] = userId, [1] = file uuid, [2] = filename, [3] = file extension
             if ($tmp[0] == $this->session->id || $this->session->type != APPLICANT) {
                 // applicants are not allowed to download documents that are not their own.
                 $filename = $tmp[2] . "." . $tmp[3];
-                $zip->addFromString(basename($filename),  file_get_contents(DropPath . $doc));
+                if ($doc->getStorage() == REMOTE) {
+                    $contents = $this->driveModel->getDocumentContents($tmp[1]);
+                    $zip->addFromString(basename($filename),  $contents);
+                } else {
+                    $zip->addFromString(basename($filename),  file_get_contents(DropPath . $doc->getLpath()));
+                }
             }
         }
         $zip->close();
@@ -179,7 +202,15 @@ class RequestsModel extends CI_Model
                 // Must delete all documents belonging to this request first
                 $docs = $request->getDocuments();
                 foreach($docs as $doc) {
-                    unlink(DropPath . $doc->getLpath());
+                    if ($doc->getStorage() == REMOTE) {
+                        // Delete document from drive
+                        $parsed = explode('.', $doc->getLpath());
+                        // [0] = userId, [1] = file uuid, [2] = filename, [3] = file extension
+                        $this->driveModel->deleteDocument($parsed[1]);
+                    } else {
+                        // Delete document from local storage.
+                        unlink(DropPath . $doc->getLpath());
+                    }
                 }
                 // Now we can remove the current request (and docs on cascade)
                 $em->remove($request);
@@ -204,7 +235,15 @@ class RequestsModel extends CI_Model
                 // Must delete all documents belonging to this request first
                 $docs = $request->getDocuments();
                 foreach($docs as $doc) {
-                    unlink(DropPath . $doc->getLpath());
+                    if ($doc->getStorage() == REMOTE) {
+                        // Delete document from drive
+                        $parsed = explode('.', $doc->getLpath());
+                        // [0] = userId, [1] = file uuid, [2] = filename, [3] = file extension
+                        $this->driveModel->deleteDocument($parsed[1]);
+                    } else {
+                        // Delete document from local storage.
+                        unlink(DropPath . $doc->getLpath());
+                    }
                 }
                 // Now we can remove the current request (and docs on cascade)
                 $em->remove($request);

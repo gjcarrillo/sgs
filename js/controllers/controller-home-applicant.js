@@ -593,7 +593,7 @@ function userHome($scope, $cookies, $timeout, Helps,
     };
 
     $scope.downloadDoc = function (doc) {
-        window.open(Requests.getDocDownloadUrl(doc.lpath));
+        window.open(Requests.getDocDownloadUrl(doc.id));
     };
 
     $scope.downloadAll = function () {

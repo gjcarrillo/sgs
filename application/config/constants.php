@@ -151,3 +151,14 @@ define('HISTORY_ACTIONS_NAMES', array(
        AVAILABLE REQ PAYMENT TERMS
 =========================================*/
 define('REQUESTS_TERMS', array(24, 36, 48, 60));
+/* ======================================
+       Google Drive API
+=========================================*/
+define('APPLICATION_NAME', 'Drive API PHP');
+define('CREDENTIALS_PATH', APPPATH . '../.credentials/drive-php.json');
+define('CLIENT_SECRET_PATH', APPPATH . '../client_secret.json');
+/* ======================================
+       Requests Documents storage
+=========================================*/
+define('LOCAL', 1);
+define('REMOTE', 2);

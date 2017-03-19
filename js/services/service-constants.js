@@ -18,7 +18,7 @@ var obj = {
         APPROVED: 'Aprobada',
         REJECTED: 'Rechazada'
     },
-    BASEURL: 'http://localhost:8080/sgdp/',
+    BASEURL: 'http://localhost:8080/sgs/',
     IPAPEDI_URL: 'http://localhost:8080/ipapedi_en_linea/'
 };
 
