@@ -73,4 +73,81 @@ class DriveModel extends CI_Model
             throw $e;
         }
     }
+
+    /**
+     * Update an existing file's metadata and content.
+     *
+     * @param string $fileId ID of the file to update.
+     * @param string $newTitle New title for the file.
+     * @param string $newMimeType New MIME type for the file.
+     * @param string $newFileName Filename of the new content to upload.
+     * @return string The updated file id. NULL is returned if
+     *     an API error occurred.
+     * @throws Exception
+     */
+    public function updateFile($fileId, $newMimeType, $newFileName)
+    {
+        try {
+            // File's new content.
+            $data = file_get_contents($newFileName);
+
+            $additionalParams = array(
+                'uploadType' => 'multipart',
+                'data' => $data,
+                'mimeType' => $newMimeType
+            );
+
+            // Send the request to the API.
+            $updatedFile = $this->service->files->update(
+                $fileId,
+                (new \Google_Service_Drive_DriveFile()),
+                $additionalParams)
+            ;
+            if (isset($updatedFile)) {
+                return $updatedFile->id;
+            } else {
+                return null;
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function uploadDB() {
+        try {
+            $fileMetadata = new Google_Service_Drive_DriveFile(array('name' => 'backup.sql'));
+            $content = file_get_contents(DropPath . 'backup.sql');
+            $file = $this->service->files->create($fileMetadata, array(
+                'data' => $content,
+                'mimeType' => 'application/sql',
+                'uploadType' => 'multipart',
+                'fields' => 'id'));
+            return $file->id;
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function getDBId() {
+        // Print the names and IDs for up to 10 files.
+        $pageToken = null;
+        $results = $this->service->files->listFiles(array(
+            'q' => "mimeType='application/sql'",
+            'spaces' => 'drive',
+            'pageToken' => $pageToken,
+            'fields' => 'nextPageToken, files(id, name)',
+        ));
+
+        if (count($results->getFiles()) == 0) {
+            print "No files found.\n";
+        } else {
+            print "File:\n";
+            foreach ($results->getFiles() as $file) {
+                printf("%s (%s)\n", $file->getName(), $file->getId());
+                return $file->getId();
+            }
+        }
+        // No sql file found
+        return null;
+    }
 }
