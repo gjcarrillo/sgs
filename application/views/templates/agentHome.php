@@ -1,6 +1,11 @@
 <!-- Header -->
 <md-toolbar layout-padding>
     <div class="md-toolbar-tools" ng-hide="searchEnabled">
+        <md-button ng-if="!searchEnabled" ng-click="goBack()" class="md-icon-button">
+            <md-icon>
+                arrow_back
+            </md-icon>
+        </md-button>
         <md-button
             id="nav-panel"
             ng-show="contentAvailable"

@@ -1,6 +1,11 @@
 <!-- Header -->
 <md-toolbar layout-padding>
     <div class="md-toolbar-tools">
+        <md-button ng-click="goBack()" class="md-icon-button">
+            <md-icon>
+                arrow_back
+            </md-icon>
+        </md-button>
         <md-button
             id="nav-panel"
             ng-show="contentAvailable"

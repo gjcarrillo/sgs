@@ -1,6 +1,11 @@
 <!-- Toolbar -->
 <md-toolbar layout-padding>
     <div class="md-toolbar-tools">
+        <md-button ng-click="return()" class="md-icon-button">
+            <md-icon>
+                arrow_back
+            </md-icon>
+        </md-button>
         <md-button
             id="nav-panel"
             hide-gt-sm

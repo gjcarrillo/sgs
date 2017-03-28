@@ -3,10 +3,10 @@ angular
     .controller('ManagerHomeController', managerHome);
 
 managerHome.$inject = ['$scope', '$mdDialog', '$state', '$timeout', '$mdSidenav',
-                       '$mdMedia', 'Utils', 'Requests', 'Helps', 'Constants', 'Manager', 'Config'];
+                       '$mdMedia', 'Utils', 'Requests', 'Constants', 'Manager', 'Config'];
 
 function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
-                     Utils, Requests, Helps, Constants, Manager, Config) {
+                     Utils, Requests, Constants, Manager, Config) {
     'use strict';
     $scope.model = Manager.data.model;
     $scope.selectedQuery = Manager.data.selectedQuery;
@@ -53,7 +53,6 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
     // thus needing to update pie and report data
     var dataChanged = false;
 
-
     // Fetch pending requests and automatically show first one to user (if any)
     if ($scope.selectedReq == '' && $scope.selectedPendingReq == '') {
         loadPendingRequests();
@@ -80,6 +79,10 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 $scope.loadingContent = false;
             });
     }
+
+    $scope.return = function () {
+        window.location.replace(Constants.IPAPEDI_URL + 'administracion/admin');
+    };
 
     $scope.fetchRequestById = function(rid) {
         resetContent();

@@ -47,9 +47,9 @@ function auth($cookies, $location, $http, $rootScope, $q, Agent, Manager, Consta
         $rootScope.model = {};
         // redirect to IPAPEDI login page
         if (type == Constants.Users.MANAGER || type == Constants.Users.AGENT) {
-            window.location.replace(Constants.IPAPEDI_URL + 'administracion');
+            window.location.replace(Constants.IPAPEDI_URL + 'administracion/cerrarSesion');
         } else {
-            window.location.replace(Constants.IPAPEDI_URL);
+            window.location.replace(Constants.IPAPEDI_URL + 'asociados/cerrar');
         }
     };
 
@@ -58,7 +58,7 @@ function auth($cookies, $location, $http, $rootScope, $q, Agent, Manager, Consta
     };
 
     self.userType = function (type) {
-        return $cookies.getObject('session').type == type;
+        return $cookies.getObject('session') ? $cookies.getObject('session').type == type : false;
     };
 
     self.sendHome = function () {

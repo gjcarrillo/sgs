@@ -269,6 +269,26 @@ sgdp.run(['$rootScope', '$location', '$state', 'Auth', '$cookies', '$http', 'Con
                   }
               });
 
+              // This will redirect appropriately when user clicks on BACK btn from browser.
+              $rootScope.$on('$stateChangeStart', function(e, toState, toParams, fromState, fromParams) {
+                  if (toState.name == "transition" && fromState.name) {
+                      // if user clicked browser's back btn from HOME state...
+                      if (Auth.userType(Constants.Users.MANAGER)) {
+                          // if manager then send ipapedi en linea's admin home
+                          e.preventDefault();
+                          window.location.replace(Constants.IPAPEDI_URL + 'administracion/admin');
+                      } else if (Auth.userType(Constants.Users.AGENT)) {
+                          // if agent then log out
+                          e.preventDefault();
+                          Auth.logout();
+                      } else if (Auth.userType(Constants.Users.APPLICANT)) {
+                          // if applicant then send ipapedi en linea's applicant home
+                          e.preventDefault();
+                          window.location.replace(Constants.IPAPEDI_URL + 'asociados');
+                      }
+                  }
+              });
+
               function userHasPermission(userType, url) {
                   switch (url) {
                       case '/applicantHome':

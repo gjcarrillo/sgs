@@ -2,9 +2,9 @@ angular
     .module('sgdp')
     .controller('HistoryController', history);
 
-history.$inject = ['$scope', '$http', '$mdBottomSheet', '$timeout', 'Constants'];
+history.$inject = ['$scope', '$http', '$mdBottomSheet', '$timeout', 'Constants', 'Auth'];
 
-function history($scope, $http, $mdBottomSheet, $timeout, Constants) {
+function history($scope, $http, $mdBottomSheet, $timeout, Constants, Auth) {
     'use strict';
     // This will enable / disable search bar in mobile screens
     $scope.searchEnabled = false;
@@ -49,5 +49,9 @@ function history($scope, $http, $mdBottomSheet, $timeout, Constants) {
 
     $scope.clearInput = function() {
         $scope.filterInput = '';
+    };
+
+    $scope.goHome = function () {
+        Auth.sendHome();
     };
 }

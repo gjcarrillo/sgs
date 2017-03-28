@@ -2,10 +2,10 @@ angular
     .module('sgdp')
     .controller('ApplicantHomeController', userHome);
 
-userHome.$inject = ['$scope', '$cookies', '$timeout', 'Helps',
+userHome.$inject = ['$scope', '$cookies', '$timeout',
                     '$mdSidenav', '$mdDialog', '$mdMedia', 'Constants', 'Requests', 'Utils'];
 
-function userHome($scope, $cookies, $timeout, Helps,
+function userHome($scope, $cookies, $timeout,
                   $mdSidenav, $mdDialog, $mdMedia, Constants, Requests, Utils) {
     'use strict';
     $scope.loading = true;
@@ -39,6 +39,10 @@ function userHome($scope, $cookies, $timeout, Helps,
             $scope.loading = false;
         }
     );
+
+    $scope.goBack = function () {
+        window.location.replace(Constants.IPAPEDI_URL + 'asociados');
+    };
 
     /**
      * Toggles the selected request type list.

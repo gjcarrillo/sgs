@@ -621,7 +621,7 @@ function reqService($q, $http, Constants, $filter, Utils) {
             if (!anyTypeAvailable) {
                 // throw error msg
                 Utils.showAlertDialog('No permitido',
-                                      'Etimado usuario, no puede solicitar ningún tipo de solicitud adicional ' +
+                                      'Estimado usuario, no puede solicitar ningún tipo de solicitud adicional ' +
                                       'debido a cualquiera de las siguientes razones:<br/><br/>' +
                                       '1. Posee distintos tipos de solicitudes en transcurso.<br/>' +
                                       '2. Aún no ha' + (data.granting.span == 1 ? '' : 'n') +

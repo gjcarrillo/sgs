@@ -3,10 +3,10 @@ angular
     .controller('AgentHomeController', agentHome);
 
 agentHome.$inject = ['$scope', '$mdDialog', 'FileUpload', 'Constants', 'Agent',
-                     '$state', '$timeout', '$mdSidenav', '$mdMedia', 'Requests', 'Utils', 'Helps'];
+                     '$state', '$timeout', '$mdSidenav', '$mdMedia', 'Requests', 'Utils', 'Auth'];
 
 function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
-                   $state, $timeout, $mdSidenav, $mdMedia, Requests, Utils, Helps) {
+                   $state, $timeout, $mdSidenav, $mdMedia, Requests, Utils, Auth) {
     'use strict';
     $scope.selectedReq = Agent.data.selectedReq;
     $scope.selectedLoan = Agent.data.selectedLoan;
@@ -37,6 +37,10 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
      */
     $scope.toggleList = function (index) {
         $scope.showList[index] = !$scope.showList[index];
+    };
+
+    $scope.goBack = function () {
+        Auth.logout();
     };
 
     /**
