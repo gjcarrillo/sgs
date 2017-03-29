@@ -94,7 +94,6 @@ class HistoryModel extends CI_Model
                 $history->setOrigin($request);
                 $action = new \Entity\HistoryAction();
                 $action->setSummary("Validación de solicitud");
-                $action->setDetail("Solicitud validada a través del correo electrónico " . $request->getContactEmail());
                 $action->setBelongingHistory($history);
                 $history->addAction($action);
                 $em->persist($action);

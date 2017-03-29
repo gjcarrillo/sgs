@@ -207,8 +207,7 @@ function userHome($scope, $cookies, $timeout,
                 Requests.createRequest(postData).then(
                     function() {
                         updateRequestListUI(fetchId, 0, 'Solicitud creada',
-                                            'Le hemos enviado un correo para realizar validación de su solicitud.<br/>' +
-                                            'Si no ha recibido el correo luego de 10 minutos, haga clic en Reenviar.',
+                                            'Por favor valide su solicitud para proceder.',
                                             true, true,
                                             parseInt(postData.loanType, 10));
                     },
@@ -290,7 +289,7 @@ function userHome($scope, $cookies, $timeout,
                 reqAmount: request.reqAmount,
                 type: request.type,
                 due: request.due,
-                phone: parseInt(request.phone),
+                phone: Utils.pad(request.phone, 11),
                 email: request.email
             };
             $scope.model = obj || model;
@@ -396,9 +395,7 @@ function userHome($scope, $cookies, $timeout,
                 Requests.editRequest(postData).then(
                     function() {
                         updateRequestListUI(fetchId, selectedLoan, 'Solicitud editada',
-                                            'Hemos reenviado el correo de validación con los datos actualizados.<br/>' +
-                                            'Si no recibe el correo dentro de unos pocos minutos, ' +
-                                            'por favor haga clic en Reenviar.',
+                                            'La información de su solicitud ha sido editada exitosamente.',
                                             true, true,
                                             parseInt(postData.loanType, 10));
                     },
@@ -418,8 +415,7 @@ function userHome($scope, $cookies, $timeout,
             $scope.confirmOperation = function (ev) {
                 Utils.showConfirmDialog(
                     'Confirmación de edición de solicitud',
-                    'Se guardarán los cambios que haya realizado a su solicitud y se reenviará el correo de ' +
-                    'validación con los datos actualizados. ¿Desea proceder?',
+                    'Se guardarán los cambios que hayan realizado a su solicitud. ¿Desea proceder?',
                     'Sí', 'Cancelar', ev, true
                 ).then(
                     function() {
@@ -480,20 +476,28 @@ function userHome($scope, $cookies, $timeout,
         }
     };
 
-    $scope.sendValidation = function() {
-        $scope.sending = true;
-        Requests.sendValidation($scope.req.id)
-            .then(
-            function () {
-                $scope.sending = false;
-                Utils.showAlertDialog('Validación reenviada!',
-                                      'Hemos reenviado el correo de validación de su solicitud de forma exitosa.');
-            },
-            function (errorMsg) {
-                $scope.sending = false;
-                Utils.showAlertDialog('Oops!', errorMsg);
-            }
-        )
+    $scope.validateRequest = function (ev) {
+        Utils.showConfirmDialog(
+            'Advertencia',
+            'Al validar su solicitud no ya no podrá editarla ni eliminarla. ¿Desea continuar?' ,
+            'Continuar',
+            'Cancelar',
+            ev, true).then(
+            function() {
+                $scope.validating = true;
+                Requests.validateRequest($scope.req.id).then(
+                    function (date) {
+                        $scope.validating = false;
+                        Utils.showAlertDialog('Solicitud validada',
+                                              'Su solicitud será atendida en menos de 48 horas hábiles.');
+                        $scope.req.validationDate = date;
+                    },
+                    function (error) {
+                        $scope.validating = false;
+                        Utils.showAlertDialog('Oops!', error);
+                    }
+                );
+            });
     };
 
     $scope.deleteRequest = function (ev) {

@@ -18,17 +18,10 @@ class EmailModel extends CI_Model
             $em = $this->doctrine->em;
             $request = $em->find('\Entity\Request', $reqId);
             $this->load->model('requestsModel', 'requests');
-            if ($this->requests->isRequestValidated($request)) {
-                throw new Exception('Esta solicitud ya ha sido validada.');
+            if (!$this->requests->isRequestValidated($request)) {
+                throw new Exception('Esta solicitud no ha sido validada.');
             } else {
-                $tokenData['uid'] = $request->getUserOwner()->getId();
-                $tokenData['rid'] = $reqId;
-                $tokenData['reqAmount'] = $request->getRequestedAmount();
-                $tokenData['tel'] = $request->getContactNumber();
-                $tokenData['email'] = $request->getContactEmail();
-                $tokenData['due'] = $request->getPaymentDue();
-                $tokenData['loanType'] = $request->getLoanType();
-                $this->sendValidationToken($tokenData, $request);
+                $this->sendNewReqEmail($request);
             }
         } catch (Exception $e) {
             throw $e;
@@ -45,6 +38,28 @@ class EmailModel extends CI_Model
             $mailData['email'] = $request->getContactEmail();
             $mailData['subject'] = 'Actualización de Solicitud';
             $html = $this->load->view('templates/updateEmail', $mailData, true); // render the view into HTML
+            $this->sendEmail($mailData['email'], $mailData['subject'], $html);
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    private function sendNewReqEmail($request) {
+        try {
+            $loanTypes = LOAN_TYPES_NAMES;
+            $mailData['reqId'] = $request->getId();
+            $user = $request->getUserOwner();
+            $mailData['username'] = $user->getFirstName() . ' ' . $user->getLastName();
+            $mailData['userId'] = $user->getId();
+            $mailData['creationDate'] = $request->getCreationDate()->format('d/m/Y');
+            $mailData['reqAmount'] = $request->getRequestedAmount();
+            $mailData['tel'] = $request->getContactNumber();
+            $mailData['email'] = $request->getContactEmail();
+            $mailData['loanTypeString'] = $loanTypes[$request->getLoanType()];
+            $mailData['due'] = $request->getPaymentDue();
+            $mailData['paymentFee'] = $this->utils->calculatePaymentFee($mailData['reqAmount'], $mailData['due'], 12);
+            $mailData['subject'] = 'Nueva Solicitud de Préstamo';
+            $html = $this->load->view('templates/newReqMail', $mailData, true); // render the view into HTML
             $this->sendEmail($mailData['email'], $mailData['subject'], $html);
         } catch (Exception $e) {
             throw $e;

@@ -273,8 +273,6 @@ class NewRequestController extends CI_Controller {
 					$em->persist($history);
 					$em->flush();
 					$this->requests->generateRequestDocument($request);
-					// Send request validation token.
-					$this->sendValidation($request->getId());
 					$result['message'] = "success";
 				}
 	        } catch (Exception $e) {
@@ -284,15 +282,4 @@ class NewRequestController extends CI_Controller {
 	        echo json_encode($result);
 		}
     }
-
-	private function sendValidation($reqId) {
-		try {
-			$this->load->model('emailModel', 'email');
-			$this->email->sendNewRequestEmail($reqId);
-			$this->load->model('historyModel', 'history');
-			$this->history->registerValidationSending($reqId);
-		} catch (Exception $e) {
-			throw $e;
-		}
-	}
 }

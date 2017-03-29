@@ -243,8 +243,8 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
                 Requests.createRequest(postData).then(
                     function () {
                         updateRequestListUI(fetchId, 0, 'Solicitud creada',
-                                            'La solicitud ha sido creada exitosamente. ' +
-                                            'Se ha enviado el correo para realizar la correspondiente validación.',
+                                            'La solicitud ha sido creada exitosamente. El asociado ' +
+                                            ' debe ingresar al sistema y realizar la correspondiente validación.',
                                             true, true,
                                             parseInt(postData.loanType, 10));
                     },
@@ -490,7 +490,7 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
                 reqAmount: request.reqAmount,
                 type: request.type,
                 due: request.due,
-                phone: parseInt(request.phone),
+                phone: Utils.pad(request.phone, 11),
                 email: request.email
             };
             $scope.model = obj || model;
@@ -597,8 +597,7 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
                 Requests.editRequest(postData).then(
                     function() {
                         updateRequestListUI(fetchId, selectedLoan, 'Solicitud editada',
-                                            'La solicitud ha sido editada exitosamente.<br/> Se ha reenviado el correo ' +
-                                            'de validación con los datos actualizados.',
+                                            'La solicitud ha sido editada exitosamente.',
                                             true, true,
                                             parseInt(postData.loanType, 10));
                     },
@@ -618,8 +617,7 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent,
             $scope.confirmOperation = function (ev) {
                 Utils.showConfirmDialog(
                     'Confirmación de edición de solicitud',
-                    'Se guardarán los cambios que haya realizado a su solicitud y se reenviará el correo' +
-                    ' de validación con los datos actualizados. ¿Desea proceder?',
+                    'Se guardarán los cambios que hayan realizado a la solicitud. ¿Desea proceder?',
                     'Sí', 'Cancelar', ev, true
                 ).then(
                     function() {

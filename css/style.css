@@ -225,6 +225,10 @@ md-list .md-button {
     padding-top: 30px;
 }
 
+.padding-sides {
+    padding: 0 8px;
+}
+
 .sidenavTitle {
     font-size: 14px;
     color:#0D47A1;

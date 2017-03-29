@@ -117,7 +117,7 @@ class EditRequestController extends CI_Controller {
 					// Update request
 					$request = $em->find('\Entity\Request', $data['rid']);
 					if ($request->getValidationDate()) {
-						$result['message'] = 'Información de solicitud ya validada.';
+						$result['message'] = 'Solicitud ya validada. Edición no permitida.';
 					} else {
 						// Register History
 						$history = new \Entity\History();
@@ -183,7 +183,6 @@ class EditRequestController extends CI_Controller {
 						$em->merge($request);
 						$this->load->model('requestsModel', 'requests');
 						$this->requests->generateRequestDocument($request);
-						$this->sendValidation($request->getId());
 						$em->flush();
 						$result['message'] = "success";
 					}
@@ -286,17 +285,6 @@ class EditRequestController extends CI_Controller {
 			}
 
 			echo json_encode($result);
-		}
-	}
-
-	private function sendValidation($reqId) {
-		try {
-			$this->load->model('emailModel', 'email');
-			$this->email->sendNewRequestEmail($reqId);
-			$this->load->model('historyModel', 'history');
-			$this->history->registerValidationResend($reqId);
-		} catch (Exception $e) {
-			throw $e;
 		}
 	}
 }

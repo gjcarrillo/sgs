@@ -175,6 +175,27 @@ function reqService($q, $http, Constants, $filter, Utils) {
         return qVal.promise;
     };
 
+    /**
+     * Validates the specified request.
+     *
+     * @param rid - request's id.
+     * @returns {*} - promise with the operation's result.
+     */
+    self.validateRequest = function (rid) {
+        var qVal = $q.defer();
+        $http.post('ValidationController/validateReq', {rid: rid})
+            .then(
+            function (response) {
+                if (response.data.message === "success") {
+                    qVal.resolve(response.data.date);
+                } else {
+                    qVal.reject(response.data.message);
+                }
+            }
+        );
+        return qVal.promise;
+    };
+
     self.updateDocDescription = function (doc) {
         var updateDoc = $q.defer();
         $http.post('EditRequestController/' +
