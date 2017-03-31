@@ -17,6 +17,7 @@ var sgdp = angular.module("sgdp",
         "ui.router",
         "ngMaterial",
         "md.data.table",
+        "material.components.expansionPanels",
         "ngFileUpload",
         "ngMessages"
     ]);
