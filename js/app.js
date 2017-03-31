@@ -16,6 +16,7 @@ var sgdp = angular.module("sgdp",
         "sgdp.directive-overlay",
         "ui.router",
         "ngMaterial",
+        "md.data.table",
         "ngFileUpload",
         "ngMessages"
     ]);

@@ -8,6 +8,7 @@
 
     <!-- Angular Material Library -->
     <link rel="stylesheet" href="<?php echo base_url(); ?>node_modules/angular-material/angular-material.min.css">
+    <link href="<?php echo base_url(); ?>node_modules/angular-material-data-table/dist/md-data-table.min.css" rel="stylesheet" type="text/css"/>
 
     <!-- Modified version of trip js plugin. Fixed for truly responsive design :) -->
     <link type="text/css" rel="stylesheet" href="<?php echo base_url(); ?>lib/trip.js/trip.css"/>
@@ -43,6 +44,7 @@
 
     <!-- Angular Material Library -->
     <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/angular-material/angular-material.min.js"></script>
+    <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/angular-material-data-table/dist/md-data-table.min.js"></script>
 
     <!-- App module, controllers & utilities -->
     <script type="text/javascript" src="<?php echo base_url(); ?>js/app.js"></script>
