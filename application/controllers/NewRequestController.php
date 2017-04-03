@@ -128,10 +128,10 @@ class NewRequestController extends CI_Controller {
 		} else {
 			try {
 				$em = $this->doctrine->em;
-				$span = $em->getRepository('\Entity\Config')->findOneBy(array("key" => 'SPAN'))->getValue();
+				$this->load->model('configModel');
+				$span = $this->configModel->getRequestsSpan();
 				$result['granting']['span'] = $span;
 				$result['granting']['allDenied'] = true;
-				$this->load->model('configModel');
 				$loanTypes = $this->configModel->getLoanTypes();
 				foreach ($loanTypes as $tKey => $type) {
 					$this->ipapedi_db = $this->load->database('ipapedi_db', true);

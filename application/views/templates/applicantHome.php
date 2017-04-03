@@ -77,37 +77,79 @@
         md-component-id="left"
         md-is-locked-open="$mdMedia('gt-sm') && contentLoaded">
         <md-content class="sidenav-height">
-            <!-- Requests list -->
+            <!-- Queries list -->
             <md-list class="sidenavList">
-                <div ng-repeat="(lKey, loanType) in loanTypes">
-                    <md-list-item ng-click="toggleList(lKey)">
-                        <p class="sidenavTitle">
-                            {{loanType.description}}
-                        </p>
-                        <md-icon ng-class="md-secondary" ng-if="!loanType.selected">keyboard_arrow_down</md-icon>
-                        <md-icon ng-class="md-secondary" ng-if="loanType.selected">keyboard_arrow_up</md-icon>
-                    </md-list-item>
+                <md-list-item ng-click="togglePanelList(1)">
+                    <p class="sidenavTitle">
+                        Consultar
+                    </p>
+                    <md-icon ng-class="md-secondary" ng-if="selectedList != 1">keyboard_arrow_down</md-icon>
+                    <md-icon ng-class="md-secondary" ng-if="selectedList == 1">keyboard_arrow_up</md-icon>
+                </md-list-item>
+                <md-divider></md-divider>
+                <div class="slide-toggle" ng-show="selectedList == 1" layout="column" layout-align="center" ng-repeat="query in queryList">
+                    <md-button
+                        ng-click="selectAction(query.id)"
+                        class="requestItems"
+                        ng-class="{'md-primary md-raised' : selectedAction == query.id}">
+                        {{query.text}}
+                    </md-button>
                     <md-divider></md-divider>
-                    <div class="slide-toggle" ng-show="loanType.selected">
-                        <div ng-if="requests[lKey].length == 0">
-                            <div layout layout-align="center center" class="md-padding">
-                                <p style="color:#F44336; text-align:center">
-                                    Usted aún no posee solicitudes.
-                                </p>
-                            </div>
-                            <md-divider></md-divider>
-                        </div>
-                        <div layout="column" layout-align="center" ng-repeat="(rKey, request) in requests[lKey]">
-                                <md-button
-                                    ng-click="selectRequest(lKey, rKey)"
-                                    class="requestItems"
-                                    ng-class="{'md-primary md-raised' : selectedReq == lKey && selectedLoan === rKey}">
-                                    Solicitud ID &#8470; {{pad(request.id, 6)}}
-                                </md-button>
-                                <md-divider ng-if="$last"></md-divider>
-                        </div>
-                    </div>
                 </div>
+            </md-list>
+
+            <!-- New requests list -->
+            <md-list class="sidenavList">
+                <md-list-item ng-click="togglePanelList(2)">
+                    <p class="sidenavTitle">
+                        Nueva Solicitud
+                    </p>
+                    <md-icon ng-class="md-secondary" ng-if="selectedList != 2">keyboard_arrow_down</md-icon>
+                    <md-icon ng-class="md-secondary" ng-if="selectedList == 2">keyboard_arrow_up</md-icon>
+                </md-list-item>
+                <md-divider></md-divider>
+                <div class="slide-toggle" ng-show="selectedList == 2" layout="column" layout-align="center" ng-repeat="(lKey, loanType) in loanTypes">
+                    <md-button
+                        ng-click="openNewRequestDialog($event, lKey)"
+                        class="requestItems"
+                        ng-class="{'md-primary md-raised' : selectedAction == 'N' + lKey}">
+                        {{loanType.description}}
+                    </md-button>
+                    <md-divider></md-divider>
+                </div>
+            </md-list>
+
+            <!-- Refinancing request list -->
+            <md-list class="sidenavList">
+                <md-list-item ng-click="togglePanelList(3)">
+                    <p class="sidenavTitle">
+                        Refinanciamiento
+                    </p>
+                    <md-icon ng-class="md-secondary" ng-if="selectedList != 3">keyboard_arrow_down</md-icon>
+                    <md-icon ng-class="md-secondary" ng-if="selectedList == 3">keyboard_arrow_up</md-icon>
+                </md-list-item>
+                <md-divider></md-divider>
+                <div class="slide-toggle" ng-show="selectedList == 3" layout="column" layout-align="center" ng-repeat="(lKey, loanType) in loanTypes">
+                    <md-button
+                        ng-click="openRefinancingRequestDialog($event, lKey)"
+                        class="requestItems"
+                        ng-class="{'md-primary md-raised' : selectedAction == 'R' + lKey}">
+                        {{loanType.description}}
+                    </md-button>
+                    <md-divider></md-divider>
+                </div>
+            </md-list>
+
+            <!-- Edit requests -->
+            <md-list class="sidenavList">
+                <div layout="column" layout-align="center">
+                    <md-button
+                        ng-click="selectAction('edit')"
+                        ng-class="{'md-primary md-raised' : selectedAction == 'edit'}">
+                        <span>Editar solicitudes</span>
+                    </md-button>
+                </div>
+                <md-divider></md-divider>
             </md-list>
         </md-content>
     </md-sidenav>
@@ -125,13 +167,62 @@
             </div>
             <!-- Watermark -->
             <div
-                ng-if="fetchError == '' && !req"
+                ng-if="fetchError == '' && selectedAction != 1"
                 class="full-content-height"
                 layout="column" layout-align="center center">
                 <div ng-if="!loading" class="watermark" layout="column" layout-align="center center">
                     <img src="images/ipapedi.png" alt="Ipapedi logo"/>
                 </div>
             </div>
+
+            <!-- Requests list -->
+            <md-expansion-panel-group ng-if="selectedAction == 1">
+                <md-expansion-panel  class="margin-16" ng-repeat="(lKey, loanType) in loanTypes" md-component-id="{{lKey}}">
+                    <md-expansion-panel-collapsed>
+                        <div class="md-title">{{loanType.DescripcionDelPrestamo}}</div>
+                        <div class="md-summary">Haga clic para desplegar la lista</div>
+                        <md-expansion-panel-icon></md-expansion-panel-icon>
+                    </md-expansion-panel-collapsed>
+                    <md-expansion-panel-expanded class="margin-16">
+                        <md-expansion-panel-header>
+                            <div class="md-title">{{loanType.DescripcionDelPrestamo}}</div>
+                            <div class="md-summary">Haga clic en una fila para ver más detalles de la solicitud</div>
+                            <md-expansion-panel-icon></md-expansion-panel-icon>
+                        </md-expansion-panel-header>
+
+                        <md-expansion-panel-content>
+                            <!-- Table of requests -->
+                            <md-table-container>
+                                <table md-table md-row-select ng-model="selected">
+                                    <thead md-head>
+                                    <tr md-row>
+                                        <th md-column><span>ID</span></th>
+                                        <th md-column><span>Fecha</span></th>
+                                        <th md-column><span>Estatus</span></th>
+                                        <th md-column><span>Monto solicitado</span></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody md-body>
+                                    <tr md-row ng-repeat="request in requests[lKey] | limitTo: query.limit: (query.page - 1) * query.limit track by $index">
+                                        <td md-cell ng-click="null">{{pad(request.id, 6)}}</td>
+                                        <td md-cell ng-click="null">{{request.creationDate}}</td>
+                                        <td md-cell ng-click="null">{{request.status}}</td>
+                                        <td md-cell ng-click="null">{{request.reqAmount | number:2}}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </md-table-container>
+                            <md-table-pagination md-label="{page: 'Página:', rowsPerPage: 'Filas por página:', of: 'de'}" md-limit="query.limit" md-limit-options="[5, 10, 15, 20]" md-page="query.page" md-total="{{requests[lKey].length}}" md-page-select></md-table-pagination>
+                        </md-expansion-panel-content>
+
+                        <md-expansion-panel-footer>
+                            <div flex></div>
+                            <md-button class="md-warn" ng-click="$panel.collapse()">Cerrar</md-button>
+                        </md-expansion-panel-footer>
+                    </md-expansion-panel-expanded>
+                </md-expansion-panel>
+            </md-expansion-panel-group>
+
             <!-- The actual content -->
             <md-content
                 ng-hide="!req"
@@ -144,22 +235,22 @@
                             </p>
                             <p>
                                 Puede editar la información de su solicitud haciendo clic en
-                                    <md-icon ng-if="!req.validationDate"
-                                             ng-click="openEditRequestDialog($event)" class="md-secondary pointer padding-sides">
-                                        edit
-                                        <md-tooltip>
-                                            Editar solicitud
-                                        </md-tooltip>
-                                    </md-icon>
+                                <md-icon ng-if="!req.validationDate"
+                                         ng-click="openEditRequestDialog($event)" class="md-secondary pointer padding-sides">
+                                    edit
+                                    <md-tooltip>
+                                        Editar solicitud
+                                    </md-tooltip>
+                                </md-icon>
 
                                 o eliminarla haciendo clic en
-                                    <md-icon ng-click="deleteRequest($event)" class="md-secondary pointer padding-sides">
-                                        delete
-                                        <md-tooltip>
-                                            Eliminar solicitud
-                                        </md-tooltip>
-                                    </md-icon>
-                                    <br/><br/>
+                                <md-icon ng-click="deleteRequest($event)" class="md-secondary pointer padding-sides">
+                                    delete
+                                    <md-tooltip>
+                                        Eliminar solicitud
+                                    </md-tooltip>
+                                </md-icon>
+                                <br/><br/>
                                 Una vez esté completamente seguro de proceder con esta solicitud, haga clic en VALIDAR.
                             </p>
                         </md-card-content>
@@ -225,16 +316,16 @@
                                             </md-tooltip>
                                         </md-button>
                                         <md-button
-                                                ng-if="!req.validationDate"
-                                                ng-click="deleteRequest($event)"
-                                                class="md-icon-button">
-                                                <md-icon class="md-secondary">
-                                                    delete
-                                                </md-icon>
-                                                <md-tooltip>
-                                                    Eliminar solicitud
-                                                </md-tooltip>
-                                            </md-button>
+                                            ng-if="!req.validationDate"
+                                            ng-click="deleteRequest($event)"
+                                            class="md-icon-button">
+                                            <md-icon class="md-secondary">
+                                                delete
+                                            </md-icon>
+                                            <md-tooltip>
+                                                Eliminar solicitud
+                                            </md-tooltip>
+                                        </md-button>
                                         <!-- Show when screen width < 960px -->
                                     </div>
                                     <md-menu
@@ -273,21 +364,21 @@
                                             </md-menu-item>
                                         </md-menu-content>
                                     </md-menu>
-                               </md-list-item>
+                                </md-list-item>
                                 <md-list-item
                                     id="request-status-summary"
                                     class="md-2-line noright">
                                     <md-icon class="info-icon">info_outline</md-icon>
                                     <div class="md-list-item-text" layout="column">
                                         <h3>Estatus de la solicitud: {{req.status}}</h3>
-                                       <h4 ng-if="req.reunion">
-                                           Reunión &#8470; {{req.reunion}}
-                                       </h4>
-                                       <p ng-if="req.approvedAmount">
-                                           Monto aprobado: Bs
-                                           {{req.approvedAmount | number:2}}
-                                       </p>
-                                     </div>
+                                        <h4 ng-if="req.reunion">
+                                            Reunión &#8470; {{req.reunion}}
+                                        </h4>
+                                        <p ng-if="req.approvedAmount">
+                                            Monto aprobado: Bs
+                                            {{req.approvedAmount | number:2}}
+                                        </p>
+                                    </div>
                                 </md-list-item>
                                 <md-divider md-inset></md-divider>
                                 <md-list-item class="md-2-line noright"
@@ -342,16 +433,16 @@
                                             insert_drive_file
                                         </md-icon>
                                         <div class="md-list-item-text" layout="column">
-                                           <h3>{{doc.name}}</h3>
-                                           <p>{{doc.description}}</p>
-                                         </div>
-                                         <md-button
+                                            <h3>{{doc.name}}</h3>
+                                            <p>{{doc.description}}</p>
+                                        </div>
+                                        <md-button
                                             class="md-icon-button">
                                             <md-icon class="md-secondary">
                                                 file_download
                                             </md-icon>
-                                         </md-button>
-                                     </md-list-item>
+                                        </md-button>
+                                    </md-list-item>
                                     <md-divider ng-if="!$last" md-inset></md-divider>
                                 </div>
                             </md-list>
@@ -364,16 +455,16 @@
     </div>
 </div>
 <!-- FAB -->
-<div ng-show="contentAvailable" class="relative">
-    <md-button
-        id="new-req-fab"
-        ng-click="openNewRequestDialog($event)"
-        style="margin-bottom:40px"
-        class="md-fab md-fab-bottom-right"
-        aria-label="Create request">
-        <md-tooltip md-direction="top">
-            Crear una solicitud
-        </md-tooltip>
-        <md-icon>add</md-icon>
-    </md-button>
-</div>
+<!--<div ng-show="contentAvailable" class="relative">-->
+<!--    <md-button-->
+<!--        id="new-req-fab"-->
+<!--        ng-click="openNewRequestDialog($event)"-->
+<!--        style="margin-bottom:40px"-->
+<!--        class="md-fab md-fab-bottom-right"-->
+<!--        aria-label="Create request">-->
+<!--        <md-tooltip md-direction="top">-->
+<!--            Crear una solicitud-->
+<!--        </md-tooltip>-->
+<!--        <md-icon>add</md-icon>-->
+<!--    </md-button>-->
+<!--</div>-->

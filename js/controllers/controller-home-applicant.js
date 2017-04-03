@@ -16,6 +16,25 @@ function userHome($scope, $cookies, $timeout, Config,
     Requests.initializeListType().then(
         function (list) {
             $scope.loanTypes = list;
+            console.log(list);
+            $scope.loading = true;
+            // Fetch user's requests
+            Requests.getUserRequests(fetchId).then(
+                function (data) {
+                    $scope.requests = data;
+                    console.log($scope.requests);
+                    $scope.loading = false;
+                    $scope.contentAvailable = true;
+                    $timeout(function () {
+                        $scope.contentLoaded = true;
+                        $mdSidenav('left').open();
+                    }, 600);
+                },
+                function (errorMsg) {
+                    $scope.fetchError = errorMsg;
+                    $scope.loading = false;
+                }
+            );
         },
         function (error) {
             Utils.showAlertDialog('Oops!', 'Ha ocurrido un error en el sistema.<br/>' +
@@ -23,6 +42,16 @@ function userHome($scope, $cookies, $timeout, Config,
             console.log(error);
         }
     );
+    $scope.queryList = [
+            {id: 1, text: 'Todas mis solicitudes'},
+            {id: 2, text: 'Solicitud por ID'},
+            {id: 3, text: 'Solicitudes por fecha'},
+            {id: 4, text: 'Solicitudes por estatus'},
+            {id: 5, text: 'Solicitudes abiertas'}
+        ];
+
+    $scope.newRequestList = false;
+    $scope.selectedList = 0;
     $scope.fetchError = '';
     // contentAvailable will indicate whether sidenav can be visible
     $scope.contentAvailable = false;
@@ -30,23 +59,26 @@ function userHome($scope, $cookies, $timeout, Config,
     $scope.contentLoaded = false;
 
     var fetchId = $cookies.getObject('session').id;
-    $scope.loading = true;
-    // Fetch user's requests
-    Requests.getUserRequests(fetchId).then(
-        function (data) {
-            $scope.requests = data;
-            $scope.loading = false;
-            $scope.contentAvailable = true;
-            $timeout(function () {
-                $scope.contentLoaded = true;
-                $mdSidenav('left').open();
-            }, 600);
-        },
-        function (errorMsg) {
-            $scope.fetchError = errorMsg;
-            $scope.loading = false;
-        }
-    );
+
+    $scope.toggleQueryList = function () {
+        $scope.queryList.selected = !$scope.queryList.selected;
+    };
+
+    $scope.toggleNewRequestList = function () {
+        $scope.newRequestList = !$scope.newRequestList;
+    };
+
+    $scope.toggleRefinancingList = function () {
+        $scope.refinancingList = !$scope.refinancingList;
+    };
+
+    $scope.togglePanelList = function (index) {
+        $scope.selectedList = $scope.selectedList == index ? null : index;
+    };
+
+    $scope.selectAction = function (id) {
+        $scope.selectedAction = id;
+    };
 
     $scope.goBack = function () {
         window.location.replace(Constants.IPAPEDI_URL + 'asociados');
@@ -97,9 +129,12 @@ function userHome($scope, $cookies, $timeout, Config,
      * Opens the New Request dialog and performs the corresponding operations.
      *
      * @param $event - DOM event.
+     * @param concept - new request's concept.
      * @param obj - optional obj containing user input data.
      */
-    $scope.openNewRequestDialog = function ($event, obj) {
+    $scope.openNewRequestDialog = function ($event, concept, obj) {
+        $scope.selectedAction = 'N' + concept;
+        $scope.refinancingList = false;
         var parentEl = angular.element(document.body);
         $mdDialog.show({
             parent: parentEl,
@@ -256,6 +291,183 @@ function userHome($scope, $cookies, $timeout, Config,
                 );
             };
         }
+    };
+
+    $scope.openRefinancingRequestDialog = function ($event, concept, obj) {
+        $scope.selectedAction = 'R' + concept;
+        $scope.newRequestList = false;
+        var parentEl = angular.element(document.body);
+        $mdDialog.show({
+            parent: parentEl,
+            targetEvent: $event,
+            templateUrl: 'NewRequestController',
+            clickOutsideToClose: false,
+            escapeToClose: false,
+            autoWrap: false,
+            fullscreen: $mdMedia('xs'),
+            locals: {
+                fetchId: fetchId,
+                requests: $scope.requests,
+                obj: obj,
+                parentScope: $scope
+            },
+            controller: DialogController
+        });
+        // Isolated dialog controller for the new request dialog
+        function DialogController($scope, $mdDialog, fetchId,
+                                  requests, parentScope, obj) {
+            $scope.docPicTaken = false;
+            $scope.uploading = false;
+            $scope.maxReqAmount = Requests.getMaxAmount();
+            $scope.minReqAmount = Requests.getMinAmount();
+            // if user data exists, it means the ID was
+            // already given, so we must show it.
+            $scope.uploadErr = '';
+            // Hold scope reference to constants
+            $scope.APPLICANT = Constants.Users.APPLICANT;
+            $scope.AGENT = Constants.Users.AGENT;
+
+            // obj could have a reference to user data, saved
+            // before confirmation dialog was opened.
+            $scope.model = obj || {};
+            $scope.model.loanTypes = Config.loanConcepts;
+            $scope.confirmButton = 'Crear';
+            $scope.title = 'Nueva solicitud de préstamo';
+
+            // if user came back to this dialog after confirming operation..
+            if ($scope.model.confirmed) {
+                // Go ahead and proceed with creation
+                createNewRequest();
+            } else {
+                checkCreationConditions();
+            }
+
+            // Checks whether conditions for creating new requests are fulfilled.
+            function checkCreationConditions () {
+                $scope.loading = true;
+                Requests.getAvailabilityData(fetchId).then(
+                    function (data) {
+                        data.opened = Requests.checkPreviousRequests(requests);
+                        Requests.getLoanTerms().then(
+                            function (terms) {
+                                $scope.model.terms = terms;
+                                $scope.model.phone = Utils.pad(parseInt(data.userPhone, 10), 11);
+                                $scope.model.email = data.userEmail;
+                                $scope.model.allow = data.granting.allow;
+                                $scope.model.span = data.granting.span;
+                                $scope.model.opened = data.opened;
+                                $scope.model.type = Requests.verifyAvailability(data);
+                                if($scope.model.type) {
+                                    $scope.loading = false;
+                                }
+                            },
+                            function (error) {
+                                Utils.showAlertDialog('Oops!', error);
+                            }
+                        );
+                    },
+                    function (error) {
+                        Utils.showAlertDialog('Oops!', error);
+                    }
+                );
+            }
+
+            $scope.missingField = function () {
+                return typeof $scope.model.reqAmount === "undefined" ||
+                       typeof $scope.model.type === "undefined" ||
+                       !$scope.model.due ||
+                       !$scope.model.phone ||
+                       !$scope.model.email;
+            };
+
+            $scope.calculatePaymentFee = function() {
+                if ($scope.model.reqAmount && $scope.model.due) {
+                    return Requests.calculatePaymentFee($scope.model.reqAmount,
+                                                        $scope.model.due,
+                                                        Requests.getInterestRate($scope.model.type));
+                } else {
+                    return 0;
+                }
+            };
+
+            $scope.closeDialog = function () {
+                $mdDialog.hide();
+            };
+
+            // Creates new request in database.
+            function createNewRequest() {
+                $scope.uploading = true;
+                var docs = [];
+
+                docs.push(Requests.createRequestDocData(fetchId));
+                performCreation(docs);
+            }
+
+            // Helper function that performs the document's creation.
+            function performCreation(docs) {
+                var postData = {
+                    userId: fetchId,
+                    reqAmount: $scope.model.reqAmount,
+                    tel: Utils.pad($scope.model.phone, 11),
+                    due: $scope.model.due,
+                    loanType: parseInt($scope.model.type, 10),
+                    email: $scope.model.email,
+                    docs: docs
+                };
+                Requests.createRequest(postData).then(
+                    function() {
+                        updateRequestListUI(fetchId, 0, 'Solicitud creada',
+                                            'Por favor valide su solicitud para proceder.',
+                                            true, true,
+                                            parseInt(postData.loanType, 10));
+                    },
+                    function(error) {
+                        $scope.uploading = false;
+                        Utils.showAlertDialog('Oops!', error);
+                    }
+                );
+            }
+
+            // Sets the bound input to the max possibe request amount
+            $scope.setMax = function() {
+                $scope.model.reqAmount = $scope.maxReqAmount;
+            };
+
+            // Shows a dialog asking user to confirm the request creation.
+            $scope.confirmOperation = function (ev) {
+                Utils.showConfirmDialog(
+                    'Confirmación de creación de solicitud',
+                    'El sistema generará el documento correspondiente a su solicitud. ¿Desea proceder?',
+                    'Sí', 'Cancelar', ev, true
+                ).then(
+                    function() {
+                        // Re-open parent dialog and perform request creation
+                        $scope.model.confirmed = true;
+                        parentScope.openNewRequestDialog(null, $scope.model);
+                    },
+                    function() {
+                        // Re-open parent dialog and do nothing
+                        parentScope.openNewRequestDialog(null, $scope.model);
+                    }
+                );
+            };
+        }
+    };
+
+    $scope.selected = [];
+
+    $scope.query = {
+        order: 'name',
+        limit: 5,
+        page: 1
+    };
+
+    function success(desserts) {
+        $scope.desserts = desserts;
+    }
+
+    $scope.getDesserts = function () {
+        $scope.promise = $nutrition.desserts.get($scope.query, success).$promise;
     };
 
     /**
