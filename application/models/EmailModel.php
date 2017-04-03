@@ -46,7 +46,8 @@ class EmailModel extends CI_Model
 
     private function sendNewReqEmail($request) {
         try {
-            $loanTypes = LOAN_TYPES_NAMES;
+            $this->load->model('configModel');
+            $loanTypes = $this->configModel->getLoanTypes();
             $mailData['reqId'] = $request->getId();
             $user = $request->getUserOwner();
             $mailData['username'] = $user->getFirstName() . ' ' . $user->getLastName();
@@ -55,48 +56,12 @@ class EmailModel extends CI_Model
             $mailData['reqAmount'] = $request->getRequestedAmount();
             $mailData['tel'] = $request->getContactNumber();
             $mailData['email'] = $request->getContactEmail();
-            $mailData['loanTypeString'] = $loanTypes[$request->getLoanType()];
+            $mailData['loanTypeString'] = $loanTypes[$request->getLoanType()]->DescripcionDelPrestamo;
             $mailData['due'] = $request->getPaymentDue();
             $mailData['paymentFee'] = $this->utils->calculatePaymentFee($mailData['reqAmount'], $mailData['due'], 12);
             $mailData['subject'] = 'Nueva Solicitud de Préstamo';
             $html = $this->load->view('templates/newReqMail', $mailData, true); // render the view into HTML
             $this->sendEmail($mailData['email'], $mailData['subject'], $html);
-        } catch (Exception $e) {
-            throw $e;
-        }
-    }
-
-    private function sendValidationToken($tokenData, $request) {
-        try {
-            $loanTypes = LOAN_TYPES_NAMES;
-            $encodedURL = $this->createToken($tokenData);
-            $mailData['reqId'] = $request->getId();
-            $user = $request->getUserOwner();
-            $mailData['username'] = $user->getFirstName() . ' ' . $user->getLastName();
-            $mailData['userId'] = $user->getId();
-            $mailData['creationDate'] = $request->getCreationDate()->format('d/m/Y');
-            $mailData['reqAmount'] = $request->getRequestedAmount();
-            $mailData['tel'] = $request->getContactNumber();
-            $mailData['email'] = $request->getContactEmail();
-            $mailData['loanTypeString'] = $loanTypes[$request->getLoanType()];
-            $mailData['due'] = $request->getPaymentDue();
-            $mailData['paymentFee'] = $this->utils->calculatePaymentFee($mailData['reqAmount'], $mailData['due'], 12);
-            $mailData['subject'] = 'Confirmación de Nueva Solicitud';
-            $mailData['validationURL'] = $this->config->base_url() . '#validate/' . $encodedURL;
-            $reqTokenData['rid'] = $request->getId();
-            $mailData['deleteURL'] = $this->config->base_url() . '#delete/' . $this->createToken($reqTokenData);
-            $html = $this->load->view('templates/validationMail', $mailData, true); // render the view into HTML
-            $this->sendEmail($mailData['email'], $mailData['subject'], $html);
-        } catch (Exception $e) {
-            throw $e;
-        }
-    }
-
-    private function createToken ($data) {
-        try {
-            $encoded = JWT::encode($data, JWT_SECRET_KEY);
-            $urlEncoded = JWT::urlsafeB64Encode($encoded);
-            return $urlEncoded;
         } catch (Exception $e) {
             throw $e;
         }

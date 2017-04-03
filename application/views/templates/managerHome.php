@@ -257,8 +257,8 @@
                                     md-select-fix="model.perform[8].loanType"
                                     placeholder="Tipo"
                                     ng-model="model.perform[8].loanType">
-                                    <md-option ng-repeat="(lKey, loanType) in loanTypes" ng-value="loanType">
-                                        {{mappedLoanTypes[lKey]}}
+                                    <md-option ng-repeat="(lKey, loanType) in loanTypes" ng-value="concept">
+                                        {{loanType.DescripcionDelPrestamo}}
                                     </md-option>
                                 </md-select>
                             </md-input-container>
@@ -464,32 +464,33 @@
                         </div>
                     </div>
                     <div ng-show="showPendingReq">
-                        <div ng-if="isObjEmpty(pendingRequests)">
-                            <div layout layout-align="center center" class="md-padding">
-                                <p style="color:#4CAF50; text-align:center">
-                                    ¡No se han encontrado solicitudes pendientes!
-                                </p>
-                            </div>
-                            <md-divider></md-divider>
-                        </div>
+                        <!-- Pending requests list -->
                         <md-list class="sidenavList">
-                            <div ng-repeat="(rKey, request) in pendingRequests" ng-if="request.length > 0">
-                                <md-list-item ng-click="togglePendingList(rKey)">
-                                    <p class="sidenavSubtitle">
-                                        {{listTitle[rKey]}}
+                            <div ng-repeat="(lKey, loanType) in showPendingList">
+                                <md-list-item ng-click="toggleList(lKey)">
+                                    <p class="sidenavTitle">
+                                        {{loanType.description}}
                                     </p>
-                                    <md-icon ng-class="md-secondary" ng-if="!showPendingList[rKey]">keyboard_arrow_down</md-icon>
-                                    <md-icon ng-class="md-secondary" ng-if="showPendingList[rKey]">keyboard_arrow_up</md-icon>
+                                    <md-icon ng-class="md-secondary" ng-if="!loanType.selected">keyboard_arrow_down</md-icon>
+                                    <md-icon ng-class="md-secondary" ng-if="loanType.selected">keyboard_arrow_up</md-icon>
                                 </md-list-item>
                                 <md-divider></md-divider>
-                                <div class="slide-toggle" ng-show="showPendingList[rKey]">
-                                    <div layout="column" layout-align="center" ng-repeat="(lKey, loan) in request">
+                                <div class="slide-toggle" ng-show="loanType.selected">
+                                    <div ng-if="requests[lKey].length == 0">
+                                        <div layout layout-align="center center" class="md-padding">
+                                            <p style="color:#4CAF50; text-align:center">
+                                                ¡No se han encontrado solicitudes pendientes!
+                                            </p>
+                                        </div>
+                                        <md-divider></md-divider>
+                                    </div>
+                                    <div layout="column" layout-align="center" ng-repeat="(rKey, request) in pendingRequests[lKey]">
                                         <md-button
-                                            ng-click="selectPendingReq(rKey, lKey)"
+                                            ng-click="selectPendingReq(lKey, rKey)"
                                             class="requestItems"
-                                            ng-class="{'md-primary md-raised' : selectedPendingReq === rKey &&
-                                                selectedPendingLoan === lKey }">
-                                            Solicitud ID &#8470; {{pad(loan.id, 6)}}
+                                            ng-class="{'md-primary md-raised' : selectedPendingReq === lKey &&
+                                                selectedPendingLoan ===  rKey}">
+                                            Solicitud ID &#8470; {{pad(request.id, 6)}}
                                             <md-icon
                                                 ng-if="loan.status === APPROVED_STRING"
                                                 style="color:#4CAF50">

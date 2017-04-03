@@ -17,6 +17,7 @@ class RequestsModel extends CI_Model
     }
 
     public function getUserRequests() {
+        $result['requests'] = array();
         try {
             // Get configured's max. and min. request amount.
             $em = $this->doctrine->em;

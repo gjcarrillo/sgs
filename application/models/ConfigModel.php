@@ -82,6 +82,43 @@ class ConfigModel extends CI_Model
         return json_encode($result);
     }
 
+    public function getLoanTypes() {
+        $type['40'] = $this->getPersonalLoan(1);
+        // Add (plural) description.
+        $type['40']->description = 'PRÉSTAMOS PERSONALES';
+        $type['31'] = $this->getShortTermLoan(1);
+        $type['31']->description = 'VALES DE CAJA';
+
+        return $type;
+    }
+
+    private function getPersonalLoan($id){
+        $this->ipapedi_db = $this->load->database('ipapedi_db', true);
+        $this->ipapedi_db->select('*');
+        $this->ipapedi_db->from('prestamospersonales');
+        $this->ipapedi_db->where('id', $id);
+        $query = $this->ipapedi_db->get();
+        if (empty($query->result())) {
+            return null;
+        } else {
+            $loanResult = $query->result()[0];
+            return $loanResult;
+        }
+    }
+
+    private function getShortTermLoan($id) {
+        $this->ipapedi_db = $this->load->database('ipapedi_db', true);
+        $this->ipapedi_db->select('*');
+        $this->ipapedi_db->from('prestamosacortoplazo');
+        $this->ipapedi_db->where('id', $id);
+        $query = $this->ipapedi_db->get();
+        if (empty($query->result())) {
+            return null;
+        } else {
+            return $query->result()[0];
+        }
+    }
+
     /** Max. requested amount configuration **/
     public function getMaxReqAmount() {
         try {

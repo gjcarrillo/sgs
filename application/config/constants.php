@@ -147,10 +147,7 @@ define('HISTORY_ACTIONS_NAMES', array(
     7 => 'Validación',
     8 => 'Actualización'
 ));
-/* ======================================
-       AVAILABLE REQ PAYMENT TERMS
-=========================================*/
-define('REQUESTS_TERMS', array(24, 36, 48, 60));
+
 /* ======================================
        Google Drive API
 =========================================*/

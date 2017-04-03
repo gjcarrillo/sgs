@@ -23,6 +23,17 @@ class ConfigController extends CI_Controller
         }
     }
 
+    public function getLoanTypes() {
+        try {
+            $this->load->model('configModel');
+            $result['type'] = $this->configModel->getLoanTypes();
+            $result['message'] = 'success';
+        } catch (Exception $e) {
+            $result['message'] = $this->utils->getErrorMsg($e);
+        }
+        echo json_encode($result);
+    }
+
     /** Requests' status configuration **/
 
     public function getStatuses() {

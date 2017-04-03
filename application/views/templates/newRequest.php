@@ -136,10 +136,7 @@
                         <b>Plazo para pagar</b>:
                     </p>
                     <md-radio-group ng-model="model.due">
-                        <md-radio-button ng-disabled="uploading" value="24">24 meses</md-radio-button>
-                        <md-radio-button ng-disabled="uploading" value="36">36 meses</md-radio-button>
-                        <md-radio-button ng-disabled="uploading" value="48">48 meses</md-radio-button>
-                        <md-radio-button ng-disabled="uploading" value="60">60 meses</md-radio-button>
+                        <md-radio-button ng-repeat="term in model.terms[model.type]" ng-disabled="uploading" value="{{term}}">{{term}} {{terms == 1 ? 'mes' : 'meses'}}</md-radio-button>
                     </md-radio-group>
                 </div>
                 <div layout="column">
@@ -149,17 +146,17 @@
                         </p>
                         <md-radio-group ng-model="model.type">
                             <md-radio-button
-                                ng-repeat="TYPE in LOAN_TYPES"
-                                ng-value="TYPE"
-                                ng-disabled="uploading || !model.allow[TYPE] || model.opened.hasOpen[TYPE]">
-                                {{mapLoanType(TYPE)}}
+                                ng-repeat="(lType, TYPE) in model.loanTypes"
+                                ng-value="lType"
+                                ng-disabled="uploading || !model.allow[lType] || model.opened.hasOpen[lType]">
+                                {{TYPE.DescripcionDelPrestamo}}
                                 <md-tooltip
-                                    ng-if="!model.allow[TYPE] || model.opened.hasOpen[TYPE]"
+                                    ng-if="!model.allow[lType] || model.opened.hasOpen[lType]"
                                     md-direction="bottom">
-                                    <span ng-if="model.opened.hasOpen[TYPE]">
-                                        Usted posee una solicitud de {{mapLoanType(TYPE)}} en transcurso.
+                                    <span ng-if="model.opened.hasOpen[lType]">
+                                        Usted posee una solicitud de {{TYPE.DescripcionDelPrestamo}} en transcurso.
                                     </span>
-                                    <span ng-if="!model.opened.hasOpen[TYPE] && !model.allow[TYPE]">
+                                    <span ng-if="!model.opened.hasOpen[lType] && !model.allow[lType]">
                                         No ha{{model.span === 1 ? '' : 'n'}}
                                         transcurrido {{model.span}} {{model.span == 1 ? 'mes' : 'meses'}}
                                         desde su última otorgación.

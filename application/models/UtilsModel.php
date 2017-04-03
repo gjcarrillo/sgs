@@ -217,6 +217,39 @@ class UtilsModel extends CI_Model
     }
 
     /**
+     * Extracts loan terms of the specified loan type.
+     *
+     * @param $loanType - loan type object.
+     * @return array containing the loan terms.
+     */
+    public function extractLoanTerms ($loanType) {
+        $terms = array();
+        $term = intval($loanType->PlazoEnMeses, 10);
+        while ($term > 0) {
+            array_push($terms, $term);
+            $term -= 12;
+        }
+        return $terms;
+    }
+
+    /**
+     * Verifies if specified loan type matches any of the existing loan types.
+     *
+     * @param $loanTypes - loan types from config
+     * @param $loanType - loan type to match.
+     * @return bool - {@code true} if loan Type is valid.
+     */
+    public function isRequestTypeValid($loanTypes, $loanType) {
+        $exists = false;
+        foreach ($loanTypes as $tKey => $types) {
+            if ($tKey == $loanType) {
+                $exists = true;
+            }
+        }
+        return $exists;
+    }
+
+    /**
      * Gets the annual interest rate of a specific loan type.
      *
      * @param $loanType - the loan type.

@@ -185,8 +185,8 @@
                                 <tr style="font-family: 'Open Sans','Helvetica Neue',Helvetica,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
                                     <td class="content-block" style="font-family: 'Open Sans','Helvetica Neue',Helvetica,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0 0 20px;" valign="top">
                                         <p style="font-family: 'Open Sans',Helvetica,Arial,'Lucida Grande',sans-serif; box-sizing: border-box; text-align: left; font-size: 16px; color: #000; line-height: 1.75em; font-weight: 300; margin: 20px 0 0;">
-                                            Le informamos que su solicitud será atendida en menos de 48 horas hábiles.<br/>
-                                            Estaremos notificando cualquier actualización a través de este medio.<br/><br/>
+                                            Su solicitud será atendida en menos de 48 horas hábiles.<br/>
+                                            Asimismo, le informamos que estaremos notificando cualquier actualización a través de este medio.<br/><br/>
 
                                             ¡Gracias por utilizar nuestros servicios!
                                             <br/>

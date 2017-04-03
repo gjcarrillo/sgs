@@ -77,34 +77,34 @@
         md-component-id="left"
         md-is-locked-open="$mdMedia('gt-sm') && contentLoaded">
         <md-content class="sidenav-height">
-            <div ng-if="isObjEmpty(requests)">
-                <div layout layout-align="center center" class="md-padding">
-                    <p style="color:#F44336; text-align:center">
-                        Usted aún no posee solicitudes.
-                    </p>
-                </div>
-                <md-divider></md-divider>
-            </div>
             <!-- Requests list -->
             <md-list class="sidenavList">
-                <div ng-repeat="(rKey, request) in requests" ng-if="request.length > 0">
-                    <md-list-item ng-click="toggleList(rKey)">
+                <div ng-repeat="(lKey, loanType) in loanTypes">
+                    <md-list-item ng-click="toggleList(lKey)">
                         <p class="sidenavTitle">
-                            {{listTitle[rKey]}}
+                            {{loanType.description}}
                         </p>
-                        <md-icon ng-class="md-secondary" ng-if="!showList[rKey]">keyboard_arrow_down</md-icon>
-                        <md-icon ng-class="md-secondary" ng-if="showList[rKey]">keyboard_arrow_up</md-icon>
+                        <md-icon ng-class="md-secondary" ng-if="!loanType.selected">keyboard_arrow_down</md-icon>
+                        <md-icon ng-class="md-secondary" ng-if="loanType.selected">keyboard_arrow_up</md-icon>
                     </md-list-item>
                     <md-divider></md-divider>
-                    <div class="slide-toggle" ng-show="showList[rKey]">
-                        <div layout="column" layout-align="center" ng-repeat="(lKey, loan) in request">
-                            <md-button
-                                ng-click="selectRequest(rKey, lKey)"
-                                class="requestItems"
-                                ng-class="{'md-primary md-raised' : selectedReq == rKey && selectedLoan === lKey }">
-                                Solicitud ID &#8470; {{pad(loan.id, 6)}}
-                            </md-button>
-                            <md-divider ng-if="$last"></md-divider>
+                    <div class="slide-toggle" ng-show="loanType.selected">
+                        <div ng-if="requests[lKey].length == 0">
+                            <div layout layout-align="center center" class="md-padding">
+                                <p style="color:#F44336; text-align:center">
+                                    Usted aún no posee solicitudes.
+                                </p>
+                            </div>
+                            <md-divider></md-divider>
+                        </div>
+                        <div layout="column" layout-align="center" ng-repeat="(rKey, request) in requests[lKey]">
+                                <md-button
+                                    ng-click="selectRequest(lKey, rKey)"
+                                    class="requestItems"
+                                    ng-class="{'md-primary md-raised' : selectedReq == lKey && selectedLoan === rKey}">
+                                    Solicitud ID &#8470; {{pad(request.id, 6)}}
+                                </md-button>
+                                <md-divider ng-if="$last"></md-divider>
                         </div>
                     </div>
                 </div>

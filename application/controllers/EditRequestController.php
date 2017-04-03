@@ -98,8 +98,9 @@ class EditRequestController extends CI_Controller {
 				$this->load->model('configModel');
 				$maxAmount = $this->configModel->getMaxReqAmount();
 				$minAmount = $this->configModel->getMinReqAmount();
-				$terms = REQUESTS_TERMS;
-				$loanTypes = LOAN_TYPES;
+				$this->load->model('configModel');
+				$loanTypes = $this->configModel->getLoanTypes();
+				$terms = $this->utils->extractLoanTerms($loanTypes[$data['loanType']]);
 				if ($this->requests->getSpanLeft($data['userId'], $data['loanType']) > 0) {
 					// Span between requests of same type not yet through.
 					$span = $em->getRepository('\Entity\Config')->findOneBy(array('key' => 'SPAN'))->getValue();
@@ -111,7 +112,7 @@ class EditRequestController extends CI_Controller {
 					$result['message'] = 'Monto solicitado no válido.';
 				} else if (!in_array($data['due'], $terms)) {
 					$result['message'] = 'Plazo de pago no válido.';
-				} else if (!in_array($data['loanType'], $loanTypes)) {
+				} else if (!$this->utils->isRequestTypeValid($loanTypes, $data['loanType'])) {
 					$result['message'] = 'Tipo de préstamo inválido.';
 				} else {
 					// Update request

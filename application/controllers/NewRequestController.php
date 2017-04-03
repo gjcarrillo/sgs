@@ -80,30 +80,32 @@ class NewRequestController extends CI_Controller {
 				$em = $this->doctrine->em;
 				$span = $em->getRepository('\Entity\Config')->findOneBy(array("key" => 'SPAN'))->getValue();
 				$result['granting']['span'] = $span;
-				$loanTypes = LOAN_TYPES;
-				foreach ($loanTypes as $type) {
+				$this->load->model('configModel');
+				$loanTypes = $this->configModel->getLoanTypes();
+				foreach ($loanTypes as $kType => $type) {
+
 					$this->ipapedi_db = $this->load->database('ipapedi_db', true);
 					$this->ipapedi_db->select('*');
 					$this->ipapedi_db->from('db_dt_prestamos');
 					$this->ipapedi_db->where('cedula', $_GET['userId']);
-					$this->ipapedi_db->where('concepto', $type);
+					$this->ipapedi_db->where('concepto', $kType);
 					$query = $this->ipapedi_db->order_by('otorg_fecha',"desc")->get();
 					if (empty($query->result())) {
 						// Seems like this is their first request. Grant permission to create!
-						$result['granting']['allow'][$type] = true;
+						$result['granting']['allow'][$kType] = true;
 					} else {
 						$granting = date_create_from_format('d/m/Y', $query->result()[0]->otorg_fecha);
 						if (!$granting) {
 							// No granting date found in granting entry. Perhaps it was rejected?
 							// Go ahead and allow this request type creation
 							// TODO: CONFIRM IF THIS IS THE ACTION TO TAKE IN THIS CASE
-							$result['granting']['allow'][$type] = true;
+							$result['granting']['allow'][$kType] = true;
 						} else {
 							$currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
 							$interval = $granting->diff($currentDate);
 							$monthsPassed = $interval->format("%m");
 							$monthsLeft = $span - $monthsPassed;
-							$result['granting']['allow'][$type] = $monthsLeft <= 0;
+							$result['granting']['allow'][$kType] = $monthsLeft <= 0;
 						}
 					}
 					$result['message'] = 'success';
@@ -129,32 +131,33 @@ class NewRequestController extends CI_Controller {
 				$span = $em->getRepository('\Entity\Config')->findOneBy(array("key" => 'SPAN'))->getValue();
 				$result['granting']['span'] = $span;
 				$result['granting']['allDenied'] = true;
-				$loanTypes = LOAN_TYPES;
-				foreach ($loanTypes as $type) {
+				$this->load->model('configModel');
+				$loanTypes = $this->configModel->getLoanTypes();
+				foreach ($loanTypes as $tKey => $type) {
 					$this->ipapedi_db = $this->load->database('ipapedi_db', true);
 					$this->ipapedi_db->select('*');
 					$this->ipapedi_db->from('db_dt_prestamos');
 					$this->ipapedi_db->where('cedula', $_GET['userId']);
-					$this->ipapedi_db->where('concepto', $type);
+					$this->ipapedi_db->where('concepto', $tKey);
 					// get last granting date for corresponding request type.
 					$query = $this->ipapedi_db->order_by('otorg_fecha',"desc")->get();
 					if (empty($query->result())) {
 						// Seems like this is their first request. Grant permission to create!
-						$result['granting']['allow'][$type] = true;
+						$result['granting']['allow'][$tKey] = true;
 					} else {
 						$granting = date_create_from_format('d/m/Y', $query->result()[0]->otorg_fecha);
 						if (!$granting) {
 							// No granting date found in granting entry. Perhaps it was rejected?
 							// Go ahead and allow this request type creation
 							// TODO: CONFIRM IF THIS IS THE ACTION TO TAKE IN THIS CASE
-							$result['granting']['allow'][$type] = true;
+							$result['granting']['allow'][$tKey] = true;
 						} else {
 							$currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
 							$interval = $granting->diff($currentDate);
 							$monthsPassed = $interval->format("%m");
 							$monthsLeft = $span - $monthsPassed;
 							if ($monthsLeft <= 0) {
-								$result['granting']['allow'][$type] = $monthsLeft <= 0;
+								$result['granting']['allow'][$tKey] = $monthsLeft <= 0;
 								$result['granting']['allDenied'] = false;
 							}
 						}
@@ -195,12 +198,13 @@ class NewRequestController extends CI_Controller {
 				$this->load->model('configModel');
 				$maxAmount = $this->configModel->getMaxReqAmount();
 				$minAmount = $this->configModel->getMinReqAmount();
-				$terms = REQUESTS_TERMS;
-				$loanTypes = LOAN_TYPES;
+				$this->load->model('configModel');
+				$loanTypes = $this->configModel->getLoanTypes();
+				$terms = $this->utils->extractLoanTerms($loanTypes[$data['loanType']]);
 				if (!$this->utils->checkPreviousRequests($data['userId'], $data['loanType'])) {
 					// Another request of same type is already open.
 					$result['message'] = 'Usted ya posee una solicitud del tipo ' .
-										 $this->utils->mapLoanType($data['loanType']) . ' en transcurso.';
+										 $loanTypes[$data['loanType']]->description . ' en transcurso.';
 				} else if ($this->requests->getSpanLeft($data['userId'], $data['loanType']) > 0) {
 					// Span between requests of same type not yet through.
 					$span = $em->getRepository('\Entity\Config')->findOneBy(array('key' => 'SPAN'))->getValue();
@@ -212,7 +216,7 @@ class NewRequestController extends CI_Controller {
 					$result['message'] = 'Monto solicitado no válido.';
 				} else if (!in_array($data['due'], $terms)) {
 					$result['message'] = 'Plazo de pago no válido.';
-				} else if (!in_array($data['loanType'], $loanTypes)) {
+				} else if (!$this->utils->isRequestTypeValid($loanTypes, $data['loanType'])) {
 					$result['message'] = 'Tipo de préstamo inválido.';
 				} else {
 					// Register History first

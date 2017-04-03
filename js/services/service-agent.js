@@ -5,9 +5,9 @@ angular
     .module('sgdp.service-agent', [])
     .factory('Agent', agent);
 
-agent.$inject = ['Requests'];
+agent.$inject = [];
 
-function agent (Requests) {
+function agent () {
 
     var self = this;
 
@@ -18,7 +18,6 @@ function agent (Requests) {
     data.requests = {};
     data.req = null; // Will contain the selected request object.
     data.fetchError = '';
-    data.showList = Requests.initializeListType();
     data.fetchId = '';
     data.searchInput = '';
     // contentAvailable will indicate whether sidenav can be visible
@@ -49,7 +48,6 @@ function agent (Requests) {
         self.data.requests = {};
         self.data.req = null;
         self.data.fetchError = '';
-        self.data.showList = Requests.initializeListType();
         self.data.fetchId = '';
         self.data.searchInput = '';
         self.data.contentAvailable = false;

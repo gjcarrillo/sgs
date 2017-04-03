@@ -2,10 +2,10 @@ angular
     .module('sgdp')
     .controller('ApplicantHomeController', userHome);
 
-userHome.$inject = ['$scope', '$cookies', '$timeout',
+userHome.$inject = ['$scope', '$cookies', '$timeout', 'Config',
                     '$mdSidenav', '$mdDialog', '$mdMedia', 'Constants', 'Requests', 'Utils'];
 
-function userHome($scope, $cookies, $timeout,
+function userHome($scope, $cookies, $timeout, Config,
                   $mdSidenav, $mdDialog, $mdMedia, Constants, Requests, Utils) {
     'use strict';
     $scope.loading = true;
@@ -13,13 +13,21 @@ function userHome($scope, $cookies, $timeout,
     $scope.selectedLoan = -1;
     $scope.requests = {};
     $scope.req = null;
-    $scope.showList = Requests.initializeListType();
+    Requests.initializeListType().then(
+        function (list) {
+            $scope.loanTypes = list;
+        },
+        function (error) {
+            Utils.showAlertDialog('Oops!', 'Ha ocurrido un error en el sistema.<br/>' +
+                                           'Por favor intente más tarde.');
+            console.log(error);
+        }
+    );
     $scope.fetchError = '';
     // contentAvailable will indicate whether sidenav can be visible
     $scope.contentAvailable = false;
     // contentLoaded will indicate whether sidenav can be locked open
     $scope.contentLoaded = false;
-    $scope.listTitle = Requests.getRequestsListTitle();
 
     var fetchId = $cookies.getObject('session').id;
     $scope.loading = true;
@@ -50,7 +58,7 @@ function userHome($scope, $cookies, $timeout,
      * @param index - selected request type index.
      */
     $scope.toggleList = function (index) {
-        $scope.showList[index] = !$scope.showList[index];
+        $scope.loanTypes[index].selected = !$scope.loanTypes[index].selected;
     };
 
     /**
@@ -122,10 +130,11 @@ function userHome($scope, $cookies, $timeout,
             // Hold scope reference to constants
             $scope.APPLICANT = Constants.Users.APPLICANT;
             $scope.AGENT = Constants.Users.AGENT;
-            $scope.LOAN_TYPES = Constants.LoanTypes;
+
             // obj could have a reference to user data, saved
             // before confirmation dialog was opened.
-            $scope.model = obj || {due: 24};
+            $scope.model = obj || {};
+            $scope.model.loanTypes = Config.loanConcepts;
             $scope.confirmButton = 'Crear';
             $scope.title = 'Nueva solicitud de préstamo';
 
@@ -143,15 +152,23 @@ function userHome($scope, $cookies, $timeout,
                 Requests.getAvailabilityData(fetchId).then(
                     function (data) {
                         data.opened = Requests.checkPreviousRequests(requests);
-                        $scope.model.phone = parseInt(data.userPhone, 10);
-                        $scope.model.email = data.userEmail;
-                        $scope.model.allow = data.granting.allow;
-                        $scope.model.span = data.granting.span;
-                        $scope.model.opened = data.opened;
-                        $scope.model.type = Requests.verifyAvailability(data);
-                        if($scope.model.type) {
-                            $scope.loading = false;
-                        }
+                        Requests.getLoanTerms().then(
+                            function (terms) {
+                                $scope.model.terms = terms;
+                                $scope.model.phone = Utils.pad(parseInt(data.userPhone, 10), 11);
+                                $scope.model.email = data.userEmail;
+                                $scope.model.allow = data.granting.allow;
+                                $scope.model.span = data.granting.span;
+                                $scope.model.opened = data.opened;
+                                $scope.model.type = Requests.verifyAvailability(data);
+                                if($scope.model.type) {
+                                    $scope.loading = false;
+                                }
+                            },
+                            function (error) {
+                                Utils.showAlertDialog('Oops!', error);
+                            }
+                        );
                     },
                     function (error) {
                         Utils.showAlertDialog('Oops!', error);
@@ -159,19 +176,16 @@ function userHome($scope, $cookies, $timeout,
                 );
             }
 
-            $scope.mapLoanType = function (code) {
-                return Requests.mapLoanType(code);
-            };
-
             $scope.missingField = function () {
                 return typeof $scope.model.reqAmount === "undefined" ||
                        typeof $scope.model.type === "undefined" ||
+                       !$scope.model.due ||
                        !$scope.model.phone ||
                        !$scope.model.email;
             };
 
             $scope.calculatePaymentFee = function() {
-                if ($scope.model.reqAmount) {
+                if ($scope.model.reqAmount && $scope.model.due) {
                     return Requests.calculatePaymentFee($scope.model.reqAmount,
                                                         $scope.model.due,
                                                         Requests.getInterestRate($scope.model.type));
@@ -281,7 +295,6 @@ function userHome($scope, $cookies, $timeout,
             // Hold scope reference to constants
             $scope.APPLICANT = Constants.Users.APPLICANT;
             $scope.AGENT = Constants.Users.AGENT;
-            $scope.LOAN_TYPES = Constants.LoanTypes;
 
             // obj could have a reference to user data, saved
             // before confirmation dialog was opened.
@@ -293,6 +306,7 @@ function userHome($scope, $cookies, $timeout,
                 email: request.email
             };
             $scope.model = obj || model;
+            $scope.model.loanTypes = Config.loanConcepts;
             $scope.confirmButton = 'Editar';
             $scope.title = 'Edición de solicitud';
 
@@ -311,10 +325,18 @@ function userHome($scope, $cookies, $timeout,
                     .then (
                     function (granting) {
                         verifyGranting(granting);
-                        $scope.model.opened = Requests.checkPreviousRequests(requests);
-                        // On-edition request should not be disabled (as we know it's still open)
-                        $scope.model.opened.hasOpen[request.type] = false;
-                        $scope.loading = false;
+                        Requests.getLoanTerms().then(
+                            function (terms) {
+                                $scope.model.terms = terms;
+                                $scope.model.opened = Requests.checkPreviousRequests(requests);
+                                // On-edition request should not be disabled (as we know it's still open)
+                                $scope.model.opened.hasOpen[request.type] = false;
+                                $scope.loading = false;
+                            },
+                            function (error) {
+                                Utils.showAlertDialog('Oops!', error);
+                            }
+                        );
                     },
                     function (error) {
                         Utils.showAlertDialog('Oops!', error);
@@ -345,10 +367,6 @@ function userHome($scope, $cookies, $timeout,
                                           'solicitud disponible a través del sistema.');
                 }
             }
-
-            $scope.mapLoanType = function (code) {
-                return Requests.mapLoanType(code);
-            };
 
             $scope.missingField = function () {
                 return (typeof $scope.model.reqAmount === "undefined"
@@ -513,10 +531,10 @@ function userHome($scope, $cookies, $timeout,
                 Requests.deleteRequestUI($scope.req).then(
                     function () {
                         // Update interface
-                        $scope.req = null;
                         updateRequestListUI(fetchId, -1, 'Solicitud eliminada',
                                             'La solicitud fue eliminada exitosamente.',
-                                            true, true, -1);
+                                            true, true, $scope.req.type);
+                        $scope.req = null;
                     },
                     function (errorMsg) {
                         $scope.overlay = false;
@@ -535,7 +553,7 @@ function userHome($scope, $cookies, $timeout,
         Requests.getUserRequests(userId).then(
             function (data) {
                 // Update UI only if needed
-                var loanType = Requests.mapLoanTypeAsCode(type);
+                var loanType = type;
                 if (updateUI) {
                     updateContent(data, loanType, autoSelectIndex, toggleList);
                 }
@@ -582,7 +600,7 @@ function userHome($scope, $cookies, $timeout,
     function toggleReqList(index) {
         $timeout(function () {
             // Open the list
-            $scope.showList[index] = true;
+            $scope.loanTypes[index].selected = true;
         }, 1000);
 
     }
@@ -590,8 +608,8 @@ function userHome($scope, $cookies, $timeout,
     function closeAllReqList() {
         $scope.selectedReq = '';
         $scope.selectedLoan = -1;
-        angular.forEach($scope.showList, function(show, index) {
-            $scope.showList[index] = false;
+        angular.forEach($scope.loanTypes, function(show, index) {
+            $scope.loanTypes[index].selected = false;
         });
     }
 

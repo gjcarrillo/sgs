@@ -53,8 +53,6 @@ function manager($http, $q, Requests) {
     data.selectedPendingReq = '';
     data.selectedPendingLoan = -1;
     data.req = null; // Selected request obj.
-    data.showList = Requests.initializeListType();
-    data.showPendingList = Requests.initializeListType();
     // End of data initialization.
 
     self.data = data;

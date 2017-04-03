@@ -39,10 +39,20 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
     $scope.APPROVED_STRING = Constants.Statuses.APPROVED;
     $scope.REJECTED_STRING = Constants.Statuses.REJECTED;
     $scope.RECEIVED_STRING = Constants.Statuses.RECEIVED;
-    $scope.listTitle = Requests.getRequestsListTitle();
+    //$scope.listTitle = Requests.getRequestsListTitle();
     $scope.mappedStatuses = Requests.getAllStatuses();
-    $scope.loanTypes = Requests.getAllLoanTypes();
-    $scope.mappedLoanTypes = Requests.getLoanTypesTitles();
+    Requests.initializeListType().then(
+        function (list) {
+            $scope.loanTypes = list;
+            $scope.showPendingList = _.clone(list);
+        },
+        function (error) {
+            Utils.showAlertDialog('Oops!', 'Ha ocurrido un error en el sistema.<br/>' +
+                                           'Por favor intente más tarde.');
+            console.log(error);
+        }
+    );
+    //$scope.mappedLoanTypes = Requests.getLoanTypesTitles();
 
     $scope.loadingContent = false;
     $scope.idPrefix = "V";
@@ -66,6 +76,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
         Manager.fetchPendingRequests().then(
             function (data) {
                 $scope.pendingRequests = data.requests;
+                console.log(data.requests);
                 if (!Utils.isObjEmpty(data.requests)) {
                     // Give 500ms to render the list in the view
                     // Otherwise 'Empty list' msg will appear briefly.
@@ -309,12 +320,12 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
         );
     };
 
-    $scope.toggleList = function(index) {
-        $scope.showList[index] = !$scope.showList[index];
+    $scope.toggleList = function (index) {
+        $scope.loanTypes[index].selected = !$scope.loanTypes[index].selected;
     };
 
     $scope.togglePendingList = function(index) {
-        $scope.showPendingList[index] = !$scope.showPendingList[index];
+        $scope.showPendingList[index].selected = !$scope.showPendingList[index].selected;
     };
 
     $scope.loadUserData = function(userId) {
@@ -368,7 +379,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
     $scope.calculatePaymentFee = function() {
         return $scope.req ? Requests.calculatePaymentFee($scope.req.reqAmount,
                                                          $scope.req.due,
-                                                         Requests.getInterestRate($scope.req.loanType)) : 0;
+                                                         Requests.getInterestRate($scope.req.type)) : 0;
     };
 
     // Helper function for formatting numbers with leading zeros

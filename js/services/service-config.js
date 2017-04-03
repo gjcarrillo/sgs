@@ -10,6 +10,7 @@ config.$inject = ['$http', '$q'];
 function config ($http, $q) {
     var self = this;
 
+    self.loanConcepts = null;
 
     /**
      * Fetches all the existing statuses configuration.
@@ -29,6 +30,25 @@ function config ($http, $q) {
             });
 
         return qStatuses.promise;
+    };
+
+    /**
+     * Obtains the available loan types.
+     * @returns {*}
+     */
+    self.getLoanTypes = function () {
+        var qReq = $q.defer();
+        $http.get('configController/getLoanTypes').then(
+            function (response) {
+                console.log(response);
+                if (response.data.message = "success") {
+                    qReq.resolve(response.data.type);
+                } else {
+                    qReq.reject(response.data.message);
+                }
+            }
+        );
+        return qReq.promise;
     };
 
     /**

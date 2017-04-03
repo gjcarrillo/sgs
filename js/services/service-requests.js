@@ -5,17 +5,12 @@ var requests = angular
     .module('sgdp.service-requests', [])
     .factory('Requests', reqService);
 
-reqService.$inject = ['$q', '$http', 'Constants', '$filter', 'Utils'];
+reqService.$inject = ['$q', '$http', 'Constants', '$filter', 'Utils', 'Config'];
 
-function reqService($q, $http, Constants, $filter, Utils) {
+function reqService($q, $http, Constants, $filter, Utils, Config) {
     'use strict';
 
     var self = this;
-
-    var loanTitles = {
-        pp: "pr\u00E9stamos personales",
-        vc: 'vales de caja'
-    };
 
     var maxAmount = 0;
     var minAmount = 0;
@@ -37,8 +32,6 @@ function reqService($q, $http, Constants, $filter, Utils) {
                 if (response.data.message === "success") {
                     if (typeof response.data.requests !== "undefined") {
                         qReq.resolve(self.filterRequests(response.data.requests));
-                    } else {
-                        qReq.resolve({});
                     }
                 } else {
                     qReq.reject(response.data.error);
@@ -237,22 +230,12 @@ function reqService($q, $http, Constants, $filter, Utils) {
      */
     self.filterRequests = function (requests) {
         var req = {};
-        var codes = Constants.LoanTypes;
-        angular.forEach(codes, function (code) {
-            req[self.mapLoanTypeAsCode(code)] = requests.filter(function (loan) {
-                return loan.type == code;
+        angular.forEach(Config.loanConcepts, function (type, concept) {
+            req[concept] = requests.filter(function (loan) {
+                return loan.type == concept;
             });
         });
         return req;
-    };
-
-    /**
-     * Gets the different kind of requests' title.
-     *
-     * @returns {*} - a string corresponding to the loan type's title.
-     */
-    self.getRequestsListTitle = function () {
-        return loanTitles;
     };
 
     /**
@@ -268,101 +251,120 @@ function reqService($q, $http, Constants, $filter, Utils) {
         return statuses;
     };
 
-    /**
-     * Gets the different request types as strings.
-     *
-     * @returns {Array} containing all the loan types mapped as strings.
-     */
-    self.getLoanTypesTitles = function () {
-        var codes = Constants.LoanTypes;
-        var titles = [];
-        angular.forEach(codes, function (code) {
-            titles.push(self.mapLoanType(code));
-        });
+    ///**
+    // * Gets the different request types as strings.
+    // *
+    // * @returns {Array} containing all the loan types mapped as strings.
+    // */
+    //self.getLoanTypesTitles = function () {
+    //    var codes = Constants.LoanTypes;
+    //    var titles = [];
+    //    angular.forEach(codes, function (code) {
+    //        titles.push(self.mapLoanType(code));
+    //    });
+    //
+    //    return titles;
+    //};
 
-        return titles;
-    };
+    ///**
+    // * Gets all the existing loan types.
+    // *
+    // * @returns {Array} containing all the requests loan types.
+    // */
+    //self.getAllLoanTypes = function () {
+    //    var loanTypes = [];
+    //    angular.forEach(Constants.LoanTypes, function (type) {
+    //        loanTypes.push(type);
+    //    });
+    //    return loanTypes;
+    //};
 
-    /**
-     * Gets all the existing loan types.
-     *
-     * @returns {Array} containing all the requests loan types.
-     */
-    self.getAllLoanTypes = function () {
-        var loanTypes = [];
-        angular.forEach(Constants.LoanTypes, function (type) {
-            loanTypes.push(type);
-        });
-        return loanTypes;
-    };
+    ///**
+    // * Maps the specified (int) type to it's corresponding string code type.
+    // *
+    // * @param type - loan type's code.
+    // * @returns {*} - string containing the corresponding mapped string code type.
+    // */
+    //self.mapLoanTypeAsCode = function (type) {
+    //    switch (type) {
+    //        case Constants.LoanTypes.PERSONAL:
+    //            return 'pp';
+    //            break;
+    //        case Constants.LoanTypes.CASH_VOUCHER:
+    //            return 'vc';
+    //            break;
+    //        default:
+    //            return type;
+    //    }
+    //};
 
-    /**
-     * Maps the specified (int) type to it's corresponding string code type.
-     *
-     * @param type - loan type's code.
-     * @returns {*} - string containing the corresponding mapped string code type.
-     */
-    self.mapLoanTypeAsCode = function (type) {
-        switch (type) {
-            case Constants.LoanTypes.PERSONAL:
-                return 'pp';
-                break;
-            case Constants.LoanTypes.CASH_VOUCHER:
-                return 'vc';
-                break;
-            default:
-                return type;
-        }
-    };
+    ///**
+    // * Maps a loan type code as string, to loan type code as int.
+    // *
+    // * @param type - string loan type code.
+    // * @returns {*} - integer containing the corresponding mapped loan type code.
+    // */
+    //self.mapLoanTypeStringCode = function (type) {
+    //    switch (type) {
+    //        case 'pp':
+    //            return Constants.LoanTypes.PERSONAL;
+    //            break;
+    //        case 'vc':
+    //            return Constants.LoanTypes.CASH_VOUCHER;
+    //            break;
+    //        default:
+    //            return type;
+    //    }
+    //};
 
-    /**
-     * Maps a loan type code as string, to loan type code as int.
-     *
-     * @param type - string loan type code.
-     * @returns {*} - integer containing the corresponding mapped loan type code.
-     */
-    self.mapLoanTypeStringCode = function (type) {
-        switch (type) {
-            case 'pp':
-                return Constants.LoanTypes.PERSONAL;
-                break;
-            case 'vc':
-                return Constants.LoanTypes.CASH_VOUCHER;
-                break;
-            default:
-                return type;
-        }
-    };
-
-    /**
-     * Maps the specified (int) type to it's corresponding string type.
-     *
-     * @param type - loan type's code.
-     * @returns {*} - string containing the corresponding mapped string type.
-     */
-    self.mapLoanType = function (type) {
-        switch (type) {
-            case Constants.LoanTypes.PERSONAL:
-                return 'Préstamo Personal';
-                break;
-            case Constants.LoanTypes.CASH_VOUCHER:
-                return 'Vale de Caja';
-                break;
-            default:
-                return type;
-        }
-    };
+    ///**
+    // * Maps the specified (int) type to it's corresponding string type.
+    // *
+    // * @param type - loan type's code.
+    // * @returns {*} - string containing the corresponding mapped string type.
+    // */
+    //self.mapLoanType = function (type) {
+    //    switch (type) {
+    //        case Constants.LoanTypes.PERSONAL:
+    //            return 'Préstamo Personal';
+    //            break;
+    //        case Constants.LoanTypes.CASH_VOUCHER:
+    //            return 'Vale de Caja';
+    //            break;
+    //        default:
+    //            return type;
+    //    }
+    //};
 
     /**
      * Initializes a list type as false.
      */
     self.initializeListType = function () {
+        var qReq = $q.defer();
         var list = {};
-        var codes = Constants.LoanTypes;
-        angular.forEach(codes, function (code) {
-            list[self.mapLoanTypeAsCode(code)] = false;
-        });
-        return list;
+        if (!Config.loanConcepts) {
+            Config.getLoanTypes().then(
+              function (types) {
+                  Config.loanConcepts = types;
+                  angular.forEach(types, function (type, concept) {
+                      list[concept] = type;
+                      list[concept].selected = false;
+                  });
+                  qReq.resolve(list);
+              },
+              function (error) {
+                  qReq.reject(error);
+              }
+            );
+        } else {
+            angular.forEach(Config.loanConcepts, function (type, concept) {
+                list[concept] = type;
+                list[concept].selected = false;
+            });
+            qReq.resolve(list);
+        }
+
+        return qReq.promise;
     };
 
     /**
@@ -577,7 +579,7 @@ function reqService($q, $http, Constants, $filter, Utils) {
     self.checkPreviousRequests = function (requests) {
         var hasOpen = {};
         angular.forEach(requests, function (typeList, typeCode) {
-            hasOpen[self.mapLoanTypeStringCode(typeCode)] =
+            hasOpen[typeCode] =
                 typeList.filter(function (loan) {
                    return loan.status != Constants.Statuses.APPROVED && 
                           loan.status != Constants.Statuses.REJECTED;
@@ -619,22 +621,22 @@ function reqService($q, $http, Constants, $filter, Utils) {
 
     self.verifyAvailability = function (data) {
         var available = null;
-        if (data.concurrence >= 45) {
+        if (data.concurrence >= 40) {
             Utils.showAlertDialog('No permitido',
                                   'Estimado usuario, debido a que su nivel de concurrencia sobrepasa ' +
                                   'los niveles permitidos, usted no se encuentra en condiciones de ' +
                                   'solicitar un nuevo préstamo.');
         } else {
-            var types = Constants.LoanTypes;
+            var types = Config.loanConcepts;
             var anyTypeAvailable = false;
             // A request type is available for creation if the following is tue:
             // 1. there are no opened requests of the same type.
             // 2. span creation constrain between requests of same time is over.
             for (var type in types) {
                 if (types.hasOwnProperty(type)) {
-                    if (!data.opened.hasOpen[types[type]] && data.granting.allow[types[type]]) {
+                    if (!data.opened.hasOpen[type] && data.granting.allow[type]) {
                         anyTypeAvailable = true;
-                        available = parseInt(types[type], 10);
+                        available = parseInt(type, 10);
                         break;
                     }
                 }
@@ -653,15 +655,56 @@ function reqService($q, $http, Constants, $filter, Utils) {
         return available;
     };
 
-    self.getInterestRate = function (loanType) {
-        switch (loanType) {
-            case Constants.LoanTypes.PERSONAL:
-                return 12;
-            case Constants.LoanTypes.CASH_VOUCHER:
-                return 2;
-            default:
-                return 12;
+    /**
+     * Obtains loan types' available terms for payment.
+     *
+     * @returns {*} - promise with the result's operation.
+     */
+    self.getLoanTerms = function () {
+        var qReq = $q.defer();
+
+        var terms = {};
+        if (Config.loanConcepts) {
+            // Iterate through all loan concepts available.
+            angular.forEach(Config.loanConcepts, function(data, type) {
+                var term = data.PlazoEnMeses;
+                // Calculate all possible payment terms for this specific loan type.
+                terms[type] = [];
+                while (term > 0) {
+                    terms[type].push(term);
+                    // Terms will be on a year basis.
+                    term -= 12;
+                }
+            });
+            qReq.resolve(terms);
+        } else {
+            Config.getLoanTypes().then(
+              function (types) {
+                  Config.loanConcepts = types;
+                  // Iterate through all loan concepts available.
+                  angular.forEach(Config.loanConcepts, function(data, type) {
+                      var term = parseInt(data.PlazoEnMeses, 10);
+                      // Calculate all possible payment terms for this specific loan type.
+                      terms[type] = [];
+                      while (term > 0) {
+                          terms[type].push(term);
+                          // Terms will be on a year basis.
+                          term -= 12;
+                      }
+                  });
+                  qReq.resolve(terms);
+              },
+              function (error) {
+                  qReq.reject(error);
+              }
+            );
         }
+
+        return qReq.promise;
+    };
+
+    self.getInterestRate = function (loanType) {
+        return Config.loanConcepts[loanType].InteresAnual;
     };
     return self;
 }
