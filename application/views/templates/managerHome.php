@@ -467,7 +467,7 @@
                         <!-- Pending requests list -->
                         <md-list class="sidenavList">
                             <div ng-repeat="(lKey, loanType) in showPendingList">
-                                <md-list-item ng-click="toggleList(lKey)">
+                                <md-list-item ng-click="togglePendingList(lKey)">
                                     <p class="sidenavTitle">
                                         {{loanType.description}}
                                     </p>

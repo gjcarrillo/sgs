@@ -15,7 +15,7 @@
     </md-toolbar>
     <md-dialog-content>
         <md-tabs md-border-bottom="true" md-dynamic-height="true" md-stretch-tabs="never" md-swipe-content="true">
-            <md-tab label="Estatus de solicitudes" md-on-select="selectedTab = 1">
+            <md-tab label="Estatus de solicitudes" md-on-select="selectTab(1)">
                 <md-content layout-padding>
                     <div>
                         <div layout layout-xs="column">
@@ -68,7 +68,7 @@
                     </div>
                 </md-content>
             </md-tab>
-            <md-tab label="Monto a solicitar" md-on-select="selectedTab = 2">
+            <md-tab label="Monto a solicitar" md-on-select="selectTab(2)">
                 <md-content layout-padding>
                     <form name="amountsForm">
                         <div layout="column">
@@ -122,26 +122,49 @@
                     </div>
                 </md-content>
             </md-tab>
-            <md-tab label="Lapsos" md-on-select="selectedTab = 3">
+            <md-tab label="Frecuencia" md-on-select="selectTab(3)">
                 <md-content layout-padding>
-                    <div layout="column">
-                        <div layout>
-                            <span class="grey-color">Lapso (meses) entre solicitudes</span>
-                            <md-progress-circular
-                                ng-if="span.loading"
-                                md-mode="indeterminate"
-                                md-diameter="30">
-                            </md-progress-circular>
+                    <form name="freqForm">
+                        <div layout="column">
+                            <div layout>
+                                <span class="grey-color">Elija el tipo de préstamo</span>
+                                <md-progress-circular
+                                    ng-if="span.loading"
+                                    md-mode="indeterminate"
+                                    md-diameter="30">
+                                </md-progress-circular>
+                            </div>
+                            <md-input-container id="span-select" class="requestItems">
+                                <md-select
+                                    placeholder="Seleccione su consulta"
+                                    ng-model="selectedQuery">
+                                    <md-option ng-value="lKey" ng-repeat="(lKey, loanType) in loanTypes">
+                                        {{loanType.DescripcionDelPrestamo}}
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                            <div ng-if="selectedQuery" layout="column">
+                                <span class="grey-color">Ingrese la frecuencia (en meses) a transcurrir entre solicitudes</span>
+                                <md-input-container
+                                    id="min-span"
+                                    md-no-float>
+                                    <input required
+                                           name="value"
+                                           type="number"
+                                           ng-min="0"
+                                           ng-model="loanTypes[selectedQuery].span"
+                                           placeholder="Ej: 4"/>
+                                    <div ng-messages="freqForm.value.$error" ng-show="freqForm.value.$dirty">
+                                        <div ng-message="required">¡Este campo es obligatorio!</div>
+                                        <div ng-message="min">El mínimo es 0</div>
+                                    </div>
+                                </md-input-container>
+                            </div>
+                            </div>
+                        <div ng-if="span.errorMsg != ''" layout layout-align="center center" class="md-padding">
+                            <span style="color:red">{{span.errorMsg}}</span>
                         </div>
-                        <md-input-container
-                            id="min-span"
-                            md-no-float>
-                            <input required type="number" step="1" ng-model="span.newValue" placeholder="Ej: 3"/>
-                        </md-input-container>
-                    </div>
-                    <div ng-if="span.errorMsg != ''" layout layout-align="center center" class="md-padding">
-                        <span style="color:red">{{span.errorMsg}}</span>
-                    </div>
+                    </form>
                 </md-content>
             </md-tab>
         </md-tabs>

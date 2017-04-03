@@ -12,6 +12,7 @@ class ConfigController extends CI_Controller
     public function __construct()
     {
         parent::__construct();
+        $this->load->model('configModel');
         $this->load->library('session');
     }
 
@@ -25,7 +26,6 @@ class ConfigController extends CI_Controller
 
     public function getLoanTypes() {
         try {
-            $this->load->model('configModel');
             $result['type'] = $this->configModel->getLoanTypes();
             $result['message'] = 'success';
         } catch (Exception $e) {
@@ -40,7 +40,6 @@ class ConfigController extends CI_Controller
         if ($_SESSION['type'] != MANAGER) {
             $this->load->view('errors/index.html');
         } else {
-            $this->load->model('configModel');
             echo $this->configModel->getStatuses();
         }
     }
@@ -49,7 +48,6 @@ class ConfigController extends CI_Controller
         if ($_SESSION['type'] != MANAGER) {
             $this->load->view('errors/index.html');
         } else {
-            $this->load->model('configModel');
             echo $this->configModel->getStatusesForConfig();
         }
     }
@@ -58,7 +56,6 @@ class ConfigController extends CI_Controller
         if ($_SESSION['type'] != MANAGER) {
             $this->load->view('errors/index.html');
         } else {
-            $this->load->model('configModel');
             echo $this->configModel->saveStatuses();
         }
     }
@@ -69,7 +66,6 @@ class ConfigController extends CI_Controller
             $this->load->view('errors/index.html');
         } else {
             try {
-                $this->load->model('configModel');
                 $result['maxAmount'] = $this->configModel->getMaxReqAmount();
                 $result['message'] = 'success';
             } catch (Exception $e) {
@@ -85,7 +81,6 @@ class ConfigController extends CI_Controller
             $this->load->view('errors/index.html');
         } else {
             try {
-                $this->load->model('configModel');
                 $result['minAmount'] = $this->configModel->getMinReqAmount();
                 $result['message'] = 'success';
             } catch (Exception $e) {
@@ -102,7 +97,6 @@ class ConfigController extends CI_Controller
         if ($_SESSION['type'] != MANAGER) {
             $this->load->view('errors/index.html');
         } else {
-            $this->load->model('configModel');
             echo $this->configModel->setReqAmount();
         }
     }
@@ -113,7 +107,6 @@ class ConfigController extends CI_Controller
         if ($_SESSION['type'] != MANAGER) {
             $this->load->view('errors/index.html');
         } else {
-            $this->load->model('configModel');
             echo $this->configModel->getRequestsSpan();
         }
     }
@@ -125,8 +118,8 @@ class ConfigController extends CI_Controller
         if ($_SESSION['type'] != MANAGER) {
             $this->load->view('errors/index.html');
         } else {
-            $this->load->model('configModel');
-            echo $this->configModel->updateRequestsSpan();
+            $data = json_decode($this->input->raw_input_stream, true);
+            echo $this->configModel->updateRequestsSpan($data['span']);
         }
     }
 }

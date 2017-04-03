@@ -909,9 +909,14 @@ app.directive('configHelp', function(Helps) {
                 var trip = new Trip([], options);
                 var content;
 
-                content = "Actualice el tiempo a esperar (en meses) para realizar diferentes " +
-                          "solicitudes del mismo tipo.";
-                Helps.addFieldHelp(trip, "#min-span", content, 'n');
+                if (!$scope.selectedQuery) {
+                    content = "Elija el tipo de préstamo al que desea configurar";
+                    Helps.addFieldHelp(trip, "#span-select", content, 'n');
+                } else {
+                    content = "Actualice el tiempo a esperar (en meses) que el asociado debe esperar para realizar otra " +
+                              "solicitud de préstamo del tipo " + $scope.loanTypes[$scope.selectedQuery].DescripcionDelPrestamo;
+                    Helps.addFieldHelp(trip, "#min-span", content, 'n');
+                }
                 if (!$scope.missingSpan()) {
                     content = "Haga clic en GUARDAR para hacer efectivo " +
                               "los cambios.";

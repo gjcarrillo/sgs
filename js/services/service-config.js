@@ -165,8 +165,9 @@ function config ($http, $q) {
         $http.get('ConfigController/getRequestsSpan')
             .then(
             function (response) {
+                console.log(response);
                 if (response.data.message === "success") {
-                    qSpan.resolve(parseInt(response.data.span, 10));
+                    qSpan.resolve(response.data.loanTypes);
                 } else {
                     qSpan.reject(response.data.message);
                 }

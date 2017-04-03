@@ -194,12 +194,17 @@ class ConfigModel extends CI_Model
 
     public function getRequestsSpan() {
         try {
+            // Get loan types.
+            $loanTypes = $this->getLoanTypes();
+            $result['loanTypes'] = $loanTypes;
             $em = $this->doctrine->em;
-            // Look for all configured statuses
+            // Look for this loan type's configured span.
             $config = $em->getRepository('\Entity\Config');
-            // Get the configured span.
-            $span = $config->findOneBy(array("key" => 'SPAN'));
-            $result['span'] = $span === null ? null : $span->getValue();
+            foreach ($loanTypes as $lKey => $loanType) {
+                // Get this loan type's configured span. Key = SPAN + loan's concept
+                $span = $config->findOneBy(array("key" => "SPAN" . $lKey));
+                $result['loanTypes'][$lKey]->span = $span === null ? null : intval($span->getValue(), 10);
+            }
             $result['message'] = 'success';
         } catch (Exception $e) {
             $result['message'] = $this->utils->getErrorMsg($e);
@@ -210,22 +215,25 @@ class ConfigModel extends CI_Model
 
 
     // Updates the month requests span, required to applying to same type of loan.
-    public function updateRequestsSpan() {
-        $data = json_decode($this->input->raw_input_stream, true);
+    public function updateRequestsSpan($loanTypes) {
+        $result['message'] = 'error';
         try {
             $em = $this->doctrine->em;
             // Look for all configured statuses
             $config = $em->getRepository('\Entity\Config');
             // Get the configured span.
-            $span = $config->findOneBy(array("key" => 'SPAN'));
-            $entry = array('key' => 'SPAN', 'value' => $data['span']);
-            if ($span === null) {
-                // Create it.
-                $this->db->insert('config', $entry);
-            } else {
-                // Update it.
-                $this->db->where('id', $span->getId());
-                $this->db->update('config', $entry);
+            foreach ($loanTypes as $lKey => $loanType) {
+                if ($loanType['span'] === null) continue;
+                $span = $config->findOneBy(array("key" => "SPAN" . $lKey));
+                $entry = array('key' => "SPAN" . $lKey, 'value' => $loanType['span']);
+                if ($span === null) {
+                    // Create it.
+                    $this->db->insert('config', $entry);
+                } else if ($span->getValue() != $loanType['span']){
+                    // Update it.
+                    $this->db->where('id', $span->getId());
+                    $this->db->update('config', $entry);
+                }
             }
             $result['message'] = 'success';
         } catch (Exception $e) {

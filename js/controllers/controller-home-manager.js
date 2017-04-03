@@ -44,7 +44,11 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
     Requests.initializeListType().then(
         function (list) {
             $scope.loanTypes = list;
-            $scope.showPendingList = _.clone(list);
+            $scope.showPendingList = _.cloneDeep(list);
+            // Fetch pending requests and automatically show first one to user (if any)
+            if ($scope.selectedReq == '' && $scope.selectedPendingReq == '') {
+                loadPendingRequests();
+            }
         },
         function (error) {
             Utils.showAlertDialog('Oops!', 'Ha ocurrido un error en el sistema.<br/>' +
@@ -62,11 +66,6 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
     // dataChanged notifies whether data changed through user interaction,
     // thus needing to update pie and report data
     var dataChanged = false;
-
-    // Fetch pending requests and automatically show first one to user (if any)
-    if ($scope.selectedReq == '' && $scope.selectedPendingReq == '') {
-        loadPendingRequests();
-    }
 
     /**
      * Helper function that loads pending requests.
@@ -86,7 +85,8 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                     }, 500);
                 }
                 $scope.loadingContent = false;
-            }, function () {
+            }, function (error) {
+                Utils.showAlertDialog('Oops!', error);
                 $scope.loadingContent = false;
             });
     }
@@ -707,32 +707,35 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
 
         function DialogController($mdDialog, $scope, Config) {
             $scope.uploading = false;
+            $scope.selectedQuery = null;
             /**
              * =================================================
              *          Requests status configuration
              * =================================================
              */
-
             $scope.statuses = {};
             $scope.statuses.systemStatuses = Requests.getAllStatuses();
             $scope.statuses.newStatuses = $scope.statuses.existing = [];
-            $scope.statuses.errorMsg = '';
-            $scope.statuses.loading = true;
 
-            Config.getStatusesForConfig()
-                .then(
-                function (statuses) {
-                    $scope.statuses.loading = false;
-                    $scope.statuses.newStatuses = statuses.existing;
-                    // Create a DEEP copy of the existing statuses array.
-                    $scope.statuses.existing = JSON.parse(JSON.stringify(statuses.existing));
-                    $scope.statuses.inUse = statuses.inUse;
-                },
-                function (err) {
-                    $scope.statuses.errorMsg = err;
-                    $scope.statuses.loading = false;
-                }
-            );
+            function loadStatusesForConfig () {
+                $scope.statuses.errorMsg = '';
+                $scope.statuses.loading = true;
+
+                Config.getStatusesForConfig()
+                    .then(
+                    function (statuses) {
+                        $scope.statuses.loading = false;
+                        $scope.statuses.newStatuses = statuses.existing;
+                        // Create a DEEP copy of the existing statuses array.
+                        $scope.statuses.existing = _.cloneDeep(statuses.existing);
+                        $scope.statuses.inUse = statuses.inUse;
+                    },
+                    function (err) {
+                        $scope.statuses.errorMsg = err;
+                        $scope.statuses.loading = false;
+                    }
+                );
+            }
 
             /**
              * Checks whether statuses have been updated at all.
@@ -770,33 +773,36 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
              * =================================================
              */
             $scope.amount = {max: {}, min: {}, errorMsg: ''};
-            $scope.amount.max.loading = true;
-            Config.getMaxReqAmount()
-                .then (
-                function (maxAmount) {
-                    $scope.amount.max.loading = false;
-                    $scope.amount.max.existing = maxAmount;
-                    $scope.amount.max.new = maxAmount;
-                },
-                function (err) {
-                    $scope.amount.max.loading = false;
-                    $scope.amount.errorMsg = err;
-                }
-            );
 
-            $scope.amount.min.loading = true;
-            Config.getMinReqAmount()
-                .then (
-                function (minAmount) {
-                    $scope.amount.min.loading = false;
-                    $scope.amount.min.existing = minAmount;
-                    $scope.amount.min.new = minAmount;
-                },
-                function (err) {
-                    $scope.amount.min.loading = false;
-                    $scope.amount.errorMsg = err;
-                }
-            );
+            function loadMaxAndMinAmount() {
+                $scope.amount.max.loading = true;
+                Config.getMaxReqAmount()
+                    .then (
+                    function (maxAmount) {
+                        $scope.amount.max.loading = false;
+                        $scope.amount.max.existing = maxAmount;
+                        $scope.amount.max.new = maxAmount;
+                    },
+                    function (err) {
+                        $scope.amount.max.loading = false;
+                        $scope.amount.errorMsg = err;
+                    }
+                );
+
+                $scope.amount.min.loading = true;
+                Config.getMinReqAmount()
+                    .then (
+                    function (minAmount) {
+                        $scope.amount.min.loading = false;
+                        $scope.amount.min.existing = minAmount;
+                        $scope.amount.min.new = minAmount;
+                    },
+                    function (err) {
+                        $scope.amount.min.loading = false;
+                        $scope.amount.errorMsg = err;
+                    }
+                );
+            }
 
             $scope.updateReqAmount = function() {
                 $scope.uploading = true;
@@ -824,39 +830,55 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
 
             /**
              * =================================================
-             *         Requests span time configuration
+             *         Requests frequency configuration
              * =================================================
              */
 
             $scope.missingSpan = function() {
-                return typeof $scope.span.newValue === "undefined" ||
-                       $scope.span.newValue === $scope.span.existing;
+                if ($scope.selectedQuery) {
+                    // Look for those span that are null or edited.
+                    var edited = _.pickBy($scope.loanTypes, function(loanType, concept){
+                        return loanType.span != $scope.existing[concept].span;
+                    });
+                    var nulled = _.pickBy($scope.loanTypes, function(loanType){
+                        return loanType.span == null;
+                    });
+                    // If edit obj is empty, no span value has been edited.
+                    // if there is any null span, its also a missing field.
+                    return _.isEmpty(edited) || !_.isEmpty(nulled);
+                } else {
+                    return true;
+                }
             };
 
-            $scope.span = {errorMsg: '', loading: true};
-            Config.getRequestsSpan()
-                .then(
-                function (span) {
-                    $scope.span.loading = false;
-                    $scope.span.newValue = $scope.span.existing = span;
-                },
-                function (err) {
-                    $scope.span.errorMsg = err;
-                    $scope.span.loading = false;
-                }
-            );
+            function loadReqFrequencies () {
+                $scope.span = {errorMsg: '', loading: true};
+                Config.getRequestsSpan()
+                    .then(
+                    function (spans) {
+                        $scope.loanTypes = spans;
+                        $scope.span.loading = false;
+                        $scope.existing = _.cloneDeep(spans);
+                    },
+                    function (err) {
+                        $scope.span.errorMsg = err;
+                        $scope.span.loading = false;
+                    }
+                );
+            }
 
             $scope.updateRequestsSpan = function () {
                 $scope.uploading = true;
-                Config.updateRequestsSpan($scope.span.newValue)
+                Config.updateRequestsSpan($scope.loanTypes)
                     .then(
                     function () {
                         $scope.uploading = false;
                         Utils.showAlertDialog('Actualización exitosa',
-                                              'El lapso a esperar para realizar diferentes solicitudes ' +
+                                              'El tiempo a esperar para realizar diferentes solicitudes ' +
                                               'del mismo tipo ha sido actualizado.');
                     },
                     function (err) {
+                        console.log(err);
                         $scope.span.errorMsg = err;
                         $scope.uploading = false;
                     }
@@ -871,6 +893,22 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
 
             $scope.closeDialog = function() {
                 $mdDialog.hide();
+            };
+
+            $scope.selectTab = function(tab) {
+                $scope.selectedTab = tab;
+                switch (tab) {
+                    case 1:
+                        loadStatusesForConfig();
+                        break;
+                    case 2:
+                        loadMaxAndMinAmount();
+                        break;
+                    case 3:
+                        loadReqFrequencies();
+                        break;
+                    default: break;
+                }
             };
         }
     };
