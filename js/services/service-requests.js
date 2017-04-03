@@ -706,5 +706,6 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
     self.getInterestRate = function (loanType) {
         return Config.loanConcepts[loanType].InteresAnual;
     };
+
     return self;
 }

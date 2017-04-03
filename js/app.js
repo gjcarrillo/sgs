@@ -9,9 +9,9 @@ var sgdp = angular.module("sgdp",
         "sgdp.service-manager",
         "sgdp.service-config",
         "sgdp.service-agent",
+        "sgdp.service-applicant",
         "sgdp.directive-animate-change",
         "sgdp.directive-select-fix",
-        //"sgdp.directive-perspective",
         "sgdp.directive-helps",
         "sgdp.directive-overlay",
         "ui.router",
@@ -84,24 +84,24 @@ sgdp.config(function ($stateProvider, $urlRouterProvider, $mdThemingProvider,
                 }
             }
         })
-        //.state('perspective', {
-        //    url: '/perspective',
-        //    views: {
-        //        'content': {
-        //            templateUrl: 'index.php/PerspectiveController',
-        //            controller: 'PerspectiveController'
-        //        },
-        //        'footer': {
-        //            templateUrl: 'index.php/MainController/footer'
-        //        }
-        //    }
-        //})
         .state('transition', {
             url: '/transition/:token',
             views: {
                 'content': {
                     templateUrl: 'index.php/LoginController/transition',
                     controller: 'LoginController'
+                }
+            }
+        })
+        .state('details', {
+            url: '/details',
+            views: {
+                'content': {
+                    templateUrl: 'detailsController',
+                    controller: 'DetailsController'
+                },
+                'footer': {
+                    templateUrl: 'mainController/footer'
                 }
             }
         })

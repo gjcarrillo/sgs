@@ -2,75 +2,72 @@ angular
     .module('sgdp')
     .controller('ApplicantHomeController', userHome);
 
-userHome.$inject = ['$scope', '$cookies', '$timeout', 'Config',
-                    '$mdSidenav', '$mdDialog', '$mdMedia', 'Constants', 'Requests', 'Utils'];
+userHome.$inject = ['$scope', '$cookies', '$timeout', 'Config', '$mdExpansionPanel', 'Applicant',
+                    '$mdSidenav', '$mdDialog', '$mdMedia', 'Constants', 'Requests', 'Utils', '$state'];
 
-function userHome($scope, $cookies, $timeout, Config,
-                  $mdSidenav, $mdDialog, $mdMedia, Constants, Requests, Utils) {
+function userHome($scope, $cookies, $timeout, Config, $mdExpansionPanel, Applicant,
+                  $mdSidenav, $mdDialog, $mdMedia, Constants, Requests, Utils, $state) {
     'use strict';
-    $scope.loading = true;
-    $scope.selectedReq = '';
-    $scope.selectedLoan = -1;
-    $scope.requests = {};
-    $scope.req = null;
-    Requests.initializeListType().then(
-        function (list) {
-            $scope.loanTypes = list;
-            console.log(list);
-            $scope.loading = true;
-            // Fetch user's requests
-            Requests.getUserRequests(fetchId).then(
-                function (data) {
-                    $scope.requests = data;
-                    console.log($scope.requests);
-                    $scope.loading = false;
-                    $scope.contentAvailable = true;
-                    $timeout(function () {
-                        $scope.contentLoaded = true;
-                        $mdSidenav('left').open();
-                    }, 600);
-                },
-                function (errorMsg) {
-                    $scope.fetchError = errorMsg;
-                    $scope.loading = false;
-                }
-            );
-        },
-        function (error) {
-            Utils.showAlertDialog('Oops!', 'Ha ocurrido un error en el sistema.<br/>' +
-                                           'Por favor intente más tarde.');
-            console.log(error);
-        }
-    );
-    $scope.queryList = [
-            {id: 1, text: 'Todas mis solicitudes'},
-            {id: 2, text: 'Solicitud por ID'},
-            {id: 3, text: 'Solicitudes por fecha'},
-            {id: 4, text: 'Solicitudes por estatus'},
-            {id: 5, text: 'Solicitudes abiertas'}
-        ];
-
-    $scope.newRequestList = false;
-    $scope.selectedList = 0;
-    $scope.fetchError = '';
+    $scope.selectedReq = Applicant.data.selectedReq;
+    $scope.selectedLoan = Applicant.data.selectedLoan;
+    $scope.requests = Applicant.data.requests;
+    $scope.req = Applicant.data.req;
+    $scope.loanTypes = Applicant.data.loanTypes;
+    $scope.newRequestList = Applicant.data.newRequestList;
+    $scope.selectedList = Applicant.data.selectedList;
+    $scope.fetchError = Applicant.data.fetchError;
     // contentAvailable will indicate whether sidenav can be visible
-    $scope.contentAvailable = false;
+    $scope.contentAvailable = Applicant.data.contentAvailable;
     // contentLoaded will indicate whether sidenav can be locked open
-    $scope.contentLoaded = false;
-
+    $scope.contentLoaded = Applicant.data.contentLoaded;
+    $scope.selectedAction = Applicant.data.selectedAction;
+    $scope.queryList = [
+        {id: 1, text: 'Todas mis solicitudes'},
+        {id: 2, text: 'Solicitud por ID'},
+        {id: 3, text: 'Solicitudes por fecha'},
+        {id: 4, text: 'Solicitudes por estatus'},
+        {id: 5, text: 'Solicitudes abiertas'}
+    ];
     var fetchId = $cookies.getObject('session').id;
 
-    $scope.toggleQueryList = function () {
-        $scope.queryList.selected = !$scope.queryList.selected;
-    };
-
-    $scope.toggleNewRequestList = function () {
-        $scope.newRequestList = !$scope.newRequestList;
-    };
-
-    $scope.toggleRefinancingList = function () {
-        $scope.refinancingList = !$scope.refinancingList;
-    };
+    if (!$scope.loanTypes) {
+        $scope.loading = true;
+        Requests.initializeListType().then(
+            function (list) {
+                $scope.loanTypes = list;
+                $scope.contentAvailable = true;
+                $timeout(function () {
+                    $scope.contentLoaded = true;
+                    $mdSidenav('left').open();
+                }, 600);
+                // Fetch user's requests
+                Requests.getUserRequests(fetchId).then(
+                    function (data) {
+                        $scope.requests = data;
+                        $scope.loading = false;
+                        $scope.contentAvailable = true;
+                        $timeout(function () {
+                            $scope.contentLoaded = true;
+                            $mdSidenav('left').open();
+                        }, 600);
+                    },
+                    function (errorMsg) {
+                        $scope.fetchError = errorMsg;
+                        $scope.loading = false;
+                    }
+                );
+            },
+            function (error) {
+                Utils.showAlertDialog('Oops!', 'Ha ocurrido un error en el sistema.<br/>' +
+                                               'Por favor intente más tarde.');
+                console.log(error);
+            }
+        );
+    } else {
+        $mdExpansionPanel().waitFor($scope.selectedLoan).then(function (instance) {
+            instance.expand();
+        });
+    }
 
     $scope.togglePanelList = function (index) {
         $scope.selectedList = $scope.selectedList == index ? null : index;
@@ -93,6 +90,16 @@ function userHome($scope, $cookies, $timeout, Config,
         $scope.loanTypes[index].selected = !$scope.loanTypes[index].selected;
     };
 
+    $scope.goToDetails = function (lKey, rKey) {
+        // Save controller state before navigating away.
+        $scope.selectedLoan = lKey;
+        $scope.selectedReq = rKey;
+        preserveState();
+        sessionStorage.setItem("req", JSON.stringify($scope.requests[lKey][rKey]));
+        sessionStorage.setItem("loanConcepts", JSON.stringify(Config.loanConcepts));
+        $state.go('details');
+    };
+
     /**
      * Selects the specified request.
      *
@@ -106,13 +113,6 @@ function userHome($scope, $cookies, $timeout, Config,
             $scope.req = $scope.requests[i][j];
         }
         $mdSidenav('left').toggle();
-    };
-
-    // Calculates the request's payment fee.
-    $scope.calculatePaymentFee = function() {
-        return $scope.req ? Requests.calculatePaymentFee($scope.req.reqAmount,
-                                                         $scope.req.due,
-                                                         Requests.getInterestRate($scope.req.type)) : 0;
     };
 
     /**
@@ -845,4 +845,25 @@ function userHome($scope, $cookies, $timeout, Config,
     $scope.openMenu = function () {
         $mdSidenav('left').toggle();
     };
+
+    function preserveState() {
+        var data = {};
+        data.req = $scope.req; // Will contain the selected request object.
+        data.fetchError = $scope.fetchError;
+        data.selectedReq = $scope.selectedReq;
+        data.selectedLoan = $scope.selectedLoan;
+        data.requests = $scope.requests;
+        data.req = $scope.req;
+        data.loanTypes = $scope.loanTypes;
+        data.newRequestList = $scope.newRequestList;
+        data.selectedList = $scope.selectedList;
+        data.selectedAction = $scope.selectedAction;
+        data.fetchError = $scope.fetchError;
+        // contentAvailable will indicate whether sidenav can be visible
+        data.contentAvailable = $scope.contentAvailable;
+        // contentLoaded will indicate whether sidenav can be locked open
+        data.contentLoaded = $scope.contentLoaded;
+
+        Applicant.updateData(data);
+    }
 }
