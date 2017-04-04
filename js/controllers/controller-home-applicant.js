@@ -169,7 +169,7 @@ function userHome($scope, $cookies, $timeout, Config, $mdExpansionPanel, Applica
             // obj could have a reference to user data, saved
             // before confirmation dialog was opened.
             $scope.model = obj || {};
-            $scope.model.loanTypes = Config.loanConcepts;
+            $scope.model.type = concept;
             $scope.confirmButton = 'Crear';
             $scope.title = 'Nueva solicitud de préstamo';
 
@@ -184,21 +184,17 @@ function userHome($scope, $cookies, $timeout, Config, $mdExpansionPanel, Applica
             // Checks whether conditions for creating new requests are fulfilled.
             function checkCreationConditions () {
                 $scope.loading = true;
-                Requests.getAvailabilityData(fetchId).then(
+                Requests.getAvailabilityData(fetchId, concept).then(
                     function (data) {
-                        data.opened = Requests.checkPreviousRequests(requests);
-                        Requests.getLoanTerms().then(
+                        data.opened = Requests.checkPreviousRequests(requests[concept]);
+                        console.log(data);
+                        Requests.getLoanTerms(concept).then(
                             function (terms) {
                                 $scope.model.terms = terms;
-                                $scope.model.phone = Utils.pad(parseInt(data.userPhone, 10), 11);
+                                $scope.model.phone = data.userPhone ? Utils.pad(parseInt(data.userPhone, 10), 11) : '';
                                 $scope.model.email = data.userEmail;
-                                $scope.model.allow = data.granting.allow;
-                                $scope.model.span = data.granting.span;
-                                $scope.model.opened = data.opened;
-                                $scope.model.type = Requests.verifyAvailability(data);
-                                if($scope.model.type) {
-                                    $scope.loading = false;
-                                }
+                                Requests.verifyAvailability(data, concept);
+                                $scope.loading = false;
                             },
                             function (error) {
                                 Utils.showAlertDialog('Oops!', error);

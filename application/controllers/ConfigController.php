@@ -105,10 +105,34 @@ class ConfigController extends CI_Controller
 
     public function getRequestsSpan() {
         if ($_SESSION['type'] != MANAGER) {
-            $this->load->view('errors/index.html');
+            $result['message'] = "Forbidden";
         } else {
-            echo $this->configModel->getRequestsSpan();
+            try {
+                $result['loanTypes'] = $this->configModel->getRequestsSpan();
+                $result['message'] = 'success';
+            } catch (Exception $e) {
+                $result['message'] = $this->utils->getErrorMsg($e);
+            }
         }
+        echo json_encode($result);
+    }
+
+    /**
+     * Gets the specified request's configured span.
+     */
+    public function getRequestSpan() {
+        if ($_SESSION['type'] != MANAGER) {
+            $result['message'] = "Forbidden";
+        } else {
+            $data = json_decode(file_get_contents('php://input'), true);
+            try {
+                $result['span'] = $this->configModel->getRequestSpan($data['concept']);
+                $result['message'] = 'success';
+            } catch (Exception $e) {
+                $result['message'] = $this->utils->getErrorMsg($e);
+            }
+        }
+        echo json_encode($result);
     }
 
 

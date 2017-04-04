@@ -218,7 +218,15 @@
                                         </tbody>
                                     </table>
                                 </md-table-container>
-                                <md-table-pagination md-label="{page: 'Página:', rowsPerPage: 'Filas por página:', of: 'de'}" md-limit="query.limit" md-limit-options="[5, 10, 15, 20]" md-page="query.page" md-total="{{requests[lKey].length}}" md-page-select></md-table-pagination>
+                                <md-table-pagination ng-if="requests[lKey].length > 0"
+                                                     md-label="{page: 'Página:', rowsPerPage: 'Filas por página:', of: 'de'}"
+                                                     md-limit="query.limit"
+                                                     md-limit-options="[5, 10, 15, 20]"
+                                                     md-page="query.page"
+                                                     md-total="{{requests[lKey].length}}"
+                                                     md-page-select>
+
+                                </md-table-pagination>
                             </md-expansion-panel-content>
 
                             <md-expansion-panel-footer>

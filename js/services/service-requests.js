@@ -571,43 +571,35 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
     };
 
     /**
-     * Checks specified requests and indicates whether there is any type of request still open.
+     * Checks specified requests and indicates whether there is any request still open.
      *
-     * @param requests - all requests from a user.
-     * @returns {{hasOpen: {}, allTypesOpen: boolean}}
+     * @param requests - all user's specified concept's requests.
+     * @returns {{}}
      */
     self.checkPreviousRequests = function (requests) {
-        var hasOpen = {};
-        angular.forEach(requests, function (typeList, typeCode) {
-            hasOpen[typeCode] =
-                typeList.filter(function (loan) {
-                   return loan.status != Constants.Statuses.APPROVED && 
-                          loan.status != Constants.Statuses.REJECTED;
-                }).length > 0;
-        });
-        var allTypesOpen = true;
-        angular.forEach (hasOpen, function(unvalidated) {
-            if (!unvalidated) {
-                allTypesOpen = false;
+        var opened = {};
+        angular.forEach(requests, function (req) {
+            if (req.status != Constants.Statuses.APPROVED &&
+                req.status != Constants.Statuses.REJECTED) {
+                opened.hasOpened = true;
+                opened.id = req.id;
             }
         });
-        return {
-            hasOpen: hasOpen,
-            allTypesOpen: allTypesOpen
-        };
+        return opened;
     };
 
     /**
      * Gets a user's availability data (i.e. conditions for creating new requests)
      *
      * @param userId - user's id.
+     * @param concept - request's concept.
      * @returns {*} - promise with the operation's result.
      */
-    self.getAvailabilityData = function (userId) {
+    self.getAvailabilityData = function (userId, concept) {
         var qAvailability = $q.defer();
 
         $http.get('NewRequestController/getAvailabilityData',
-            {params: {userId: userId}})
+            {params: {userId: userId, concept: concept}})
             .then(
             function (response) {
                 if (response.data.message == "success") {
@@ -619,86 +611,58 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
         return qAvailability.promise;
     };
 
-    self.verifyAvailability = function (data) {
-        var available = null;
+    // A request type is available for creation if the following is tue:
+    // 1. User's concurrence level is below 40%.
+    // 2. there are no opened requests of the same type.
+    // 3. span creation constrain between requests of same time is over.
+    self.verifyAvailability = function (data, concept) {
         if (data.concurrence >= 40) {
             Utils.showAlertDialog('No permitido',
                                   'Estimado usuario, debido a que su nivel de concurrencia sobrepasa ' +
-                                  'los niveles permitidos, usted no se encuentra en condiciones de ' +
+                                  'el 40%, usted no se encuentra en condiciones de ' +
                                   'solicitar un nuevo préstamo.');
-        } else {
-            var types = Config.loanConcepts;
-            var anyTypeAvailable = false;
-            // A request type is available for creation if the following is tue:
-            // 1. there are no opened requests of the same type.
-            // 2. span creation constrain between requests of same time is over.
-            for (var type in types) {
-                if (types.hasOwnProperty(type)) {
-                    if (!data.opened.hasOpen[type] && data.granting.allow[type]) {
-                        anyTypeAvailable = true;
-                        available = parseInt(type, 10);
-                        break;
-                    }
-                }
-            }
-            if (!anyTypeAvailable) {
-                // throw error msg
-                Utils.showAlertDialog('No permitido',
-                                      'Estimado usuario, no puede solicitar ningún tipo de solicitud adicional ' +
-                                      'debido a cualquiera de las siguientes razones:<br/><br/>' +
-                                      '1. Posee distintos tipos de solicitudes en transcurso.<br/>' +
-                                      '2. Aún no ha' + (data.granting.span == 1 ? '' : 'n') +
-                                      ' transcurrido ' + data.granting.span + (data.granting.span == 1 ? ' mes' : ' meses') +
-                                      ' desde el último préstamo otorgado.');
-            }
+        } else if (data.opened.hasOpened) {
+            Utils.showAlertDialog('No permitido', 'Estimado usuario, no puede realizar otra solicitud del tipo ' +
+                                                  Config.loanConcepts[concept].description + ' debido a que ya posee ' +
+                                                  'una solicitud (con ID #' + Utils.pad(data.opened.id, 6) + ') de ' +
+                                                  'dicho tipo abierta.');
+        } else if (!data.granting.allow) {
+            Utils.showAlertDialog('No permitido', 'Estimado usuario, no puede realizar otra solicitud del tipo ' +
+                                                  Config.loanConcepts[concept].description + ' debido a que aún no ' +
+                                                  'ha' + (data.granting.span == 1 ? '' : 'n') +
+                                                  ' transcurrido ' + data.granting.span + (data.granting.span == 1 ? ' mes' : ' meses') +
+                                                  ' desde el último préstamo otorgado.<br/><br/>' +
+                                                  'Podrá volver a solicitar un préstamo de dicho tipo el ' + data.granting.dateAvailable);
         }
-        return available;
     };
 
     /**
      * Obtains loan types' available terms for payment.
      *
+     * @param concept - request's concept.
      * @returns {*} - promise with the result's operation.
      */
-    self.getLoanTerms = function () {
+    self.getLoanTerms = function (concept) {
         var qReq = $q.defer();
 
         var terms = {};
-        if (Config.loanConcepts) {
-            // Iterate through all loan concepts available.
-            angular.forEach(Config.loanConcepts, function(data, type) {
-                var term = data.PlazoEnMeses;
-                // Calculate all possible payment terms for this specific loan type.
-                terms[type] = [];
-                while (term > 0) {
-                    terms[type].push(term);
-                    // Terms will be on a year basis.
-                    term -= 12;
-                }
-            });
-            qReq.resolve(terms);
-        } else {
-            Config.getLoanTypes().then(
-              function (types) {
-                  Config.loanConcepts = types;
-                  // Iterate through all loan concepts available.
-                  angular.forEach(Config.loanConcepts, function(data, type) {
-                      var term = parseInt(data.PlazoEnMeses, 10);
-                      // Calculate all possible payment terms for this specific loan type.
-                      terms[type] = [];
-                      while (term > 0) {
-                          terms[type].push(term);
-                          // Terms will be on a year basis.
-                          term -= 12;
-                      }
-                  });
-                  qReq.resolve(terms);
-              },
-              function (error) {
-                  qReq.reject(error);
+        Config.getLoanTypes().then(
+          function (types) {
+              Config.loanConcepts = types;
+              var term = parseInt(Config.loanConcepts[concept].PlazoEnMeses, 10);
+              // Calculate all possible payment terms for this specific loan type.
+              terms = [];
+              while (term > 0) {
+                  terms.push(term);
+                  // Terms will be on a year basis.
+                  term -= 12;
               }
-            );
-        }
+              qReq.resolve(terms);
+          },
+          function (error) {
+              qReq.reject(error);
+          }
+        );
 
         return qReq.promise;
     };

@@ -196,23 +196,43 @@ class ConfigModel extends CI_Model
         try {
             // Get loan types.
             $loanTypes = $this->getLoanTypes();
-            $result['loanTypes'] = $loanTypes;
             $em = $this->doctrine->em;
             // Look for this loan type's configured span.
             $config = $em->getRepository('\Entity\Config');
             foreach ($loanTypes as $lKey => $loanType) {
                 // Get this loan type's configured span. Key = SPAN + loan's concept
                 $span = $config->findOneBy(array("key" => "SPAN" . $lKey));
-                $result['loanTypes'][$lKey]->span = $span === null ? null : intval($span->getValue(), 10);
+                $loanType->span = $span === null ? null : intval($span->getValue(), 10);
             }
-            $result['message'] = 'success';
         } catch (Exception $e) {
-            $result['message'] = $this->utils->getErrorMsg($e);
+            throw $e;
         }
-        return json_encode($result);
+        return $loanTypes;
     }
 
+    /**
+     * Gets a specific loan type's month span for applying to same type of loan.
+     *
+     * @param $concept - loan's concept.
+     * @return int|null {@code int} with the configured span.
+     * {@code null} if there is no configured span for this type of loan.
+     * @throws Exception
+     */
 
+    public function getRequestSpan($concept) {
+        try {
+            // Get loan types.
+            $em = $this->doctrine->em;
+            // Look for this loan type's configured span.
+            $config = $em->getRepository('\Entity\Config');
+            // Get this loan type's configured span. Key = SPAN + loan's concept
+            $span = $config->findOneBy(array("key" => "SPAN" . $concept));
+            $span = $span === null ? null : intval($span->getValue(), 10);
+        } catch (Exception $e) {
+            throw $e;
+        }
+        return $span;
+    }
 
     // Updates the month requests span, required to applying to same type of loan.
     public function updateRequestsSpan($loanTypes) {

@@ -126,45 +126,28 @@
                     </div>
                 </div>
             </div>
-            <!-- Payment due & Type of transaction-->
+            <!-- Payment due & fee -->
             <div
                 layout layout-xs="column"
                 layout-align="center"
                 layout-align-xs="start start">
-                <div class="md-padding" style="padding-top:0" id="payment-due">
-                    <p class="grey-color">
+                <div layout="column" id="payment-due">
+                    <span class="grey-color">
                         <b>Plazo para pagar</b>:
-                    </p>
-                    <md-radio-group ng-model="model.due">
-                        <md-radio-button ng-repeat="term in model.terms[model.type]" ng-disabled="uploading" value="{{term}}">{{term}} {{terms == 1 ? 'mes' : 'meses'}}</md-radio-button>
-                    </md-radio-group>
+                    </span>
+                    <md-input-container style="margin: 0 !important;">
+                        <md-select
+                            ng-disabled="uploading"
+                            md-select-fix="model.due"
+                            placeholder="Seleccione el plazo"
+                            ng-model="model.due">
+                            <md-option ng-repeat="term in model.terms" ng-value="term">
+                                {{term}} {{terms == 1 ? 'mes' : 'meses'}}
+                            </md-option>
+                        </md-select>
+                    </md-input-container>
                 </div>
                 <div layout="column">
-                    <div class="md-padding" style="padding-top:0; padding-bottom: 0" id="loan-type">
-                        <p class="grey-color">
-                            <b>Tipo de préstamo</b>:
-                        </p>
-                        <md-radio-group ng-model="model.type">
-                            <md-radio-button
-                                ng-repeat="(lType, TYPE) in model.loanTypes"
-                                ng-value="lType"
-                                ng-disabled="uploading || !model.allow[lType] || model.opened.hasOpen[lType]">
-                                {{TYPE.DescripcionDelPrestamo}}
-                                <md-tooltip
-                                    ng-if="!model.allow[lType] || model.opened.hasOpen[lType]"
-                                    md-direction="bottom">
-                                    <span ng-if="model.opened.hasOpen[lType]">
-                                        Usted posee una solicitud de {{TYPE.DescripcionDelPrestamo}} en transcurso.
-                                    </span>
-                                    <span ng-if="!model.opened.hasOpen[lType] && !model.allow[lType]">
-                                        No ha{{model.span === 1 ? '' : 'n'}}
-                                        transcurrido {{model.span}} {{model.span == 1 ? 'mes' : 'meses'}}
-                                        desde su última otorgación.
-                                    </span>
-                                </md-tooltip>
-                            </md-radio-button>
-                        </md-radio-group>
-                    </div>
                     <!-- Payment fee -->
                     <md-card md-theme="help-card">
                         <md-card-content>

@@ -119,51 +119,46 @@ class NewRequestController extends CI_Controller {
 	}
 
 	/**
-	 * Gets a user's availability data (i.e. conditions for creating new requests)
+	 * Gets a user's availability data (i.e. conditions for creating new request)
 	 */
 	public function getAvailabilityData() {
 		$result['message'] = "error";
-		if ($_GET['userId'] != $_SESSION['id'] && $_SESSION['type'] != AGENT) {
+		if ($this->input->get('userId') != $this->session->id && $this->session->type != AGENT) {
 			$this->load->view('errors/index.html');
 		} else {
 			try {
 				$em = $this->doctrine->em;
 				$this->load->model('configModel');
-				$span = $this->configModel->getRequestsSpan();
+				$span = $this->configModel->getRequestSpan($this->input->get('concept'));
 				$result['granting']['span'] = $span;
-				$result['granting']['allDenied'] = true;
-				$loanTypes = $this->configModel->getLoanTypes();
-				foreach ($loanTypes as $tKey => $type) {
-					$this->ipapedi_db = $this->load->database('ipapedi_db', true);
-					$this->ipapedi_db->select('*');
-					$this->ipapedi_db->from('db_dt_prestamos');
-					$this->ipapedi_db->where('cedula', $_GET['userId']);
-					$this->ipapedi_db->where('concepto', $tKey);
-					// get last granting date for corresponding request type.
-					$query = $this->ipapedi_db->order_by('otorg_fecha',"desc")->get();
-					if (empty($query->result())) {
-						// Seems like this is their first request. Grant permission to create!
-						$result['granting']['allow'][$tKey] = true;
+				$this->ipapedi_db = $this->load->database('ipapedi_db', true);
+				$this->ipapedi_db->select('*');
+				$this->ipapedi_db->from('db_dt_prestamos');
+				$this->ipapedi_db->where('cedula', $this->input->get('userId'));
+				$this->ipapedi_db->where('concepto', $this->input->get('concept'));
+				// get last granting date for corresponding request type.
+				$query = $this->ipapedi_db->order_by('otorg_fecha',"desc")->get();
+				if (empty($query->result())) {
+					// Seems like this is their first request. Grant permission to create!
+					$result['granting']['allow'] = true;
+				} else {
+					$granting = date_create_from_format('d/m/Y', $query->result()[0]->otorg_fecha);
+					if (!$granting) {
+						// No granting date found in most recent granting entry. Perhaps it was rejected?
+						// Go ahead and allow this request type creation
+						$result['granting']['allow'] = true;
 					} else {
-						$granting = date_create_from_format('d/m/Y', $query->result()[0]->otorg_fecha);
-						if (!$granting) {
-							// No granting date found in granting entry. Perhaps it was rejected?
-							// Go ahead and allow this request type creation
-							// TODO: CONFIRM IF THIS IS THE ACTION TO TAKE IN THIS CASE
-							$result['granting']['allow'][$tKey] = true;
-						} else {
-							$currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
-							$interval = $granting->diff($currentDate);
-							$monthsPassed = $interval->format("%m");
-							$monthsLeft = $span - $monthsPassed;
-							if ($monthsLeft <= 0) {
-								$result['granting']['allow'][$tKey] = $monthsLeft <= 0;
-								$result['granting']['allDenied'] = false;
-							}
+						$currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
+						$interval = $granting->diff($currentDate);
+						$monthsPassed = $interval->format("%m");
+						$monthsLeft = $span - $monthsPassed;
+						$result['granting']['allow'] = $monthsLeft <= 0;
+						if ($monthsLeft > 0) {
+							// Tell user when will he be able to request again.
+							$result['granting']['dateAvailable'] = $granting->modify('+' . $span . ' month')->format('d/m/Y');
 						}
 					}
 				}
-				$this->ipapedi_db = $this->load->database('ipapedi_db', true);
 				$this->ipapedi_db->select('*');
 				$this->ipapedi_db->from('db_dt_personales');
 				$this->ipapedi_db->where('cedula', $_GET['userId']);
