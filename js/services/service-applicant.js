@@ -27,7 +27,8 @@ function applicant () {
         {id: 2, text: 'Solicitud por ID'},
         {id: 3, text: 'Solicitudes por fecha'},
         {id: 4, text: 'Solicitudes por estatus'},
-        {id: 5, text: 'Solicitudes abiertas'}
+        {id: 5, text: 'Solicitudes por tipo'},
+        {id: 6, text: 'Solicitudes abiertas'}
     ];
     data.newRequestList = false;
     data.selectedList = 0;

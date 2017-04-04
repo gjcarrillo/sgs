@@ -142,7 +142,7 @@
                             placeholder="Seleccione el plazo"
                             ng-model="model.due">
                             <md-option ng-repeat="term in model.terms" ng-value="term">
-                                {{term}} {{terms == 1 ? 'mes' : 'meses'}}
+                                {{term}} {{term == 1 ? 'mes' : 'meses'}}
                             </md-option>
                         </md-select>
                     </md-input-container>

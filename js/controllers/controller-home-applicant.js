@@ -21,13 +21,8 @@ function userHome($scope, $cookies, $timeout, Config, $mdExpansionPanel, Applica
     // contentLoaded will indicate whether sidenav can be locked open
     $scope.contentLoaded = Applicant.data.contentLoaded;
     $scope.selectedAction = Applicant.data.selectedAction;
-    $scope.queryList = [
-        {id: 1, text: 'Todas mis solicitudes'},
-        {id: 2, text: 'Solicitud por ID'},
-        {id: 3, text: 'Solicitudes por fecha'},
-        {id: 4, text: 'Solicitudes por estatus'},
-        {id: 5, text: 'Solicitudes abiertas'}
-    ];
+    $scope.queryList = Applicant.data.queryList;
+
     var fetchId = $cookies.getObject('session').id;
 
     if (!$scope.loanTypes) {
