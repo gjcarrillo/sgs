@@ -22,6 +22,7 @@ function userHome($scope, $cookies, $timeout, Config, $mdExpansionPanel, Applica
     $scope.contentLoaded = Applicant.data.contentLoaded;
     $scope.selectedAction = Applicant.data.selectedAction;
     $scope.queryList = Applicant.data.queryList;
+    $scope.showMsg = true;
 
     var fetchId = $cookies.getObject('session').id;
 
@@ -35,7 +36,7 @@ function userHome($scope, $cookies, $timeout, Config, $mdExpansionPanel, Applica
                 $timeout(function () {
                     $scope.contentLoaded = true;
                     $mdSidenav('left').open();
-                }, 600)
+                }, 600);
             },
             function (error) {
                 Utils.showAlertDialog('Oops!', 'Ha ocurrido un error en el sistema.<br/>' +
@@ -45,7 +46,9 @@ function userHome($scope, $cookies, $timeout, Config, $mdExpansionPanel, Applica
         );
     } else {
         $mdExpansionPanel().waitFor($scope.selectedLoan).then(function (instance) {
-            instance.expand();
+            $timeout(function() {
+                instance.expand();
+            }, 600);
         });
     }
 
@@ -870,6 +873,7 @@ function userHome($scope, $cookies, $timeout, Config, $mdExpansionPanel, Applica
         data.selectedLoan = $scope.selectedLoan;
         data.requests = $scope.requests;
         data.req = $scope.req;
+        data.queryList = $scope.queryList;
         data.loanTypes = $scope.loanTypes;
         data.newRequestList = $scope.newRequestList;
         data.selectedList = $scope.selectedList;

@@ -183,8 +183,8 @@
                     </md-progress-circular>
             </div>
             <!-- Requests list -->
-            <md-content class="bg">
-                <div class="margin-16" ng-if="selectedAction == 1 && !fetching">
+            <md-content class="bg document-container">
+                <div class="margin-16" ng-show="selectedAction == 1 && !fetching">
                     <md-expansion-panel-group md-component-id="requests">
                         <md-expansion-panel ng-repeat="(lKey, loanType) in loanTypes" md-component-id="{{lKey}}">
                             <md-expansion-panel-collapsed>
@@ -192,7 +192,7 @@
                                 <span flex></span>
                                 <md-expansion-panel-icon></md-expansion-panel-icon>
                             </md-expansion-panel-collapsed>
-                            <md-expansion-panel-expanded class="margin-16">
+                            <md-expansion-panel-expanded>
                                 <md-expansion-panel-header>
                                     <div class="md-title">{{loanType.description}}</div>
                                     <div class="md-summary">Haga clic en una fila para ver más detalles de la solicitud</div>
@@ -201,8 +201,8 @@
 
                                 <md-expansion-panel-content>
                                     <!-- Table of requests -->
-                                    <p ng-if="requests[lKey].length == 0">Usted aún no posee solicitudes</p>
-                                    <md-table-container ng-if="requests[lKey].length > 0">
+                                    <p ng-show="requests[lKey].length == 0">Usted aún no posee solicitudes</p>
+                                    <md-table-container ng-show="requests[lKey].length > 0">
                                         <table md-table md-row-select ng-model="selected">
                                             <thead md-head>
                                             <tr md-row>
@@ -243,18 +243,33 @@
                 </div>
                 <!-- Editable requests list -->
                 <div class="margin-16" ng-if="selectedAction == 'edit' && !fetching">
-                    <div layout layout-align="center center">
-                        <div layout="column" layout-align="center center" class="md-whiteframe-z2 error-card">
-                            <span>
-                                Le recordamos que las solicitudes editables son sólo aquellas
-                                que no han sido validadas.
+                    <!--<div layout layout-align="center center">-->
+                    <!--    <div layout="column" layout-align="center center" class="md-whiteframe-z2 error-card">-->
+                    <!--        <span>-->
+                    <!--            Las solicitudes editables son sólo aquellas-->
+                    <!--            que no han sido validadas.-->
+                    <!--        </span>-->
+                    <!--        <span ng-if="editableReq.length == 0" style="color:red">-->
+                    <!--            <br/>Usted no posee solicitudes editables.-->
+                    <!--        </span>-->
+                    <!--    </div>-->
+                    <!--</div>-->
+                    <md-card ng-show="showMsg" md-theme="manual-card" class="margin-16">
+                        <md-card-content layout layout-align="space-between start">
+                            <span style="color: #2E7D32">
+                                Le recordamos que las solicitudes editables son aquellas que aún no han sido validadas.
                             </span>
-                            <span ng-if="editableReq.length == 0" style="color:red">
-                                <br/>Usted no posee solicitudes editables.
-                            </span>
-                        </div>
+                            <md-button ng-click="showMsg = !showMsg" class="md-icon-button">
+                                <md-icon>close</md-icon>
+                                <md-tooltip>Cerrar</md-tooltip>
+                            </md-button>
+                        </md-card-content>
+                    </md-card>
+                    <div ng-if="editableReq.length == 0" class="margin-16">
+                        <p style="color:red">
+                            Usted no posee solicitudes editables.
+                        </p>
                     </div>
-                    <!--<p ng-if="editableReq.length == 0">Usted no posee solicitudes editables.</p>-->
                     <md-table-container ng-if="editableReq.length > 0">
                         <table md-table md-row-select ng-model="selected">
                             <thead md-head>
