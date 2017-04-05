@@ -168,7 +168,7 @@
             </div>
             <!-- Watermark -->
             <div
-                ng-if="fetchError == '' && selectedAction != 1 && !loading && !fetching"
+                ng-if="fetchError == '' && selectedAction != 1 && selectedAction != 'edit' && !loading && !fetching"
                 class="full-content-height"
                 layout="column" layout-align="center center">
                 <div ng-if="!loading" class="watermark" layout="column" layout-align="center center">
@@ -188,7 +188,6 @@
                     <md-expansion-panel-group md-component-id="requests">
                         <md-expansion-panel ng-repeat="(lKey, loanType) in loanTypes" md-component-id="{{lKey}}">
                             <md-expansion-panel-collapsed>
-                                <!--<div class="md-title">{{loanType.description}}</div>-->
                                 <div>Solicitudes de {{loanType.description}}</div>
                                 <span flex></span>
                                 <md-expansion-panel-icon></md-expansion-panel-icon>
@@ -241,6 +240,62 @@
                             </md-expansion-panel-expanded>
                         </md-expansion-panel>
                     </md-expansion-panel-group>
+                </div>
+                <!-- Editable requests list -->
+                <div class="margin-16" ng-if="selectedAction == 'edit' && !fetching">
+                    <div layout layout-align="center center">
+                        <div layout="column" layout-align="center center" class="md-whiteframe-z2 error-card">
+                            <span>
+                                Le recordamos que las solicitudes editables son sólo aquellas
+                                que no han sido validadas.
+                            </span>
+                            <span ng-if="editableReq.length == 0" style="color:red">
+                                <br/>Usted no posee solicitudes editables.
+                            </span>
+                        </div>
+                    </div>
+                    <!--<p ng-if="editableReq.length == 0">Usted no posee solicitudes editables.</p>-->
+                    <md-table-container ng-if="editableReq.length > 0">
+                        <table md-table md-row-select ng-model="selected">
+                            <thead md-head>
+                            <tr md-row>
+                                <th md-column><span>ID</span></th>
+                                <th md-column><span>Fecha</span></th>
+                                <th md-column><span>Tipo</span></th>
+                                <th md-column><span>Monto solicitado</span></th>
+                            </tr>
+                            </thead>
+                            <tbody md-body>
+                            <tr md-row ng-repeat="(rKey, request) in editableReq | limitTo: query.limit: (query.page - 1) * query.limit track by $index">
+                                <td md-cell ng-click="goToDetails(req.type, rKey)">{{pad(request.id, 6)}}</td>
+                                <td md-cell ng-click="goToDetails(req.type, rKey)">{{request.creationDate}}</td>
+                                <td md-cell ng-click="goToDetails(req.type, rKey)">{{request.status}}</td>
+                                <td md-cell ng-click="goToDetails(req.type, rKey)">{{request.reqAmount | number:2}}</td>
+                                <td md-cell ng-click="openEditRequestDialog($event, req.type)">
+                                    <md-icon>
+                                        edit
+                                        <md-tooltip>Editar solicitud</md-tooltip>
+                                    </md-icon>
+                                </td>
+                                <td md-cell ng-click="null">
+                                    <md-icon>
+                                        delete
+                                        <md-tooltip>Eliminar solicitud</md-tooltip>
+                                    </md-icon>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </md-table-container>
+                    <md-table-pagination ng-if="requests[lKey].length > 0"
+                                         md-label="{page: 'Página:', rowsPerPage: 'Filas por página:', of: 'de'}"
+                                         md-limit="query.limit"
+                                         md-limit-options="[5, 10, 15, 20]"
+                                         md-page="query.page"
+                                         md-total="{{requests[lKey].length}}"
+                                         md-page-select>
+
+                    </md-table-pagination>
                 </div>
             </md-content>
         </main>

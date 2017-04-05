@@ -62,18 +62,38 @@ function userHome($scope, $cookies, $timeout, Config, $mdExpansionPanel, Applica
                 function (data) {
                     $scope.fetching = false;
                     $scope.requests = data;
-                    $scope.contentAvailable = true;
-                    $timeout(function () {
-                        $scope.contentLoaded = true;
-                        $mdSidenav('left').open();
-                    }, 600);
+                    performAction(id);
                 },
                 function (errorMsg) {
                     $scope.fetchError = errorMsg;
                     $scope.loading = false;
                 }
             );
+        } else {
+            performAction(id);
         }
+
+    };
+
+
+    function performAction (action) {
+        switch (action) {
+            case 'edit': {
+                $scope.editableReq = [];
+                angular.forEach($scope.requests, function (requests) {
+                    angular.forEach(requests, function (req) {
+                        if (!req.validationDate) {
+                            $scope.editableReq.push(req);
+                        }
+                    });
+                });
+                console.log($scope.editableReq);
+            }
+        }
+    }
+
+    $scope.editRequests = function () {
+
     };
 
     $scope.goBack = function () {
@@ -277,11 +297,11 @@ function userHome($scope, $cookies, $timeout, Config, $mdExpansionPanel, Applica
                     function() {
                         // Re-open parent dialog and perform request creation
                         $scope.model.confirmed = true;
-                        parentScope.openNewRequestDialog(null, $scope.model);
+                        parentScope.openNewRequestDialog(null, concept, $scope.model);
                     },
                     function() {
                         // Re-open parent dialog and do nothing
-                        parentScope.openNewRequestDialog(null, $scope.model);
+                        parentScope.openNewRequestDialog(null, concept, $scope.model);
                     }
                 );
             };
@@ -469,9 +489,10 @@ function userHome($scope, $cookies, $timeout, Config, $mdExpansionPanel, Applica
      * Opens the edition request dialog and performs the corresponding operations.
      *
      * @param $event - DOM event.
+     * @param concept - request's concept.
      * @param obj - optional obj containing user input data.
      */
-    $scope.openEditRequestDialog = function ($event, obj) {
+    $scope.openEditRequestDialog = function ($event, concept, obj) {
         var parentEl = angular.element(document.body);
         $mdDialog.show({
             parent: parentEl,
