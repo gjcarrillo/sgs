@@ -31,26 +31,11 @@ function userHome($scope, $cookies, $timeout, Config, $mdExpansionPanel, Applica
             function (list) {
                 $scope.loanTypes = list;
                 $scope.contentAvailable = true;
+                $scope.loading = false;
                 $timeout(function () {
                     $scope.contentLoaded = true;
                     $mdSidenav('left').open();
-                }, 600);
-                // Fetch user's requests
-                Requests.getUserRequests(fetchId).then(
-                    function (data) {
-                        $scope.requests = data;
-                        $scope.loading = false;
-                        $scope.contentAvailable = true;
-                        $timeout(function () {
-                            $scope.contentLoaded = true;
-                            $mdSidenav('left').open();
-                        }, 600);
-                    },
-                    function (errorMsg) {
-                        $scope.fetchError = errorMsg;
-                        $scope.loading = false;
-                    }
-                );
+                }, 600)
             },
             function (error) {
                 Utils.showAlertDialog('Oops!', 'Ha ocurrido un error en el sistema.<br/>' +
@@ -70,6 +55,25 @@ function userHome($scope, $cookies, $timeout, Config, $mdExpansionPanel, Applica
 
     $scope.selectAction = function (id) {
         $scope.selectedAction = id;
+        if (_.isEmpty($scope.requests)) {
+            $scope.fetching = true;
+            // Fetch user's requests
+            Requests.getUserRequests(fetchId).then(
+                function (data) {
+                    $scope.fetching = false;
+                    $scope.requests = data;
+                    $scope.contentAvailable = true;
+                    $timeout(function () {
+                        $scope.contentLoaded = true;
+                        $mdSidenav('left').open();
+                    }, 600);
+                },
+                function (errorMsg) {
+                    $scope.fetchError = errorMsg;
+                    $scope.loading = false;
+                }
+            );
+        }
     };
 
     $scope.goBack = function () {

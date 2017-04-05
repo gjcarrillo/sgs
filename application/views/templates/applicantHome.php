@@ -168,77 +168,81 @@
             </div>
             <!-- Watermark -->
             <div
-                ng-if="fetchError == '' && selectedAction != 1 && !loading"
+                ng-if="fetchError == '' && selectedAction != 1 && !loading && !fetching"
                 class="full-content-height"
                 layout="column" layout-align="center center">
                 <div ng-if="!loading" class="watermark" layout="column" layout-align="center center">
                     <img src="images/ipapedi.png" alt="Ipapedi logo"/>
                 </div>
             </div>
-            <!-- Requests list -->
-            <md-content>
-
-            </md-content>
-            <div class="margin-16" ng-if="selectedAction == 1">
-                <md-expansion-panel-group md-component-id="requests">
-                    <md-expansion-panel ng-repeat="(lKey, loanType) in loanTypes" md-component-id="{{lKey}}">
-                        <md-expansion-panel-collapsed>
-                            <!--<div class="md-title">{{loanType.description}}</div>-->
-                            <div>Solicitudes de {{loanType.description}}</div>
-                            <span flex></span>
-                            <md-expansion-panel-icon></md-expansion-panel-icon>
-                        </md-expansion-panel-collapsed>
-                        <md-expansion-panel-expanded class="margin-16">
-                            <md-expansion-panel-header>
-                                <div class="md-title">{{loanType.description}}</div>
-                                <div class="md-summary">Haga clic en una fila para ver más detalles de la solicitud</div>
-                                <md-expansion-panel-icon></md-expansion-panel-icon>
-                            </md-expansion-panel-header>
-
-                            <md-expansion-panel-content>
-                                <!-- Table of requests -->
-                                <p ng-if="requests[lKey].length == 0">Usted aún no posee solicitudes</p>
-                                <md-table-container ng-if="requests[lKey].length > 0">
-                                    <table md-table md-row-select ng-model="selected">
-                                        <thead md-head>
-                                        <tr md-row>
-                                            <th md-column><span>ID</span></th>
-                                            <th md-column><span>Fecha</span></th>
-                                            <th md-column><span>Estatus</span></th>
-                                            <th md-column><span>Monto solicitado</span></th>
-                                        </tr>
-                                        </thead>
-                                        <tbody md-body>
-                                        <tr md-row ng-repeat="(rKey, request) in requests[lKey] | limitTo: query.limit: (query.page - 1) * query.limit track by $index">
-                                            <td md-cell ng-click="goToDetails(lKey, rKey)">{{pad(request.id, 6)}}</td>
-                                            <td md-cell ng-click="goToDetails(lKey, rKey)">{{request.creationDate}}</td>
-                                            <td md-cell ng-click="goToDetails(lKey, rKey)">{{request.status}}</td>
-                                            <td md-cell ng-click="goToDetails(lKey, rKey)">{{request.reqAmount | number:2}}</td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
-                                </md-table-container>
-                                <md-table-pagination ng-if="requests[lKey].length > 0"
-                                                     md-label="{page: 'Página:', rowsPerPage: 'Filas por página:', of: 'de'}"
-                                                     md-limit="query.limit"
-                                                     md-limit-options="[5, 10, 15, 20]"
-                                                     md-page="query.page"
-                                                     md-total="{{requests[lKey].length}}"
-                                                     md-page-select>
-
-                                </md-table-pagination>
-                            </md-expansion-panel-content>
-
-                            <md-expansion-panel-footer>
-                                <div flex></div>
-                                <md-button class="md-warn" ng-click="$panel.collapse()">Cerrar</md-button>
-                            </md-expansion-panel-footer>
-                        </md-expansion-panel-expanded>
-                    </md-expansion-panel>
-                </md-expansion-panel-group>
+            <div
+                ng-if="fetching"
+                class="full-content-height"
+                layout="column" layout-align="center center">
+                    <md-progress-circular aria-label="Loading..." md-mode="indeterminate" md-diameter="60">
+                    </md-progress-circular>
             </div>
+            <!-- Requests list -->
+            <md-content class="bg">
+                <div class="margin-16" ng-if="selectedAction == 1 && !fetching">
+                    <md-expansion-panel-group md-component-id="requests">
+                        <md-expansion-panel ng-repeat="(lKey, loanType) in loanTypes" md-component-id="{{lKey}}">
+                            <md-expansion-panel-collapsed>
+                                <!--<div class="md-title">{{loanType.description}}</div>-->
+                                <div>Solicitudes de {{loanType.description}}</div>
+                                <span flex></span>
+                                <md-expansion-panel-icon></md-expansion-panel-icon>
+                            </md-expansion-panel-collapsed>
+                            <md-expansion-panel-expanded class="margin-16">
+                                <md-expansion-panel-header>
+                                    <div class="md-title">{{loanType.description}}</div>
+                                    <div class="md-summary">Haga clic en una fila para ver más detalles de la solicitud</div>
+                                    <md-expansion-panel-icon></md-expansion-panel-icon>
+                                </md-expansion-panel-header>
 
-            <!-- The actual content -->
+                                <md-expansion-panel-content>
+                                    <!-- Table of requests -->
+                                    <p ng-if="requests[lKey].length == 0">Usted aún no posee solicitudes</p>
+                                    <md-table-container ng-if="requests[lKey].length > 0">
+                                        <table md-table md-row-select ng-model="selected">
+                                            <thead md-head>
+                                            <tr md-row>
+                                                <th md-column><span>ID</span></th>
+                                                <th md-column><span>Fecha</span></th>
+                                                <th md-column><span>Estatus</span></th>
+                                                <th md-column><span>Monto solicitado</span></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody md-body>
+                                            <tr md-row ng-repeat="(rKey, request) in requests[lKey] | limitTo: query.limit: (query.page - 1) * query.limit track by $index">
+                                                <td md-cell ng-click="goToDetails(lKey, rKey)">{{pad(request.id, 6)}}</td>
+                                                <td md-cell ng-click="goToDetails(lKey, rKey)">{{request.creationDate}}</td>
+                                                <td md-cell ng-click="goToDetails(lKey, rKey)">{{request.status}}</td>
+                                                <td md-cell ng-click="goToDetails(lKey, rKey)">{{request.reqAmount | number:2}}</td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </md-table-container>
+                                    <md-table-pagination ng-if="requests[lKey].length > 0"
+                                                         md-label="{page: 'Página:', rowsPerPage: 'Filas por página:', of: 'de'}"
+                                                         md-limit="query.limit"
+                                                         md-limit-options="[5, 10, 15, 20]"
+                                                         md-page="query.page"
+                                                         md-total="{{requests[lKey].length}}"
+                                                         md-page-select>
+
+                                    </md-table-pagination>
+                                </md-expansion-panel-content>
+
+                                <md-expansion-panel-footer>
+                                    <div flex></div>
+                                    <md-button class="md-warn" ng-click="$panel.collapse()">Cerrar</md-button>
+                                </md-expansion-panel-footer>
+                            </md-expansion-panel-expanded>
+                        </md-expansion-panel>
+                    </md-expansion-panel-group>
+                </div>
+            </md-content>
         </main>
         <md-divider></md-divider>
     </div>
