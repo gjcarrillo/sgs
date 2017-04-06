@@ -503,24 +503,15 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
     self.getLoanTerms = function (concept) {
         var qReq = $q.defer();
 
-        var terms = {};
-        Config.getLoanTypes().then(
-          function (types) {
-              Config.loanConcepts = types;
-              var term = parseInt(Config.loanConcepts[concept].PlazoEnMeses, 10);
-              // Calculate all possible payment terms for this specific loan type.
-              terms = [];
-              while (term > 0) {
-                  terms.push(term);
-                  // Terms will be on a year basis.
-                  term -= 12;
-              }
-              qReq.resolve(terms);
-          },
-          function (error) {
-              qReq.reject(error);
-          }
-        );
+        $http.get('ConfigController/getRequestTerms',
+            {params: {concept: concept}}).then(
+            function (response) {
+                if (response.data.message == "success") {
+                    qReq.resolve(response.data.terms);
+                } else {
+                    qReq.reject(response.data.message);
+                }
+            });
 
         return qReq.promise;
     };

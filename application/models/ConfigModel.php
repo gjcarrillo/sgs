@@ -225,9 +225,9 @@ class ConfigModel extends CI_Model
             $config = $em->getRepository('\Entity\Config');
             foreach ($loanTypes as $lKey => $loanType) {
                 // Get this loan type's configured span. Key = TERMS + loan's concept
-                $ternEntities = $config->findBy(array("key" => "TERMS" . $lKey));
+                $termEntities = $config->findBy(array("key" => "TERMS" . $lKey));
                 $terms = array();
-                foreach ($ternEntities as $term) {
+                foreach ($termEntities as $term) {
                     array_push($terms, intval($term->getValue(), 10));
                 }
                 $loanTypes[$lKey]->terms = $terms;
@@ -236,6 +236,31 @@ class ConfigModel extends CI_Model
             throw $e;
         }
         return $loanTypes;
+    }
+
+    /**
+     * Gets a specified request concept's configured loan terms.
+     *
+     * @param $concept - request concept.
+     * @return array containing the configured terms.
+     * @throws Exception
+     */
+    public function getRequestTerms($concept) {
+        try {
+            $loanTypes = $this->getLoanTypes();
+            $em = $this->doctrine->em;
+            // Look for this loan type's configured terms.
+            $config = $em->getRepository('\Entity\Config');
+            $termEntity = $config->findBy(array("key" => "TERMS" . $concept));
+            $terms = array();
+            foreach ($termEntity as $term) {
+                array_push($terms, intval($term->getValue(), 10));
+            }
+            array_push($terms, $loanTypes[$concept]->PlazoEnMeses);
+        } catch (Exception $e) {
+            throw $e;
+        }
+        return $terms;
     }
 
     /**

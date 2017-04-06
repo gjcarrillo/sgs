@@ -177,4 +177,17 @@ class ConfigController extends CI_Controller
         }
         echo json_encode($result);
     }
+
+    /**
+     * Get a specified request concept's available terms.
+     */
+    public function getRequestTerms() {
+        try {
+            $result['terms'] = $this->configModel->getRequestTerms($this->input->get('concept'));
+            $result['message'] = 'success';
+        } catch (Exception $e) {
+            $result['message'] = $this->utils->getErrorMsg($e);
+        }
+        echo json_encode($result);
+    }
 }
