@@ -74,6 +74,7 @@ class EditRequestController extends CI_Controller {
 					$changes = $changes . $this->requests->addDocuments($request, $history, $data['newDocs']);
 					$em->persist($history);
 					$em->flush();
+					$result['request'] = $this->utils->reqToArray($request);
 					$this->load->model('emailModel', 'email');
 					$this->email->sendRequestUpdateEmail($request->getId(), $changes);
 					$result['message'] = "success";
@@ -237,49 +238,8 @@ class EditRequestController extends CI_Controller {
 						$this->load->model('emailModel', 'email');
 						$this->email->sendRequestUpdateEmail($request->getId(), $changes);
 						$em->flush();
+						$result['request'] = $this->utils->reqToArray($request);
 					}
-					$result['message'] = "success";
-				}
-			} catch (Exception $e) {
-				$result['message'] = $this->utils->getErrorMsg($e);
-			}
-
-			echo json_encode($result);
-		}
-	}
-
-	public function updateEmail() {
-		if ($_SESSION['type'] != APPLICANT) {
-			$this->load->view('errors/index.html');
-		} else {
-			$data = json_decode(file_get_contents('php://input'), true);
-			try {
-				$em = $this->doctrine->em;
-				// Update request
-				$request = $em->find('\Entity\Request', $data['reqId']);
-				if ($request->getValidationDate()) {
-					$result['message'] = 'Información de solicitud ya validada.';
-				} else {
-					$request->setContactEmail($data['newAddress']);
-					// Register History
-					$history = new \Entity\History();
-					$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
-					$history->setUserResponsible($this->users->getUser($this->session->id));
-					// Register it's corresponding actions
-					$history->setTitle($this->utils->getHistoryActionCode('modification'));
-					$history->setOrigin($request);
-					$action = new \Entity\HistoryAction();
-					$action->setSummary("Cambio de correo electrónico.");
-					$action->setDetail("Nuevo correo electrónico: " . $data['newAddress']);
-					$action->setBelongingHistory($history);
-					$history->addAction($action);
-					$em->persist($action);
-					$em->persist($history);
-					$em->merge($request);
-					$em->flush();
-					$em->clear();
-					$this->load->model('requestsModel', 'requests');
-					$this->requests->generateRequestDocument($request);
 					$result['message'] = "success";
 				}
 			} catch (Exception $e) {

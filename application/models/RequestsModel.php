@@ -27,25 +27,7 @@ class RequestsModel extends CI_Model
                 $requests = $user->getRequests();
                 $requests = array_reverse($requests->getValues());
                 foreach ($requests as $rKey => $request) {
-                    $result['requests'][$rKey]['id'] = $request->getId();
-                    $result['requests'][$rKey]['creationDate'] = $request->getCreationDate()->format('d/m/y');
-                    $result['requests'][$rKey]['comment'] = $request->getComment();
-                    $result['requests'][$rKey]['reqAmount'] = $request->getRequestedAmount();
-                    $result['requests'][$rKey]['approvedAmount'] = $request->getApprovedAmount();
-                    $result['requests'][$rKey]['reunion'] = $request->getReunion();
-                    $result['requests'][$rKey]['status'] = $request->getStatus();
-                    $result['requests'][$rKey]['type'] = $request->getLoanType();
-                    $result['requests'][$rKey]['phone'] = $request->getContactNumber();
-                    $result['requests'][$rKey]['due'] = $request->getPaymentDue();
-                    $result['requests'][$rKey]['email'] = $request->getContactEmail();
-                    $result['requests'][$rKey]['validationDate'] = $request->getValidationDate();
-                    $docs = $request->getDocuments();
-                    foreach ($docs as $dKey => $doc) {
-                        $result['requests'][$rKey]['docs'][$dKey]['id'] = $doc->getId();
-                        $result['requests'][$rKey]['docs'][$dKey]['name'] = $doc->getName();
-                        $result['requests'][$rKey]['docs'][$dKey]['description'] = $doc->getDescription();
-                        $result['requests'][$rKey]['docs'][$dKey]['lpath'] = $doc->getLpath();
-                    }
+                    $result['requests'][$rKey] = $this->utils->reqToArray($request);
                 }
                 $result['message'] = "success";
             }
@@ -68,26 +50,7 @@ class RequestsModel extends CI_Model
                 $requests = array_reverse($requests->getValues());
                 foreach ($requests as $rKey => $request) {
                     if ($request->getValidationDate() !== null) continue;
-                    $req = array();
-                    $req['id'] = $request->getId();
-                    $req['creationDate'] = $request->getCreationDate()->format('d/m/y');
-                    $req['comment'] = $request->getComment();
-                    $req['reqAmount'] = $request->getRequestedAmount();
-                    $req['approvedAmount'] = $request->getApprovedAmount();
-                    $req['reunion'] = $request->getReunion();
-                    $req['status'] = $request->getStatus();
-                    $req['type'] = $request->getLoanType();
-                    $req['phone'] = $request->getContactNumber();
-                    $req['due'] = $request->getPaymentDue();
-                    $req['email'] = $request->getContactEmail();
-                    $req['validationDate'] = $request->getValidationDate();
-                    $docs = $request->getDocuments();
-                    foreach ($docs as $dKey => $doc) {
-                        $req['docs'][$dKey]['id'] = $doc->getId();
-                        $req['docs'][$dKey]['name'] = $doc->getName();
-                        $req['docs'][$dKey]['description'] = $doc->getDescription();
-                        $req['docs'][$dKey]['lpath'] = $doc->getLpath();
-                    }
+                    $req = $this->utils->reqToArray($request);
                     // Add this request obj to editable requests array.
                     array_push($editables, $req);
                 }
@@ -176,6 +139,7 @@ class RequestsModel extends CI_Model
                 $em->remove($doc);
                 $this->load->model('emailModel', 'email');
                 $this->email->sendRequestUpdateEmail($request->getId(), $changes);
+                $result['request'] = $this->utils->reqToArray($request);
                 // Persist the changes in database.
                 $em->flush();
                 $result['message'] = "success";
@@ -253,46 +217,6 @@ class RequestsModel extends CI_Model
         header('Content-Length: ' . filesize($zipname));
         readfile($zipname);
         unlink($zipname);
-    }
-
-    public function deleteRequestJWT() {
-        $data = json_decode($this->input->raw_input_stream, true);
-        try {
-            $em = $this->doctrine->em;
-            $urlDecoded = JWT::urlsafeB64Decode($data['rid']);
-            $decoded = JWT::decode($urlDecoded, JWT_SECRET_KEY);
-
-            $request = $em->find('\Entity\Request', $decoded->rid);
-            if ($request == null) {
-                $result['message'] = 'No existe dicha solicitud.';
-            } else if ($request->getUserOwner()->getId() != $_SESSION['id']) {
-                $result['message'] = 'Esta solicitud no le pertenece.';
-            } else if ($this->isRequestValidated($request) || $this->isRequestClosed($request)) {
-                $result['message'] = 'Esta solicitud no puede ser eliminada.';
-            } else {
-                // Must delete all documents belonging to this request first
-                $docs = $request->getDocuments();
-                foreach($docs as $doc) {
-                    if ($doc->getStorage() == REMOTE) {
-                        // Delete document from drive
-                        $parsed = explode('.', $doc->getLpath());
-                        // [0] = userId, [1] = file uuid, [2] = filename, [3] = file extension
-                        $this->driveModel->deleteDocument($parsed[1]);
-                    } else {
-                        // Delete document from local storage.
-                        unlink(DropPath . $doc->getLpath());
-                    }
-                }
-                // Now we can remove the current request (and docs on cascade)
-                $em->remove($request);
-                // Persist the changes in database.
-                $em->flush();
-                $result['message'] = "success";
-            }
-        } catch (Exception $e) {
-            $result['message'] = $this->utils->getErrorMsg($e);
-        }
-        return json_encode($result);
     }
 
     public function deleteRequestUI() {

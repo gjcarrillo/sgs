@@ -393,7 +393,7 @@ function manager($http, $q, Requests) {
             .then(
             function (response) {
                 if (response.data.message == 'success') {
-                    qUpdate.resolve();
+                    qUpdate.resolve(response.data.request);
                 } else {
                     qUpdate.reject(response.data.message);
                 }

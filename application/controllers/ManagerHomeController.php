@@ -31,25 +31,7 @@ class ManagerHomeController extends CI_Controller {
                 } else if ($request->getValidationDate() === null) {
                     $result['message'] = 'Esta solicitud no ha sido validada';
                 } else {
-                    $result['request']['id'] = $request->getId();
-                    $result['request']['creationDate'] = $request->getCreationDate()->format('d/m/y');
-                    $result['request']['comment'] = $request->getComment();
-                    $result['request']['reqAmount'] = $request->getRequestedAmount();
-                    $result['request']['approvedAmount'] = $request->getApprovedAmount();
-                    $result['request']['reunion'] = $request->getReunion();
-                    $result['request']['status'] = $request->getStatus();
-                    $result['request']['type'] = $request->getLoanType();
-                    $result['request']['phone'] = $request->getContactNumber();
-                    $result['request']['due'] = $request->getPaymentDue();
-                    $result['request']['email'] = $request->getContactEmail();
-                    $result['request']['validationDate'] = $request->getValidationDate();
-                    $docs = $request->getDocuments();
-                    foreach ($docs as $dKey => $doc) {
-                        $result['request']['docs'][$dKey]['id'] = $doc->getId();
-                        $result['request']['docs'][$dKey]['name'] = $doc->getName();
-                        $result['request']['docs'][$dKey]['description'] = $doc->getDescription();
-                        $result['request']['docs'][$dKey]['lpath'] = $doc->getLpath();
-                    }
+                    $result['request'] = $this->utils->reqToArray($request);
                     $result['message'] = 'success';
                 }
             } catch (Exception $e) {
@@ -84,25 +66,7 @@ class ManagerHomeController extends CI_Controller {
                         }
 						foreach ($requests as $request) {
 							if ($request->getValidationDate() === null) continue;
-							$result['requests'][$rKey]['id'] = $request->getId();
-							$result['requests'][$rKey]['creationDate'] = $request->getCreationDate()->format('d/m/y');
-							$result['requests'][$rKey]['comment'] = $request->getComment();
-							$result['requests'][$rKey]['reqAmount'] = $request->getRequestedAmount();
-							$result['requests'][$rKey]['approvedAmount'] = $request->getApprovedAmount();
-							$result['requests'][$rKey]['reunion'] = $request->getReunion();
-							$result['requests'][$rKey]['status'] = $request->getStatus();
-							$result['requests'][$rKey]['type'] = $request->getLoanType();
-							$result['requests'][$rKey]['phone'] = $request->getContactNumber();
-							$result['requests'][$rKey]['due'] = $request->getPaymentDue();
-							$result['requests'][$rKey]['email'] = $request->getContactEmail();
-							$result['requests'][$rKey]['validationDate'] = $request->getValidationDate();
-							$docs = $request->getDocuments();
-							foreach ($docs as $dKey => $doc) {
-								$result['requests'][$rKey]['docs'][$dKey]['id'] = $doc->getId();
-								$result['requests'][$rKey]['docs'][$dKey]['name'] = $doc->getName();
-								$result['requests'][$rKey]['docs'][$dKey]['description'] = $doc->getDescription();
-								$result['requests'][$rKey]['docs'][$dKey]['lpath'] = $doc->getLpath();
-							}
+                            $result['requests'][$rKey] = $this->utils->reqToArray($request);
 							// Gather pie chart information
                             $statusCounter[$request->getStatus()] ++;
 							// Gather up report information
@@ -200,27 +164,7 @@ class ManagerHomeController extends CI_Controller {
                     foreach ($requests as $request) {
                         if ($request->getValidationDate() === null) continue;
                         $user = $request->getUserOwner();
-                        $result['requests'][$rKey]['id'] = $request->getId();
-                        $result['requests'][$rKey]['creationDate'] = $request->getCreationDate()->format('d/m/y');
-                        $result['requests'][$rKey]['comment'] = $request->getComment();
-                        $result['requests'][$rKey]['reqAmount'] = $request->getRequestedAmount();
-                        $result['requests'][$rKey]['approvedAmount'] = $request->getApprovedAmount();
-                        $result['requests'][$rKey]['reunion'] = $request->getReunion();
-                        $result['requests'][$rKey]['status'] = $request->getStatus();
-                        $result['requests'][$rKey]['userOwner'] = $user->getId();
-                        $result['requests'][$rKey]['showList'] = false;
-                        $result['requests'][$rKey]['type'] = $request->getLoanType();
-                        $result['requests'][$rKey]['phone'] = $request->getContactNumber();
-                        $result['requests'][$rKey]['due'] = $request->getPaymentDue();
-                        $result['requests'][$rKey]['email'] = $request->getContactEmail();
-                        $result['requests'][$rKey]['validationDate'] = $request->getValidationDate();
-                        $docs = $request->getDocuments();
-                        foreach ($docs as $dKey => $doc) {
-                            $result['requests'][$rKey]['docs'][$dKey]['id'] = $doc->getId();
-                            $result['requests'][$rKey]['docs'][$dKey]['name'] = $doc->getName();
-                            $result['requests'][$rKey]['docs'][$dKey]['description'] = $doc->getDescription();
-                            $result['requests'][$rKey]['docs'][$dKey]['lpath'] = $doc->getLpath();
-                        }
+                        $result['requests'][$rKey] = $this->utils->reqToArray($request);
                         // Gather pie chart information
                         $statusCounter[$request->getStatus()] ++;
                         // Gather up report information
@@ -315,28 +259,8 @@ class ManagerHomeController extends CI_Controller {
                     foreach ($requests as $request) {
 						if ($request->getValidationDate() === null) continue;
 						$user = $request->getUserOwner();
-                        $result['requests'][$rKey]['id'] = $request->getId();
-                        $result['requests'][$rKey]['creationDate'] = $request->getCreationDate()->format('d/m/y');
-                        $result['requests'][$rKey]['comment'] = $request->getComment();
-                        $result['requests'][$rKey]['reqAmount'] = $request->getRequestedAmount();
-                        $result['requests'][$rKey]['approvedAmount'] = $request->getApprovedAmount();
-                        $result['requests'][$rKey]['reunion'] = $request->getReunion();
-                        $result['requests'][$rKey]['status'] = $request->getStatus();
-                        $result['requests'][$rKey]['userOwner'] = $user->getId();
-                        $result['requests'][$rKey]['showList'] = false;
-						$result['requests'][$rKey]['type'] = $request->getLoanType();
-						$result['requests'][$rKey]['phone'] = $request->getContactNumber();
-						$result['requests'][$rKey]['due'] = $request->getPaymentDue();
-						$result['requests'][$rKey]['email'] = $request->getContactEmail();
-						$result['requests'][$rKey]['validationDate'] = $request->getValidationDate();
-                        $docs = $request->getDocuments();
-                        foreach ($docs as $dKey => $doc) {
-                            $result['requests'][$rKey]['docs'][$dKey]['id'] = $doc->getId();
-                            $result['requests'][$rKey]['docs'][$dKey]['name'] = $doc->getName();
-                            $result['requests'][$rKey]['docs'][$dKey]['description'] = $doc->getDescription();
-                            $result['requests'][$rKey]['docs'][$dKey]['lpath'] = $doc->getLpath();
-                        }
-						// Gather up report information
+                        $result['requests'][$rKey] = $this->utils->reqToArray($request);
+                        // Gather up report information
 						$result['report']['data'][$rKey] = array(
 							$rKey+1,
 							$request->getId(),
@@ -460,27 +384,7 @@ class ManagerHomeController extends CI_Controller {
                     foreach ($requests as $request) {
 						if ($request->getValidationDate() === null) continue;
 						$user = $request->getUserOwner();
-                        $result['requests'][$rKey]['id'] = $request->getId();
-                        $result['requests'][$rKey]['creationDate'] = $request->getCreationDate()->format('d/m/y');
-                        $result['requests'][$rKey]['comment'] = $request->getComment();
-                        $result['requests'][$rKey]['reqAmount'] = $request->getRequestedAmount();
-                        $result['requests'][$rKey]['approvedAmount'] = $request->getApprovedAmount();
-                        $result['requests'][$rKey]['reunion'] = $request->getReunion();
-                        $result['requests'][$rKey]['status'] = $request->getStatus();
-                        $result['requests'][$rKey]['userOwner'] = $user->getId();
-                        $result['requests'][$rKey]['showList'] = false;
-						$result['requests'][$rKey]['type'] = $request->getLoanType();
-						$result['requests'][$rKey]['phone'] = $request->getContactNumber();
-						$result['requests'][$rKey]['due'] = $request->getPaymentDue();
-						$result['requests'][$rKey]['email'] = $request->getContactEmail();
-						$result['requests'][$rKey]['validationDate'] = $request->getValidationDate();
-                        $docs = $request->getDocuments();
-                        foreach ($docs as $dKey => $doc) {
-                            $result['requests'][$rKey]['docs'][$dKey]['id'] = $doc->getId();
-                            $result['requests'][$rKey]['docs'][$dKey]['name'] = $doc->getName();
-                            $result['requests'][$rKey]['docs'][$dKey]['description'] = $doc->getDescription();
-                            $result['requests'][$rKey]['docs'][$dKey]['lpath'] = $doc->getLpath();
-                        }
+                        $result['requests'][$rKey] = $this->utils->reqToArray($request);
                         // Gather pie chart information
                         $statusCounter[$request->getStatus()] ++;
 						// Gather up report information
@@ -583,28 +487,8 @@ class ManagerHomeController extends CI_Controller {
 					foreach ($requests as $request) {
 						if ($request->getValidationDate() === null) continue;
 						$user = $request->getUserOwner();
-						$result['requests'][$rKey]['id'] = $request->getId();
-						$result['requests'][$rKey]['creationDate'] = $request->getCreationDate()->format('d/m/y');
-						$result['requests'][$rKey]['comment'] = $request->getComment();
-						$result['requests'][$rKey]['reqAmount'] = $request->getRequestedAmount();
-						$result['requests'][$rKey]['approvedAmount'] = $request->getApprovedAmount();
-						$result['requests'][$rKey]['reunion'] = $request->getReunion();
-						$result['requests'][$rKey]['status'] = $request->getStatus();
-						$result['requests'][$rKey]['userOwner'] = $user->getId();
-						$result['requests'][$rKey]['showList'] = false;
-						$result['requests'][$rKey]['type'] = $request->getLoanType();
-						$result['requests'][$rKey]['phone'] = $request->getContactNumber();
-						$result['requests'][$rKey]['due'] = $request->getPaymentDue();
-						$result['requests'][$rKey]['email'] = $request->getContactEmail();
-						$result['requests'][$rKey]['validationDate'] = $request->getValidationDate();
-						$docs = $request->getDocuments();
-						foreach ($docs as $dKey => $doc) {
-							$result['requests'][$rKey]['docs'][$dKey]['id'] = $doc->getId();
-							$result['requests'][$rKey]['docs'][$dKey]['name'] = $doc->getName();
-							$result['requests'][$rKey]['docs'][$dKey]['description'] = $doc->getDescription();
-							$result['requests'][$rKey]['docs'][$dKey]['lpath'] = $doc->getLpath();
-						}
-						// Gather pie chart information
+                        $result['requests'][$rKey] = $this->utils->reqToArray($request);
+                        // Gather pie chart information
                         $statusCounter[$request->getStatus()] ++;
                         // Gather up report information
 						$result['report']['data'][$rKey] = array(

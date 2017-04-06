@@ -103,6 +103,7 @@ class ManageRequestController extends CI_Controller {
 					$em->merge($request);
 					$this->load->model('emailModel', 'email');
 					$this->email->sendRequestUpdateEmail($request->getId(), $changes);
+					$result['request'] = $this->utils->reqToArray($request);
 					$em->flush();
 					$result['message'] = "success";
 				}

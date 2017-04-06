@@ -106,7 +106,7 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
             function (response) {
                 if (response.data.message == "success") {
                     // Update interface
-                    qDelete.resolve();
+                    qDelete.resolve(response.data.request);
                 } else {
                     qDelete.reject(response.data.message);
                 }
@@ -163,7 +163,7 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
                    'updateDocDescription', JSON.stringify(doc)).then(
             function (response) {
                 if (response.data.message == "success") {
-                    updateDoc.resolve();
+                    updateDoc.resolve(response.data.request);
                 } else {
                     updateDoc.reject(response.data.message);
                 }
