@@ -211,6 +211,34 @@ class ConfigModel extends CI_Model
     }
 
     /**
+     * Obtains the configured loan types.
+     *
+     * @return mixed - loan types info with their configured payment terms.
+     * @throws Exception
+     */
+    public function getRequestsTerms() {
+        try {
+            // Get loan types.
+            $loanTypes = $this->getLoanTypes();
+            $em = $this->doctrine->em;
+            // Look for this loan type's configured terms.
+            $config = $em->getRepository('\Entity\Config');
+            foreach ($loanTypes as $lKey => $loanType) {
+                // Get this loan type's configured span. Key = TERMS + loan's concept
+                $ternEntities = $config->findBy(array("key" => "TERMS" . $lKey));
+                $terms = array();
+                foreach ($ternEntities as $term) {
+                    array_push($terms, intval($term->getValue(), 10));
+                }
+                $loanTypes[$lKey]->terms = $terms;
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
+        return $loanTypes;
+    }
+
+    /**
      * Gets a specific loan type's month span for applying to same type of loan.
      *
      * @param $concept - loan's concept.
@@ -260,6 +288,32 @@ class ConfigModel extends CI_Model
             $result['message'] = $this->utils->getErrorMsg($e);
         }
         return json_encode($result);
+    }
+
+    // Updates the requests terms for each loan type.
+    public function updateRequestsTerms($loanTypes) {
+        try {
+            $em = $this->doctrine->em;
+            // Look for all configured statuses
+            $config = $em->getRepository('\Entity\Config');
+            // Get the configured span.
+            foreach ($loanTypes as $lKey => $loanType) {
+                // Look for all configured terms for this loan type
+                $termEntities = $config->findBy(array("key" => "TERMS" . $lKey));
+                // Remove all existing terms.
+                foreach ($termEntities as $entity) {
+                    $em->remove($entity);
+                }
+                $em->flush();
+                // Re create all terms.
+                foreach ($loanType['terms'] as $term) {
+                    $entry = array('key' => "TERMS" . $lKey, 'value' => $term);
+                    $this->db->insert('config', $entry);
+                }
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
     }
 
 }

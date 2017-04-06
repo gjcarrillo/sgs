@@ -852,6 +852,8 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
             };
 
             function loadReqFrequencies () {
+                $scope.selectedQuery = null;
+                $scope.loanTypes = $scope.existing = {};
                 $scope.span = {errorMsg: '', loading: true};
                 Config.getRequestsSpan()
                     .then(
@@ -887,6 +889,71 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
 
             /**
              * =================================================
+             *         Requests terms configuration
+             * =================================================
+             */
+
+            $scope.missingTerms = function() {
+                if ($scope.selectedQuery) {
+                    // Look for those terms that are edited.
+                    var edited = _.pickBy($scope.loanTypes, function(loanType, concept){
+                        return !Utils.isArrayEqualsTo(loanType.terms, $scope.existing[concept].terms);
+                    });
+                    // If edit obj is empty, no terms have been edited.
+                    return _.isEmpty(edited);
+                } else {
+                    return true;
+                }
+            };
+
+            $scope.checkTerm = function (concept) {
+                if ($scope.loanTypes[concept].terms[$scope.loanTypes[concept].terms.length - 1] >=
+                    $scope.loanTypes[concept].PlazoEnMeses ||
+                    $scope.loanTypes[concept].terms[$scope.loanTypes[concept].terms.length - 1] < 1) {
+                    // Remove just-added-term if not qualified.
+                    $scope.loanTypes[concept].terms.splice($scope.loanTypes[concept].terms.length - 1, 1);
+                }
+            };
+
+            function loadReqTerms () {
+                $scope.terms = {errorMsg: '', loading: true};
+                $scope.selectedQuery = null;
+                $scope.loanTypes = $scope.existing = {};
+                Config.getRequestsTerms()
+                    .then(
+                    function (terms) {
+                        $scope.loanTypes = terms;
+                        $scope.terms.loading = false;
+                        $scope.existing = _.cloneDeep(terms);
+                    },
+                    function (err) {
+                        $scope.terms.errorMsg = err;
+                        $scope.terms.loading = false;
+                    }
+                );
+            }
+
+            $scope.updateRequestsTerms = function () {
+                $scope.uploading = true;
+                Config.updateRequestsTerms($scope.loanTypes)
+                    .then(
+                    function () {
+                        $scope.uploading = false;
+                        Utils.showAlertDialog(
+                            'Actualización exitosa',
+                            'Los plazos de pagos disponibles han sido actualizados exitosamente.'
+                        );
+                    },
+                    function (err) {
+                        console.log(err);
+                        $scope.terms.errorMsg = err;
+                        $scope.uploading = false;
+                    }
+                );
+            };
+
+            /**
+             * =================================================
              *                  SHARED CODE
              * =================================================
              */
@@ -907,6 +974,8 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                     case 3:
                         loadReqFrequencies();
                         break;
+                    case 4:
+                        loadReqTerms();
                     default: break;
                 }
             };

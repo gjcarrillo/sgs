@@ -117,6 +117,21 @@ class ConfigController extends CI_Controller
         echo json_encode($result);
     }
 
+    /** Gets the configured requests terms for all request types **/
+    public function getRequestsTerms() {
+        if ($_SESSION['type'] != MANAGER) {
+            $result['message'] = "Forbidden";
+        } else {
+            try {
+                $result['loanTypes'] = $this->configModel->getRequestsTerms();
+                $result['message'] = 'success';
+            } catch (Exception $e) {
+                $result['message'] = $this->utils->getErrorMsg($e);
+            }
+        }
+        echo json_encode($result);
+    }
+
     /**
      * Gets the specified request's configured span.
      */
@@ -145,5 +160,21 @@ class ConfigController extends CI_Controller
             $data = json_decode($this->input->raw_input_stream, true);
             echo $this->configModel->updateRequestsSpan($data['span']);
         }
+    }
+
+    // Updates the requests terms.
+    public function updateRequestsTerms() {
+        if ($_SESSION['type'] != MANAGER) {
+            $result['message'] = "Forbidden";
+        } else {
+            $data = json_decode($this->input->raw_input_stream, true);
+            try {
+                $this->configModel->updateRequestsTerms($data['terms']);
+                $result['message'] = 'success';
+            } catch (Exception $e) {
+                $result['message'] = $this->utils->getErrorMsg($e);
+            }
+        }
+        echo json_encode($result);
     }
 }

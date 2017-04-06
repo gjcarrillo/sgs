@@ -177,6 +177,47 @@ function config ($http, $q) {
     };
 
     /**
+     * Obtains the configured rquests terms.
+     *
+     * @returns {*} - promise with the operation's result.
+     */
+    self.getRequestsTerms = function () {
+        var qTerm = $q.defer();
+        $http.get('ConfigController/getRequestsTerms')
+            .then(
+            function (response) {
+                console.log(response);
+                if (response.data.message === "success") {
+                    qTerm.resolve(response.data.loanTypes);
+                } else {
+                    qTerm.reject(response.data.message);
+                }
+            });
+        return qTerm.promise;
+    };
+
+    /**
+     * Updates all the available request types' payment terms.
+     *
+     * @param terms - the updated payment terms of all available request types.
+     * @returns {*} - promise with the operation's result.
+     */
+    self.updateRequestsTerms = function (terms) {
+        var qTerm = $q.defer();
+        $http.post('ConfigController/updateRequestsTerms', {terms: terms})
+            .then(
+            function (response) {
+                console.log(response);
+                if (response.data.message === "success") {
+                    qTerm.resolve();
+                } else {
+                    qTerm.reject(response.data.message);
+                }
+            });
+        return qTerm.promise;
+    };
+
+    /**
      * Updates the requests month span required for applying to same type of loan once again.
      *
      * @param span - time in months.

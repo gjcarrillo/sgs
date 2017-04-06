@@ -1,4 +1,4 @@
-<md-dialog aria-label="Edit Request">
+<md-dialog aria-label="Edit Request" style="min-width: 60%">
     <!-- Dialog title -->
     <md-toolbar>
         <div class="md-toolbar-tools">
@@ -122,6 +122,7 @@
                     </div>
                 </md-content>
             </md-tab>
+            <!-- Requests frequency restrain -->
             <md-tab label="Frecuencia" md-on-select="selectTab(3)">
                 <md-content layout-padding>
                     <form name="freqForm">
@@ -136,7 +137,8 @@
                             </div>
                             <md-input-container id="span-select" class="requestItems">
                                 <md-select
-                                    placeholder="Seleccione su consulta"
+                                    ng-disabled="span.loading"
+                                    placeholder="Seleccione el tipo de préstamo"
                                     ng-model="selectedQuery">
                                     <md-option ng-value="lKey" ng-repeat="(lKey, loanType) in loanTypes">
                                         {{loanType.DescripcionDelPrestamo}}
@@ -167,6 +169,60 @@
                     </form>
                 </md-content>
             </md-tab>
+            <!-- Requests Terms -->
+            <md-tab label="Plazos" md-on-select="selectTab(4)">
+                <md-content layout-padding>
+                    <form name="termsForm">
+                        <div layout="column">
+                            <div layout>
+                                <span class="grey-color">Elija el tipo de préstamo</span>
+                                <md-progress-circular
+                                    ng-if="terms.loading"
+                                    md-mode="indeterminate"
+                                    md-diameter="30">
+                                </md-progress-circular>
+                            </div>
+                            <md-input-container id="terms-select" class="requestItems">
+                                <md-select
+                                    ng-disabled="terms.loading"
+                                    placeholder="Seleccione el tipo de préstamo"
+                                    ng-model="selectedQuery">
+                                    <md-option ng-value="lKey" ng-repeat="(lKey, loanType) in loanTypes">
+                                        {{loanType.DescripcionDelPrestamo}}
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                            <div ng-if="selectedQuery" layout="column">
+                                <span class="grey-color">Ingrese los plazos a pagar en meses (presione ENTER para ingresarlos) <br/><br/></span>
+                                <span class="grey-color">Debe ser mayor a 1 mes y menor a
+                                    {{loanTypes[selectedQuery].PlazoEnMeses}}
+                                    {{loanTypes[selectedQuery].PlazoEnMeses == 1 ? 'mes' : 'meses'}}
+                                    <br/></span>
+                                <md-chips
+                                    md-on-add="checkTerm(selectedQuery)"
+                                    ng-model="loanTypes[selectedQuery].terms"
+                                    delete-button-label="Delelete term"
+                                    delete-hint="Borrar Plazo">
+                                    <input type="number"
+                                           name="terms"
+                                           placeholder="Ingrese un plazo (ej: 2)"/>
+                                    <div ng-messages="termsForm.terms.$error" ng-show="termsForm.terms.$dirty">
+                                        <div ng-message="max">
+                                            El plazo debe ser menor a {{loanTypes[selectedQuery].PlazoEnMeses}}
+                                        </div>
+                                        <div ng-message="min">
+                                            El plazo debe ser mayor a 0
+                                        </div>
+                                    </div>
+                                </md-chips>
+                            </div>
+                        </div>
+                        <div ng-if="terms.errorMsg != ''" layout layout-align="center center" class="md-padding">
+                            <span style="color:red">{{terms.errorMsg}}</span>
+                        </div>
+                    </form>
+                </md-content>
+            </md-tab>
         </md-tabs>
     </md-dialog-content>
     <md-dialog-actions>
@@ -191,6 +247,14 @@
             ng-if="selectedTab == 3"
             ng-disabled="missingSpan()"
             ng-hide="uploading" ng-click="updateRequestsSpan()"
+            class="md-primary">
+            Guardar
+        </md-button>
+        <md-button
+            id="save-terms"
+            ng-if="selectedTab == 4"
+            ng-disabled="missingTerms()"
+            ng-hide="uploading" ng-click="updateRequestsTerms()"
             class="md-primary">
             Guardar
         </md-button>
