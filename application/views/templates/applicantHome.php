@@ -97,8 +97,7 @@
                     <md-divider></md-divider>
                 </div>
             </md-list>
-
-            <!-- New requests list -->
+            <!-- New requests -->
             <md-list class="sidenavList">
                 <md-list-item ng-click="togglePanelList(2)">
                     <p class="sidenavTitle">
@@ -131,7 +130,7 @@
                 <md-divider></md-divider>
                 <div class="slide-toggle" ng-show="selectedList == 3" layout="column" layout-align="center" ng-repeat="(lKey, loanType) in loanTypes">
                     <md-button
-                        ng-click="openRefinancingRequestDialog($event, lKey)"
+                        ng-click="null"
                         class="requestItems"
                         ng-class="{'md-primary md-raised' : selectedAction == 'R' + lKey}">
                         {{loanType.description}}
@@ -214,10 +213,16 @@
                                             </thead>
                                             <tbody md-body>
                                             <tr md-row ng-repeat="(rKey, request) in requests[lKey] | limitTo: query.limit: (query.page - 1) * query.limit track by $index">
-                                                <td md-cell ng-click="goToDetails(lKey, rKey)">{{pad(request.id, 6)}}</td>
-                                                <td md-cell ng-click="goToDetails(lKey, rKey)">{{request.creationDate}}</td>
-                                                <td md-cell ng-click="goToDetails(lKey, rKey)">{{request.status}}</td>
-                                                <td md-cell ng-click="goToDetails(lKey, rKey)">{{request.reqAmount | number:2}}</td>
+                                                <td md-cell ng-click="goToDetails(request)">{{pad(request.id, 6)}}</td>
+                                                <td md-cell ng-click="goToDetails(request)">{{request.creationDate}}</td>
+                                                <td md-cell ng-click="goToDetails(request)">{{request.status}}</td>
+                                                <td md-cell ng-click="goToDetails(request)">{{request.reqAmount | number:2}}</td>
+                                                <td ng-if="!request.validationDate" md-cell ng-click="goToDetails(request)">
+                                                    <md-icon style="color: red">
+                                                        warning
+                                                        <md-tooltip>Solicitud no validada</md-tooltip>
+                                                    </md-icon>
+                                                </td>
                                             </tr>
                                             </tbody>
                                         </table>
@@ -243,17 +248,6 @@
                 </div>
                 <!-- Editable requests list -->
                 <div class="margin-16" ng-if="selectedAction == 'edit' && !fetching">
-                    <!--<div layout layout-align="center center">-->
-                    <!--    <div layout="column" layout-align="center center" class="md-whiteframe-z2 error-card">-->
-                    <!--        <span>-->
-                    <!--            Las solicitudes editables son sólo aquellas-->
-                    <!--            que no han sido validadas.-->
-                    <!--        </span>-->
-                    <!--        <span ng-if="editableReq.length == 0" style="color:red">-->
-                    <!--            <br/>Usted no posee solicitudes editables.-->
-                    <!--        </span>-->
-                    <!--    </div>-->
-                    <!--</div>-->
                     <md-card ng-show="showMsg" md-theme="manual-card" class="margin-16">
                         <md-card-content layout layout-align="space-between start">
                             <span style="color: #2E7D32">
@@ -270,47 +264,54 @@
                             Usted no posee solicitudes editables.
                         </p>
                     </div>
-                    <md-table-container ng-if="editableReq.length > 0">
-                        <table md-table md-row-select ng-model="selected">
-                            <thead md-head>
-                            <tr md-row>
-                                <th md-column><span>ID</span></th>
-                                <th md-column><span>Fecha</span></th>
-                                <th md-column><span>Tipo</span></th>
-                                <th md-column><span>Monto solicitado</span></th>
-                            </tr>
-                            </thead>
-                            <tbody md-body>
-                            <tr md-row ng-repeat="(rKey, request) in editableReq | limitTo: query.limit: (query.page - 1) * query.limit track by $index">
-                                <td md-cell ng-click="goToDetails(req.type, rKey)">{{pad(request.id, 6)}}</td>
-                                <td md-cell ng-click="goToDetails(req.type, rKey)">{{request.creationDate}}</td>
-                                <td md-cell ng-click="goToDetails(req.type, rKey)">{{request.status}}</td>
-                                <td md-cell ng-click="goToDetails(req.type, rKey)">{{request.reqAmount | number:2}}</td>
-                                <td md-cell ng-click="openEditRequestDialog($event, req.type)">
-                                    <md-icon>
-                                        edit
-                                        <md-tooltip>Editar solicitud</md-tooltip>
-                                    </md-icon>
-                                </td>
-                                <td md-cell ng-click="null">
-                                    <md-icon>
-                                        delete
-                                        <md-tooltip>Eliminar solicitud</md-tooltip>
-                                    </md-icon>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </md-table-container>
-                    <md-table-pagination ng-if="requests[lKey].length > 0"
-                                         md-label="{page: 'Página:', rowsPerPage: 'Filas por página:', of: 'de'}"
-                                         md-limit="query.limit"
-                                         md-limit-options="[5, 10, 15, 20]"
-                                         md-page="query.page"
-                                         md-total="{{requests[lKey].length}}"
-                                         md-page-select>
+                    <md-card ng-if="editableReq.length > 0">
+                        <md-toolbar class="md-table-toolbar md-default">
+                            <div class="md-toolbar-tools">
+                                <span>Solicitudes editables</span>
+                            </div>
+                        </md-toolbar>
+                        <md-table-container>
+                            <table md-table md-row-select ng-model="selected">
+                                <thead md-head>
+                                <tr md-row>
+                                    <th md-column><span>ID</span></th>
+                                    <th md-column><span>Fecha</span></th>
+                                    <th md-column><span>Tipo</span></th>
+                                    <th md-column><span>Monto solicitado</span></th>
+                                </tr>
+                                </thead>
+                                <tbody md-body>
+                                <tr md-row ng-repeat="(rKey, request) in editableReq | limitTo: query.limit: (query.page - 1) * query.limit track by $index">
+                                    <td md-cell ng-click="goToDetails(request)">{{pad(request.id, 6)}}</td>
+                                    <td md-cell ng-click="goToDetails(request)">{{request.creationDate}}</td>
+                                    <td md-cell ng-click="goToDetails(request)">{{loanTypes[request.type].DescripcionDelPrestamo}}</td>
+                                    <td md-cell ng-click="goToDetails(request)">{{request.reqAmount | number:2}}</td>
+                                    <td md-cell ng-click="openEditRequestDialog($event, request)">
+                                        <md-icon>
+                                            edit
+                                            <md-tooltip>Editar solicitud</md-tooltip>
+                                        </md-icon>
+                                    </td>
+                                    <td md-cell ng-click="deleteRequest($event, request)">
+                                        <md-icon>
+                                            delete
+                                            <md-tooltip>Eliminar solicitud</md-tooltip>
+                                        </md-icon>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </md-table-container>
+                        <md-table-pagination
+                                             md-label="{page: 'Página:', rowsPerPage: 'Filas por página:', of: 'de'}"
+                                             md-limit="query.limit"
+                                             md-limit-options="[5, 10, 15, 20]"
+                                             md-page="query.page"
+                                             md-total="{{editableReq.length}}"
+                                             md-page-select>
 
-                    </md-table-pagination>
+                        </md-table-pagination>
+                    </md-card>
                 </div>
             </md-content>
         </main>

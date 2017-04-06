@@ -20,6 +20,7 @@
     </div>
 </md-toolbar>
 <main class="main-w-footer">
+    <overlay ng-if="overlay"/>
     <md-content class="document-container">
         <div layout="column" layout-align="center center">
             <md-card id="validation-card" class="validation-card" ng-if="!req.validationDate">

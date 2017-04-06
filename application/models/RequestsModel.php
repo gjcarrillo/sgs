@@ -19,14 +19,10 @@ class RequestsModel extends CI_Model
     public function getUserRequests() {
         $result['requests'] = array();
         try {
-            // Get configured's max. and min. request amount.
             $em = $this->doctrine->em;
-            $config = $em->getRepository('\Entity\Config');
-            $result['maxReqAmount'] = $config->findOneBy(array('key' => 'MAX_AMOUNT'))->getValue();
-            $result['minReqAmount'] = $config->findOneBy(array('key' => 'MIN_AMOUNT'))->getValue();
             $user = $em->find('\Entity\User', $this->input->get('fetchId'));
             if ($user === null) {
-                $result['error'] = "La cédula ingresada no se encuentra en la base de datos";
+                $result['message'] = "La cédula ingresada no se encuentra en la base de datos";
             } else {
                 $requests = $user->getRequests();
                 $requests = array_reverse($requests->getValues());
@@ -57,6 +53,80 @@ class RequestsModel extends CI_Model
             $result['message'] = $this->utils->getErrorMsg($e);
         }
         return json_encode($result);
+    }
+
+    public function getUserEditableRequests($uid) {
+        $editables = array();
+        try {
+            $em = $this->doctrine->em;
+            $user = $em->find('\Entity\User', $uid);
+            if ($user === null) {
+                throw new Exception("El usuario " . $uid . " no se encuentra en la base de datos");
+            } else {
+                $requests = $user->getRequests();
+                // Re-order requests from newest to oldest.
+                $requests = array_reverse($requests->getValues());
+                foreach ($requests as $rKey => $request) {
+                    if ($request->getValidationDate() !== null) continue;
+                    $req = array();
+                    $req['id'] = $request->getId();
+                    $req['creationDate'] = $request->getCreationDate()->format('d/m/y');
+                    $req['comment'] = $request->getComment();
+                    $req['reqAmount'] = $request->getRequestedAmount();
+                    $req['approvedAmount'] = $request->getApprovedAmount();
+                    $req['reunion'] = $request->getReunion();
+                    $req['status'] = $request->getStatus();
+                    $req['type'] = $request->getLoanType();
+                    $req['phone'] = $request->getContactNumber();
+                    $req['due'] = $request->getPaymentDue();
+                    $req['email'] = $request->getContactEmail();
+                    $req['validationDate'] = $request->getValidationDate();
+                    $docs = $request->getDocuments();
+                    foreach ($docs as $dKey => $doc) {
+                        $req['docs'][$dKey]['id'] = $doc->getId();
+                        $req['docs'][$dKey]['name'] = $doc->getName();
+                        $req['docs'][$dKey]['description'] = $doc->getDescription();
+                        $req['docs'][$dKey]['lpath'] = $doc->getLpath();
+                    }
+                    // Add this request obj to editable requests array.
+                    array_push($editables, $req);
+                }
+                return $editables;
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * Obtains the ID of the open request with a specified concept.
+     *
+     * @param $uid - user's id.
+     * @param $concept - request's concept.
+     * @return int id of the opened request. Null if no opened request is found.
+     * @throws Exception
+     */
+    public function getUserOpenedRequest($uid, $concept) {
+        try {
+            $em = $this->doctrine->em;
+            $user = $em->find('\Entity\User', $uid);
+            if ($user === null) {
+                throw new Exception("El usuario " . $uid . " no se encuentra en la base de datos");
+            } else {
+                $requests = $user->getRequests();
+                foreach ($requests as $rKey => $request) {
+                    // Look for only a specific type of requests.
+                    if ($request->getLoanType() != $concept) continue;
+                    // If request is opened, stop searching and send result.
+                    if ($request->getStatus() != APPROVED && $request->getStatus() != REJECTED) {
+                        return $request->getId();
+                    }
+                }
+                return null;
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
     }
 
     public function deleteDocument () {
@@ -345,7 +415,7 @@ class RequestsModel extends CI_Model
     public function getSpanLeft ($uid, $loanType) {
         try {
             $em = $this->doctrine->em;
-            $span = $em->getRepository('\Entity\Config')->findOneBy(array('key' => 'SPAN'))->getValue();
+            $span = $em->getRepository('\Entity\Config')->findOneBy(array('key' => 'SPAN' . $loanType))->getValue();
 
             $this->ipapedi_db = $this->load->database('ipapedi_db', true);
             $this->ipapedi_db->select('*');
@@ -361,7 +431,6 @@ class RequestsModel extends CI_Model
                 if (!$granting) {
                     // No granting date found in granting entry. Perhaps it was rejected?
                     // Go ahead and allow this request type creation
-                    // TODO: CONFIRM IF THIS IS THE ACTION TO TAKE IN THIS CASE
                     return 0;
                 }
                 $currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));

@@ -131,6 +131,9 @@ class NewRequestController extends CI_Controller {
 				$this->load->model('configModel');
 				$span = $this->configModel->getRequestSpan($this->input->get('concept'));
 				$result['granting']['span'] = $span;
+				$config = $em->getRepository('\Entity\Config');
+				$result['maxReqAmount'] = $config->findOneBy(array('key' => 'MAX_AMOUNT'))->getValue();
+				$result['minReqAmount'] = $config->findOneBy(array('key' => 'MIN_AMOUNT'))->getValue();
 				$this->ipapedi_db = $this->load->database('ipapedi_db', true);
 				$this->ipapedi_db->select('*');
 				$this->ipapedi_db->from('db_dt_prestamos');
@@ -202,7 +205,7 @@ class NewRequestController extends CI_Controller {
 										 $loanTypes[$data['loanType']]->description . ' en transcurso.';
 				} else if ($this->requests->getSpanLeft($data['userId'], $data['loanType']) > 0) {
 					// Span between requests of same type not yet through.
-					$span = $em->getRepository('\Entity\Config')->findOneBy(array('key' => 'SPAN'))->getValue();
+					$span = $em->getRepository('\Entity\Config')->findOneBy(array('key' => 'SPAN' . $data['loanType']))->getValue();
 					$result['message'] = "No ha" . ($span == 1 ? "" : "n") .
 										 " transcurrido al menos " . $span . ($span == 1 ? " mes " : " meses ") .
 										 "desde su última otorgación de préstamo del tipo: " .
@@ -271,6 +274,7 @@ class NewRequestController extends CI_Controller {
 					$this->requests->addDocuments($request, $history, $data['docs']);
 					$em->persist($history);
 					$em->flush();
+					$result['request'] = $this->utils->reqToArray($request);
 					$this->requests->generateRequestDocument($request);
 					$result['message'] = "success";
 				}

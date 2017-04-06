@@ -182,6 +182,7 @@ class EditRequestController extends CI_Controller {
 						// we can register History without any previous validation.
 						$em->persist($history);
 						$em->merge($request);
+						$result['request'] = $this->utils->reqToArray($request);
 						$this->load->model('requestsModel', 'requests');
 						$this->requests->generateRequestDocument($request);
 						$em->flush();

@@ -275,4 +275,35 @@ class UtilsModel extends CI_Model
     public function getErrorMsg($e) {
         return "Ha ocurrido un error en el sistema: " . $e->getMessage();
     }
+
+
+    /**
+     * Converts a request entity object to a php associative array.
+     *
+     * @param $request - request entity object.
+     * @return mixed - php array with all the request's information.
+     */
+    public function reqToArray($request) {
+
+        $result['id'] = $request->getId();
+        $result['creationDate'] = $request->getCreationDate()->format('d/m/y');
+        $result['comment'] = $request->getComment();
+        $result['reqAmount'] = $request->getRequestedAmount();
+        $result['approvedAmount'] = $request->getApprovedAmount();
+        $result['reunion'] = $request->getReunion();
+        $result['status'] = $request->getStatus();
+        $result['type'] = $request->getLoanType();
+        $result['phone'] = $request->getContactNumber();
+        $result['due'] = $request->getPaymentDue();
+        $result['email'] = $request->getContactEmail();
+        $result['validationDate'] = $request->getValidationDate();
+        $docs = $request->getDocuments();
+        foreach ($docs as $dKey => $doc) {
+            $result['docs'][$dKey]['id'] = $doc->getId();
+            $result['docs'][$dKey]['name'] = $doc->getName();
+            $result['docs'][$dKey]['description'] = $doc->getDescription();
+            $result['docs'][$dKey]['lpath'] = $doc->getLpath();
+        }
+        return $result;
+    }
 }

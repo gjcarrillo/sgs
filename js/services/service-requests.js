@@ -27,14 +27,27 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
             {params: {fetchId: fetchId}})
             .then(
             function (response) {
-                minAmount = parseInt(response.data.minReqAmount, 10);
-                maxAmount = parseInt(response.data.maxReqAmount, 10);
                 if (response.data.message === "success") {
                     if (typeof response.data.requests !== "undefined") {
                         qReq.resolve(self.filterRequests(response.data.requests));
                     }
                 } else {
-                    qReq.reject(response.data.error);
+                    qReq.reject(response.data.message);
+                }
+            });
+        return qReq.promise;
+    };
+
+    self.getUserEditableRequests = function (fetchId) {
+        var qReq = $q.defer();
+        $http.get('requestsController/getUserEditableRequests',
+            {params: {fetchId: fetchId}}).then(
+            function (response) {
+                console.log(response);
+                if (response.data.message === "success") {
+                    qReq.resolve(response.data.requests);
+                } else {
+                    qReq.reject(response.data.message);
                 }
             });
         return qReq.promise;
@@ -52,7 +65,7 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
                    JSON.stringify(postData))
             .then(function (response) {
                       if (response.data.message == "success") {
-                          qUpdate.resolve();
+                          qUpdate.resolve(response.data.request);
                       } else {
                           qUpdate.reject(response.data.message);
                       }
@@ -72,7 +85,7 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
                    JSON.stringify(postData))
             .then(function (response) {
                       if (response.data.message == "success") {
-                          qEdit.resolve();
+                          qEdit.resolve(response.data.request);
                       } else {
                           qEdit.reject(response.data.message);
                       }
@@ -121,51 +134,6 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
                       }
                   });
         return qDelReq.promise;
-    };
-
-    /**
-     * Eliminates the specified request from the system.
-     *
-     * @param rid - request id as an encoded token.
-     * @returns {*} promise containing the operation's result.
-     */
-    self.deleteRequestJWT = function (rid) {
-        var qEliminate = $q.defer();
-        $http.post('RequestsController/deleteRequestJWT', {rid: rid})
-            .then(
-            function (response) {
-                if (response.data.message == 'success') {
-                    qEliminate.resolve();
-                } else {
-                    qEliminate.reject(response.data.message);
-                }
-            }
-
-        );
-
-        return qEliminate.promise;
-    };
-
-    /**
-     * Validates a request through the specified token.
-     *
-     * @param token - JWT
-     * @returns {*} - promise with the operation's result.
-     */
-    self.validate = function(token) {
-        var qVal = $q.defer();
-
-        $http.get('ValidationController/validate', {params: {token: token}})
-            .then(
-            function (response) {
-                if (response.data.message === "success") {
-                    qVal.resolve();
-                } else {
-                    qVal.reject(response.data.message);
-                }
-            }
-        );
-        return qVal.promise;
     };
 
     /**
@@ -251,91 +219,6 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
         return statuses;
     };
 
-    ///**
-    // * Gets the different request types as strings.
-    // *
-    // * @returns {Array} containing all the loan types mapped as strings.
-    // */
-    //self.getLoanTypesTitles = function () {
-    //    var codes = Constants.LoanTypes;
-    //    var titles = [];
-    //    angular.forEach(codes, function (code) {
-    //        titles.push(self.mapLoanType(code));
-    //    });
-    //
-    //    return titles;
-    //};
-
-    ///**
-    // * Gets all the existing loan types.
-    // *
-    // * @returns {Array} containing all the requests loan types.
-    // */
-    //self.getAllLoanTypes = function () {
-    //    var loanTypes = [];
-    //    angular.forEach(Constants.LoanTypes, function (type) {
-    //        loanTypes.push(type);
-    //    });
-    //    return loanTypes;
-    //};
-
-    ///**
-    // * Maps the specified (int) type to it's corresponding string code type.
-    // *
-    // * @param type - loan type's code.
-    // * @returns {*} - string containing the corresponding mapped string code type.
-    // */
-    //self.mapLoanTypeAsCode = function (type) {
-    //    switch (type) {
-    //        case Constants.LoanTypes.PERSONAL:
-    //            return 'pp';
-    //            break;
-    //        case Constants.LoanTypes.CASH_VOUCHER:
-    //            return 'vc';
-    //            break;
-    //        default:
-    //            return type;
-    //    }
-    //};
-
-    ///**
-    // * Maps a loan type code as string, to loan type code as int.
-    // *
-    // * @param type - string loan type code.
-    // * @returns {*} - integer containing the corresponding mapped loan type code.
-    // */
-    //self.mapLoanTypeStringCode = function (type) {
-    //    switch (type) {
-    //        case 'pp':
-    //            return Constants.LoanTypes.PERSONAL;
-    //            break;
-    //        case 'vc':
-    //            return Constants.LoanTypes.CASH_VOUCHER;
-    //            break;
-    //        default:
-    //            return type;
-    //    }
-    //};
-
-    ///**
-    // * Maps the specified (int) type to it's corresponding string type.
-    // *
-    // * @param type - loan type's code.
-    // * @returns {*} - string containing the corresponding mapped string type.
-    // */
-    //self.mapLoanType = function (type) {
-    //    switch (type) {
-    //        case Constants.LoanTypes.PERSONAL:
-    //            return 'Préstamo Personal';
-    //            break;
-    //        case Constants.LoanTypes.CASH_VOUCHER:
-    //            return 'Vale de Caja';
-    //            break;
-    //        default:
-    //            return type;
-    //    }
-    //};
-
     /**
      * Initializes a list type as false.
      */
@@ -417,12 +300,23 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
                    JSON.stringify(postData))
             .then(function (response) {
                       if (response.data.message == "success") {
-                          qReqCreation.resolve();
+                          qReqCreation.resolve(response.data.request);
                       } else {
                           qReqCreation.reject(response.data.message);
                       }
                   });
         return qReqCreation.promise;
+    };
+
+    /**
+     * Gets the request belonging to specified ID.
+     *
+     * @param requests - requests object.
+     * @param id - request's id.
+     * @return object containing the request with specified ID.
+     */
+    self.getRequestById = function (requests, id) {
+        return _.find(requests, function(o) { return o.id == id; });
     };
 
     /**
@@ -438,48 +332,6 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
             description: 'Documento declarativo referente a la solicitud',
             docName: docName
         }
-    };
-
-    /**
-     * Edits the request's email address.
-     *
-     * @param reqId - selected request's id.
-     * @param newAddress - new email address.
-     */
-    self.editEmail = function (reqId, newAddress) {
-        var qEmail = $q.defer();
-
-        var postData = {reqId: reqId, newAddress: newAddress};
-        $http.post('EditRequestController/updateEmail', postData)
-            .then(
-            function (response) {
-                if (response.data.message == "success") {
-                    qEmail.resolve();
-                } else {
-                    qEmail.reject(response.data.message);
-                }
-            });
-        return qEmail.promise;
-    };
-
-    /**
-     * Sends a validation email for the specified request.
-     *
-     * @param reqId - request id.
-     */
-    self.sendValidation = function(reqId) {
-        var qValidation = $q.defer();
-
-        $http.post('ApplicantHomeController/sendValidation', reqId)
-            .then(
-            function (response) {
-                if (response.data.message == "success") {
-                    qValidation.resolve();
-                } else {
-                    qValidation.reject(response.data.message);
-                }
-            });
-        return qValidation.promise;
     };
 
     /**
@@ -571,21 +423,25 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
     };
 
     /**
-     * Checks specified requests and indicates whether there is any request still open.
+     * Indicates whether there is an open request for a specific type of requests belongning to a user.
      *
-     * @param requests - all user's specified concept's requests.
+     * @param fetchId - user ID.
+     * @param concept - requests' concept.
      * @returns {{}}
      */
-    self.checkPreviousRequests = function (requests) {
-        var opened = {};
-        angular.forEach(requests, function (req) {
-            if (req.status != Constants.Statuses.APPROVED &&
-                req.status != Constants.Statuses.REJECTED) {
-                opened.hasOpened = true;
-                opened.id = req.id;
-            }
-        });
-        return opened;
+    self.checkPreviousRequests = function (fetchId, concept) {
+        var qReq = $q.defer();
+        $http.get('requestsController/getUserOpenedRequest',
+            {params: {fetchId: fetchId, concept: concept}}).then(
+            function (response) {
+                console.log(response);
+                if (response.data.message === "success") {
+                    qReq.resolve(response.data);
+                } else {
+                    qReq.reject(response.data.message);
+                }
+            });
+        return qReq.promise;
     };
 
     /**
@@ -603,6 +459,8 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
             .then(
             function (response) {
                 if (response.data.message == "success") {
+                    minAmount = parseInt(response.data.minReqAmount, 10);
+                    maxAmount = parseInt(response.data.maxReqAmount, 10);
                     qAvailability.resolve(response.data);
                 } else {
                     qAvailability.reject(response.data.message);
@@ -615,13 +473,13 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
     // 1. User's concurrence level is below 40%.
     // 2. there are no opened requests of the same type.
     // 3. span creation constrain between requests of same time is over.
-    self.verifyAvailability = function (data, concept) {
+    self.verifyAvailability = function (data, concept, editMode) {
         if (data.concurrence >= 40) {
             Utils.showAlertDialog('No permitido',
                                   'Estimado usuario, debido a que su nivel de concurrencia sobrepasa ' +
                                   'el 40%, usted no se encuentra en condiciones de ' +
                                   'solicitar un nuevo préstamo.');
-        } else if (data.opened.hasOpened) {
+        } else if (data.opened.hasOpened && !editMode) {
             Utils.showAlertDialog('No permitido', 'Estimado usuario, no puede realizar otra solicitud del tipo ' +
                                                   Config.loanConcepts[concept].description + ' debido a que ya posee ' +
                                                   'una solicitud (con ID #' + Utils.pad(data.opened.id, 6) + ') de ' +

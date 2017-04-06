@@ -27,6 +27,42 @@ class RequestsController extends CI_Controller {
         }
     }
 
+    public function getUserEditableRequests () {
+        if ($this->input->get('fetchId') != $this->session->id &&
+            $this->session->type == APPLICANT) {
+            $result['message'] = 'Forbidden.';
+        } else {
+            try {
+                $this->load->model('requestsModel', 'requests');
+                $result['requests'] = $this->requests->getUserEditableRequests($this->input->get('fetchId'));
+                $result['message'] = "success";
+            } catch (Exception $e) {
+                $result['message'] = $this->utils->getErrorMsg($e);
+            }
+        }
+        echo json_encode($result);
+    }
+
+    public function getUserOpenedRequest () {
+        if ($this->input->get('fetchId') != $this->session->id &&
+            $this->session->type == APPLICANT) {
+            $result['message'] = 'Forbidden.';
+        } else {
+            try {
+                $this->load->model('requestsModel', 'requests');
+                $result['id'] = $this->requests->getUserOpenedRequest(
+                    $this->input->get('fetchId'),
+                    $this->input->get('concept')
+                );
+                $result['hasOpened'] = $result['id'] !== null;
+                $result['message'] = "success";
+            } catch (Exception $e) {
+                $result['message'] = $this->utils->getErrorMsg($e);
+            }
+        }
+        echo json_encode($result);
+    }
+
     public function deleteDocument() {
         if ($this->session->type != AGENT) {
             $this->load->view('errors/index.html');

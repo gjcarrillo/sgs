@@ -2,10 +2,10 @@ angular
     .module('sgdp')
     .controller('ApplicantHomeController', userHome);
 
-userHome.$inject = ['$scope', '$cookies', '$timeout', 'Config', '$mdExpansionPanel', 'Applicant',
+userHome.$inject = ['$scope', '$cookies', '$timeout', 'Config', 'Applicant',
                     '$mdSidenav', '$mdDialog', '$mdMedia', 'Constants', 'Requests', 'Utils', '$state'];
 
-function userHome($scope, $cookies, $timeout, Config, $mdExpansionPanel, Applicant,
+function userHome($scope, $cookies, $timeout, Config, Applicant,
                   $mdSidenav, $mdDialog, $mdMedia, Constants, Requests, Utils, $state) {
     'use strict';
     $scope.selectedReq = Applicant.data.selectedReq;
@@ -26,6 +26,11 @@ function userHome($scope, $cookies, $timeout, Config, $mdExpansionPanel, Applica
 
     var fetchId = $cookies.getObject('session').id;
 
+    $scope.selectAction = function (id) {
+        $scope.selectedAction = id;
+        performAction(id);
+    };
+
     if (!$scope.loanTypes) {
         $scope.loading = true;
         Requests.initializeListType().then(
@@ -44,60 +49,59 @@ function userHome($scope, $cookies, $timeout, Config, $mdExpansionPanel, Applica
                 console.log(error);
             }
         );
-    } else {
-        $mdExpansionPanel().waitFor($scope.selectedLoan).then(function (instance) {
-            $timeout(function() {
-                instance.expand();
-            }, 600);
-        });
+    } else if ($scope.selectedAction) {
+        $scope.selectAction($scope.selectedAction);
+        //$mdExpansionPanel().waitFor($scope.selectedLoan).then(function (instance) {
+        //    $timeout(function() {
+        //        instance.expand();
+        //    }, 600);
+        //});
     }
 
     $scope.togglePanelList = function (index) {
         $scope.selectedList = $scope.selectedList == index ? null : index;
     };
 
-    $scope.selectAction = function (id) {
-        $scope.selectedAction = id;
-        if (_.isEmpty($scope.requests)) {
-            $scope.fetching = true;
-            // Fetch user's requests
-            Requests.getUserRequests(fetchId).then(
-                function (data) {
-                    $scope.fetching = false;
-                    $scope.requests = data;
-                    performAction(id);
-                },
-                function (errorMsg) {
-                    $scope.fetchError = errorMsg;
-                    $scope.loading = false;
-                }
-            );
-        } else {
-            performAction(id);
-        }
-
-    };
-
-
     function performAction (action) {
         switch (action) {
+            case 1:
+                getAllRequests();
+                break;
             case 'edit': {
-                $scope.editableReq = [];
-                angular.forEach($scope.requests, function (requests) {
-                    angular.forEach(requests, function (req) {
-                        if (!req.validationDate) {
-                            $scope.editableReq.push(req);
-                        }
-                    });
-                });
-                console.log($scope.editableReq);
+                editRequests();
             }
         }
     }
 
-    $scope.editRequests = function () {
-
-    };
+    function getAllRequests () {
+        $scope.requests = {};
+        $scope.fetching = true;
+        // Fetch user's requests
+        Requests.getUserRequests(fetchId).then(
+            function (data) {
+                $scope.fetching = false;
+                $scope.requests = data;
+            },
+            function (errorMsg) {
+                $scope.fetchError = errorMsg;
+                $scope.loading = false;
+            }
+        );
+    }
+    function editRequests () {
+        $scope.editableReq = [];
+        $scope.fetching = true;
+        Requests.getUserEditableRequests(fetchId).then(
+            function (data) {
+                $scope.fetching = false;
+                $scope.editableReq = data;
+            },
+            function (errorMsg) {
+                $scope.fetchError = errorMsg;
+                $scope.loading = false;
+            }
+        );
+    }
 
     $scope.goBack = function () {
         window.location.replace(Constants.IPAPEDI_URL + 'asociados');
@@ -112,31 +116,24 @@ function userHome($scope, $cookies, $timeout, Config, $mdExpansionPanel, Applica
         $scope.loanTypes[index].selected = !$scope.loanTypes[index].selected;
     };
 
-    $scope.goToDetails = function (lKey, rKey) {
-        // Save controller state before navigating away.
-        $scope.selectedLoan = lKey;
-        $scope.selectedReq = rKey;
-        preserveState();
-        sessionStorage.setItem("req", JSON.stringify($scope.requests[lKey][rKey]));
-        sessionStorage.setItem("loanConcepts", JSON.stringify(Config.loanConcepts));
-        $state.go('details');
+    $scope.goToDetails = function (req) {
+        goToDetails(req);
     };
 
     /**
-     * Selects the specified request.
+     * Saves the necessary information and goes to request details view.
+     * (Made as a simple function so that isolated controllers can have access)
      *
-     * @param i - row index of the selected request in $scope.requests
-     * @param j - column index of the selected request in $scope.requests
+     * @param req - request object.
      */
-    $scope.selectRequest = function (i, j) {
-        $scope.selectedReq = i;
-        $scope.selectedLoan = j;
-        if (i != '' && j != -1) {
-            $scope.req = $scope.requests[i][j];
-        }
-        $mdSidenav('left').toggle();
-    };
-
+    function goToDetails(req) {
+        // Save controller state before navigating away.
+        preserveState();
+        sessionStorage.setItem("uid", fetchId);
+        sessionStorage.setItem("req", JSON.stringify(req));
+        sessionStorage.setItem("loanConcepts", JSON.stringify(Config.loanConcepts));
+        $state.go('details');
+    }
     /**
      * Determines whether the specified object is empty (i.e. has no attributes).
      *
@@ -156,7 +153,6 @@ function userHome($scope, $cookies, $timeout, Config, $mdExpansionPanel, Applica
      */
     $scope.openNewRequestDialog = function ($event, concept, obj) {
         $scope.selectedAction = 'N' + concept;
-        $scope.refinancingList = false;
         var parentEl = angular.element(document.body);
         $mdDialog.show({
             parent: parentEl,
@@ -168,19 +164,15 @@ function userHome($scope, $cookies, $timeout, Config, $mdExpansionPanel, Applica
             fullscreen: $mdMedia('xs'),
             locals: {
                 fetchId: fetchId,
-                requests: $scope.requests,
                 obj: obj,
                 parentScope: $scope
             },
             controller: DialogController
         });
         // Isolated dialog controller for the new request dialog
-        function DialogController($scope, $mdDialog, fetchId,
-                                  requests, parentScope, obj) {
+        function DialogController($scope, $mdDialog, fetchId, parentScope, obj) {
             $scope.docPicTaken = false;
             $scope.uploading = false;
-            $scope.maxReqAmount = Requests.getMaxAmount();
-            $scope.minReqAmount = Requests.getMinAmount();
             // if user data exists, it means the ID was
             // already given, so we must show it.
             $scope.uploadErr = '';
@@ -208,15 +200,23 @@ function userHome($scope, $cookies, $timeout, Config, $mdExpansionPanel, Applica
                 $scope.loading = true;
                 Requests.getAvailabilityData(fetchId, concept).then(
                     function (data) {
-                        data.opened = Requests.checkPreviousRequests(requests[concept]);
-                        console.log(data);
-                        Requests.getLoanTerms(concept).then(
-                            function (terms) {
-                                $scope.model.terms = terms;
-                                $scope.model.phone = data.userPhone ? Utils.pad(parseInt(data.userPhone, 10), 11) : '';
-                                $scope.model.email = data.userEmail;
-                                Requests.verifyAvailability(data, concept);
-                                $scope.loading = false;
+                        Requests.checkPreviousRequests(fetchId, concept).then(
+                            function (opened) {
+                                data.opened = opened;
+                                Requests.getLoanTerms(concept).then(
+                                    function (terms) {
+                                        $scope.maxReqAmount = Requests.getMaxAmount();
+                                        $scope.minReqAmount = Requests.getMinAmount();
+                                        $scope.model.terms = terms;
+                                        $scope.model.phone = data.userPhone ? Utils.pad(parseInt(data.userPhone, 10), 11) : '';
+                                        $scope.model.email = data.userEmail;
+                                        Requests.verifyAvailability(data, concept, false);
+                                        $scope.loading = false;
+                                    },
+                                    function (error) {
+                                        Utils.showAlertDialog('Oops!', error);
+                                    }
+                                );
                             },
                             function (error) {
                                 Utils.showAlertDialog('Oops!', error);
@@ -272,11 +272,15 @@ function userHome($scope, $cookies, $timeout, Config, $mdExpansionPanel, Applica
                     docs: docs
                 };
                 Requests.createRequest(postData).then(
-                    function() {
-                        updateRequestListUI(fetchId, 0, 'Solicitud creada',
-                                            'Por favor valide su solicitud para proceder.',
-                                            true, true,
-                                            parseInt(postData.loanType, 10));
+                    function(request) {
+                        Utils.showAlertDialog(
+                            'Solicitud creada',
+                            'Por favor verifique los detalles de su solicitud.<br/>' +
+                            'Una vez esté completamente seguro de proceder con esta solicitud, ' +
+                            'realice la correspondiente validación.')
+                        ;
+                        // Go to details
+                        goToDetails(request);
                     },
                     function(error) {
                         $scope.uploading = false;
@@ -305,167 +309,6 @@ function userHome($scope, $cookies, $timeout, Config, $mdExpansionPanel, Applica
                     function() {
                         // Re-open parent dialog and do nothing
                         parentScope.openNewRequestDialog(null, concept, $scope.model);
-                    }
-                );
-            };
-        }
-    };
-
-    $scope.openRefinancingRequestDialog = function ($event, concept, obj) {
-        $scope.selectedAction = 'R' + concept;
-        $scope.newRequestList = false;
-        var parentEl = angular.element(document.body);
-        $mdDialog.show({
-            parent: parentEl,
-            targetEvent: $event,
-            templateUrl: 'NewRequestController',
-            clickOutsideToClose: false,
-            escapeToClose: false,
-            autoWrap: false,
-            fullscreen: $mdMedia('xs'),
-            locals: {
-                fetchId: fetchId,
-                requests: $scope.requests,
-                obj: obj,
-                parentScope: $scope
-            },
-            controller: DialogController
-        });
-        // Isolated dialog controller for the new request dialog
-        function DialogController($scope, $mdDialog, fetchId,
-                                  requests, parentScope, obj) {
-            $scope.docPicTaken = false;
-            $scope.uploading = false;
-            $scope.maxReqAmount = Requests.getMaxAmount();
-            $scope.minReqAmount = Requests.getMinAmount();
-            // if user data exists, it means the ID was
-            // already given, so we must show it.
-            $scope.uploadErr = '';
-            // Hold scope reference to constants
-            $scope.APPLICANT = Constants.Users.APPLICANT;
-            $scope.AGENT = Constants.Users.AGENT;
-
-            // obj could have a reference to user data, saved
-            // before confirmation dialog was opened.
-            $scope.model = obj || {};
-            $scope.model.loanTypes = Config.loanConcepts;
-            $scope.confirmButton = 'Crear';
-            $scope.title = 'Nueva solicitud de préstamo';
-
-            // if user came back to this dialog after confirming operation..
-            if ($scope.model.confirmed) {
-                // Go ahead and proceed with creation
-                createNewRequest();
-            } else {
-                checkCreationConditions();
-            }
-
-            // Checks whether conditions for creating new requests are fulfilled.
-            function checkCreationConditions () {
-                $scope.loading = true;
-                Requests.getAvailabilityData(fetchId).then(
-                    function (data) {
-                        data.opened = Requests.checkPreviousRequests(requests);
-                        Requests.getLoanTerms().then(
-                            function (terms) {
-                                $scope.model.terms = terms;
-                                $scope.model.phone = Utils.pad(parseInt(data.userPhone, 10), 11);
-                                $scope.model.email = data.userEmail;
-                                $scope.model.allow = data.granting.allow;
-                                $scope.model.span = data.granting.span;
-                                $scope.model.opened = data.opened;
-                                $scope.model.type = Requests.verifyAvailability(data);
-                                if($scope.model.type) {
-                                    $scope.loading = false;
-                                }
-                            },
-                            function (error) {
-                                Utils.showAlertDialog('Oops!', error);
-                            }
-                        );
-                    },
-                    function (error) {
-                        Utils.showAlertDialog('Oops!', error);
-                    }
-                );
-            }
-
-            $scope.missingField = function () {
-                return typeof $scope.model.reqAmount === "undefined" ||
-                       typeof $scope.model.type === "undefined" ||
-                       !$scope.model.due ||
-                       !$scope.model.phone ||
-                       !$scope.model.email;
-            };
-
-            $scope.calculatePaymentFee = function() {
-                if ($scope.model.reqAmount && $scope.model.due) {
-                    return Requests.calculatePaymentFee($scope.model.reqAmount,
-                                                        $scope.model.due,
-                                                        Requests.getInterestRate($scope.model.type));
-                } else {
-                    return 0;
-                }
-            };
-
-            $scope.closeDialog = function () {
-                $mdDialog.hide();
-            };
-
-            // Creates new request in database.
-            function createNewRequest() {
-                $scope.uploading = true;
-                var docs = [];
-
-                docs.push(Requests.createRequestDocData(fetchId));
-                performCreation(docs);
-            }
-
-            // Helper function that performs the document's creation.
-            function performCreation(docs) {
-                var postData = {
-                    userId: fetchId,
-                    reqAmount: $scope.model.reqAmount,
-                    tel: Utils.pad($scope.model.phone, 11),
-                    due: $scope.model.due,
-                    loanType: parseInt($scope.model.type, 10),
-                    email: $scope.model.email,
-                    docs: docs
-                };
-                Requests.createRequest(postData).then(
-                    function() {
-                        updateRequestListUI(fetchId, 0, 'Solicitud creada',
-                                            'Por favor valide su solicitud para proceder.',
-                                            true, true,
-                                            parseInt(postData.loanType, 10));
-                    },
-                    function(error) {
-                        $scope.uploading = false;
-                        Utils.showAlertDialog('Oops!', error);
-                    }
-                );
-            }
-
-            // Sets the bound input to the max possibe request amount
-            $scope.setMax = function() {
-                $scope.model.reqAmount = $scope.maxReqAmount;
-            };
-
-            // Shows a dialog asking user to confirm the request creation.
-            $scope.confirmOperation = function (ev) {
-                Utils.showConfirmDialog(
-                    'Confirmación de creación de solicitud',
-                    'El sistema generará el documento correspondiente a su solicitud. ¿Desea proceder?',
-                    'Sí', 'Cancelar', ev, true
-                ).then(
-                    function() {
-                        // Re-open parent dialog and perform request creation
-                        $scope.model.confirmed = true;
-                        parentScope.openNewRequestDialog(null, $scope.model);
-                    },
-                    function() {
-                        // Re-open parent dialog and do nothing
-                        parentScope.openNewRequestDialog(null, $scope.model);
                     }
                 );
             };
@@ -480,22 +323,14 @@ function userHome($scope, $cookies, $timeout, Config, $mdExpansionPanel, Applica
         page: 1
     };
 
-    function success(desserts) {
-        $scope.desserts = desserts;
-    }
-
-    $scope.getDesserts = function () {
-        $scope.promise = $nutrition.desserts.get($scope.query, success).$promise;
-    };
-
     /**
      * Opens the edition request dialog and performs the corresponding operations.
      *
      * @param $event - DOM event.
-     * @param concept - request's concept.
+     * @param request - request object.
      * @param obj - optional obj containing user input data.
      */
-    $scope.openEditRequestDialog = function ($event, concept, obj) {
+    $scope.openEditRequestDialog = function ($event, request, obj) {
         var parentEl = angular.element(document.body);
         $mdDialog.show({
             parent: parentEl,
@@ -507,21 +342,16 @@ function userHome($scope, $cookies, $timeout, Config, $mdExpansionPanel, Applica
             fullscreen: $mdMedia('xs'),
             locals: {
                 fetchId: fetchId,
-                request: $scope.requests[$scope.selectedReq][$scope.selectedLoan],
-                selectedLoan: $scope.selectedLoan,
+                request: request,
                 obj: obj,
-                parentScope: $scope,
-                requests: $scope.requests
+                parentScope: $scope
             },
             controller: DialogController
         });
         // Isolated dialog controller for the new request dialog
-        function DialogController($scope, $mdDialog, fetchId, request,
-                                  selectedLoan, parentScope, obj, requests) {
+        function DialogController($scope, $mdDialog, fetchId, request, parentScope, obj) {
             $scope.docPicTaken = false;
             $scope.uploading = false;
-            $scope.maxReqAmount = Requests.getMaxAmount();
-            $scope.minReqAmount = Requests.getMinAmount();
             $scope.uploadErr = '';
             // Hold scope reference to constants
             $scope.APPLICANT = Constants.Users.APPLICANT;
@@ -531,7 +361,7 @@ function userHome($scope, $cookies, $timeout, Config, $mdExpansionPanel, Applica
             // before confirmation dialog was opened.
             var model = {
                 reqAmount: request.reqAmount,
-                type: request.type,
+                type: parseInt(request.type, 10),
                 due: request.due,
                 phone: Utils.pad(request.phone, 11),
                 email: request.email
@@ -549,20 +379,25 @@ function userHome($scope, $cookies, $timeout, Config, $mdExpansionPanel, Applica
                 checkCreationConditions();
             }
 
-            // Checks whether conditions for creating new requests are fulfilled.
             function checkCreationConditions () {
                 $scope.loading = true;
-                Requests.getLastRequestsGranting(fetchId)
-                    .then (
-                    function (granting) {
-                        verifyGranting(granting);
-                        Requests.getLoanTerms().then(
-                            function (terms) {
-                                $scope.model.terms = terms;
-                                $scope.model.opened = Requests.checkPreviousRequests(requests);
-                                // On-edition request should not be disabled (as we know it's still open)
-                                $scope.model.opened.hasOpen[request.type] = false;
-                                $scope.loading = false;
+                Requests.getAvailabilityData(fetchId, model.type).then(
+                    function (data) {
+                        Requests.checkPreviousRequests(fetchId, model.type).then(
+                            function (opened) {
+                                data.opened = opened;
+                                Requests.getLoanTerms(model.type).then(
+                                    function (terms) {
+                                        $scope.maxReqAmount = Requests.getMaxAmount();
+                                        $scope.minReqAmount = Requests.getMinAmount();
+                                        $scope.model.terms = terms;
+                                        Requests.verifyAvailability(data, model.type, true);
+                                        $scope.loading = false;
+                                    },
+                                    function (error) {
+                                        Utils.showAlertDialog('Oops!', error);
+                                    }
+                                );
                             },
                             function (error) {
                                 Utils.showAlertDialog('Oops!', error);
@@ -575,39 +410,15 @@ function userHome($scope, $cookies, $timeout, Config, $mdExpansionPanel, Applica
                 );
             }
 
-            /**
-             * Helper function that verifies the if request span has been
-             * fulfilled for each type of request.
-             *
-             * @param granting - response from getLastRequestsGranting.
-             */
-            function verifyGranting (granting) {
-                $scope.model.allow = granting.allow;
-                $scope.model.span = granting.span;
-                var allDenied = true;
-                angular.forEach(granting.allow, function(allow) {
-                    if (allow) {
-                        allDenied = false;
-                    }
-                });
-                if (allDenied) {
-                    Utils.showAlertDialog('No permitido',
-                                          'Estimado usuario, aún no ha' + (granting.span == 1 ? '' : 'n') +
-                                          ' transcurrido ' + granting.span + (granting.span == 1 ? ' mes' : ' meses') +
-                                          ' desde el último préstamo otorgado, para cada tipo de ' +
-                                          'solicitud disponible a través del sistema.');
-                }
-            }
-
             $scope.missingField = function () {
                 return (typeof $scope.model.reqAmount === "undefined"
                         || typeof $scope.model.phone === "undefined"
-                        || typeof $scope.model.email === "undefined")
+                        || typeof $scope.model.email === "undefined"
+                        || !$scope.model.due)
                        || ($scope.model.reqAmount === request.reqAmount &&
                         Utils.pad($scope.model.phone, 11) === request.phone &&
                        $scope.model.email === request.email &&
-                       parseInt($scope.model.due, 10) === request.due &&
-                       $scope.model.type === request.type);
+                       parseInt($scope.model.due, 10) === request.due);
                 };
 
             $scope.closeDialog = function () {
@@ -615,7 +426,7 @@ function userHome($scope, $cookies, $timeout, Config, $mdExpansionPanel, Applica
             };
 
             $scope.calculatePaymentFee = function() {
-                if ($scope.model.reqAmount) {
+                if ($scope.model.reqAmount && $scope.model.due) {
                     return Requests.calculatePaymentFee($scope.model.reqAmount,
                                                         $scope.model.due,
                                                         Requests.getInterestRate($scope.model.type));
@@ -642,11 +453,13 @@ function userHome($scope, $cookies, $timeout, Config, $mdExpansionPanel, Applica
                     email: $scope.model.email
                 };
                 Requests.editRequest(postData).then(
-                    function() {
-                        updateRequestListUI(fetchId, selectedLoan, 'Solicitud editada',
-                                            'La información de su solicitud ha sido editada exitosamente.',
-                                            true, true,
-                                            parseInt(postData.loanType, 10));
+                    function(request) {
+                        Utils.showAlertDialog(
+                            'Solicitud editada',
+                            'La información de su solicitud ha sido editada exitosamente'
+                        );
+                        // Save controller state before navigating away.
+                        goToDetails(request);
                     },
                     function(error) {
                         $scope.uploading = false;
@@ -670,86 +483,18 @@ function userHome($scope, $cookies, $timeout, Config, $mdExpansionPanel, Applica
                     function() {
                         // Re-open parent dialog and perform request creation
                         $scope.model.confirmed = true;
-                        parentScope.openEditRequestDialog(null, $scope.model);
+                        parentScope.openEditRequestDialog(null, request, $scope.model);
                     },
                     function() {
                         // Re-open parent dialog and do nothing
-                        parentScope.openEditRequestDialog(null, $scope.model);
+                        parentScope.openEditRequestDialog(null, request, $scope.model);
                     }
                 );
             };
         }
     };
 
-    $scope.editEmail = function(ev) {
-        var parentEl = angular.element(document.body);
-        $mdDialog.show({
-            parent: parentEl,
-            targetEvent: ev,
-            clickOutsideToClose: true,
-            escapeToClose: true,
-            templateUrl: 'EditRequestController/emailEditionDialog',
-            locals: {
-                req: $scope.req,
-                userId: fetchId,
-                selectedReq: $scope.selectedReq,
-                selectedLoan: $scope.selectedLoan
-            },
-            controller: DialogController
-        });
-
-        function DialogController($scope, req, userId, selectedReq, selectedLoan) {
-            $scope.email = req.email;
-            $scope.loading = false;
-
-            $scope.saveEdition = function () {
-                if (!$scope.canSend()) return;
-                $scope.loading = true;
-                Requests.editEmail(req.id, $scope.email).then(
-                    function () {
-                        updateRequestListUI(userId, selectedLoan,
-                                            'Actualización exitosa', 'La dirección de correo ha sido actualizada ' +
-                                                                     'exitosamente',
-                                            true, false, selectedReq);
-                    },
-                    function (errorMsg) {
-                        Utils.showAlertDialog('Oops!', errorMsg);
-                    }
-                );
-            };
-
-            $scope.canSend = function() {
-                return typeof $scope.email !== "undefined" &&
-                       $scope.email !== req.email;
-            }
-        }
-    };
-
-    $scope.validateRequest = function (ev) {
-        Utils.showConfirmDialog(
-            'Advertencia',
-            'Al validar su solicitud no ya no podrá editarla ni eliminarla. ¿Desea continuar?' ,
-            'Continuar',
-            'Cancelar',
-            ev, true).then(
-            function() {
-                $scope.validating = true;
-                Requests.validateRequest($scope.req.id).then(
-                    function (date) {
-                        $scope.validating = false;
-                        Utils.showAlertDialog('Solicitud validada',
-                                              'Su solicitud será atendida en menos de 48 horas hábiles.');
-                        $scope.req.validationDate = date;
-                    },
-                    function (error) {
-                        $scope.validating = false;
-                        Utils.showAlertDialog('Oops!', error);
-                    }
-                );
-            });
-    };
-
-    $scope.deleteRequest = function (ev) {
+    $scope.deleteRequest = function (ev, req) {
         Utils.showConfirmDialog(
             'Confirmación de eliminación',
             'Al eliminar la solicitud, también se eliminarán ' +
@@ -759,13 +504,11 @@ function userHome($scope, $cookies, $timeout, Config, $mdExpansionPanel, Applica
             ev, true).then(
             function() {
                 $scope.overlay = true;
-                Requests.deleteRequestUI($scope.req).then(
+                Requests.deleteRequestUI(req).then(
                     function () {
-                        // Update interface
-                        updateRequestListUI(fetchId, -1, 'Solicitud eliminada',
-                                            'La solicitud fue eliminada exitosamente.',
-                                            true, true, $scope.req.type);
-                        $scope.req = null;
+                        $scope.overlay = false;
+                        // Re-load edit requests section.
+                        $scope.selectAction('edit');
                     },
                     function (errorMsg) {
                         $scope.overlay = false;
