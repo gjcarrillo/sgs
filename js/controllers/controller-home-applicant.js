@@ -251,6 +251,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
      */
     $scope.openNewRequestDialog = function ($event, concept, obj) {
         $scope.selectedAction = 'N' + concept;
+        $scope.requests = {};
         var parentEl = angular.element(document.body);
         $mdDialog.show({
             parent: parentEl,
