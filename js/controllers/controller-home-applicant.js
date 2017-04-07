@@ -11,6 +11,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
     $scope.selectedReq = Applicant.data.selectedReq;
     $scope.selectedLoan = Applicant.data.selectedLoan;
     $scope.requests = Applicant.data.requests;
+    $scope.singleType = Applicant.data.singleType;
     $scope.req = Applicant.data.req;
     $scope.loanTypes = Applicant.data.loanTypes;
     $scope.newRequestList = Applicant.data.newRequestList;
@@ -22,11 +23,13 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
     $scope.contentLoaded = Applicant.data.contentLoaded;
     $scope.selectedAction = Applicant.data.selectedAction;
     $scope.queryList = Applicant.data.queryList;
+    $scope.queries = Applicant.data.queries;
     $scope.showMsg = true;
 
     var fetchId = $cookies.getObject('session').id;
 
     $scope.selectAction = function (id) {
+        $scope.requests = {};
         $scope.selectedAction = id;
         performAction(id);
     };
@@ -51,11 +54,6 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
         );
     } else if ($scope.selectedAction) {
         $scope.selectAction($scope.selectedAction);
-        //$mdExpansionPanel().waitFor($scope.selectedLoan).then(function (instance) {
-        //    $timeout(function() {
-        //        instance.expand();
-        //    }, 600);
-        //});
     }
 
     $scope.togglePanelList = function (index) {
@@ -65,10 +63,17 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
     function performAction (action) {
         switch (action) {
             case 1:
+                // All requests
                 getAllRequests();
                 break;
+            case 6:
+                // Opened requests
+                getOpenedRequests();
+                break;
             case 'edit': {
+                // Editable requests
                 editRequests();
+                break;
             }
         }
     }
@@ -88,7 +93,84 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
             }
         );
     }
+
+    $scope.getRequestById = function (rid) {
+        $scope.requests = {};
+        $scope.fetching = true;
+        Requests.getRequestById(rid, fetchId).then(
+            function (request) {
+                goToDetails(request);
+            },
+            function (error) {
+                $scope.fetching = false;
+                Utils.showAlertDialog('Error', error);
+            }
+        );
+    };
+
+    $scope.getRequestsByStatus = function (status) {
+        $scope.requests = {};
+        $scope.fetching = true;
+        Requests.getRequestsByStatus(status, fetchId).then(
+            function (requests) {
+                $scope.requests = requests;
+                $scope.fetching = false;
+            },
+            function (error) {
+                $scope.fetching = false;
+                Utils.showAlertDialog('Error', error);
+            }
+        );
+    };
+
+    $scope.getRequestsByDate = function (from, to) {
+        $scope.requests = {};
+        $scope.fetching = true;
+        Requests.getRequestsByDate(from, to, fetchId).then(
+            function (requests) {
+                $scope.requests = requests;
+                $scope.fetching = false;
+            },
+            function (error) {
+                $scope.fetching = false;
+                Utils.showAlertDialog('Error', error);
+            }
+        );
+    };
+
+    $scope.getRequestsByType = function (concept) {
+        $scope.requests = {};
+        $scope.singleType = [];
+        $scope.fetching = true;
+        Requests.getRequestsByType(concept, fetchId).then(
+            function (requests) {
+                $scope.singleType = requests;
+                $scope.fetching = false;
+            },
+            function (error) {
+                $scope.fetching = false;
+                Utils.showAlertDialog('Error', error);
+            }
+        );
+    };
+
+    function getOpenedRequests () {
+        $scope.requests = {};
+        $scope.fetching = true;
+        Requests.getOpenedRequests(fetchId).then(
+            function (requests) {
+                $scope.requests = requests;
+                $scope.fetching = false;
+            },
+            function (error) {
+                $scope.fetching = false;
+                Utils.showAlertDialog('Error', error);
+            }
+        );
+    }
+
     function editRequests () {
+        $scope.requests = {};
         $scope.editableReq = [];
         $scope.fetching = true;
         Requests.getUserEditableRequests(fetchId).then(
@@ -142,6 +224,22 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
      */
     $scope.isObjEmpty = function(obj) {
         return Utils.isObjEmpty(obj);
+    };
+
+    $scope.showWatermark = function () {
+        return !$scope.loading && !$scope.fetching && $scope.fetchError == '' &&
+               $scope.selectedAction != 1 && $scope.selectedAction != 2 && $scope.selectedAction != 3 &&
+               $scope.selectedAction != 4 && $scope.selectedAction != 5 && $scope.selectedAction != 6 &&
+               $scope.selectedAction != 'edit';
+    };
+
+    $scope.loadStatuses = function() {
+        return Config.getStatuses().then(
+            function (statuses) {
+                $scope.statuses = Requests.getAllStatuses();
+                $scope.statuses = $scope.statuses.concat(statuses);
+            }
+        );
     };
 
     /**
@@ -519,85 +617,9 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
         );
     };
 
-    // Helper method that updates UI's request list.
-    function updateRequestListUI(userId, autoSelectIndex,
-                                 dialogTitle, dialogContent,
-                                 updateUI, toggleList, type) {
-        // Update interface
-        Requests.getUserRequests(userId).then(
-            function (data) {
-                // Update UI only if needed
-                var loanType = type;
-                if (updateUI) {
-                    updateContent(data, loanType, autoSelectIndex, toggleList);
-                }
-                // Toggle request list only if requested.
-                if (toggleList) {
-                    toggleReqList(loanType);
-                }
-                // Close dialog and alert user that operation was
-                // successful
-                $scope.overlay = false;
-                $mdDialog.hide();
-                Utils.showAlertDialog(dialogTitle, dialogContent);
-            },
-            function (errorMsg) {
-                $scope.overlay = false;
-            }
-        );
-    }
-
-    /**
-     * Helper function that updates content with new request.
-     *
-     * @param newRequests - the updated requests obj.
-     * @param req - New request's type.
-     * @param selection - Specific request's index.
-     * @param toggleList - Whether should to toggle request list or not.
-     */
-    function updateContent(newRequests, req, selection, toggleList) {
-        $scope.contentLoaded = true;
-        $scope.contentAvailable = true;
-        $scope.fetchError = '';
-        $scope.requests = newRequests;
-        // Close the list
-        if (toggleList) closeAllReqList();
-        // Automatically select created request
-        $scope.selectRequest(req, selection);
-    }
-
-    /**
-     * Automatically toggles the requests list.
-     *
-     * @param index - Request list's index
-     */
-    function toggleReqList(index) {
-        $timeout(function () {
-            // Open the list
-            $scope.loanTypes[index].selected = true;
-        }, 1000);
-
-    }
-
-    function closeAllReqList() {
-        $scope.selectedReq = '';
-        $scope.selectedLoan = -1;
-        angular.forEach($scope.loanTypes, function(show, index) {
-            $scope.loanTypes[index].selected = false;
-        });
-    }
-
     // Helper function for formatting numbers with leading zeros
     $scope.pad = function (n, width, z) {
         return Utils.pad(n, width, z);
-    };
-
-    $scope.downloadDoc = function (doc) {
-        window.open(Requests.getDocDownloadUrl(doc.id));
-    };
-
-    $scope.downloadAll = function () {
-        location.href = Requests.getAllDocsDownloadUrl($scope.req.docs);
     };
 
     $scope.downloadManual = function () {
@@ -615,9 +637,11 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
         data.selectedReq = $scope.selectedReq;
         data.selectedLoan = $scope.selectedLoan;
         data.requests = $scope.requests;
+        data.singleType = $scope.singleType;
         data.req = $scope.req;
         data.queryList = $scope.queryList;
         data.loanTypes = $scope.loanTypes;
+        data.queries = $scope.queries;
         data.newRequestList = $scope.newRequestList;
         data.selectedList = $scope.selectedList;
         data.selectedAction = $scope.selectedAction;

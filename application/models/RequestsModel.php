@@ -37,6 +37,122 @@ class RequestsModel extends CI_Model
         return json_encode($result);
     }
 
+    public function getRequestById($rid, $uid) {
+        try {
+            $em = $this->doctrine->em;
+            $request = $em->find('\Entity\Request', $rid);
+            if ($request === null ||
+                ($request->getUserOwner()->getId() != $uid && $this->session->id == APPLICANT)) {
+                throw new Exception('No se ha encontrado solicitud con ID ' .
+                                     str_pad($_GET['rid'], 6, '0', STR_PAD_LEFT));
+            } else {
+                return $this->utils->reqToArray($request);
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function getRequestByDate($from, $to, $uid) {
+        try {
+            $em = $this->doctrine->em;
+            $query = $em->createQuery('SELECT t FROM \Entity\Request t WHERE t.creationDate BETWEEN ?1 AND ?2');
+            $query->setParameter(1, $from);
+            $query->setParameter(2, $to);
+            $requests = $query->getResult();
+            $result = array();
+            foreach ($requests as $request) {
+                if ($request->getUserOwner()->getId() != $uid && $this->session->type == APPLICANT)
+                    continue;
+                // Add this request to result
+                array_push($result, $this->utils->reqToArray($request));
+            }
+            $interval = $from->diff($to);
+            $days = $interval->format("%a");
+            if (empty($result)) {
+                if ($days > 0) {
+                    throw new Exception("No se han encontrado solicitudes para el rango de fechas especificado");
+                } else {
+                    throw new Exception ("No se han encontrado solicitudes para la fecha especificada");
+                }
+            } else {
+                return $result;
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function getRequestByStatus($status, $uid) {
+        try {
+            $em = $this->doctrine->em;
+            $requestsRepo = $em->getRepository('\Entity\Request');
+            $requests = $requestsRepo->findBy(array("status" => $status));
+            $result = array();
+            foreach ($requests as $request) {
+                if ($request->getUserOwner()->getId() != $uid && $this->session->type == APPLICANT)
+                    continue;
+                // Add this request to result
+                array_push($result, $this->utils->reqToArray($request));
+            }
+            if (empty($result)) {
+                throw new Exception("No se han encontrado solicitudes con estatus " . $status);
+            } else {
+                return $result;
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function getRequestByType($loanType, $uid) {
+        try {
+            $em = $this->doctrine->em;
+            $requestsRepo = $em->getRepository('\Entity\Request');
+            $requests = $requestsRepo->findBy(array("loanType" => $loanType));
+            $result = array();
+            foreach ($requests as $request) {
+                if ($request->getUserOwner()->getId() != $uid && $this->session->type == APPLICANT)
+                    continue;
+                // Add this request to result
+                array_push($result, $this->utils->reqToArray($request));
+            }
+            if (empty($result)) {
+                $this->load->model('configModel');
+                $loanTypes = $this->configModel->getLoanTypes();
+                throw new Exception("No se han encontrado solicitudes del tipo " . $loanTypes[$loanType]->DescripcionDelPrestamo);
+            } else {
+                return $result;
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function getOpenedRequests($uid) {
+        try {
+            $em = $this->doctrine->em;
+            $requestsRepo = $em->getRepository('\Entity\Request');
+            $statuses = $this->utils->getAdditionalStatuses();
+            array_push($statuses, RECEIVED);
+            $requests = $requestsRepo->findBy(array("status" => $statuses));
+            $result = array();
+            foreach ($requests as $request) {
+                if ($request->getUserOwner()->getId() != $uid && $this->session->type == APPLICANT)
+                    continue;
+                // Add this request to result
+                array_push($result, $this->utils->reqToArray($request));
+            }
+            if (empty($result)) {
+                throw new Exception("No se han encontrado solicitudes abiertas.");
+            } else {
+                return $result;
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
     public function getUserEditableRequests($uid) {
         $editables = array();
         try {

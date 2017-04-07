@@ -273,7 +273,7 @@ class UtilsModel extends CI_Model
      * @return string - string containing error message.
      */
     public function getErrorMsg($e) {
-        return "Ha ocurrido un error en el sistema: " . $e->getMessage();
+        return $e->getMessage();
     }
 
 

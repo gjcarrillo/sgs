@@ -13,21 +13,4 @@ class ApplicantHomeController extends CI_Controller {
         $this->load->view('templates/applicantHome');
 	}
 
-    public function sendValidation() {
-        if ($_SESSION['type'] != APPLICANT) {
-            $this->load->view('errors/index.html');
-        } else {
-            try {
-                $reqId = json_decode($this->input->raw_input_stream, true);
-                $this->load->model('emailModel', 'email');
-                $this->email->sendNewRequestEmail($reqId);
-                $this->load->model('historyModel', 'history');
-                $this->history->registerValidationResend($reqId);
-                $result['message'] = "success";
-            } catch (Exception $e) {
-                $result['message'] = $this->utils->getErrorMsg($e);
-            }
-            echo json_encode($result);
-        }
-    }
 }

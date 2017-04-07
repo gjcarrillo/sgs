@@ -37,11 +37,7 @@ class ConfigController extends CI_Controller
     /** Requests' status configuration **/
 
     public function getStatuses() {
-        if ($_SESSION['type'] != MANAGER) {
-            $this->load->view('errors/index.html');
-        } else {
-            echo $this->configModel->getStatuses();
-        }
+        echo $this->configModel->getStatuses();
     }
 
     public function getStatusesForConfig() {

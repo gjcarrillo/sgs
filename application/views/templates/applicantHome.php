@@ -167,10 +167,10 @@
             </div>
             <!-- Watermark -->
             <div
-                ng-if="fetchError == '' && selectedAction != 1 && selectedAction != 'edit' && !loading && !fetching"
+                ng-if="showWatermark()"
                 class="full-content-height"
                 layout="column" layout-align="center center">
-                <div ng-if="!loading" class="watermark" layout="column" layout-align="center center">
+                <div class="watermark" layout="column" layout-align="center center">
                     <img src="images/ipapedi.png" alt="Ipapedi logo"/>
                 </div>
             </div>
@@ -181,9 +181,107 @@
                     <md-progress-circular aria-label="Loading..." md-mode="indeterminate" md-diameter="60">
                     </md-progress-circular>
             </div>
-            <!-- Requests list -->
             <md-content class="bg document-container">
-                <div class="margin-16" ng-show="selectedAction == 1 && !fetching">
+                <!-- Request by ID -->
+                <div ng-if="selectedAction == 2 && !fetching" layout class="margin-16">
+                    <div layout="column">
+                        <span>Ingrese el ID de la solicitud</span>
+                        <md-input-container
+                            class="no-vertical-margin"
+                            md-no-float>
+                            <input
+                                placeholder="Ej: 332"
+                                type="number"
+                                min="1"
+                                aria-label="requestId"
+                                ng-model="queries[selectedAction]"
+                                ng-keyup="!queries[selectedAction] ? null :
+                                $event.keyCode == 13 && getRequestById(queries[selectedAction])">
+                        </md-input-container>
+                    </div>
+                    <div layout layout-align="center center">
+                        <md-button
+                            ng-disabled="!queries[selectedAction]"
+                            ng-click="getRequestById(queries[selectedAction])"
+                            class="md-raised md-primary">
+                            <md-icon>search</md-icon>Consultar
+                        </md-button>
+                    </div>
+                </div>
+                <!-- Request by date -->
+                <div ng-if="selectedAction == 3 && !fetching" layout class="margin-16">
+                    <div layout="column">
+                        <p>Desde</p>
+                        <md-datepicker class="bg" ng-model="queries[selectedAction].from" md-placeholder="Ingese fecha"></md-datepicker>
+                    </div>
+                    <div layout="column">
+                        <p>Hasta</p>
+                        <md-datepicker class="bg" ng-model="queries[selectedAction].to" md-placeholder="Ingese fecha"></md-datepicker>
+                    </div>
+                    <div layout layout-align="center end">
+                        <md-button
+                            ng-disabled="!queries[selectedAction].from || !queries[selectedAction].to"
+                            ng-click="getRequestsByDate(queries[selectedAction].from, queries[selectedAction].to)"
+                            class="md-raised md-primary">
+                            <md-icon>search</md-icon>Consultar
+                        </md-button>
+                    </div>
+                </div>
+                <!-- Request by status -->
+                <div ng-if="selectedAction == 4 && !fetching" layout class="margin-16">
+                    <div layout="column">
+                        <span>Elija el estatus</span>
+                        <md-input-container
+                            class="no-vertical-margin"
+                            md-no-float>
+                            <md-select
+                                md-select-fix="queries[selectedAction]"
+                                md-on-open="loadStatuses()"
+                                placeholder="Estatus"
+                                ng-model="queries[selectedAction]">
+                                <md-option ng-repeat="(sKey, status) in statuses" ng-value="status">
+                                    {{status}}
+                                </md-option>
+                            </md-select>
+                        </md-input-container>
+                    </div>
+                    <div layout layout-align="center center">
+                        <md-button
+                            ng-disabled="!queries[selectedAction]"
+                            ng-click="getRequestsByStatus(queries[selectedAction])"
+                            class="md-raised md-primary">
+                            <md-icon>search</md-icon>Consultar
+                        </md-button>
+                    </div>
+                </div>
+                <!-- Request by type -->
+                <div ng-if="selectedAction == 5 && !fetching" layout class="margin-16">
+                    <div layout="column">
+                        <span>Elija el tipo de préstamo</span>
+                        <md-input-container
+                            class="no-vertical-margin"
+                            md-no-float>
+                            <md-select
+                                md-select-fix="queries[selectedAction]"
+                                placeholder="Tipo de préstamo"
+                                ng-model="queries[selectedAction]">
+                                <md-option ng-repeat="(lKey, loanType) in loanTypes" ng-value="lKey">
+                                    {{loanType.DescripcionDelPrestamo}}
+                                </md-option>
+                            </md-select>
+                        </md-input-container>
+                    </div>
+                    <div layout layout-align="center center">
+                        <md-button
+                            ng-disabled="!queries[selectedAction]"
+                            ng-click="getRequestsByType(queries[selectedAction])"
+                            class="md-raised md-primary">
+                            <md-icon>search</md-icon>Consultar
+                        </md-button>
+                    </div>
+                </div>
+                <!-- Requests list -->
+                <div class="margin-16" ng-show="!isObjEmpty(requests) && !fetching">
                     <md-expansion-panel-group md-component-id="requests">
                         <md-expansion-panel ng-repeat="(lKey, loanType) in loanTypes" md-component-id="{{lKey}}">
                             <md-expansion-panel-collapsed>
@@ -200,7 +298,7 @@
 
                                 <md-expansion-panel-content>
                                     <!-- Table of requests -->
-                                    <p ng-show="requests[lKey].length == 0">Usted aún no posee solicitudes</p>
+                                    <p ng-show="requests[lKey].length == 0">No se encontraron resultados</p>
                                     <md-table-container ng-show="requests[lKey].length > 0">
                                         <table md-table md-row-select ng-model="selected">
                                             <thead md-head>
@@ -303,12 +401,58 @@
                             </table>
                         </md-table-container>
                         <md-table-pagination
-                                             md-label="{page: 'Página:', rowsPerPage: 'Filas por página:', of: 'de'}"
-                                             md-limit="query.limit"
-                                             md-limit-options="[5, 10, 15, 20]"
-                                             md-page="query.page"
-                                             md-total="{{editableReq.length}}"
-                                             md-page-select>
+                            md-label="{page: 'Página:', rowsPerPage: 'Filas por página:', of: 'de'}"
+                            md-limit="query.limit"
+                            md-limit-options="[5, 10, 15, 20]"
+                            md-page="query.page"
+                            md-total="{{editableReq.length}}"
+                            md-page-select>
+
+                        </md-table-pagination>
+                    </md-card>
+                </div>
+
+                <!-- Specific type requests list -->
+                <div class="margin-16" ng-if="selectedAction == 5 && !fetching">
+                    <md-card ng-if="singleType.length > 0">
+                        <md-toolbar class="md-table-toolbar md-default">
+                            <div class="md-toolbar-tools">
+                                <span>Solicitudes de tipo {{loanTypes[queries[selectedAction]].DescripcionDelPrestamo}}</span>
+                            </div>
+                        </md-toolbar>
+                        <md-table-container>
+                            <table md-table md-row-select ng-model="selected">
+                                <thead md-head>
+                                <tr md-row>
+                                    <th md-column><span>ID</span></th>
+                                    <th md-column><span>Fecha</span></th>
+                                    <th md-column><span>Estatus</span></th>
+                                    <th md-column><span>Monto solicitado</span></th>
+                                </tr>
+                                </thead>
+                                <tbody md-body>
+                                <tr md-row ng-repeat="(rKey, request) in singleType | limitTo: query.limit: (query.page - 1) * query.limit track by $index">
+                                    <td md-cell ng-click="goToDetails(request)">{{pad(request.id, 6)}}</td>
+                                    <td md-cell ng-click="goToDetails(request)">{{request.creationDate}}</td>
+                                    <td md-cell ng-click="goToDetails(request)">{{request.status}}</td>
+                                    <td md-cell ng-click="goToDetails(request)">{{request.reqAmount | number:2}}</td>
+                                    <td ng-if="!request.validationDate" md-cell ng-click="goToDetails(request)">
+                                        <md-icon style="color: red">
+                                            warning
+                                            <md-tooltip>Solicitud no validada</md-tooltip>
+                                        </md-icon>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </md-table-container>
+                        <md-table-pagination
+                            md-label="{page: 'Página:', rowsPerPage: 'Filas por página:', of: 'de'}"
+                            md-limit="query.limit"
+                            md-limit-options="[5, 10, 15, 20]"
+                            md-page="query.page"
+                            md-total="{{singleType.length}}"
+                            md-page-select>
 
                         </md-table-pagination>
                     </md-card>

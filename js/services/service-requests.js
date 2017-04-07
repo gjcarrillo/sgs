@@ -38,6 +38,126 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
         return qReq.promise;
     };
 
+    /**
+     * Fetches details of specified request.
+     * @param id - request id.
+     * @param uid - user owner's id.
+     * @returns {*}
+     */
+    self.getRequestById = function (id, uid) {
+        var qReq = $q.defer();
+        $http.get('requestsController/getRequestById', {params:{rid:id, uid: uid}}).then(
+            function (response) {
+                console.log(response);
+                if (response.data.message == "success") {
+                    qReq.resolve(response.data.request);
+                } else {
+                    qReq.reject(response.data.message);
+                }
+
+            });
+        return qReq.promise;
+    };
+
+    /**
+     * Gets the requests created within the specified date interval.
+     *
+     * @param from - date from which to start the look up.
+     * @param to - date from which to end the look up.
+     * @param uid - user owner's id.
+     * @returns {*} - promise containing the operation's result.
+     */
+    self.getRequestsByDate = function (from, to, uid) {
+        var qRequests = $q.defer();
+        $http.get('requestsController/getRequestsByDate',
+            {
+                params: {
+                    from: moment(from).format('DD/MM/YYYY'),
+                    to: moment(to).format('DD/MM/YYYY'),
+                    uid: uid
+                }
+            })
+            .then(
+            function (response) {
+                console.log(response);
+                if (response.data.message === "success") {
+                    qRequests.resolve(self.filterRequests(response.data.requests));
+                } else {
+                    qRequests.reject(response.data.message);
+                }
+            });
+        return qRequests.promise;
+    };
+
+    /**
+     * Fetches requests the match the specified status.
+     *
+     * @param status - request status.
+     * @param uid - user owner's id.
+     * @returns {*} - promise containing the operation's result.
+     */
+    self.getRequestsByStatus = function (status, uid) {
+        var qRequests = $q.defer();
+        $http.get('requestsController/getRequestsByStatus', {params: {status: status, uid: uid}})
+            .then(
+            function (response) {
+                if (response.data.message === "success") {
+                    qRequests.resolve(self.filterRequests(response.data.requests));
+                } else {
+                    qRequests.reject(response.data.message);
+                }
+            });
+        return qRequests.promise;
+    };
+
+    /**
+     * Fetches requests the match the specified loan type.
+     *
+     * @param concept - loan type code.
+     * @param uid - user owner's id.
+     * @returns {*} - promise containing the operation's result.
+     */
+    self.getRequestsByType = function (concept, uid) {
+        var qRequests = $q.defer();
+        $http.get('requestsController/getRequestsByType', {params: {concept: concept, uid: uid}})
+            .then(
+            function (response) {
+                if (response.data.message === "success") {
+                    qRequests.resolve(response.data.requests);
+                } else {
+                    qRequests.reject(response.data.message);
+                }
+            });
+        return qRequests.promise;
+    };
+
+    /**
+     * Fetches user requests that have not been yet closed.
+     *
+     * @param uid - user's id.
+     * @returns {*} - promise with the operation's result.
+     */
+    self.getOpenedRequests = function (uid) {
+        var qRequests = $q.defer();
+        $http.get('requestsController/getOpenedRequests', {params: {uid: uid}})
+            .then(
+            function (response) {
+                console.log(response);
+                if (response.data.message === "success") {
+                    qRequests.resolve(self.filterRequests(response.data.requests));
+                } else {
+                    qRequests.reject(response.data.message);
+                }
+            });
+        return qRequests.promise;
+    };
+
+    /**
+     * Fetches user's requests have can be edited (i.e. have not yet been validated).
+     *
+     * @param fetchId - user's id.
+     * @returns {*} - promise with the operation's result.
+     */
     self.getUserEditableRequests = function (fetchId) {
         var qReq = $q.defer();
         $http.get('requestsController/getUserEditableRequests',
@@ -306,17 +426,6 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
                       }
                   });
         return qReqCreation.promise;
-    };
-
-    /**
-     * Gets the request belonging to specified ID.
-     *
-     * @param requests - requests object.
-     * @param id - request's id.
-     * @return object containing the request with specified ID.
-     */
-    self.getRequestById = function (requests, id) {
-        return _.find(requests, function(o) { return o.id == id; });
     };
 
     /**

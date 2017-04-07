@@ -5,9 +5,9 @@ angular
     .module('sgdp.service-applicant', [])
     .factory('Applicant', applicant);
 
-applicant.$inject = [];
+applicant.$inject = ['$http'];
 
-function applicant () {
+function applicant ($http) {
 
     var self = this;
 
@@ -30,6 +30,11 @@ function applicant () {
         {id: 5, text: 'Solicitudes por tipo'},
         {id: 6, text: 'Solicitudes abiertas'}
     ];
+    data.queries = {};
+    // initialize all ng-model variables.
+    for (var i = 0; i < data.queryList.length; i++) {
+        data.queries[data.queryList[0].id] = null;
+    }
     data.newRequestList = false;
     data.selectedList = 0;
     data.fetchError = '';
