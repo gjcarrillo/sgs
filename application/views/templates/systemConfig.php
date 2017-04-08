@@ -1,6 +1,6 @@
 <md-dialog aria-label="Edit Request" style="min-width: 60%">
     <!-- Dialog title -->
-    <md-toolbar>
+    <md-toolbar class="md-table-toolbar md-default">
         <div class="md-toolbar-tools">
             <h2>Configuración del sistema</h2>
             <span flex></span>

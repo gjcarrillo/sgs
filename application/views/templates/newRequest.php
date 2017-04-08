@@ -1,6 +1,6 @@
 <md-dialog aria-label="New Request">
     <!-- Dialog title -->
-    <md-toolbar>
+    <md-toolbar class="md-table-toolbar md-default">
         <div class="md-toolbar-tools">
             <h2>{{title}}</h2>
             <span flex></span>

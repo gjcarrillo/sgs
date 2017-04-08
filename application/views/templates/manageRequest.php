@@ -1,6 +1,6 @@
 <md-dialog aria-label="Manage Request">
     <!-- Dialog title -->
-    <md-toolbar>
+    <md-toolbar class="md-table-toolbar md-default">
         <div class="md-toolbar-tools">
             <h2>Edición de solicitud</h2>
             <span flex></span>
