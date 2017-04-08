@@ -564,7 +564,7 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
         if (data.admissionDate && !data.sixMonthsOld) {
             // If admissionDate exists in response, it means we should perform the check
             Utils.showAlertDialog('No permitido',
-                                  'Estaimdo usuario, para solicitar un préstamo personal es necesario que ' +
+                                  'Estimado usuario, para solicitar un préstamo personal es necesario que ' +
                                   'hayan transcurrido al menos seis (6) meses desde su fecha de ingreso, por lo que ' +
                                   'podrá solicitar dicho préstamo al ' + data.dateAvailable);
         } else if (data.concurrence >= 40) {
