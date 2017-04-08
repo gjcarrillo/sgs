@@ -282,7 +282,7 @@ class DocumentGenerator extends CI_Controller {
 			// data offset
 			$offset += count($data['data']);
 			// Extend table for total amounts
-			if ($data['status'] == APPROVED) {
+			if ($data['status'] == APPROVED || $data['status'] == PRE_APPROVED) {
 				// Take both reunion number & approved amount cells into account.
 				$this->excel->getActiveSheet()->fromArray((array)$data['total'], NULL, 'G' . $offset);
 				$totalStartCell = $requestedCell = 'G';
@@ -303,7 +303,7 @@ class DocumentGenerator extends CI_Controller {
 			}
 			$this->excel->getActiveSheet()
 				->setCellValue($totalValCell . $offset, '=SUM(' . $requestedCell . '7:' . $requestedCell . ($offset-1) . ')');
-			if ($data['status'] == APPROVED) {
+			if ($data['status'] == APPROVED || $data['status'] == PRE_APPROVED) {
 				$this->excel->getActiveSheet()->setCellValue($totalValCell . ($offset+1), '=SUM(H7:H' . ($offset-1) . ')');
 			}
 			// Merge header and dataTitle cells
@@ -327,7 +327,7 @@ class DocumentGenerator extends CI_Controller {
 			);
 			// Table offset
 			$tableOffset = 6 + count($data['data']);
-			$tableExtensionEnd = $data['status'] == APPROVED ? $tableOffset+2 : $tableOffset+1;
+			$tableExtensionEnd = ($data['status'] == APPROVED || $data['status'] == PRE_APPROVED) ? $tableOffset+2 : $tableOffset+1;
 			// Add table style
 			$this->excel->getActiveSheet()->getStyle('A6:' . $lastCell . $tableOffset)->applyFromArray($tableBorders);
 			// Extend table style for requested & approved total amount

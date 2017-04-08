@@ -235,6 +235,32 @@ class ManagerHomeController extends CI_Controller {
         }
     }
 
+    public function loadPendingRequests() {
+        if ($_SESSION['type'] != MANAGER) {
+            $this->load->view('errors/index.html');
+        } else {
+            $result['requests'] = array();
+            try {
+                $em = $this->doctrine->em;
+                // Look for all requests with the specified status
+                $requestsRepo = $em->getRepository('\Entity\Request');
+                $statuses = $this->utils->getAdditionalStatuses();
+                array_push($statuses, RECEIVED);
+                $requests = $requestsRepo->findBy(array("status" => $statuses));
+                $rKey = 0;
+                foreach ($requests as $request) {
+                    if ($request->getValidationDate() === null) continue;
+                    $result['requests'][$rKey] = $this->utils->reqToArray($request);
+                    $rKey++;
+                }
+                $result['message'] = 'success';
+            } catch (Exception $e) {
+                $result['message'] = $this->utils->getErrorMsg($e);
+            }
+            echo json_encode($result);
+        }
+    }
+
     public function fetchRequestsByStatus() {
         if ($_SESSION['type'] != MANAGER) {
             $this->load->view('errors/index.html');

@@ -11,6 +11,7 @@ var obj = {
     },
     Statuses: {
         RECEIVED: 'Recibida',
+        PRE_APPROVED: 'Pre-Aprobada',
         APPROVED: 'Aprobada',
         REJECTED: 'Rechazada'
     },

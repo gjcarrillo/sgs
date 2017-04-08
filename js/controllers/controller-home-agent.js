@@ -17,6 +17,7 @@ function agentHome($scope, $mdDialog, FileUpload, Constants, Agent, Config,
     $scope.fetchId = Agent.data.fetchId;
     $scope.searchInput = Agent.data.searchInput;
     $scope.APPROVED_STRING = Constants.Statuses.APPROVED;
+    $scope.PRE_APPROVED_STRING = Constants.Statuses.PRE_APPROVED;
     $scope.REJECTED_STRING = Constants.Statuses.REJECTED;
     $scope.RECEIVED_STRING = Constants.Statuses.RECEIVED;
     // contentAvailable will indicate whether sidenav can be visible

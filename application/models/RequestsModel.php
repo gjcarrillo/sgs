@@ -492,7 +492,9 @@ class RequestsModel extends CI_Model
      */
     public function isRequestClosed($request) {
         try {
-            return ($request->getStatus() == APPROVED || $request->getStatus() == REJECTED);
+            return ($request->getStatus() == APPROVED ||
+                    $request->getStatus() == REJECTED ||
+                    $request->getStatus() == PRE_APPROVED);
         } catch (Exception $e) {
             throw $e;
         }
@@ -535,6 +537,74 @@ class RequestsModel extends CI_Model
                     $this->utils->getInterestRate($request->getLoanType()))
             );
             $this->ipapedi_db->insert('db_dt_prestamos', $newData);
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+
+    public function shouldApproveRequest($rid) {
+        try {
+            $this->ipapedi_db = $this->load->database('ipapedi_db', true);
+            $em = $this->doctrine->em;
+            $request = $em->find('\Entity\Request', $rid);
+            $this->ipapedi_db->select('*');
+            $this->ipapedi_db->from('db_dt_prestamos');
+            $this->ipapedi_db->where('cedula', $request->getUserOwner()->getId());
+            $this->ipapedi_db->where('concepto', $request->getLoanType());
+            // get last granting date for corresponding request type.
+            $query = $this->ipapedi_db->order_by('otorg_fecha',"desc")->get();
+            if (empty($query->result())) {
+                // Still no new entry.
+                return false;
+            } else {
+                $granting = date_create_from_format('d/m/Y', $query->result()[0]->otorg_fecha);
+                if (!$granting) {
+                    // No granting date found in most recent granting entry. This means last loan request was rejected.
+                    return false;
+                } else {
+                    $creationDate = $request->getCreationDate();
+                    // If creation date is older than last granting date, it means request approval was updated.
+                    // Go ahead and allow approval.
+                    return $creationDate <= $granting;
+                }
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function approveRequest ($rid) {
+        try {
+            $em = $this->doctrine->em;
+            $request = $em->find('\Entity\Request', $rid);
+            $this->load->model('userModel');
+            // Register History
+            $history = new \Entity\History();
+            $history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
+            $history->setUserResponsible($this->userModel->getSystemGeneratedUser());
+            $history->setTitle($this->utils->getHistoryActionCode('closure'));
+            $history->setOrigin($request);
+            $request->addHistory($history);
+            // Register it's corresponding actions
+            $history->setTitle($this->utils->getHistoryActionCode('closure'));
+            $action = new \Entity\HistoryAction();
+            $action->setSummary("Cierre de solicitud.");
+            $action->setDetail("Nuevo estatus: " . APPROVED);
+            $action->setBelongingHistory($history);
+            $history->addAction($action);
+            $em->persist($action);
+            $changes = "<li>Cambio de estatus: <s>" . $request->getStatus() .
+                       "</s> " . APPROVED . "." . "</li>";
+            $changes = $changes .
+                       '<br/><div>El préstamo solicitado ha sido abonado. Puede entrar en IPAPEDI en línea ' .
+                       'para ver los cambios realizados en su Estado de Cuenta.</div>';
+            $em->persist($history);
+            $request->setStatus(APPROVED);
+            $em->merge($request);
+            $this->load->model('emailModel', 'email');
+            $this->email->sendRequestUpdateEmail($request->getId(), $changes);
+            $em->flush();
         } catch (Exception $e) {
             throw $e;
         }

@@ -103,4 +103,29 @@ class DriveController extends CI_Controller {
         }
         echo json_encode($result);
     }
+
+    /**
+     * Approved requests that can already be approved.
+     */
+    public function checkRequestsForApproval() {
+        $result['message'] = 'error';
+        try {
+            $this->load->model('requestsModel', 'requests');
+            $em = $this->doctrine->em;
+            // Get all pre-approved requests.
+            $requestsRepo = $em->getRepository('\Entity\Request');
+            $requests = $requestsRepo->findBy(array("status" => PRE_APPROVED));
+            foreach ($requests as $request) {
+                // we should approve request if approval has been made in ipapedi en linea db.
+                if ($this->requests->shouldApproveRequest($request->getId())) {
+                    // Approve request, register history and send email.
+                    $this->requests->approveRequest($request->getId());
+                }
+            }
+            $result['message'] = 'success';
+        } catch (Exception $e) {
+            $result['message'] = $this->utils->getErrorMsg($e);
+        }
+        echo json_encode($result);
+    }
 }

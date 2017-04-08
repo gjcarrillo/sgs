@@ -155,6 +155,22 @@ function manager($http, $q, Requests) {
         return qPending.promise;
     };
 
+    self.loadPendingRequests = function () {
+        var qPending = $q.defer();
+        $http.get('ManagerHomeController/loadPendingRequests')
+            .then(
+            function (response) {
+                console.log(response);
+                if (response.data.message === "success") {
+                    qPending.resolve(Requests.filterRequests(response.data.requests));
+                } else {
+                    qPending.reject(response.data.message);
+                }
+
+            });
+        return qPending.promise;
+    };
+
     /**
      * Fetches requests the match the specified loan type.
      *

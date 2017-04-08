@@ -39,6 +39,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
     $scope.APPROVED_STRING = Constants.Statuses.APPROVED;
     $scope.REJECTED_STRING = Constants.Statuses.REJECTED;
     $scope.RECEIVED_STRING = Constants.Statuses.RECEIVED;
+    $scope.PRE_APPROVED_STRING = Constants.Statuses.PRE_APPROVED;
     //$scope.listTitle = Requests.getRequestsListTitle();
     $scope.mappedStatuses = Requests.getAllStatuses();
     Requests.initializeListType().then(
@@ -72,18 +73,9 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
      */
     function loadPendingRequests() {
         $scope.loadingContent = true;
-        Manager.fetchPendingRequests().then(
-            function (data) {
-                $scope.pendingRequests = data.requests;
-                console.log(data.requests);
-                if (!Utils.isObjEmpty(data.requests)) {
-                    // Give 500ms to render the list in the view
-                    // Otherwise 'Empty list' msg will appear briefly.
-                    $timeout(function() {
-                        $scope.showPendingReq = true;
-                        $mdSidenav('left').open();
-                    }, 500);
-                }
+        Manager.loadPendingRequests().then(
+            function (requests) {
+                $scope.pendingRequests = requests;
                 $scope.loadingContent = false;
             }, function (error) {
                 Utils.showAlertDialog('Oops!', error);
@@ -463,6 +455,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
             $scope.request = request;
             $scope.mappedStatuses = Requests.getAllStatuses();
             $scope.APPROVED_STRING = Constants.Statuses.APPROVED;
+            $scope.PRE_APPROVED_STRING = Constants.Statuses.PRE_APPROVED;
             $scope.REJECTED_STRING = Constants.Statuses.REJECTED;
             $scope.RECEIVED_STRING = Constants.Statuses.RECEIVED;
 
@@ -484,7 +477,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
             };
 
             $scope.missingField = function() {
-                if ($scope.model.status == $scope.APPROVED_STRING) {
+                if ($scope.model.status == $scope.PRE_APPROVED_STRING) {
                     return typeof $scope.model.approvedAmount === "undefined";
                 } else {
                     return (($scope.model.status == request.status
@@ -499,6 +492,9 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 return Config.getStatuses().then(
                     function (statuses) {
                         $scope.mappedStatuses = Requests.getAllStatuses();
+                        // Delete approved from available statuses.
+                        // Pre-approved -> Approved will be done automatically through cron jobs.
+                        $scope.mappedStatuses.splice($scope.mappedStatuses.indexOf($scope.APPROVED_STRING), 1);
                         $scope.mappedStatuses = $scope.mappedStatuses.concat(statuses);
                     }
                 );
@@ -511,7 +507,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
              * @param ev - user event.
              */
             $scope.verifyEdition = function(ev) {
-                if ($scope.model.status === $scope.APPROVED_STRING ||
+                if ($scope.model.status === $scope.PRE_APPROVED_STRING ||
                     $scope.model.status === $scope.REJECTED_STRING) {
                     confirmClosure(ev);
                 } else {
@@ -523,8 +519,8 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
             function confirmClosure(ev) {
                 Utils.showConfirmDialog(
                     'Advertencia',
-                    'Al cambiar el estatus de la solicitud a ' + $scope.model.status +
-                    ' se cerrará la solicitud y no se podrán realizar más cambios. ¿Desea proceder?',
+                    'Al cambiar el estatus de la solicitud a <b>' + $scope.model.status +
+                    '</b> no se podrán realizar más cambios. ¿Desea proceder?',
                     'Sí', 'Cancelar', ev, true
                 ).then(
                     function () {
@@ -545,7 +541,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 $scope.request.status = $scope.model.status;
                 $scope.request.comment = $scope.model.comment;
                 $scope.request.reunion = $scope.model.reunion;
-                if ($scope.model.status == $scope.APPROVED_STRING) {
+                if ($scope.model.status == $scope.PRE_APPROVED_STRING) {
                     $scope.request.approvedAmount = $scope.model.approvedAmount;
                 }
                 Manager.updateRequest($scope.request)

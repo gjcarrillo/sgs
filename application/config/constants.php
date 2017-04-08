@@ -112,11 +112,12 @@ define('LOAN_TYPES_NAMES', array(
                 STATUSES
 =========================================*/
 define('RECEIVED', 'Recibida');
+define('PRE_APPROVED', 'Pre-Aprobada');
 define('APPROVED', 'Aprobada');
 define('REJECTED', 'Rechazada');
 define('APPROVED_VERB', 'aprobar');
 define('REJECTED_VERB', 'rechazar');
-define('STATUSES', array('Recibida', 'Aprobada', 'Rechazada'));
+define('STATUSES', array('Recibida', 'Pre-Aprobada', 'Aprobada', 'Rechazada'));
 define('STATUSES_VERB', array(RECEIVED => 'recibir', APPROVED => 'aprobar', REJECTED => 'rechazar'));
 /* ======================================
                 MAILGUN
@@ -159,3 +160,7 @@ define('CLIENT_SECRET_PATH', APPPATH . '../client_secret.json');
 =========================================*/
 define('LOCAL', 1);
 define('REMOTE', 2);
+/* ======================================
+       Auto generated system user ID
+=========================================*/
+define('SID', 'AGSID95883');

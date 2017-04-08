@@ -297,7 +297,7 @@
                                         <md-button
                                             class="md-icon-button"
                                             ng-if="req.status != APPROVED_STRING && req.status != REJECTED_STRING
-                                                && req.validationDate"
+                                                && req.status != PRE_APPROVED_STRING && req.validationDate"
                                             ng-click="openUpdateRequestDialog($event)">
                                             <md-icon class="md-secondary">
                                                 edit
@@ -362,7 +362,8 @@
                                                 </md-button>
                                             </md-menu-item>
                                             <md-menu-item ng-if="req.status != APPROVED_STRING &&
-                                                req.status != REJECTED_STRING && req.validationDate">
+                                                req.status != REJECTED_STRING && req.status != PRE_APPROVED_STRING &&
+                                                req.validationDate">
                                                 <md-button ng-click="openUpdateRequestDialog($event)">
                                                     <md-icon class="md-secondary">
                                                         edit
@@ -466,6 +467,7 @@
                                         </div>
                                         <md-button
                                             ng-if="doc.name =='Constancia' ||
+                                                req.status == PRE_APPROVED_STRING ||
                                                 req.status == APPROVED_STRING ||
                                                 req.status == REJECTED_STRING"
                                             class="md-icon-button">
@@ -476,6 +478,7 @@
                                         <md-menu
                                             id="request-docs-actions"
                                             ng-if="doc.name !='Constancia' &&
+                                                req.status == PRE_APPROVED_STRING ||
                                                 req.status != APPROVED_STRING &&
                                                 req.status != REJECTED_STRING">
                                             <md-button

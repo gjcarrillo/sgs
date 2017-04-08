@@ -191,4 +191,36 @@ class UserModel extends CI_Model
             throw $e;
         }
     }
+
+    /**
+     * Gets the system generated user for automated requests history registration purposes.
+     *
+     * @return mixed - Returns the system user entity.
+     * @throws Exception
+     */
+    public function getSystemGeneratedUser() {
+        try {
+            $em = $this->doctrine->em;
+            $user = $em->find('\Entity\User', SID);
+            if ($user === null) {
+                // Create the system user
+                $this->load->model('userModel');
+                $this->createUser(
+                    array(
+                        'id' => SID,
+                        'password' => 'GENKEY' . SID . SID . 'KEYGEN',
+                        'firstName' => 'Sistema',
+                        'lastName' => 'De Gestión de Solicitudes',
+                        'type' => APPLICANT,
+                        'status' => "INACTIVE"
+                    )
+                );
+                return $em->find('\Entity\User', SID);
+            } else {
+                return $user;
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
 }

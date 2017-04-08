@@ -40,30 +40,22 @@ class ManageRequestController extends CI_Controller {
 					$request->addHistory($history);
 					// Register it's corresponding actions
 					if (isset($data['status'])) {
-						if ($data['status'] === APPROVED || $data['status'] === REJECTED) {
+						$action = new \Entity\HistoryAction();
+						$action->setSummary("Cambio de estatus.");
+						if ($data['status'] === REJECTED) {
 							$history->setTitle($this->utils->getHistoryActionCode('closure'));
-							$action = new \Entity\HistoryAction();
 							$action->setSummary("Cierre de solicitud.");
-							if ($data['status'] === APPROVED) {
-								$approvedAmount = number_format($data['approvedAmount'], 2);
-								$action->setDetail(
-									"Sugerencia: " . $this->utils->statusToVerb($data['status']) .
-									" solicitud. Monto aprobado: Bs " . $approvedAmount
-								);
-							} else {
-								$action->setDetail("Nuevo estatus: " . $data['status']);
-							}
-							$action->setBelongingHistory($history);
-							$history->addAction($action);
-							$em->persist($action);
+						} else if ($data['status'] === PRE_APPROVED) {
+							$approvedAmount = number_format($data['approvedAmount'], 2);
+							$action->setDetail(
+								"Status: " . $data['status'] . ". Monto pre-aprobado: Bs " . $approvedAmount
+							);
 						} else {
-							$action = new \Entity\HistoryAction();
-							$action->setSummary("Cambio de estatus.");
 							$action->setDetail("Nuevo estatus: " . $data['status']);
-							$action->setBelongingHistory($history);
-							$history->addAction($action);
-							$em->persist($action);
 						}
+						$action->setBelongingHistory($history);
+						$history->addAction($action);
+						$em->persist($action);
 						$changes = $changes .
 								   "<li>Cambio de estatus: <s>" . $request->getStatus() .
 								   "</s> " . $data['status'] . "." . "</li>";
@@ -82,13 +74,17 @@ class ManageRequestController extends CI_Controller {
 						$action->setSummary("Número de reunión especificado.");
 						$action->setDetail("Reunión #" . $data['reunion']);
 						$changes = $changes . '<li>Número de reunión especificado: ' . $data['reunion'] . '</li>';
+						if ($data['status'] == PRE_APPROVED) {
+							$changes = $changes . '<br/><div>El préstamo solicitado está siendo abonado. En menos de 24h ' .
+									   'hábiles estaremos notificándole al respecto.</div>';
+						}
 						$action->setBelongingHistory($history);
 						$history->addAction($action);
 						$em->persist($action);
 					}
 					$em->persist($history);
 
-					if ($data['status'] == APPROVED && isset($data['approvedAmount'])) {
+					if ($data['status'] === PRE_APPROVED && isset($data['approvedAmount'])) {
 						$request->setApprovedAmount($data['approvedAmount']);
 						// TODO: Update last granting data appropriately. Still missing some data.
 						$this->requests->addGrantingDate($request);

@@ -55,7 +55,7 @@
         </div>
         <div layout layout-xs="column" layout-padding layout-align-gt-xs="center center">
             <div
-                ng-show="model.status == REJECTED_STRING || model.status == APPROVED_STRING"
+                ng-show="model.status == REJECTED_STRING || model.status == PRE_APPROVED_STRING"
                 layout-align-gt-xs="center center"
                 flex-xs="100">
                 <div>
@@ -71,7 +71,7 @@
                 </md-input-container>
             </div>
             <div
-                ng-show="model.status == APPROVED_STRING"
+                ng-show="model.status == PRE_APPROVED_STRING"
                 layout-align-gt-xs="center center"
                 flex-xs="100">
                 <div>

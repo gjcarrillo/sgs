@@ -492,7 +492,7 @@
                                                 selectedPendingLoan ===  rKey}">
                                             Solicitud ID &#8470; {{pad(request.id, 6)}}
                                             <md-icon
-                                                ng-if="loan.status === APPROVED_STRING"
+                                                ng-if="loan.status === APPROVED_STRING == loan.status === PRE_APPROVED_STRING"
                                                 style="color:#4CAF50">
                                                 check_circle
                                             </md-icon>
@@ -594,7 +594,7 @@
                                     </md-icon>
                                     Solicitud ID &#8470; {{pad(loan.id, 6)}}
                                     <md-icon
-                                        ng-if="loan.status === APPROVED_STRING && showResult == 1 &&
+                                        ng-if="loan.status === PRE_APPROVED_STRING && showResult == 1 &&
                                            model.perform[1].status == RECEIVED_STRING"
                                         style="color:#4CAF50">
                                         check_circle
@@ -740,7 +740,9 @@
                                         </md-button>
                                         <md-button
                                             class="md-icon-button"
-                                            ng-if="req.status != APPROVED_STRING && req.status != REJECTED_STRING"
+                                            ng-if="req.status != APPROVED_STRING &&
+                                                req.status != REJECTED_STRING &&
+                                                req.status != PRE_APPROVED_STRING"
                                             ng-click="openEditRequestDialog($event)">
                                             <md-icon class="md-secondary">
                                                 edit
