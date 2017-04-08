@@ -307,4 +307,20 @@ class UtilsModel extends CI_Model
         }
         return $result;
     }
+
+    /**
+     * Returns an array specifying days, months and years of difference between date1 and date2.
+     *
+     * @param d1 - First DateTime object.
+     * @param d2 - Second DateTime object.
+     * @return array containing the specified interval's days, months and years.
+     */
+    public function getDateInterval($d1, $d2) {
+        $interval = $d1->diff($d2);
+        return array(
+            'days' => $interval->format('%d'),
+            'months' => $interval->format('%m'),
+            'years' => $interval->format('%y')
+        );
+    }
 }

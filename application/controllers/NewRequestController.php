@@ -68,58 +68,12 @@ class NewRequestController extends CI_Controller {
 	}
 
 	/**
-	 * Gets a specific user's last requests granting, which indicates whether user can
-	 * request the same type of request or not.
-	 */
-	public function getLastRequestsGranting() {
-		$result['message'] = "error";
-		if ($_GET['userId'] != $_SESSION['id'] && $_SESSION['type'] != AGENT) {
-			$this->load->view('errors/index.html');
-		} else {
-			try {
-				$em = $this->doctrine->em;
-				$span = $em->getRepository('\Entity\Config')->findOneBy(array("key" => 'SPAN'))->getValue();
-				$result['granting']['span'] = $span;
-				$this->load->model('configModel');
-				$loanTypes = $this->configModel->getLoanTypes();
-				foreach ($loanTypes as $kType => $type) {
-
-					$this->ipapedi_db = $this->load->database('ipapedi_db', true);
-					$this->ipapedi_db->select('*');
-					$this->ipapedi_db->from('db_dt_prestamos');
-					$this->ipapedi_db->where('cedula', $_GET['userId']);
-					$this->ipapedi_db->where('concepto', $kType);
-					$query = $this->ipapedi_db->order_by('otorg_fecha',"desc")->get();
-					if (empty($query->result())) {
-						// Seems like this is their first request. Grant permission to create!
-						$result['granting']['allow'][$kType] = true;
-					} else {
-						$granting = date_create_from_format('d/m/Y', $query->result()[0]->otorg_fecha);
-						if (!$granting) {
-							// No granting date found in granting entry. Perhaps it was rejected?
-							// Go ahead and allow this request type creation
-							// TODO: CONFIRM IF THIS IS THE ACTION TO TAKE IN THIS CASE
-							$result['granting']['allow'][$kType] = true;
-						} else {
-							$currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
-							$interval = $granting->diff($currentDate);
-							$monthsPassed = $interval->format("%m");
-							$monthsLeft = $span - $monthsPassed;
-							$result['granting']['allow'][$kType] = $monthsLeft <= 0;
-						}
-					}
-					$result['message'] = 'success';
-				}
-			} catch (Exception $e) {
-				$result['message'] = $this->utils->getErrorMsg($e);
-			}
-		}
-
-		echo json_encode($result);
-	}
-
-	/**
-	 * Gets a user's availability data (i.e. conditions for creating new request)
+	 * Gets a user's availability data (i.e. conditions for creating new request of specific concept). This is:
+	 * 1. Concurrence.
+	 * 2. Max possible amount of money to request.
+	 * 3. Request frequency constrain.
+	 * 4. Whether there is another request already opened.
+	 * 5. For Personal Loans, whether user has at least six months old in the system.
 	 */
 	public function getAvailabilityData() {
 		$result['message'] = "error";
@@ -147,16 +101,14 @@ class NewRequestController extends CI_Controller {
 				} else {
 					$granting = date_create_from_format('d/m/Y', $query->result()[0]->otorg_fecha);
 					if (!$granting) {
-						// No granting date found in most recent granting entry. Perhaps it was rejected?
+						// No granting date found in most recent granting entry. Perhaps it was rejected.
 						// Go ahead and allow this request type creation
 						$result['granting']['allow'] = true;
 					} else {
 						$currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
-						$interval = $granting->diff($currentDate);
-						$monthsPassed = $interval->format("%m");
-						$monthsLeft = $span - $monthsPassed;
-						$result['granting']['allow'] = $monthsLeft <= 0;
-						if ($monthsLeft > 0) {
+						$diff = $this->utils->getDateInterval($currentDate, $granting);
+						$result['granting']['allow'] = $diff['years'] > 0 || $diff['months'] >= $span;
+						if (!$result['granting']['allow']) {
 							// Tell user when will he be able to request again.
 							$result['granting']['dateAvailable'] = $granting->modify('+' . $span . ' month')->format('d/m/Y');
 						}
@@ -167,10 +119,26 @@ class NewRequestController extends CI_Controller {
 				$this->ipapedi_db->where('cedula', $_GET['userId']);
 				$query = $this->ipapedi_db->get();
 				if (empty($query->result())) {
-					// User info not found! Set concurrence to max.
-					$result['concurrence'] = 100;
+					// User info not found! This should never happen. Nevertheless, throw error.
+					$result['message'] = "Parece que su información personal aún no ha sido ingresada en nuestro sistema.";
 				} else {
 					$result['concurrence'] = $query->result()[0]->concurrencia;
+					if ($this->input->get('concept') == 40) {
+						// Applicant must be 6 months old to request personal loans.
+						$admissionDate = date_create_from_format('d/m/Y', $query->result()[0]->ingreso);
+						if (!$admissionDate) {
+							// People without admission date seem to be extremely old in ipapedi...
+							// So go ahead and allow creation.
+							$result['sixMonthsOld'] = true;
+							$result['admissionDate'] = '01/01/1963';
+						} else {
+							$today = new DateTime('now', new DateTimeZone('America/Barbados'));
+							$diff = $this->utils->getDateInterval($today, $admissionDate);
+							$result['sixMonthsOld'] = $diff['years'] > 0 || $diff['months'] >= 6;
+							$result['admissionDate'] = $query->result()[0]->ingreso;
+							$result['dateAvailable'] = $admissionDate->modify('+6 month')->format('d/m/Y');
+						}
+					}
 				}
 				$user = $em->find('Entity\User', $_GET['userId']);
 				$result['userPhone'] = $user->getPhone();
@@ -198,6 +166,7 @@ class NewRequestController extends CI_Controller {
 				$minAmount = $this->configModel->getMinReqAmount();
 				$this->load->model('configModel');
 				$loanTypes = $this->configModel->getLoanTypes();
+				// TODO: Check concurrance & registration date (if it's personal loan type)
 				$terms = $this->utils->extractLoanTerms($loanTypes[$data['loanType']]);
 				if (!$this->utils->checkPreviousRequests($data['userId'], $data['loanType'])) {
 					// Another request of same type is already open.

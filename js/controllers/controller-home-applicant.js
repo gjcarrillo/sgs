@@ -103,7 +103,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
             },
             function (error) {
                 $scope.fetching = false;
-                Utils.showAlertDialog('Error', error);
+                Utils.showAlertDialog('Mensaje', error);
             }
         );
     };
@@ -118,7 +118,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
             },
             function (error) {
                 $scope.fetching = false;
-                Utils.showAlertDialog('Error', error);
+                Utils.showAlertDialog('Mensaje', error);
             }
         );
     };
@@ -133,7 +133,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
             },
             function (error) {
                 $scope.fetching = false;
-                Utils.showAlertDialog('Error', error);
+                Utils.showAlertDialog('Mensaje', error);
             }
         );
     };
@@ -149,7 +149,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
             },
             function (error) {
                 $scope.fetching = false;
-                Utils.showAlertDialog('Error', error);
+                Utils.showAlertDialog('Mensaje', error);
             }
         );
     };
@@ -164,7 +164,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
             },
             function (error) {
                 $scope.fetching = false;
-                Utils.showAlertDialog('Error', error);
+                Utils.showAlertDialog('Mensaje', error);
             }
         );
     }
@@ -299,6 +299,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
                 $scope.loading = true;
                 Requests.getAvailabilityData(fetchId, concept).then(
                     function (data) {
+                        console.log(data);
                         Requests.checkPreviousRequests(fetchId, concept).then(
                             function (opened) {
                                 data.opened = opened;

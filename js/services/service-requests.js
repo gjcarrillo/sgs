@@ -509,29 +509,6 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
     };
 
     /**
-     * Gets a specific user's last requests granting, which indicates whether user can
-     * request the same type of request or not.
-     *
-     * @param userId - user's id.
-     * @returns {*} - promise with the operation's result.
-     */
-    self.getLastRequestsGranting = function (userId) {
-        var qGranting = $q.defer();
-
-        $http.get('NewRequestController/getLastRequestsGranting',
-            {params: {userId: userId}})
-            .then(
-            function (response) {
-                if (response.data.message == "success") {
-                    qGranting.resolve(response.data.granting);
-                } else {
-                    qGranting.reject(response.data.message);
-                }
-            });
-        return qGranting.promise;
-    };
-
-    /**
      * Indicates whether there is an open request for a specific type of requests belongning to a user.
      *
      * @param fetchId - user ID.
@@ -579,11 +556,18 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
     };
 
     // A request type is available for creation if the following is tue:
-    // 1. User's concurrence level is below 40%.
-    // 2. there are no opened requests of the same type.
-    // 3. span creation constrain between requests of same time is over.
+    // 1. for personal loans, user has at least 6 months old in our system.
+    // 2. User's concurrence level is below 40%.
+    // 3. there are no opened requests of the same type.
+    // 4. span creation constrain between requests of same time is over.
     self.verifyAvailability = function (data, concept, editMode) {
-        if (data.concurrence >= 40) {
+        if (data.admissionDate && !data.sixMonthsOld) {
+            // If admissionDate exists in response, it means we should perform the check
+            Utils.showAlertDialog('No permitido',
+                                  'Estaimdo usuario, para solicitar un préstamo personal es necesario que ' +
+                                  'hayan transcurrido al menos seis (6) meses desde su fecha de ingreso, por lo que ' +
+                                  'podrá solicitar dicho préstamo al ' + data.dateAvailable);
+        } else if (data.concurrence >= 40) {
             Utils.showAlertDialog('No permitido',
                                   'Estimado usuario, debido a que su nivel de concurrencia sobrepasa ' +
                                   'el 40%, usted no se encuentra en condiciones de ' +
