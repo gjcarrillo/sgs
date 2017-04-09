@@ -122,30 +122,6 @@ sgdp.config(function ($stateProvider, $urlRouterProvider, $mdThemingProvider,
                     controller: 'IncompatibilityController'
                 }
             }
-        })
-        .state('validate', {
-            url: '/validate/:token',
-            views: {
-                'content': {
-                    templateUrl: 'index.php/ValidationController',
-                    controller: 'ValidationController'
-                },
-                'footer': {
-                    templateUrl: 'index.php/MainController/footer'
-                }
-            }
-        })
-        .state('delete', {
-            url: '/delete/:rid',
-            views: {
-                'content': {
-                    templateUrl: 'index.php/RequestsController/deleteRequestView',
-                    controller: 'DeleteController'
-                },
-                'footer': {
-                    templateUrl: 'index.php/MainController/footer'
-                }
-            }
         });
     // $locationProvider.html5Mode(true);
     // Application theme

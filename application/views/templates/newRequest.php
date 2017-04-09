@@ -46,7 +46,6 @@
                                 ng-readonly="uploading"
                                 ng-model="model.reqAmount"
                                 type="number"
-                                min="{{minReqAmount}}"
                                 max="{{maxReqAmount}}"
                                 step="1000"
                                 name="reqAmount"

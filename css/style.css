@@ -53,6 +53,10 @@ footer {
     color: white;
 }
 
+.interest-info-card {
+    width: 85%;
+}
+
 .no-bottom-padding {
     padding-bottom: 0 !important;
 }

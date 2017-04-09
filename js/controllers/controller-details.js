@@ -17,7 +17,23 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
         Config.loanConcepts = JSON.parse(sessionStorage.getItem("loanConcepts"));
     }
 
+    $scope.showMsg = true;
+    $scope.APPROVED = Constants.Statuses.APPROVED;
+    $scope.loanTypes = Config.loanConcepts;
 
+    if ($scope.req.status == $scope.APPROVED) {
+        $scope.loading = true;
+        Requests.getAvailabilityData(fetchId, $scope.req.type).then(
+            function (data) {
+                $scope.dateAvailable = data.granting.dateAvailable;
+                $scope.loading = false;
+            },
+            function (error) {
+                $scope.loading = false;
+                Utils.showAlertDialog('Oops!', error);
+            }
+        )
+    }
     $scope.pad = function (n, width, z) {
         return Utils.pad(n, width, z);
     };
@@ -241,15 +257,18 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
             'Cancelar',
             ev, true).then(
             function() {
+                $scope.overlay = true;
                 $scope.validating = true;
                 Requests.validateRequest($scope.req.id).then(
                     function (date) {
+                        $scope.overlay = false;
                         $scope.validating = false;
                         Utils.showAlertDialog('Solicitud validada',
                                               'Su solicitud será atendida en menos de 48 horas hábiles.');
                         $scope.req.validationDate = date;
                     },
                     function (error) {
+                        $scope.overlay = false;
                         $scope.validating = false;
                         Utils.showAlertDialog('Oops!', error);
                     }

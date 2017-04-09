@@ -583,7 +583,9 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
                                                   'ha' + (data.granting.span == 1 ? '' : 'n') +
                                                   ' transcurrido ' + data.granting.span + (data.granting.span == 1 ? ' mes' : ' meses') +
                                                   ' desde el último préstamo otorgado.<br/><br/>' +
-                                                  'Podrá volver a solicitar un préstamo de dicho tipo el ' + data.granting.dateAvailable);
+                                                  'Podrá volver a solicitar un préstamo de dicho tipo el ' + data.granting.dateAvailable +
+                                                  '<br/><br/>Alternativamente, puede pagar su deuda restante para solicitar ' +
+                                                  'otro préstamo si así lo desea.');
         }
     };
 

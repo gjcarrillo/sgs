@@ -86,7 +86,7 @@ class ManageRequestController extends CI_Controller {
 
 					if ($data['status'] === PRE_APPROVED && isset($data['approvedAmount'])) {
 						$request->setApprovedAmount($data['approvedAmount']);
-						// TODO: Update last granting data appropriately. Still missing some data.
+						// ALERT: FOR TESTING PURPOSES ONLY!!!! DELETE LATER!
 						$this->requests->addGrantingDate($request);
 					}
 					if (isset($data['reunion'])) {

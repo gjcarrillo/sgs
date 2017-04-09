@@ -223,4 +223,22 @@ class UserModel extends CI_Model
             throw $e;
         }
     }
+
+    /**
+     * Obtains applicant's personal data from ipapedi_db
+     * @param $id - user's id.
+     * @return array with personal data. null if no data was found.
+     */
+    public function getPersonalData($id) {
+        $this->ipapedi_db = $this->load->database('ipapedi_db', true);
+        $this->ipapedi_db->select('*');
+        $this->ipapedi_db->from('db_dt_personales');
+        $this->ipapedi_db->where('cedula', $id);
+        $query = $this->ipapedi_db->get();
+        if (empty($query->result())) {
+            return null;
+        } else {
+            return $query->result()[0];
+        }
+    }
 }

@@ -6,7 +6,8 @@ class EditRequestController extends CI_Controller {
 	public function __construct() {
         parent::__construct();
         $this->load->library('session');
-    }
+		$this->load->model('requestsModel', 'requests');
+	}
 
 	public function index() {
 		if ($_SESSION['type'] != AGENT) {
@@ -32,6 +33,9 @@ class EditRequestController extends CI_Controller {
 		}
 	}
 
+	/**
+	 * Update request for Agent users (i.e. comment & files attachment)
+	 */
 	public function updateRequest() {
 		if ($_SESSION['type'] != AGENT) {
 			$this->load->view('errors/index.html');
@@ -41,7 +45,6 @@ class EditRequestController extends CI_Controller {
 				$em = $this->doctrine->em;
 				// Update request
 				$request = $em->find('\Entity\Request', $data['id']);
-				$this->load->model('requestsModel', 'requests');
 				if (!$this->requests->isRequestValidated($request) || $this->requests->isRequestClosed($request)) {
 					// request must be validated and not yet closed.
 					throw new Exception('Esta solicitud no puede ser modificada.');
@@ -70,7 +73,6 @@ class EditRequestController extends CI_Controller {
 						$request->setComment($data['comment']);
 					}
 					$em->merge($request);
-					$this->load->model('requestsModel', 'requests');
 					$changes = $changes . $this->requests->addDocuments($request, $history, $data['newDocs']);
 					$em->persist($history);
 					$em->flush();
@@ -95,14 +97,24 @@ class EditRequestController extends CI_Controller {
 		} else {
 			try {
 				$em = $this->doctrine->em;
-				$this->load->model('requestsModel', 'requests');
 				$this->load->model('configModel');
+				$this->load->model('userModel');
 				$maxAmount = $this->configModel->getMaxReqAmount();
 				$minAmount = $this->configModel->getMinReqAmount();
-				$this->load->model('configModel');
 				$loanTypes = $this->configModel->getLoanTypes();
+				$userData = $this->userModel->getPersonalData($data['userId']);
+				$lastLoan = $this->requests->getLastLoanInfo($data['userId'], $data['loanType']);
 				$terms = $this->utils->extractLoanTerms($loanTypes[$data['loanType']]);
-				if ($this->requests->getSpanLeft($data['userId'], $data['loanType']) > 0) {
+				$diff = $this->utils->getDateInterval(
+					new DateTime('now', new DateTimeZone('America/Barbados')),
+					date_create_from_format('d/m/Y', $userData->ingreso)
+				);
+				if ($userData->concurrencia >= 40) {
+					$result['message'] = "Concurrencia muy alta (40% ó más)";
+				} else if ($data['loanType'] == 40 && ($diff['months'] + ($diff['years'] * 12) < 6)) {
+					$result['message'] = "Deben transcurrir seis meses desde su fecha de ingreso.";
+				} else if ($this->requests->getSpanLeft($data['userId'], $data['loanType']) > 0 &&
+					($lastLoan != null && $lastLoan->saldo_edo > 0)) {
 					// Span between requests of same type not yet through.
 					$span = $em->getRepository('\Entity\Config')->findOneBy(array('key' => 'SPAN'))->getValue();
 					$result['message'] = "No ha" . ($span == 1 ? "" : "n") .
@@ -184,7 +196,6 @@ class EditRequestController extends CI_Controller {
 						$em->persist($history);
 						$em->merge($request);
 						$result['request'] = $this->utils->reqToArray($request);
-						$this->load->model('requestsModel', 'requests');
 						$this->requests->generateRequestDocument($request);
 						$em->flush();
 						$result['message'] = "success";
@@ -207,7 +218,6 @@ class EditRequestController extends CI_Controller {
 				$em = $this->doctrine->em;
 				$document = $em->find('\Entity\Document', $data['id']);
 				$request = $document->getBelongingRequest();
-				$this->load->model('requestsModel', 'requests');
 				if (!$this->requests->isRequestValidated($request) || $this->requests->isRequestClosed($request)) {
 					// request must be validated and not yet closed.
 					throw new Exception('Esta solicitud no puede ser modificada.');

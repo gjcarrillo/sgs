@@ -67,6 +67,19 @@
                     </md-button>
                 </md-card-actions>
             </md-card>
+            <!-- Information of interest -->
+            <md-card ng-show="showMsg && req.status == APPROVED && !loading" md-theme="manual-card" class="margin-16 interest-info-card">
+                <md-card-content>
+                    <span style="color: #2E7D32">
+                        <md-icon>info</md-icon>
+                        Puede volver a solicitar un préstamo del tipo {{loanTypes[req.type].DescripcionDelPrestamo}}
+                        a partir de la fecha {{dateAvailable}}
+                    </span>
+                </md-card-content>
+            </md-card>
+            <md-progress-circular ng-if="loading" aria-label="Loading..." md-mode="indeterminate" md-diameter="60">
+            </md-progress-circular>
+            <!-- Details card-->
             <md-card class="documents-card" ng-class="{'documents-margin' : req.validationDate}">
                 <md-card-content>
                     <md-list>
@@ -184,10 +197,10 @@
                                     Cuotas a pagar
                                 </h3>
                                 <h4>
-                                    Bs {{calculatePaymentFee()}}
+                                    Bs {{calculatePaymentFee()}} mensualmente
                                 </h4>
                                 <p>
-                                    Por {{req.due}} meses
+                                    Durante {{req.due}} {{req.due == 1 ? 'mes' : 'meses consecutivos'}}
                                 </p>
                             </div>
                         </md-list-item>

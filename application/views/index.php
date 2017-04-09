@@ -68,8 +68,6 @@
     <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-history.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-user-info.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-perspective.js"></script>
-    <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-validation.js"></script>
-    <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-delete.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-incompatibility.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/directives/directive-animate-change.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/directives/directive-select-fix.js"></script>

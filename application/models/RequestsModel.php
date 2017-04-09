@@ -516,27 +516,43 @@ class RequestsModel extends CI_Model
     }
 
     /**
-     * Adds the granting date when request is approved.
+     * Adds the granting date when request is approved. FOR TESTING PURPOSES ONLY!
      *
      * @param $request - request Entity.
      * @throws Exception
      */
     public function addGrantingDate($request) {
         try {
-            $this->ipapedi_db = $this->load->database('ipapedi_db', true);
+            $fee = round($this->utils->calculatePaymentFee(
+                $request->getApprovedAmount(),
+                $request->getPaymentDue(),
+                $this->utils->getInterestRate($request->getLoanType())
+            ), 2);
             $newData = array(
                 'cedula' => $request->getUserOwner()->getId(),
                 'concepto' => $request->getLoanType(),
+                'fecha_edo' => $request->getCreationDate()->format('d/m/Y'),
+                'saldo_edo' => $fee * intval($request->getPaymentDue(), 10),
+                'saldo_actual' => $fee * intval($request->getPaymentDue(), 10),
                 'otorg_fecha' => (new DateTime('now', new DateTimeZone('America/Barbados')))->format('d/m/Y'),
                 'otorg_monto' => $request->getApprovedAmount(),
                 'otorg_inter' => $this->utils->getInterestRate($request->getLoanType()),
                 'otorg_plazo' => $request->getPaymentDue(),
-                'otorg_cuota' => $this->utils->calculatePaymentFee(
-                    $request->getApprovedAmount(),
-                    $request->getPaymentDue(),
-                    $this->utils->getInterestRate($request->getLoanType()))
+                'otorg_cuota' => $fee
             );
-            $this->ipapedi_db->insert('db_dt_prestamos', $newData);
+            $this->ipapedi_db = $this->load->database('ipapedi_db', true);
+            $this->ipapedi_db->from('db_dt_prestamos');
+            $this->ipapedi_db->where('cedula', $request->getUserOwner()->getId());
+            $this->ipapedi_db->where('concepto', $request->getLoanType());
+            // get last granting date for corresponding request type.
+            $query = $this->ipapedi_db->order_by('otorg_fecha',"desc")->get();
+            if (empty($query->result())) {
+                $this->ipapedi_db->insert('db_dt_prestamos', $newData);
+            } else {
+                $this->ipapedi_db->where('cedula', $request->getUserOwner()->getId());
+                $this->ipapedi_db->where('concepto', $request->getLoanType());
+                $this->ipapedi_db->update('db_dt_prestamos', $newData);
+            }
         } catch (Exception $e) {
             throw $e;
         }
@@ -605,6 +621,33 @@ class RequestsModel extends CI_Model
             $this->load->model('emailModel', 'email');
             $this->email->sendRequestUpdateEmail($request->getId(), $changes);
             $em->flush();
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * Obtains last loan request of specified type registered in ipapedi_db.
+     *
+     * @param $uid - applicant's id.
+     * @param $concept - request concept.
+     * @return array with loan info. null otherwise.
+     * @throws Exception
+     */
+    public function getLastLoanInfo($uid, $concept) {
+        try {
+            $this->ipapedi_db = $this->load->database('ipapedi_db', true);
+            $this->ipapedi_db->select('*');
+            $this->ipapedi_db->from('db_dt_prestamos');
+            $this->ipapedi_db->where('cedula', $uid);
+            $this->ipapedi_db->where('concepto', $concept);
+            $query = $this->ipapedi_db->order_by('otorg_fecha',"desc")->get();
+            if (empty($query->result())) {
+                // User's first request.
+                return null;
+            } else {
+                return $query->result()[0];
+            }
         } catch (Exception $e) {
             throw $e;
         }

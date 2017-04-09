@@ -8,6 +8,7 @@ class NewRequestController extends CI_Controller {
 	public function __construct() {
         parent::__construct();
         $this->load->library('session');
+		$this->load->model('requestsModel', 'requests');
     }
 
 	public function index() {
@@ -39,35 +40,6 @@ class NewRequestController extends CI_Controller {
     }
 
 	/**
-	 * Gets a specific user's concurrence percentage.
-	 */
-	public function getUserConcurrence() {
-		$result['message'] = "error";
-		try {
-			if ($_GET['userId'] != $_SESSION['id'] && $_SESSION['type'] != AGENT) {
-				$this->load->view('errors/index.html');
-			} else {
-				$this->ipapedi_db = $this->load->database('ipapedi_db', true);
-				$this->ipapedi_db->select('*');
-				$this->ipapedi_db->from('db_dt_personales');
-				$this->ipapedi_db->where('cedula', $_GET['userId']);
-				$query = $this->ipapedi_db->get();
-				if (empty($query->result())) {
-					// User info not found! Set concurrence to max.
-					$result['concurrence'] = 100;
-				} else {
-					$result['concurrence'] = $query->result()[0]->concurrencia;
-					$result['message'] = "success";
-				}
-			}
-		} catch (Exception $e) {
-			$result['message'] = $this->utils->getErrorMsg($e);
-		}
-
-		echo json_encode($result);
-	}
-
-	/**
 	 * Gets a user's availability data (i.e. conditions for creating new request of specific concept). This is:
 	 * 1. Concurrence.
 	 * 2. Max possible amount of money to request.
@@ -88,18 +60,12 @@ class NewRequestController extends CI_Controller {
 				$config = $em->getRepository('\Entity\Config');
 				$result['maxReqAmount'] = $config->findOneBy(array('key' => 'MAX_AMOUNT'))->getValue();
 				$result['minReqAmount'] = $config->findOneBy(array('key' => 'MIN_AMOUNT'))->getValue();
-				$this->ipapedi_db = $this->load->database('ipapedi_db', true);
-				$this->ipapedi_db->select('*');
-				$this->ipapedi_db->from('db_dt_prestamos');
-				$this->ipapedi_db->where('cedula', $this->input->get('userId'));
-				$this->ipapedi_db->where('concepto', $this->input->get('concept'));
-				// get last granting date for corresponding request type.
-				$query = $this->ipapedi_db->order_by('otorg_fecha',"desc")->get();
-				if (empty($query->result())) {
+				$lastLoan = $this->requests->getLastLoanInfo($this->input->get('userId'), $this->input->get('concept'));
+				if ($lastLoan == null) {
 					// Seems like this is their first request. Grant permission to create!
 					$result['granting']['allow'] = true;
 				} else {
-					$granting = date_create_from_format('d/m/Y', $query->result()[0]->otorg_fecha);
+					$granting = date_create_from_format('d/m/Y', $lastLoan->otorg_fecha);
 					if (!$granting) {
 						// No granting date found in most recent granting entry. Perhaps it was rejected.
 						// Go ahead and allow this request type creation
@@ -107,25 +73,23 @@ class NewRequestController extends CI_Controller {
 					} else {
 						$currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
 						$diff = $this->utils->getDateInterval($currentDate, $granting);
-						$result['granting']['allow'] = $diff['years'] > 0 || $diff['months'] >= $span;
-						if (!$result['granting']['allow']) {
-							// Tell user when will he be able to request again.
-							$result['granting']['dateAvailable'] = $granting->modify('+' . $span . ' month')->format('d/m/Y');
-						}
+						$result['granting']['allow'] =
+							// Allow if time constrain is over OR if all the debt was paid.
+							($diff['months'] + ($diff['years'] * 12) >= $span) || ($lastLoan->saldo_edo <= 0);
+						// Tell user when will he be able to request again in case time constrain is not over.
+						$result['granting']['dateAvailable'] = $granting->modify('+' . $span . ' month')->format('d/m/Y');
 					}
 				}
-				$this->ipapedi_db->select('*');
-				$this->ipapedi_db->from('db_dt_personales');
-				$this->ipapedi_db->where('cedula', $_GET['userId']);
-				$query = $this->ipapedi_db->get();
-				if (empty($query->result())) {
+				$this->load->model('userModel');
+				$userData = $this->userModel->getPersonalData($this->input->get('userId'));
+				if ($userData == null) {
 					// User info not found! This should never happen. Nevertheless, throw error.
 					$result['message'] = "Parece que su información personal aún no ha sido ingresada en nuestro sistema.";
 				} else {
-					$result['concurrence'] = $query->result()[0]->concurrencia;
+					$result['concurrence'] = $userData->concurrencia;
 					if ($this->input->get('concept') == 40) {
 						// Applicant must be 6 months old to request personal loans.
-						$admissionDate = date_create_from_format('d/m/Y', $query->result()[0]->ingreso);
+						$admissionDate = date_create_from_format('d/m/Y', $userData->ingreso);
 						if (!$admissionDate) {
 							// People without admission date seem to be extremely old in ipapedi...
 							// So go ahead and allow creation.
@@ -134,13 +98,14 @@ class NewRequestController extends CI_Controller {
 						} else {
 							$today = new DateTime('now', new DateTimeZone('America/Barbados'));
 							$diff = $this->utils->getDateInterval($today, $admissionDate);
-							$result['sixMonthsOld'] = $diff['years'] > 0 || $diff['months'] >= 6;
-							$result['admissionDate'] = $query->result()[0]->ingreso;
+							$result['sixMonthsOld'] = $diff['months'] + ($diff['years'] * 12) >= 6;
+							$result['admissionDate'] = $userData->ingreso;
 							$result['dateAvailable'] = $admissionDate->modify('+6 month')->format('d/m/Y');
 						}
 					}
 				}
-				$user = $em->find('Entity\User', $_GET['userId']);
+				// Get user's phone and email
+				$user = $em->find('Entity\User', $this->input->get('userId'));
 				$result['userPhone'] = $user->getPhone();
 				$result['userEmail'] = $user->getEmail();
 				$result['message'] = 'success';
@@ -160,20 +125,29 @@ class NewRequestController extends CI_Controller {
 			// Validate incoming data.
 			try {
 				$em = $this->doctrine->em;
-				$this->load->model('requestsModel', 'requests');
 				$this->load->model('configModel');
+				$this->load->model('userModel');
 				$maxAmount = $this->configModel->getMaxReqAmount();
 				$minAmount = $this->configModel->getMinReqAmount();
-				$this->load->model('configModel');
 				$loanTypes = $this->configModel->getLoanTypes();
-				// TODO: Check concurrance & registration date (if it's personal loan type)
+				$userData = $this->userModel->getPersonalData($data['userId']);
+				$lastLoan = $this->requests->getLastLoanInfo($data['userId'], $data['loanType']);
+				$diff = $this->utils->getDateInterval(
+					new DateTime('now', new DateTimeZone('America/Barbados')),
+					date_create_from_format('d/m/Y', $userData->ingreso)
+				);
 				$terms = $this->utils->extractLoanTerms($loanTypes[$data['loanType']]);
-				if (!$this->utils->checkPreviousRequests($data['userId'], $data['loanType'])) {
+				if ($userData->concurrencia >= 40) {
+					$result['message'] = "Concurrencia muy alta (40% ó más)";
+				} else if ($data['loanType'] == 40 && ($diff['months'] + ($diff['years'] * 12) < 6)) {
+					$result['message'] = "Deben transcurrir seis meses desde su fecha de ingreso.";
+				} else if (!$this->utils->checkPreviousRequests($data['userId'], $data['loanType'])) {
 					// Another request of same type is already open.
 					$result['message'] = 'Usted ya posee una solicitud del tipo ' .
 										 $loanTypes[$data['loanType']]->description . ' en transcurso.';
-				} else if ($this->requests->getSpanLeft($data['userId'], $data['loanType']) > 0) {
-					// Span between requests of same type not yet through.
+				} else if ($this->requests->getSpanLeft($data['userId'], $data['loanType']) > 0 &&
+						   ($lastLoan != null && $lastLoan->saldo_edo > 0)) {
+					// Span between requests of same type not yet through and debts still not paid.
 					$span = $em->getRepository('\Entity\Config')->findOneBy(array('key' => 'SPAN' . $data['loanType']))->getValue();
 					$result['message'] = "No ha" . ($span == 1 ? "" : "n") .
 										 " transcurrido al menos " . $span . ($span == 1 ? " mes " : " meses ") .
@@ -239,7 +213,6 @@ class NewRequestController extends CI_Controller {
 					$em->persist($request);
 					$em->merge($user);
 					// Create the new request doc.
-					$this->load->model('requestsModel', 'requests');
 					$this->requests->addDocuments($request, $history, $data['docs']);
 					$em->persist($history);
 					$em->flush();
