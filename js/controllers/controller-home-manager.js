@@ -19,7 +19,6 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
     $scope.selectedLoan = Manager.data.selectedLoan;
     $scope.selectedPendingReq = Manager.data.selectedPendingReq;
     $scope.selectedPendingLoan = Manager.data.selectedPendingLoan;
-    $scope.req = Manager.data.req; // Will contain the selected request object.
     $scope.requests = Manager.data.requests;
     $scope.pendingRequests = Manager.data.pendingRequests;
     $scope.fetchError = Manager.data.fetchError;
@@ -35,6 +34,14 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
         drawPie($scope.pie);
     }
 
+    $scope.selected = [];
+
+    $scope.query = {
+        order: 'name',
+        limit: 5,
+        page: 1
+    };
+
     $scope.statuses = Requests.getAllStatuses();
     $scope.APPROVED_STRING = Constants.Statuses.APPROVED;
     $scope.REJECTED_STRING = Constants.Statuses.REJECTED;
@@ -42,22 +49,6 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
     $scope.PRE_APPROVED_STRING = Constants.Statuses.PRE_APPROVED;
     //$scope.listTitle = Requests.getRequestsListTitle();
     $scope.mappedStatuses = Requests.getAllStatuses();
-    Requests.initializeListType().then(
-        function (list) {
-            $scope.loanTypes = list;
-            $scope.showPendingList = _.cloneDeep(list);
-            // Fetch pending requests and automatically show first one to user (if any)
-            if ($scope.selectedReq == '' && $scope.selectedPendingReq == '') {
-                loadPendingRequests();
-            }
-        },
-        function (error) {
-            Utils.showAlertDialog('Oops!', 'Ha ocurrido un error en el sistema.<br/>' +
-                                           'Por favor intente más tarde.');
-            console.log(error);
-        }
-    );
-    //$scope.mappedLoanTypes = Requests.getLoanTypesTitles();
 
     $scope.loadingContent = false;
     $scope.idPrefix = "V";
@@ -68,6 +59,42 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
     // thus needing to update pie and report data
     var dataChanged = false;
 
+    $scope.selectAction = function (id) {
+        $scope.requests = {};
+        $scope.selectedAction = id;
+        performAction(id);
+    };
+
+    // Get configured loan types.
+    if (!$scope.loanTypes) {
+        $scope.loadingContent = true;
+        Requests.initializeListType().then(
+            function (list) {
+                $scope.loanTypes = list;
+                $scope.contentAvailable = true;
+                $timeout(function () {
+                    $scope.contentLoaded = true;
+                    // Fetch pending requests and automatically show first one to user (if any)
+                    $scope.selectAction('pending');
+                }, 600);
+            },
+            function (error) {
+                Utils.showAlertDialog('Oops!', 'Ha ocurrido un error en el sistema.<br/>' +
+                                               'Por favor intente más tarde.');
+                console.log(error);
+            }
+        );
+    }
+
+    function performAction (action) {
+        switch (action) {
+            case 'pending': {
+                // Editable requests
+                loadPendingRequests();
+                break;
+            }
+        }
+    }
     /**
      * Helper function that loads pending requests.
      */
@@ -75,13 +102,17 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
         $scope.loadingContent = true;
         Manager.loadPendingRequests().then(
             function (requests) {
-                $scope.pendingRequests = requests;
+                $scope.requests = requests;
                 $scope.loadingContent = false;
             }, function (error) {
                 Utils.showAlertDialog('Oops!', error);
                 $scope.loadingContent = false;
             });
     }
+
+    $scope.togglePanelList = function (index) {
+        $scope.selectedList = $scope.selectedList == index ? null : index;
+    };
 
     $scope.return = function () {
         window.location.replace(Constants.IPAPEDI_URL + 'administracion/admin');
@@ -1002,7 +1033,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
      */
     $scope.goBack = function() {
         resetContent();
-        $scope.showResult = -1;
+        $scope.showResult = null;
         $scope.showOptions = true;
     };
 
@@ -1021,6 +1052,15 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
 
     $scope.isObjEmpty = function(obj) {
         return Utils.isObjEmpty(obj);
+    };
+
+    $scope.showWatermark = function() {
+        return $scope.isObjEmpty(requests) &&
+               !loadingContent &&
+               !showApprovedAmount &&
+               !pieLoading &&
+               !pieloaded &&
+               pieError == ''
     };
 
     $scope.showPie = function() {
@@ -1195,13 +1235,12 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
      * Helper function that resets UI for all query results
      */
     function resetContent() {
-        $scope.requests = null;
+        $scope.requests = {};
         $scope.selectedReq = '';
         $scope.selectedLoan = -1;
         $scope.selectedPendingReq = '';
         $scope.selectedPendingLoan = -1;
         $scope.req = null;
-        $scope.showList = Requests.initializeListType();
         $scope.showApprovedAmount = false;
         $scope.fetchError = '';
         $scope.approvalReportError = '';
@@ -1209,6 +1248,14 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
         $scope.showApprovedAmount = false;
         $scope.pieloaded = false;
     }
+
+    $scope.showRequestList = function () {
+        $scope.pieloaded = false;
+        $scope.pieError = '';
+        setDataChanged(false);
+        // Close sidenav
+        $mdSidenav('left').toggle();
+    };
 
     /**
      * Takes user to system config. state.

@@ -5,15 +5,14 @@ angular
     .module('sgdp.service-applicant', [])
     .factory('Applicant', applicant);
 
-applicant.$inject = ['$http'];
+applicant.$inject = [];
 
-function applicant ($http) {
+function applicant () {
 
     var self = this;
 
     // Data initialization.
     var data = {};
-    data.req = null; // Will contain the selected request object.
     data.fetchError = '';
     data.loading = true;
     data.selectedReq = '';
@@ -64,7 +63,6 @@ function applicant ($http) {
         self.data.selectedReq = '';
         self.data.selectedLoan = -1;
         self.data.requests = {};
-        self.data.req = null;
         self.data.loanTypes = null;
         self.data.newRequestList = false;
         self.data.selectedList = 0;

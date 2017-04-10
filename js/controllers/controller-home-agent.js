@@ -8,11 +8,8 @@ agentHome.$inject = ['$scope', '$mdDialog', 'Constants', 'Agent', 'Config', 'App
 function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
                    $state, $timeout, $mdSidenav, $mdMedia, Requests, Utils) {
     'use strict';
-    $scope.selectedReq = Applicant.data.selectedReq;
-    $scope.selectedLoan = Applicant.data.selectedLoan;
     $scope.requests = Applicant.data.requests;
     $scope.singleType = Applicant.data.singleType;
-    $scope.req = Applicant.data.req;
     $scope.loanTypes = Applicant.data.loanTypes;
     $scope.newRequestList = Applicant.data.newRequestList;
     $scope.selectedList = Applicant.data.selectedList;
@@ -638,13 +635,11 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
 
     function preserveState() {
         var data = {};
-        data.req = $scope.req; // Will contain the selected request object.
         data.fetchError = $scope.fetchError;
         data.selectedReq = $scope.selectedReq;
         data.selectedLoan = $scope.selectedLoan;
         data.requests = $scope.requests;
         data.singleType = $scope.singleType;
-        data.req = $scope.req;
         data.queryList = $scope.queryList;
         data.loanTypes = $scope.loanTypes;
         data.queries = $scope.queries;

@@ -105,410 +105,70 @@
     <!-- Sidenav -->
     <md-sidenav
         class="md-sidenav-left sidenav-frame"
+        ng-show="contentAvailable"
         md-component-id="left"
-        md-is-locked-open="$mdMedia('gt-sm')">
+        md-is-locked-open="$mdMedia('gt-sm') && contentLoaded">
         <md-content class="sidenav-height">
             <md-progress-linear md-mode="query" ng-if="loading"></md-progress-linear>
             <!-- Query selection -->
             <div ng-show="showOptions && !loading">
                 <md-list class="sidenavList">
-                    <md-list-item id="adv-search">
+                    <md-list-item ng-click="togglePanelList(1)">
                         <p class="sidenavTitle">
                             Búsqueda avanzada
                         </p>
-                        <md-switch ng-model="showAdvSearch" aria-label="Enable adv search">
-                        </md-switch>
+                        <md-icon ng-class="md-secondary" ng-if="selectedList != 1">keyboard_arrow_down</md-icon>
+                        <md-icon ng-class="md-secondary" ng-if="selectedList == 1">keyboard_arrow_up</md-icon>
                     </md-list-item>
                     <md-divider></md-divider>
-                    <div ng-show="showAdvSearch">
-                        <!-- Search error -->
-                        <div ng-if="fetchError != ''" layout layout-align="center center" class="md-padding">
-                            <span style="color:red">{{fetchError}}</span>
-                        </div>
-                        <div layout="column" layout-align="center center" layout-padding>
-                            <md-input-container class="requestItems" style="padding:0;margin:0;padding-bottom:10px">
-                                <md-select
-                                    md-select-fix="selectedQuery"
-                                    md-on-close="onQueryClose()"
-                                    placeholder="Seleccione su consulta"
-                                    ng-model="selectedQuery">
-                                    <md-optgroup label="Solicitudes">
-                                        <md-option ng-value="query.id" ng-repeat="query in queries | filter: {category: 'req' }">
-                                            {{query.name}}
-                                        </md-option>
-                                    </md-optgroup>
-                                    <md-optgroup label="Solicitudes por fecha">
-                                        <md-option ng-value="query.id" ng-repeat="query in queries | filter: {category: 'date' }">
-                                            {{query.name}}
-                                        </md-option>
-                                    </md-optgroup>
-                                    <md-optgroup label="Monto aprobado">
-                                        <md-option ng-value="query.id" ng-repeat="query in queries | filter: {category: 'money' }">
-                                            {{query.name}}
-                                        </md-option>
-                                    </md-optgroup>
-                                </md-select>
-                            </md-input-container>
-                        </div>
-                        <!-- Query by request ID -->
-                        <div ng-show="model.query == 10" layout-padding layout="column">
-                            <br/>
-                            <div>
-                                Ingrese el ID de la solicitud
-                            </div>
-                            <md-input-container
-                                class="no-vertical-margin"
-                                md-no-float>
-                                <input
-                                    placeholder="Ej: 253"
-                                    type="number"
-                                    min="0"
-                                    aria-label="requestId"
-                                    ng-model="model.perform[10].id"
-                                    ng-keyup="$event.keyCode == 13 && fetchRequestById(model.perform[10].id)">
-                            </md-input-container>
-                            <div layout layout-align="center center">
-                                <md-button
-                                    ng-disabled="!model.perform[10].id"
-                                    ng-click="fetchRequestById(model.perform[10].id)"
-                                    class="md-raised md-primary">
-                                    <md-icon>search</md-icon>Consultar
-                                </md-button>
-                            </div>
-                        </div>
-                        <!-- Query by specific user -->
-                        <div ng-show="model.query == 0" layout-padding layout="column">
-                            <br/>
-                            <div>
-                                Ingrese cédula de identidad
-                            </div>
-                            <div layout layout-align="start start">
-                                <md-input-container
-                                    class="no-vertical-margin"
-                                    md-no-float>
-                                    <md-select
-                                        md-select-fix="idPrefix"
-                                        aria-label="V or E ID"
-                                        ng-model="idPrefix">
-                                        <md-option value="V">
-                                            V
-                                        </md-option>
-                                        <md-option value="E">
-                                            E
-                                        </md-option>
-                                    </md-select>
-                                </md-input-container>
-                                <md-input-container
-                                    class="no-vertical-margin"
-                                    md-no-float>
-                                   <input
-                                       placeholder="Ej: 123456789"
-                                       type="number"
-                                       min="0"
-                                       aria-label="userId"
-                                       ng-model="model.perform[0].id"
-                                       ng-keyup="$event.keyCode == 13 && fetchUserRequests(0)">
-                                </md-input-container>
-                            </div>
-                            <div layout layout-align="center center">
-                                <md-button
-                                    ng-disabled="!model.perform[0].id"
-                                    ng-click="fetchUserRequests(0)"
-                                    class="md-raised md-primary">
-                                    <md-icon>search</md-icon>Consultar
-                                </md-button>
-                            </div>
-                        </div>
-                        <!-- Query by status -->
-                        <div ng-show="model.query == 1" layout="column" layout-padding>
-                            <br/>
-                            <span>Elija el estatus</span>
-                            <md-input-container
-                                class="no-vertical-margin"
-                                md-no-float>
-                                <md-select
-                                    md-select-fix="model.perform[1].status"
-                                    md-on-open="loadStatuses()"
-                                    md-on-close="onStatusClose()"
-                                    placeholder="Estatus"
-                                    ng-model="model.perform[1].status">
-                                    <md-option ng-repeat="(sKey, status) in statuses" ng-value="status">
-                                        {{status}}
-                                    </md-option>
-                                </md-select>
-                            </md-input-container>
-                            <div layout layout-align="center center">
-                                <md-button
-                                    ng-disabled="!model.perform[1].status"
-                                    ng-click="fetchRequestsByStatus(model.perform[1].status, 1)"
-                                    class="md-raised md-primary">
-                                    <md-icon>search</md-icon>Consultar
-                                </md-button>
-                            </div>
-                        </div>
-                        <!-- Query by loan type -->
-                        <div ng-show="model.query == 8" layout="column" layout-padding>
-                            <br/>
-                            <span>Elija el tipo de solicitud</span>
-                            <md-input-container
-                                class="no-vertical-margin"
-                                md-no-float>
-                                <md-select
-                                    md-select-fix="model.perform[8].loanType"
-                                    placeholder="Tipo"
-                                    ng-model="model.perform[8].loanType">
-                                    <md-option ng-repeat="(lKey, loanType) in loanTypes" ng-value="concept">
-                                        {{loanType.DescripcionDelPrestamo}}
-                                    </md-option>
-                                </md-select>
-                            </md-input-container>
-                            <div layout layout-align="center center">
-                                <md-button
-                                    ng-disabled="!model.perform[8].loanType"
-                                    ng-click="fetchRequestsByLoanType(model.perform[8].loanType, 8)"
-                                    class="md-raised md-primary">
-                                    <md-icon>search</md-icon>Consultar
-                                </md-button>
-                            </div>
-                        </div>
-                        <!-- Query pending requests -->
-                        <div ng-show="model.query == 9" layout="column" layout-padding>
-                            <br/>
-                            <span>Lista y estadísticas de solicitudes pendientes</span>
-                            <div layout layout-align="center center">
-                                <md-button
-                                    ng-disabled="!model.perform[9]"
-                                    ng-click="fetchPendingRequests(9)"
-                                    class="md-raised md-primary">
-                                    <md-icon>search</md-icon>Consultar
-                                </md-button>
-                            </div>
-                        </div>
-                        <!-- Query by interval of dates -->
-                        <div ng-show="model.query == 2" layout="column" layout-padding>
-                            <div>
-                                <p>Desde</p>
-                                <md-datepicker ng-model="model.perform[2].from" md-placeholder="Ingese fecha"></md-datepicker>
-                            </div>
-                            <div>
-                                <p>Hasta</p>
-                                <md-datepicker ng-model="model.perform[2].to" md-placeholder="Ingese fecha"></md-datepicker>
-                            </div>
-                            <br />
-                            <div layout layout-align="center center">
-                                <md-button
-                                    ng-disabled="!model.perform[2].from || !model.perform[2].to"
-                                    ng-click="fetchRequestsByDateInterval(model.perform[2].from, model.perform[2].to, 2)"
-                                    class="md-raised md-primary">
-                                    <md-icon>search</md-icon>Consultar
-                                </md-button>
-                            </div>
-                        </div>
-
-                        <!-- Query by exact date -->
-                        <div ng-show="model.query == 3" layout="column" layout-padding>
-                            <div>
-                                <p>Fecha exacta</p>
-                                <md-datepicker
-                                    ng-model="model.perform[3].date"
-                                    md-placeholder="Ingese fecha"></md-datepicker>
-                            </div>
-                            <div layout layout-align="center center">
-                                <md-button
-                                    ng-disabled="!model.perform[3].date"
-                                    ng-click="fetchRequestsByExactDate(model.perform[3].date, 3)"
-                                    class="md-raised md-primary">
-                                    <md-icon>search</md-icon>Consultar
-                                </md-button>
-                            </div>
-                        </div>
-                        <!-- Query approved amount by interval of dates -->
-                        <div ng-show="model.query == 4" layout="column" layout-padding>
-                            <div>
-                                <p>Desde</p>
-                                <md-datepicker ng-model="model.perform[4].from" md-placeholder="Ingese fecha"></md-datepicker>
-                            </div>
-                            <div>
-                                <p>Hasta</p>
-                                <md-datepicker ng-model="model.perform[4].to" md-placeholder="Ingese fecha"></md-datepicker>
-                            </div>
-                            <div layout layout-align="center center">
-                                <md-button
-                                    ng-disabled="!model.perform[4].from || !model.perform[4].to || loadingContent"
-                                    ng-click="getApprovedAmountByDateInterval(model.perform[4].from, model.perform[4].to)"
-                                    class="md-raised md-primary">
-                                    <md-icon>search</md-icon>Consultar
-                                </md-button>
-                            </div>
-                        </div>
-                        <!-- Query approved amount from spcific user (ID) -->
-                        <div ng-show="model.query == 5" layout-padding layout="column">
-                            <br/>
-                            <div>
-                                Ingrese cédula de identidad
-                            </div>
-                            <div layout layout-align="start start">
-                                <md-input-container
-                                    class="no-vertical-margin"
-                                    md-no-float>
-                                    <md-select
-                                        md-select-fix="idPrefix"
-                                        aria-label="V or E ID"
-                                        ng-model="idPrefix">
-                                        <md-option value="V">
-                                            V
-                                        </md-option>
-                                        <md-option value="E">
-                                            E
-                                        </md-option>
-                                    </md-select>
-                                </md-input-container>
-                                <md-input-container
-                                    class="no-vertical-margin"
-                                    md-no-float>
-                                   <input
-                                       placeholder="Ej: 123456789"
-                                       type="number"
-                                       min="0"
-                                       aria-label="Search"
-                                       ng-model="model.perform[5].id"
-                                       ng-keyup="$event.keyCode == 13 && getApprovedAmountById(5)">
-                                </md-input-container>
-                            </div>
-                            <div layout layout-align="center center">
-                                <md-button
-                                    ng-disabled="!model.perform[5].id || loadingContent"
-                                    ng-click="getApprovedAmountById(5)"
-                                    class="md-raised md-primary">
-                                    <md-icon>search</md-icon>Consultar
-                                </md-button>
-                            </div>
-                        </div>
+                    <div class="slide-toggle"
+                         ng-show="selectedList == 1"
+                         layout="column"
+                         layout-align="center"
+                         ng-repeat="query in queries | filter: {category: 'req'}">
+                        <md-button
+                            ng-click="selectAction(query.id)"
+                            class="requestItems"
+                            ng-class="{'md-primary md-raised' : selectedAction == query.id}">
+                            {{query.name}}
+                        </md-button>
                         <md-divider></md-divider>
                     </div>
-                    <md-list-item id="approval-report">
+                </md-list>
+                <!-- Reports generation -->
+                <md-list class="sidenavList">
+                    <md-list-item ng-click="togglePanelList(2)" id="approval-report">
                         <p class="sidenavTitle">
                             Reporte de solicitudes
                         </p>
-                        <md-switch ng-model="showApprovalReport" aria-label="Enable approval report">
-                        </md-switch>
+                        <md-icon ng-class="md-secondary" ng-if="selectedList != 2">keyboard_arrow_down</md-icon>
+                        <md-icon ng-class="md-secondary" ng-if="selectedList == 2">keyboard_arrow_up</md-icon>
                     </md-list-item>
                     <md-divider></md-divider>
-                    <div ng-show="showApprovalReport">
-                        <div ng-if="approvalReportError != ''" layout layout-align="center center" class="md-padding">
-                            <span style="color:red">{{approvalReportError}}</span>
-                        </div>
-                        <div layout="column" layout-align="center center" layout-padding>
-                            <md-input-container class="requestItems" style="padding:0;margin:0;padding-bottom:10px">
-                                <md-select
-                                    md-select-fix="selectedQuery"
-                                    md-on-close="onQueryClose()"
-                                    placeholder="Seleccione el rango"
-                                    ng-model="selectedQuery">
-                                    <md-option value="6">Intervalo de fecha</md-option>
-                                    <md-option value="7">Semana actual</md-option>
-                                </md-select>
-                            </md-input-container>
-                        </div>
-                        <!-- Query approved requests report by interval of dates -->
-                        <div ng-show="model.query == 6" layout="column" layout-padding>
-                            <div>
-                                <p>Desde</p>
-                                <md-datepicker ng-model="model.perform[6].from" md-placeholder="Ingese fecha"></md-datepicker>
-                            </div>
-                            <div>
-                                <p>Hasta</p>
-                                <md-datepicker ng-model="model.perform[6].to" md-placeholder="Ingese fecha"></md-datepicker>
-                            </div>
-                            <div layout layout-align="center center">
-                                <md-button
-                                    ng-disabled="!model.perform[6].from || !model.perform[6].to"
-                                    ng-hide="loadingReport"
-                                    ng-click="getClosedReportByDateInterval(model.perform[6].from, model.perform[6].to)"
-                                    class="md-raised md-primary">
-                                    <md-icon>assignment</md-icon> Generar
-                                </md-button>
-                                <md-progress-circular ng-if="loadingReport" md-mode="indeterminate">
-                            </div>
-                        </div>
-                        <!-- Query this week's approved requests -->
-                        <div ng-show="model.query == 7" layout="column" layout-padding>
-                            <div>
-                                <p>Reporte de solicitudes cerradas esta semana</p>
-                            </div>
-                            <div layout layout-align="center center">
-                                <md-button
-                                    ng-hide="loadingReport"
-                                    ng-click="getClosedReportByCurrentWeek()"
-                                    class="md-raised md-primary">
-                                    <md-icon>assignment</md-icon> Generar
-                                </md-button>
-                                <md-progress-circular ng-if="loadingReport" md-mode="indeterminate">
-                                </md-progress-circular>
-                            </div>
-                        </div>
+                    <div class="slide-toggle"
+                         ng-show="selectedList == 2"
+                         layout="column"
+                         layout-align="center"
+                         ng-repeat="query in queries | filter: {category: 'report'}">
+                        <md-button
+                            ng-click="selectAction(query.id)"
+                            class="requestItems"
+                            ng-class="{'md-primary md-raised' : selectedAction == query.id}">
+                            {{query.name}}
+                        </md-button>
                         <md-divider></md-divider>
                     </div>
                     <!-- Pending requests -->
-                    <md-list-item id="pending-req">
-                        <p class="sidenavTitle">
-                            Solicitudes pendientes
-                        </p>
-                        <md-switch ng-model="showPendingReq" aria-label="Enable adv search">
-                        </md-switch>
-                    </md-list-item>
-                    <md-divider></md-divider>
-                    <div layout layout-align="center center" layout-padding ng-if="loadingContent">
-                        <div layout="column" layout-align="center center">
-                            <md-progress-circular md-mode="indeterminate" md-diameter="60"></md-progress-circular>
+                    <md-list id="pending-req">
+                        <div layout="column" layout-align="center">
+                            <md-button class="sidenavTitle"
+                                       ng-click="selectAction('pending')"
+                                       ng-class="{'md-primary md-raised white-txt' : selectedAction == 'pending'}">
+                                <span>Solicitudes pendientes</span>
+                            </md-button>
                         </div>
-                    </div>
-                    <div ng-show="showPendingReq">
-                        <!-- Pending requests list -->
-                        <md-list class="sidenavList">
-                            <div ng-repeat="(lKey, loanType) in showPendingList">
-                                <md-list-item ng-click="togglePendingList(lKey)">
-                                    <p class="sidenavTitle">
-                                        {{loanType.description}}
-                                    </p>
-                                    <md-icon ng-class="md-secondary" ng-if="!loanType.selected">keyboard_arrow_down</md-icon>
-                                    <md-icon ng-class="md-secondary" ng-if="loanType.selected">keyboard_arrow_up</md-icon>
-                                </md-list-item>
-                                <md-divider></md-divider>
-                                <div class="slide-toggle" ng-show="loanType.selected">
-                                    <div ng-if="requests[lKey].length == 0">
-                                        <div layout layout-align="center center" class="md-padding">
-                                            <p style="color:#4CAF50; text-align:center">
-                                                ¡No se han encontrado solicitudes pendientes!
-                                            </p>
-                                        </div>
-                                        <md-divider></md-divider>
-                                    </div>
-                                    <div layout="column" layout-align="center" ng-repeat="(rKey, request) in pendingRequests[lKey]">
-                                        <md-button
-                                            ng-click="selectPendingReq(lKey, rKey)"
-                                            class="requestItems"
-                                            ng-class="{'md-primary md-raised' : selectedPendingReq === lKey &&
-                                                selectedPendingLoan ===  rKey}">
-                                            Solicitud ID &#8470; {{pad(request.id, 6)}}
-                                            <md-icon
-                                                ng-if="loan.status === APPROVED_STRING == loan.status === PRE_APPROVED_STRING"
-                                                style="color:#4CAF50">
-                                                check_circle
-                                            </md-icon>
-                                            <md-icon
-                                                ng-if="loan.status === REJECTED_STRING"
-                                                style="color:#F44336">
-                                                check_circle
-                                            </md-icon>
-                                        </md-button>
-                                        <md-divider ng-if="$last"></md-divider>
-                                    </div>
-                                </div>
-                            </div>
-                        </md-list>
-                    </div>
-                </md-list>
+                    </md-list>
+                    <md-divider></md-divider>
             </div>
             <!-- Result for specific user requests query -->
             <div ng-if="showResult == 0">
@@ -531,30 +191,16 @@
                         </p>
                     </md-list-item>
                     <md-divider></md-divider>
-                    <div id="result-data" ng-repeat="(rKey, request) in requests" ng-if="request.length > 0">
-                        <md-list-item ng-click="toggleList(rKey)">
-                            <p class="sidenavTitle">
-                                {{listTitle[rKey]}}
-                            </p>
-                            <md-icon ng-class="md-secondary" ng-if="!showList[rKey]">keyboard_arrow_down</md-icon>
-                            <md-icon ng-class="md-secondary" ng-if="showList[rKey]">keyboard_arrow_up</md-icon>
-                        </md-list-item>
-                        <md-divider></md-divider>
-                        <div class="slide-toggle" ng-show="showList[rKey]">
-                            <div layout="column" layout-align="center" ng-repeat="(lKey, loan) in request">
-                                <md-button
-                                    ng-click="selectRequest(rKey, lKey)"
-                                    class="requestItems"
-                                    ng-class="{'md-primary md-raised' : selectedReq === rKey &&
-                                            selectedLoan === lKey }">
-                                    <md-icon ng-style="getBulbColor(loan.status, rKey, lKey)">
-                                        lightbulb_outline
-                                    </md-icon> Solicitud ID &#8470; {{pad(loan.id, 6)}}
-                                </md-button>
-                                <md-divider ng-if="$last"></md-divider>
-                            </div>
+                    <md-list id="result-data">
+                        <div layout="column" layout-align="center">
+                            <md-button class="sidenavTitle"
+                                       ng-click="showRequestList()"
+                                       ng-class="{'md-primary md-raised white-txt' : !pieloaded}">
+                                <span>Lista de solicitudes</span>
+                            </md-button>
                         </div>
-                    </div>
+                        <md-divider></md-divider>
+                    </md-list>
                 </md-list>
             </div>
             <!-- Result for multiple users requests query -->
@@ -617,35 +263,26 @@
     <!-- Content -->
     <div layout="column" flex>
         <main class="main-w-footer">
+            <!-- Loader -->
             <div
+                ng-if="loadingContent"
                 class="full-content-height"
-                layout layout-align="center center"
-                ng-if="!req &&
-                    !showApprovedAmount &&
-                    pieLoading &&
-                    !pieloaded &&
-                    pieError == ''">
-                <div layout="column" layout-align="center center">
-                    <md-progress-circular md-diameter="90" md-mode="indeterminate"></md-progress-circular>
-                </div>
+                layout="column" layout-align="center center">
+                <md-progress-circular aria-label="Loading..." md-mode="indeterminate" md-diameter="60">
+                </md-progress-circular>
             </div>
-
             <!-- Watermark -->
             <div
                 class="full-content-height"
                 layout layout-align="center center"
-                ng-if="!req &&
-                    !showApprovedAmount &&
-                    !pieLoading &&
-                    !pieloaded &&
-                    pieError == ''">
+                ng-if="showWatermark()">
                 <div class="watermark" layout="column" layout-align="center center">
                     <img src="images/ipapedi.png" alt="Ipapedi logo"/>
                 </div>
             </div>
             <!-- Pie chart statistics result -->
             <div layout layout-align="center center" class="full-content-height"
-                ng-show="pieloaded && !req &&  pieError == ''">
+                ng-show="pieloaded">
                 <div
                     id="piechart-tour"
                     layout="column"
@@ -692,202 +329,355 @@
                     <h1 style="font-weight:300" class="md-display-1">Bs {{approvedAmount | number:2}}</h1>
                 </div>
             </div>
-            <!-- The actual content -->
-            <md-content
-                ng-show="req"
-                class="document-container request-show">
-                <div animate-on-change="req" layout="column" layout-align="center center">
-                    <md-card class="valid-documents-card">
-                        <md-card-content>
-                            <md-list>
-                                <md-list-item
-                                    id="request-summary"
-                                    class="md-3-line noright">
-                                    <div class="md-list-item-text request-details-wrapper" layout="column">
-                                        <h3 hide-xs class="request-details-title">
-                                            Solicitado al {{req.creationDate}}
-                                        </h3>
-                                        <h3 hide-gt-xs class="request-details-title">
-                                            Fecha: {{req.creationDate}}
-                                        </h3>
-                                        <h4>
-                                            Monto solicitado: Bs {{req.reqAmount | number:2}}
-                                        </h4>
-                                        <p>
-                                            {{req.comment}}
-                                        </p>
-                                    </div>
-                                    <!-- Show only when screen width >= 960px -->
-                                    <div
-                                        id="request-summary-actions"
-                                        hide show-gt-sm>
-                                        <md-button
-                                            ng-if="fetchedRequests() || (selectedPendingReq != '')"
-                                            ng-click="loadUserData(req.userOwner)"
-                                            class="md-icon-button">
-                                            <md-icon class="md-secondary">
-                                                person
-                                            </md-icon>
-                                            <md-tooltip>Datos del afiliado</md-tooltip>
-                                        </md-button>
-                                        <md-button
-                                            ng-click="loadHistory()"
-                                            class="md-icon-button">
-                                            <md-icon class="md-secondary">
-                                                history
-                                            </md-icon>
-                                            <md-tooltip>Historial</md-tooltip>
-                                        </md-button>
-                                        <md-button
-                                            class="md-icon-button"
-                                            ng-if="req.status != APPROVED_STRING &&
-                                                req.status != REJECTED_STRING &&
-                                                req.status != PRE_APPROVED_STRING"
-                                            ng-click="openEditRequestDialog($event)">
-                                            <md-icon class="md-secondary">
-                                                edit
-                                            </md-icon>
-                                            <md-tooltip>
-                                                Editar solicitud
-                                            </md-tooltip>
-                                        </md-button>
-                                        <md-button
-                                            ng-click="downloadAll()"
-                                            class="md-icon-button">
-                                            <md-icon class="md-secondary">
-                                                cloud_download
-                                            </md-icon>
-                                            <md-tooltip>
-                                                Descargar documentos
-                                            </md-tooltip>
-                                        </md-button>
-                                    </div>
-                                    <!-- Show when screen width < 960px -->
-                                    <md-menu
-                                        id="request-summary-actions-menu"
-                                        hide-gt-sm>
-                                       <md-button
-                                            ng-click="$mdOpenMenu($event)"
-                                            class="md-icon-button"
-                                            aria-label="More">
-                                           <md-icon class="md-secondary">
-                                               more_vert
-                                           </md-icon>
-                                       </md-button>
-                                       <md-menu-content>
-                                           <md-menu-item>
-                                               <md-button ng-click="loadHistory()">
-                                                   <md-icon class="md-secondary">
-                                                       history
-                                                   </md-icon>
-                                                   Historial
-                                               </md-button>
-                                           </md-menu-item>
-                                           <md-menu-item
-                                               ng-if="req.status != APPROVED_STRING && req.status != REJECTED_STRING">
-                                               <md-button
-                                                   ng-click="openEditRequestDialog($event)">
-                                                   <md-icon class="md-secondary">
-                                                       edit
-                                                   </md-icon>
-                                                   Editar
-                                               </md-button>
-                                           </md-menu-item>
-                                           <md-menu-item>
-                                               <md-button ng-click="downloadAll()">
-                                                   <md-icon class="md-secondary">
-                                                       cloud_download
-                                                   </md-icon>
-                                                   Descargar documentos
-                                               </md-button>
-                                           </md-menu-item>
-                                       </md-menu-content>
-                                   </md-menu>
-                               </md-list-item>
-                                <md-list-item id="request-status-summary" class="md-2-line noright">
-                                    <md-icon class="info-icon">info_outline</md-icon>
-                                    <div class="md-list-item-text" layout="column">
-                                       <h3>
-                                           Estatus de la solicitud: {{req.status}}
-                                       </h3>
-                                       <h4 ng-if="req.reunion">
-                                           Reunión &#8470;
-                                           {{req.reunion}}
-                                       </h4>
-                                       <p ng-if="req.approvedAmount">
-                                           Monto aprobado: Bs
-                                           {{req.approvedAmount | number:2}}
-                                       </p>
-                                     </div>
-                                </md-list-item>
-                                <md-divider md-inset></md-divider>
-                                <md-list-item class="md-2-line noright"
-                                              id="request-payment-due">
-                                    <md-icon class="payment-icon">payment</md-icon>
-                                    <div class="md-list-item-text" layout="column">
-                                        <h3>
-                                            Cuotas a pagar
-                                        </h3>
-                                        <h4>
-                                            Bs {{calculatePaymentFee()}}
-                                        </h4>
-                                        <p>
-                                            Por {{req.due}} meses
-                                        </p>
-                                    </div>
-                                </md-list-item>
-                                <md-divider md-inset></md-divider>
-                                <md-list-item class="md-2-line noright"
-                                              id="request-contact-number">
-                                    <md-icon class="phone-icon">phone</md-icon>
-                                    <div class="md-list-item-text" layout="column">
-                                        <h3>
-                                            Número de contacto
-                                        </h3>
-                                        <h4>
-                                            {{req.phone}}
-                                        </h4>
-                                    </div>
-                                </md-list-item>
-                                <md-divider md-inset></md-divider>
-                                <md-list-item class="md-2-line noright"
-                                              id="request-email">
-                                    <md-icon>mail_outline</md-icon>
-                                    <div class="md-list-item-text" layout="column">
-                                        <h3>
-                                            Correo electrónico
-                                        </h3>
-                                        <p>
-                                            {{req.email}}
-                                        </p>
-                                    </div>
-                                </md-list-item>
-                                <md-divider></md-divider>
-                                <div ng-repeat="(dKey, doc) in req.docs">
-                                    <md-list-item
-                                        id="request-docs"
-                                        class="md-2-line noright"
-                                        ng-click="downloadDoc(doc)">
-                                        <md-icon
-                                            class="docs-icon">
-                                            insert_drive_file
-                                        </md-icon>
-                                        <div class="md-list-item-text" layout="column">
-                                           <h3>{{doc.name}}</h3>
-                                           <p>{{doc.description}}</p>
-                                         </div>
-                                         <md-button
-                                            class="md-icon-button">
-                                            <md-icon class="md-secondary">
-                                                file_download
-                                            </md-icon>
-                                         </md-button>
-                                    </md-list-item>
-                                    <md-divider ng-if="!$last" md-inset></md-divider>
-                                </div>
-                            </md-list>
-                        </md-card-content>
-                    </md-card>
+            <md-content class="bg document-container">
+                <!-- Query by request ID -->
+                <div ng-show="selectedAction == 10" layout-padding layout="column">
+                    <br/>
+                    <div>
+                        Ingrese el ID de la solicitud
+                    </div>
+                    <md-input-container
+                        class="no-vertical-margin"
+                        md-no-float>
+                        <input
+                            placeholder="Ej: 253"
+                            type="number"
+                            min="0"
+                            aria-label="requestId"
+                            ng-model="model.perform[10].id"
+                            ng-keyup="$event.keyCode == 13 && fetchRequestById(selectedAction)">
+                    </md-input-container>
+                    <div layout layout-align="center center">
+                        <md-button
+                            ng-disabled="!model.perform[10].id"
+                            ng-click="fetchRequestById(model.perform[10].id)"
+                            class="md-raised md-primary">
+                            <md-icon>search</md-icon>Consultar
+                        </md-button>
+                    </div>
+                </div>
+                <!-- Query by specific user -->
+                <div ng-show="selectedAction == 0 && showResult == null" layout-padding layout="column">
+                    <br/>
+                    <div>
+                        Ingrese cédula de identidad
+                    </div>
+                    <div layout layout-align="start start">
+                        <md-input-container
+                            class="no-vertical-margin"
+                            md-no-float>
+                            <md-select
+                                md-select-fix="idPrefix"
+                                aria-label="V or E ID"
+                                ng-model="idPrefix">
+                                <md-option value="V">
+                                    V
+                                </md-option>
+                                <md-option value="E">
+                                    E
+                                </md-option>
+                            </md-select>
+                        </md-input-container>
+                        <md-input-container
+                            class="no-vertical-margin"
+                            md-no-float>
+                            <input
+                                placeholder="Ej: 123456789"
+                                type="number"
+                                min="0"
+                                aria-label="userId"
+                                ng-model="model.perform[0].id"
+                                ng-keyup="$event.keyCode == 13 && fetchUserRequests(selectedAction)">
+                        </md-input-container>
+                    </div>
+                    <div layout layout-align="center center">
+                        <md-button
+                            ng-disabled="!model.perform[selectedAction].id"
+                            ng-click="fetchUserRequests(selectedAction)"
+                            class="md-raised md-primary">
+                            <md-icon>search</md-icon>Consultar
+                        </md-button>
+                    </div>
+                </div>
+                <!-- Query by status -->
+                <div ng-show="selectedAction == 1" layout="column" layout-padding>
+                    <br/>
+                    <span>Elija el estatus</span>
+                    <md-input-container
+                        class="no-vertical-margin"
+                        md-no-float>
+                        <md-select
+                            md-select-fix="model.perform[1].status"
+                            md-on-open="loadStatuses()"
+                            md-on-close="onStatusClose()"
+                            placeholder="Estatus"
+                            ng-model="model.perform[1].status">
+                            <md-option ng-repeat="(sKey, status) in statuses" ng-value="status">
+                                {{status}}
+                            </md-option>
+                        </md-select>
+                    </md-input-container>
+                    <div layout layout-align="center center">
+                        <md-button
+                            ng-disabled="!model.perform[selectedAction].status"
+                            ng-click="fetchRequestsByStatus(model.perform[selectedAction].status, selectedAction)"
+                            class="md-raised md-primary">
+                            <md-icon>search</md-icon>Consultar
+                        </md-button>
+                    </div>
+                </div>
+                <!-- Query by loan type -->
+                <div ng-show="selectedAction == 8" layout="column" layout-padding>
+                    <br/>
+                    <span>Elija el tipo de solicitud</span>
+                    <md-input-container
+                        class="no-vertical-margin"
+                        md-no-float>
+                        <md-select
+                            md-select-fix="model.perform[8].loanType"
+                            placeholder="Tipo"
+                            ng-model="model.perform[8].loanType">
+                            <md-option ng-repeat="(lKey, loanType) in loanTypes" ng-value="concept">
+                                {{loanType.DescripcionDelPrestamo}}
+                            </md-option>
+                        </md-select>
+                    </md-input-container>
+                    <div layout layout-align="center center">
+                        <md-button
+                            ng-disabled="!model.perform[selectedAction].loanType"
+                            ng-click="fetchRequestsByLoanType(model.perform[selectedAction].loanType, selectedAction)"
+                            class="md-raised md-primary">
+                            <md-icon>search</md-icon>Consultar
+                        </md-button>
+                    </div>
+                </div>
+                <!-- Query pending requests -->
+                <div ng-show="selectedAction == 9" layout="column" layout-padding>
+                    <br/>
+                    <span>Lista y estadísticas de solicitudes pendientes</span>
+                    <div layout layout-align="center center">
+                        <md-button
+                            ng-disabled="!model.perform[selectedAction]"
+                            ng-click="fetchPendingRequests(selectedAction)"
+                            class="md-raised md-primary">
+                            <md-icon>search</md-icon>Consultar
+                        </md-button>
+                    </div>
+                </div>
+                <!-- Query by interval of dates -->
+                <div ng-show="selectedAction == 2" layout="column" layout-padding>
+                    <div>
+                        <p>Desde</p>
+                        <md-datepicker ng-model="model.perform[2].from" md-placeholder="Ingese fecha"></md-datepicker>
+                    </div>
+                    <div>
+                        <p>Hasta</p>
+                        <md-datepicker ng-model="model.perform[2].to" md-placeholder="Ingese fecha"></md-datepicker>
+                    </div>
+                    <br />
+                    <div layout layout-align="center center">
+                        <md-button
+                            ng-disabled="!model.perform[selectedAction].from || !model.perform[selectedAction].to"
+                            ng-click="fetchRequestsByDateInterval(
+                                model.perform[selectedAction].from,
+                                model.perform[selectedAction].to,
+                                selectedAction
+                             )"
+                            class="md-raised md-primary">
+                            <md-icon>search</md-icon>Consultar
+                        </md-button>
+                    </div>
+                </div>
+
+                <!-- Query by exact date -->
+                <div ng-show="selectedAction == 3" layout="column" layout-padding>
+                    <div>
+                        <p>Fecha exacta</p>
+                        <md-datepicker
+                            ng-model="model.perform[3].date"
+                            md-placeholder="Ingese fecha"></md-datepicker>
+                    </div>
+                    <div layout layout-align="center center">
+                        <md-button
+                            ng-disabled="!model.perform[selectedAction].date"
+                            ng-click="fetchRequestsByExactDate(model.perform[selectedAction].date, selectedAction)"
+                            class="md-raised md-primary">
+                            <md-icon>search</md-icon>Consultar
+                        </md-button>
+                    </div>
+                </div>
+                <!-- Query approved amount by interval of dates -->
+                <div ng-show="selectedAction == 4" layout="column" layout-padding>
+                    <div>
+                        <p>Desde</p>
+                        <md-datepicker ng-model="model.perform[selectedAction].from" md-placeholder="Ingese fecha"></md-datepicker>
+                    </div>
+                    <div>
+                        <p>Hasta</p>
+                        <md-datepicker ng-model="model.perform[selectedAction].to" md-placeholder="Ingese fecha"></md-datepicker>
+                    </div>
+                    <div layout layout-align="center center">
+                        <md-button
+                            ng-disabled="!model.perform[selectedAction].from ||
+                                !model.perform[selectedAction].to || loadingContent"
+                            ng-click="getApprovedAmountByDateInterval(
+                                model.perform[selectedAction].from,
+                                model.perform[selectedAction].to
+                            )"
+                            class="md-raised md-primary">
+                            <md-icon>search</md-icon>Consultar
+                        </md-button>
+                    </div>
+                </div>
+                <!-- Query approved amount from spcific user (ID) -->
+                <div ng-show="selectedAction == 5" layout-padding layout="column">
+                    <br/>
+                    <div>
+                        Ingrese cédula de identidad
+                    </div>
+                    <div layout layout-align="start start">
+                        <md-input-container
+                            class="no-vertical-margin"
+                            md-no-float>
+                            <md-select
+                                md-select-fix="idPrefix"
+                                aria-label="V or E ID"
+                                ng-model="idPrefix">
+                                <md-option value="V">
+                                    V
+                                </md-option>
+                                <md-option value="E">
+                                    E
+                                </md-option>
+                            </md-select>
+                        </md-input-container>
+                        <md-input-container
+                            class="no-vertical-margin"
+                            md-no-float>
+                            <input
+                                placeholder="Ej: 123456789"
+                                type="number"
+                                min="0"
+                                aria-label="Search"
+                                ng-model="model.perform[5].id"
+                                ng-keyup="$event.keyCode == 13 && getApprovedAmountById(selectedAction)">
+                        </md-input-container>
+                    </div>
+                    <div layout layout-align="center center">
+                        <md-button
+                            ng-disabled="!model.perform[selectedAction].id || loadingContent"
+                            ng-click="getApprovedAmountById(selectedAction)"
+                            class="md-raised md-primary">
+                            <md-icon>search</md-icon>Consultar
+                        </md-button>
+                    </div>
+                </div>
+
+                <!-- Query approved requests report by interval of dates -->
+                <div ng-show="selectedAction == 6" layout="column" layout-padding>
+                    <div>
+                        <p>Desde</p>
+                        <md-datepicker ng-model="model.perform[selectedAction].from" md-placeholder="Ingese fecha"></md-datepicker>
+                    </div>
+                    <div>
+                        <p>Hasta</p>
+                        <md-datepicker ng-model="model.perform[selectedAction].to" md-placeholder="Ingese fecha"></md-datepicker>
+                    </div>
+                    <div layout layout-align="center center">
+                        <md-button
+                            ng-disabled="!model.perform[selectedAction].from ||
+                                !model.perform[selectedAction].to"
+                            ng-hide="loadingReport"
+                            ng-click="getClosedReportByDateInterval(
+                                model.perform[selectedAction].from,
+                                model.perform[selectedAction].to
+                            )"
+                            class="md-raised md-primary">
+                            <md-icon>assignment</md-icon> Generar
+                        </md-button>
+                        <md-progress-circular ng-if="loadingReport" md-mode="indeterminate">
+                    </div>
+                </div>
+                <!-- Query this week's approved requests -->
+                <div ng-show="selectedAction == 7 && showResult == null" layout="column" layout-padding>
+                    <div>
+                        <p>Reporte de solicitudes cerradas esta semana</p>
+                    </div>
+                    <div layout layout-align="center center">
+                        <md-button
+                            ng-hide="loadingReport"
+                            ng-click="getClosedReportByCurrentWeek()"
+                            class="md-raised md-primary">
+                            <md-icon>assignment</md-icon> Generar
+                        </md-button>
+                        <md-progress-circular ng-if="loadingReport" md-mode="indeterminate">
+                        </md-progress-circular>
+                    </div>
+                </div>
+
+                <!-- Requests list -->
+                <div class="margin-16" ng-if="!isObjEmpty(requests) && !loadingContent && !pieloaded">
+                    <md-expansion-panel-group md-component-id="requests">
+                        <md-expansion-panel ng-repeat="(lKey, loanType) in loanTypes" md-component-id="{{lKey}}">
+                            <md-expansion-panel-collapsed>
+                                <div>Solicitudes de {{loanType.description}}</div>
+                                <span flex></span>
+                                <md-expansion-panel-icon></md-expansion-panel-icon>
+                            </md-expansion-panel-collapsed>
+                            <md-expansion-panel-expanded>
+                                <md-expansion-panel-header>
+                                    <div class="md-title">{{loanType.description}}</div>
+                                    <div class="md-summary">Haga clic en una fila para ver más detalles de la solicitud</div>
+                                    <md-expansion-panel-icon></md-expansion-panel-icon>
+                                </md-expansion-panel-header>
+
+                                <md-expansion-panel-content>
+                                    <!-- Table of requests -->
+                                    <p ng-show="requests[lKey].length == 0">No se encontraron resultados</p>
+                                    <md-table-container ng-show="requests[lKey].length > 0">
+                                        <table md-table md-row-select ng-model="selected">
+                                            <thead md-head>
+                                            <tr md-row>
+                                                <th md-column><span>ID</span></th>
+                                                <th md-column><span>Fecha</span></th>
+                                                <th md-column><span>Estatus</span></th>
+                                                <th md-column><span>Monto solicitado</span></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody md-body>
+                                            <tr md-row ng-repeat="(rKey, request) in requests[lKey] | limitTo: query.limit: (query.page - 1) * query.limit track by $index">
+                                                <td md-cell ng-click="goToDetails(request)">{{pad(request.id, 6)}}</td>
+                                                <td md-cell ng-click="goToDetails(request)">{{request.creationDate}}</td>
+                                                <td md-cell ng-click="goToDetails(request)">{{request.status}}</td>
+                                                <td md-cell ng-click="goToDetails(request)">{{request.reqAmount | number:2}}</td>
+                                                <td ng-if="!request.validationDate" md-cell ng-click="goToDetails(request)">
+                                                    <md-icon style="color: red">
+                                                        warning
+                                                        <md-tooltip>Solicitud no validada</md-tooltip>
+                                                    </md-icon>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </md-table-container>
+                                    <md-table-pagination ng-show="requests[lKey].length > 0"
+                                                         md-label="{page: 'Página:', rowsPerPage: 'Filas por página:', of: 'de'}"
+                                                         md-limit="query.limit"
+                                                         md-limit-options="[5, 10, 15, 20]"
+                                                         md-page="query.page"
+                                                         md-total="{{requests[lKey].length}}"
+                                                         md-page-select>
+
+                                    </md-table-pagination>
+                                </md-expansion-panel-content>
+
+                                <md-expansion-panel-footer>
+                                    <div flex></div>
+                                    <md-button class="md-warn" ng-click="$panel.collapse()">Cerrar</md-button>
+                                </md-expansion-panel-footer>
+                            </md-expansion-panel-expanded>
+                        </md-expansion-panel>
+                    </md-expansion-panel-group>
                 </div>
             </md-content>
         </main>

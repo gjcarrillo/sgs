@@ -71,7 +71,6 @@
             <md-card ng-show="showMsg && req.status == APPROVED && !loading" md-theme="manual-card" class="margin-16 interest-info-card">
                 <md-card-content>
                     <span style="color: #2E7D32">
-                        <md-icon>info</md-icon>
                         Puede volver a solicitar un préstamo del tipo {{loanTypes[req.type].DescripcionDelPrestamo}}
                         a partir de la fecha {{dateAvailable}}
                     </span>

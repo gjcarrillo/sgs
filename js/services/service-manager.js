@@ -14,17 +14,16 @@ function manager($http, $q, Requests) {
     // Data initialization
     var data = {};
     data.model = {};
-    data.model.query = -1;
+    data.model.query = null;
     data.queries = [
-        {category: 'req', name: 'Por ID', id: 10},
-        {category: 'req', name: 'Por cédula', id: 0},
-        {category: 'req', name: 'Por estatus', id: 1},
-        {category: 'req', name: 'Por tipo', id: 8},
-        {category: 'req', name: 'Por atender', id: 9},
-        {category: 'date', name: 'Intervalo de fecha', id: 2},
-        {category: 'date', name: 'Fecha exacta', id: 3},
-        {category: 'money', name: 'Intervalo de fecha', id: 4},
-        {category: 'money', name: 'Por cédula', id: 5},
+        {category: 'req', name: 'Solicitud por ID', id: 10},
+        {category: 'req', name: 'Solicitudes por cédula', id: 0},
+        {category: 'req', name: 'Solicitudes por estatus', id: 1},
+        {category: 'req', name: 'Solicitudes por tipo', id: 8},
+        {category: 'req', name: 'Solicitudes por atender', id: 9},
+        {category: 'req', name: 'Solicitudes por fecha', id: 2},
+        {category: 'req', name: 'Monto aprobado por fecha', id: 4},
+        {category: 'req', name: 'Monto aprobado por cédula', id: 5},
         {category: 'report', name: 'Intervalo de fecha', id: 6},
         {category: 'report', name: 'Semana actual', id: 7}
     ];
@@ -35,7 +34,7 @@ function manager($http, $q, Requests) {
     }
     data.selectedQuery = -1;
     data.showOptions = true;
-    data.showResult = -1;
+    data.showResult = null;
     data.chart = null;
     data.pie = null;
     data.pieError = '';
@@ -71,7 +70,7 @@ function manager($http, $q, Requests) {
      */
     self.clearData = function () {
         self.data.model = {};
-        self.data.model.query = -1;
+        self.data.model.query = null;
         self.data.queries = [
             {category: 'req', name: 'Por ID', id: 10},
             {category: 'req', name: 'Por cédula', id: 0},
@@ -92,7 +91,7 @@ function manager($http, $q, Requests) {
         }
         self.data.selectedQuery = -1;
         self.data.showOptions = true;
-        self.data.showResult = -1;
+        self.data.showResult = null;
         self.data.chart = null;
         self.data.pie = null;
         self.data.pieError = '';
