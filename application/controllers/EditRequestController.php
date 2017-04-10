@@ -73,10 +73,12 @@ class EditRequestController extends CI_Controller {
 						$request->setComment($data['comment']);
 					}
 					$em->merge($request);
-					$changes = $changes . $this->requests->addDocuments($request, $history, $data['newDocs']);
+					$result['request'] = $this->utils->reqToArray($request);
+					if (isset($data['newDocs'])) {
+						$changes = $changes . $this->requests->addDocuments($request, $history, $data['newDocs']);
+					}
 					$em->persist($history);
 					$em->flush();
-					$result['request'] = $this->utils->reqToArray($request);
 					$this->load->model('emailModel', 'email');
 					$this->email->sendRequestUpdateEmail($request->getId(), $changes);
 					$result['message'] = "success";

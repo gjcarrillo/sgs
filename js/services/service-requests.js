@@ -184,6 +184,7 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
         $http.post('index.php/EditRequestController/updateRequest',
                    JSON.stringify(postData))
             .then(function (response) {
+                             console.log(response);
                       if (response.data.message == "success") {
                           qUpdate.resolve(response.data.request);
                       } else {

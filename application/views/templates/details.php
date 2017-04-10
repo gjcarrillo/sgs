@@ -102,6 +102,29 @@
                             <div
                                 id="request-summary-actions"
                                 hide show-gt-sm>
+                                <!-- History btn -->
+                                <md-button
+                                    ng-if="!userType(APPLICANT)"
+                                    ng-click="loadHistory()"
+                                    class="md-icon-button">
+                                    <md-icon class="md-secondary">
+                                        history
+                                    </md-icon>
+                                    <md-tooltip>Historial</md-tooltip>
+                                </md-button>
+                                <!-- Update btn for AGENTS -->
+                                <md-button
+                                    class="md-icon-button"
+                                    ng-if="showAgentEditBtn()"
+                                    ng-click="openUpdateRequestDialog($event)">
+                                    <md-icon class="md-secondary">
+                                        edit
+                                    </md-icon>
+                                    <md-tooltip>
+                                        Editar solicitud
+                                    </md-tooltip>
+                                </md-button>
+                                <!-- Edit btn -->
                                 <md-button
                                     class="md-icon-button"
                                     ng-if="!req.validationDate"
@@ -148,6 +171,29 @@
                                     </md-icon>
                                 </md-button>
                                 <md-menu-content>
+                                    <!-- History btn -->
+                                    <md-menu-item>
+                                        <md-button
+                                            ng-if="!userType(APPLICANT)"
+                                            ng-click="loadHistory()">
+                                            <md-icon class="md-secondary">
+                                                history
+                                            </md-icon>
+                                            Historial
+                                        </md-button>
+                                    </md-menu-item>
+                                    <!-- Update btn for AGENTS -->
+                                    <md-menu-item>
+                                        <md-button
+                                            ng-if="showAgentEditBtn()"
+                                            ng-click="openUpdateRequestDialog($event)">
+                                            <md-icon class="md-secondary">
+                                                edit
+                                            </md-icon>
+                                            Editar solicitud
+                                        </md-button>
+                                    </md-menu-item>
+                                    <!-- Edit btn -->
                                     <md-menu-item ng-if="!req.validationDate">
                                         <md-button ng-click="openEditRequestDialog($event)">
                                             <md-icon class="md-secondary">
@@ -245,11 +291,51 @@
                                     <p>{{doc.description}}</p>
                                 </div>
                                 <md-button
+                                    ng-if="!isDocEditable(doc.name)"
                                     class="md-icon-button">
                                     <md-icon class="md-secondary">
                                         file_download
                                     </md-icon>
                                 </md-button>
+                                <!-- Agents editable docs -->
+                                <md-menu
+                                    id="request-docs-actions"
+                                    ng-if="isDocEditable(doc.name)">
+                                    <md-button
+                                        ng-click="$mdOpenMenu($event)"
+                                        class="md-icon-button"
+                                        aria-label="More">
+                                        <md-icon class="md-secondary">
+                                            more_vert
+                                        </md-icon>
+                                    </md-button>
+                                    <md-menu-content>
+                                        <md-menu-item>
+                                            <md-button ng-click="editDescription($event, doc)">
+                                                <md-icon class="md-secondary">
+                                                    edit
+                                                </md-icon>
+                                                Descripción
+                                            </md-button>
+                                        </md-menu-item>
+                                        <md-menu-item>
+                                            <md-button ng-click="downloadDoc(doc)">
+                                                <md-icon class="md-secondary">
+                                                    file_download
+                                                </md-icon>
+                                                Descargar
+                                            </md-button>
+                                        </md-menu-item>
+                                        <md-menu-item>
+                                            <md-button ng-click="deleteDoc($event, dKey)">
+                                                <md-icon class="md-secondary">
+                                                    delete
+                                                </md-icon>
+                                                Eliminar
+                                            </md-button>
+                                        </md-menu-item>
+                                    </md-menu-content>
+                                </md-menu>
                             </md-list-item>
                             <md-divider ng-if="!$last" md-inset></md-divider>
                         </div>

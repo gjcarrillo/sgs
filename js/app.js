@@ -75,8 +75,8 @@ sgdp.config(function ($stateProvider, $urlRouterProvider, $mdThemingProvider,
                 }
             }
         })
-        .state('history', {
-            url: '/history',
+        .state('actions', {
+            url: '/actions',
             views: {
                 'content': {
                     templateUrl: 'index.php/HistoryController',
@@ -282,7 +282,7 @@ sgdp.run(['$rootScope', '$location', '$state', 'Auth', '$cookies', '$http', 'Con
                       case '/managerHome':
                           // Check for manager rights
                           return userType == 2;
-                      case '/history':
+                      case '/actions':
                           // check for agent or manager rights
                           return userType <= 2;
                       case '/userInfo':

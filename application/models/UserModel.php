@@ -241,4 +241,17 @@ class UserModel extends CI_Model
             return $query->result()[0];
         }
     }
+
+    /**
+     * Determines whether if a specific user is registered.
+     *
+     * @param $uid = user's id.
+     * @return bool - {@code true} if it indeed exists. {@code false} otherwise.
+     */
+    public function userExists ($uid) {
+        $em = $this->doctrine->em;
+
+        $user = $em->find('\Entity\User', $uid);
+        return $user !== null;
+    }
 }

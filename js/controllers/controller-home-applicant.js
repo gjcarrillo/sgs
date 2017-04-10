@@ -34,6 +34,14 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
         performAction(id);
     };
 
+    $scope.selected = [];
+
+    $scope.query = {
+        order: 'name',
+        limit: 5,
+        page: 1
+    };
+
     if (!$scope.loanTypes) {
         $scope.loading = true;
         Requests.initializeListType().then(
@@ -187,15 +195,6 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
 
     $scope.goBack = function () {
         window.location.replace(Constants.IPAPEDI_URL + 'asociados');
-    };
-
-    /**
-     * Toggles the selected request type list.
-     *
-     * @param index - selected request type index.
-     */
-    $scope.toggleList = function (index) {
-        $scope.loanTypes[index].selected = !$scope.loanTypes[index].selected;
     };
 
     $scope.goToDetails = function (req) {
@@ -413,14 +412,6 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
                 );
             };
         }
-    };
-
-    $scope.selected = [];
-
-    $scope.query = {
-        order: 'name',
-        limit: 5,
-        page: 1
     };
 
     /**

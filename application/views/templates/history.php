@@ -1,6 +1,6 @@
 <md-toolbar layout-padding>
     <div class="md-toolbar-tools" ng-hide="searchEnabled">
-        <md-button ng-click="goHome()" class="md-icon-button">
+        <md-button ng-click="goBack()" class="md-icon-button">
             <md-icon>
                 arrow_back
             </md-icon>

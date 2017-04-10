@@ -5,25 +5,17 @@ angular
     .module('sgdp.service-agent', [])
     .factory('Agent', agent);
 
-agent.$inject = [];
+agent.$inject = ['$http', '$q'];
 
-function agent () {
+function agent ($http, $q) {
 
     var self = this;
 
     // Data initialization.
     var data = {};
-    data.selectedReq = '';
-    data.selectedLoan = -1;
-    data.requests = {};
-    data.req = null; // Will contain the selected request object.
-    data.fetchError = '';
     data.fetchId = '';
+    data.idPrefix = 'V';
     data.searchInput = '';
-    // contentAvailable will indicate whether sidenav can be visible
-    data.contentAvailable = false;
-    // contentLoaded will indicate whether sidenav can be locked open
-    data.contentLoaded = false;
     // This will enable / disable search bar in mobile screens
     data.searchEnabled = false;
     // End of data initialization.
@@ -43,16 +35,32 @@ function agent () {
      * Clears the service's data (i.e. re-initializes it)
      */
     self.clearData = function () {
-        self.data.selectedReq = '';
-        self.data.selectedLoan = -1;
-        self.data.requests = {};
-        self.data.req = null;
-        self.data.fetchError = '';
-        self.data.fetchId = '';
-        self.data.searchInput = '';
-        self.data.contentAvailable = false;
-        self.data.contentLoaded = false;
-        self.data.searchEnabled = false;
+        var data = {};
+        data.fetchId = '';
+        data.idPrefix = 'V';
+        data.searchInput = '';
+        data.searchEnabled = false;
+    };
+
+    /**
+     * Validates whether user exists in system (ipapedi db or sgs db).
+     *
+     * @param uid - user's id.
+     * @returns {*} - promise with the operation's result.
+     */
+    self.validateUser = function (uid) {
+        var qUser = $q.defer();
+
+        $http.get('agentHomeController/validateUser', {params: {uid: uid}}).then(
+            function (response) {
+                if (response.data.message == 'success') {
+                    qUser.resolve();
+                } else {
+                    qUser.reject(response.data.message);
+                }
+            }
+        );
+        return qUser.promise;
     };
 
     return self;

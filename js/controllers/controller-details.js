@@ -2,9 +2,11 @@ angular
     .module('sgdp')
     .controller('DetailsController', details);
 
-details.$inject = ['$scope', 'Utils', 'Requests', 'Auth', 'Config', 'Constants', '$mdDialog', '$mdMedia', '$state'];
+details.$inject = ['$scope', 'Utils', 'Requests', 'Auth', 'Config', 'Constants', '$mdDialog', '$mdMedia',
+                   '$state', 'FileUpload', '$timeout'];
 
-function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $mdMedia, $state) {
+function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $mdMedia,
+                 $state, FileUpload, $timeout) {
     'use strict';
 
     // If no data has been sent, show nothing.
@@ -20,6 +22,13 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
     $scope.showMsg = true;
     $scope.APPROVED = Constants.Statuses.APPROVED;
     $scope.loanTypes = Config.loanConcepts;
+    $scope.APPLICANT = Constants.Users.APPLICANT;
+    $scope.AGENT = Constants.Users.AGENT;
+    $scope.MANAGER = Constants.Users.MANAGER;
+    $scope.RECEIVED = Constants.Statuses.RECEIVED;
+    $scope.APPROVED = Constants.Statuses.APPROVED;
+    $scope.PRE_APPROVED = Constants.Statuses.PRE_APPROVED;
+    $scope.REJECTED = Constants.Statuses.REJECTED;
 
     if ($scope.req.status == $scope.APPROVED) {
         $scope.loading = true;
@@ -276,6 +285,216 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
             });
     };
 
+    /**
+     * Custom dialog for updating an existing request
+     */
+    $scope.openUpdateRequestDialog = function ($event) {
+        var parentEl = angular.element(document.body);
+        $mdDialog.show({
+            parent: parentEl,
+            targetEvent: $event,
+            templateUrl: 'EditRequestController',
+            clickOutsideToClose: false,
+            escapeToClose: false,
+            fullscreen: $mdMedia('xs'),
+            locals: {
+                fetchId: fetchId,
+                request: $scope.req
+            },
+            controller: DialogController
+        });
+        // Isolated dialog controller
+        function DialogController($scope, $mdDialog, fetchId, request) {
+            $scope.files = [];
+            $scope.fetchId = fetchId;
+            $scope.uploading = false;
+            $scope.request = _.cloneDeep(request);
+            $scope.enabledDescription = -1;
+            $scope.comment = $scope.request.comment;
+
+            $scope.closeDialog = function () {
+                $mdDialog.hide();
+            };
+
+            $scope.removeDoc = function (index) {
+                $scope.files.splice(index, 1);
+                $scope.selectedFiles = $scope.files.length > 0 ?
+                $scope.files.length + ' archivo(s)' : null;
+            };
+
+            $scope.isDescriptionEnabled = function (dKey) {
+                return $scope.enabledDescription == dKey;
+            };
+
+            $scope.enableDescription = function (dKey) {
+                $scope.enabledDescription = dKey;
+                $timeout(function () {
+                    $("#" + dKey).focus();
+                }, 300);
+            };
+
+            $scope.allFieldsMissing = function () {
+                return $scope.files.length == 0 &&
+                       (typeof $scope.comment === "undefined"
+                        || $scope.comment == ""
+                        || $scope.comment == $scope.request.comment);
+            };
+
+            $scope.showError = function (error, param) {
+                return FileUpload.showDocUploadError(error, param);
+            };
+
+            // Gathers the files whenever the file input's content is updated
+            $scope.gatherFiles = function (files, errFiles) {
+                $scope.files = files;
+                $scope.selectedFiles = $scope.files.length > 0 ?
+                $scope.files.length + ' archivo(s)' : null;
+                $scope.errFiles = errFiles;
+            };
+
+            // Deletes all selected files
+            $scope.deleteFiles = function (ev) {
+                $scope.files = [];
+                $scope.selectedFiles = null;
+                // Stop click event propagation, otherwise file chooser will
+                // also be opened.
+                ev.stopPropagation();
+            };
+
+            // Creates new request in database and uploads documents
+            $scope.updateRequest = function () {
+                $scope.uploading = true;
+                $scope.request.comment = $scope.comment;
+                if ($scope.files.length === 0) {
+                    performEdition($scope.request);
+                } else {
+                    // Add additional files to this request.
+                    uploadFiles($scope.files, fetchId);
+                }
+            };
+
+            // Performs the request edition update in DB
+            function performEdition(postData) {
+                Requests.updateRequest(postData).then(
+                    function (updatedReq) {
+                        Utils.showAlertDialog(
+                            'Solicitud actualizada',
+                            'La solicitud ha sido actualizada exitosamente.'
+                        );
+                        // Update saved request and reload view.
+                        sessionStorage.setItem("req", JSON.stringify(updatedReq));
+                        $state.go($state.current, {}, {reload: true})
+                    },
+                    function (errorMsg) {
+                        $scope.uploading = false;
+                        Utils.showAlertDialog('Oops!', errorMsg);
+                    }
+                );
+            }
+
+            // Uploads each of selected documents to the server
+            function uploadFiles(files, userId) {
+                FileUpload.uploadFiles(files, userId).then(
+                    function (docs) {
+                        $scope.request.newDocs = docs;
+                        performEdition($scope.request)
+                    },
+                    function (errorMsg) {
+                        // Show file error message
+                        $scope.errorMsg = errorMsg;
+                    }
+                );
+            }
+        }
+    };
+
+
+    $scope.deleteDoc = function (ev, dKey) {
+        Utils.showConfirmDialog(
+            'Confirmación de eliminación',
+            "El documento " + $scope.req.docs[dKey].name + " será eliminado.",
+            'Continuar',
+            'Cancelar',
+            ev, true).then(
+            function() {
+                $scope.overlay = true;
+                Requests.deleteDocument($scope.req.docs[dKey]).then(
+                    function (updatedReq) {
+                        $scope.overlay = false;
+                        Utils.showAlertDialog(
+                            'Documento eliminado',
+                            'El documento ' + $scope.req.docs[dKey].name + ' ha sido eliminado exitosamente.'
+                        );
+                        sessionStorage.setItem("req", JSON.stringify(updatedReq));
+                        $state.go($state.current, {}, {reload: true})
+                    },
+                    function (errorMsg) {
+                        $scope.overlay = false;
+                        Utils.showAlertDialog('Oops!', errorMsg);
+                    }
+                )
+            }
+        );
+    };
+
+    $scope.userType = function (type) {
+        return Auth.userType(type);
+    };
+
+    $scope.loadHistory = function () {
+        // Send required data to history
+        $state.go('actions');
+    };
+
+    $scope.showAgentEditBtn = function () {
+        return $scope.req.validationDate && $scope.userType($scope.AGENT) &&
+               $scope.req.status != $scope.APPROVED && $scope.req.status != $scope.REJECTED &&
+               $scope.req.status != $scope.PRE_APPROVED;
+    };
+
+    $scope.isDocEditable = function (name) {
+        return $scope.req.validationDate && $scope.userType($scope.AGENT) &&
+               $scope.req.status != $scope.APPROVED && $scope.req.status != $scope.REJECTED &&
+               $scope.req.status != $scope.PRE_APPROVED && name != 'Constancia';
+    };
+
+    /*
+     * Mini custom dialog to edit a document's description
+     */
+    $scope.editDescription = function ($event, doc) {
+        var parentEl = angular.element(document.body);
+        $mdDialog.show({
+            parent: parentEl,
+            targetEvent: $event,
+            clickOutsideToClose: true,
+            escapeToClose: true,
+            templateUrl: 'EditRequestController/editionDialog',
+            locals: {
+                doc: doc
+            },
+            controller: DialogController
+        });
+
+        function DialogController($scope, $mdDialog, doc) {
+            $scope.description = doc.description;
+
+            $scope.missingField = function () {
+                return typeof $scope.description === "undefined" ||
+                       $scope.description == doc.description;
+            };
+            $scope.saveEdition = function () {
+                if ($scope.missingField()) {return;}
+                doc.description = $scope.description;
+                Requests.updateDocDescription(doc).then(
+                    function () {},
+                    function (errorMsg) {
+                        Utils.showAlertDialog('Oops!', errorMsg);
+                    }
+                );
+                $mdDialog.hide();
+            }
+        }
+    };
 
     $scope.goHome = function () {
         Auth.sendHome();
