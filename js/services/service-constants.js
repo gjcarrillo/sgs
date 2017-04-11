@@ -13,6 +13,10 @@ var obj = {
         PERSONAL_LOAN: 40,
         CASH_VOUCHER: 31
     },
+    DocTypes: {
+        MANDATORY: 1,
+        ADDITIONAL: 2
+    },
     Statuses: {
         RECEIVED: 'Recibida',
         PRE_APPROVED: 'Pre-Aprobada',

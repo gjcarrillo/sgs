@@ -23,7 +23,8 @@
     <overlay ng-if="overlay"/>
     <md-content class="document-container">
         <div layout="column" layout-align="center center">
-            <md-card id="validation-card" class="validation-card" ng-if="!req.validationDate">
+            <!-- NOT VALIDATED message for APPLICANTS -->
+            <md-card id="validation-card" class="validation-card" ng-if="!req.validationDate && userType(APPLICANT)">
                 <md-card-content>
                     <p>
                         SOLICITUD NO VALIDADA <br/><br/>
@@ -47,6 +48,52 @@
                         </md-icon>
                         <br/><br/>
                         Una vez esté completamente seguro de proceder con esta solicitud, haga clic en VALIDAR.
+                    </p>
+                </md-card-content>
+                <md-card-actions layout="row" layout-align="end center">
+                    <md-button
+                        ng-click="validating ? null : validateRequest($event)"
+                        class="md-raised"
+                        aria-label="Validar">
+                            <span ng-if="!validating">
+                                Validar
+                                <md-tooltip>Validar solicitud</md-tooltip>
+                            </span>
+                        <div ng-if="validating" layout layout-align="center center">
+                            <md-progress-circular
+                                md-mode="indeterminate"
+                                md-diameter="30">
+                            </md-progress-circular>
+                        </div>
+                    </md-button>
+                </md-card-actions>
+            </md-card>
+            <!-- NOT VALIDATED message for AGENTS -->
+            <md-card id="validation-card" class="validation-card" ng-if="!req.validationDate && userType(AGENT)">
+                <md-card-content>
+                    <p>
+                        SOLICITUD NO VALIDADA <br/><br/>
+                    </p>
+                    <p>
+                        Puede editar la información de la solicitud haciendo clic en
+                        <md-icon ng-if="!req.validationDate"
+                                 ng-click="openEditRequestDialog($event)" class="md-secondary pointer padding-sides">
+                            edit
+                            <md-tooltip>
+                                Editar solicitud
+                            </md-tooltip>
+                        </md-icon>
+
+                        o eliminarla haciendo clic en
+                        <md-icon ng-click="deleteRequest($event)" class="md-secondary pointer padding-sides">
+                            delete
+                            <md-tooltip>
+                                Eliminar solicitud
+                            </md-tooltip>
+                        </md-icon>
+                        <br/><br/>
+                        El asociado debe ingresar al sistema usando sus credenciales y una vez esté completamente seguro
+                        de proceder con esta solicitud, debe hacer clic en VALIDAR.
                     </p>
                 </md-card-content>
                 <md-card-actions layout="row" layout-align="end center">
@@ -334,7 +381,7 @@
                                     <p>{{doc.description}}</p>
                                 </div>
                                 <md-button
-                                    ng-if="!isDocEditable(doc.name)"
+                                    ng-if="!isDocEditable(doc.type)"
                                     class="md-icon-button">
                                     <md-icon class="md-secondary">
                                         file_download
@@ -343,7 +390,7 @@
                                 <!-- Agents editable docs -->
                                 <md-menu
                                     id="request-docs-actions"
-                                    ng-if="isDocEditable(doc.name)">
+                                    ng-if="isDocEditable(doc.type)">
                                     <md-button
                                         ng-click="$mdOpenMenu($event)"
                                         class="md-icon-button"

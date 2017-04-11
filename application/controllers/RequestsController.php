@@ -41,61 +41,81 @@ class RequestsController extends CI_Controller {
     }
 
     public function getRequestsByDate() {
-        try {
-            // from first second of the day
-            $from = date_create_from_format(
-                'd/m/Y H:i:s',
-                $this->input->get('from') . ' ' . '00:00:00',
-                new DateTimeZone('America/Barbados')
-            );
-            // to last second of the day
-            $to = date_create_from_format(
-                'd/m/Y H:i:s',
-                $this->input->get('to') . ' ' . '23:59:59',
-                new DateTimeZone('America/Barbados')
-            );
-            $result['requests'] = $this->requests->getRequestByDate($from, $to, $this->input->get('uid'));
-            $result['message'] = 'success';
-        } catch (Exception $e) {
-            $result['message'] = $this->utils->getErrorMsg($e);
+        if ($this->input->get('uid') != $this->session->id &&
+            $this->session->type == APPLICANT) {
+            $result['message'] = 'Forbidden.';
+        } else {
+            try {
+                // from first second of the day
+                $from = date_create_from_format(
+                    'd/m/Y H:i:s',
+                    $this->input->get('from') . ' ' . '00:00:00',
+                    new DateTimeZone('America/Barbados')
+                );
+                // to last second of the day
+                $to = date_create_from_format(
+                    'd/m/Y H:i:s',
+                    $this->input->get('to') . ' ' . '23:59:59',
+                    new DateTimeZone('America/Barbados')
+                );
+                $result['requests'] = $this->requests->getRequestByDate($from, $to, $this->input->get('uid'));
+                $result['message'] = 'success';
+            } catch (Exception $e) {
+                $result['message'] = $this->utils->getErrorMsg($e);
+            }
+            echo json_encode($result);
         }
-        echo json_encode($result);
     }
 
     public function getRequestsByStatus() {
-        try {
-            $result['requests'] = $this->requests->getRequestByStatus(
-                $this->input->get('status'),
-                $this->input->get('uid')
-            );
-            $result['message'] = 'success';
-        } catch (Exception $e) {
-            $result['message'] = $this->utils->getErrorMsg($e);
+        if ($this->input->get('uid') != $this->session->id &&
+            $this->session->type == APPLICANT) {
+            $result['message'] = 'Forbidden.';
+        } else {
+            try {
+                $result['requests'] = $this->requests->getRequestByStatus(
+                    $this->input->get('status'),
+                    $this->input->get('uid')
+                );
+                $result['message'] = 'success';
+            } catch (Exception $e) {
+                $result['message'] = $this->utils->getErrorMsg($e);
+            }
+            echo json_encode($result);
         }
-        echo json_encode($result);
     }
 
     public function getRequestsByType() {
-        try {
-            $result['requests'] = $this->requests->getRequestByType(
-                $this->input->get('concept'),
-                $this->input->get('uid')
-            );
-            $result['message'] = 'success';
-        } catch (Exception $e) {
-            $result['message'] = $this->utils->getErrorMsg($e);
+        if ($this->input->get('uid') != $this->session->id &&
+            $this->session->type == APPLICANT) {
+            $result['message'] = 'Forbidden.';
+        } else {
+            try {
+                $result['requests'] = $this->requests->getRequestByType(
+                    $this->input->get('concept'),
+                    $this->input->get('uid')
+                );
+                $result['message'] = 'success';
+            } catch (Exception $e) {
+                $result['message'] = $this->utils->getErrorMsg($e);
+            }
+            echo json_encode($result);
         }
-        echo json_encode($result);
     }
 
     public function getOpenedRequests () {
-        try {
-            $result['requests'] = $this->requests->getOpenedRequests($this->input->get('uid'));
-            $result['message'] = 'success';
-        } catch (Exception $e) {
-            $result['message'] = $this->utils->getErrorMsg($e);
+        if ($this->input->get('uid') != $this->session->id &&
+            $this->session->type == APPLICANT) {
+            $result['message'] = 'Forbidden.';
+        } else {
+            try {
+                $result['requests'] = $this->requests->getOpenedRequests($this->input->get('uid'));
+                $result['message'] = 'success';
+            } catch (Exception $e) {
+                $result['message'] = $this->utils->getErrorMsg($e);
+            }
+            echo json_encode($result);
         }
-        echo json_encode($result);
     }
 
     public function getUserEditableRequests () {

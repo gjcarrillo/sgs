@@ -281,6 +281,7 @@ class UtilsModel extends CI_Model
         foreach ($docs as $dKey => $doc) {
             $result['docs'][$dKey]['id'] = $doc->getId();
             $result['docs'][$dKey]['name'] = $doc->getName();
+            $result['docs'][$dKey]['type'] = $doc->getType();
             $result['docs'][$dKey]['description'] = $doc->getDescription();
             $result['docs'][$dKey]['lpath'] = $doc->getLpath();
         }

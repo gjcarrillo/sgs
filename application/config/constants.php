@@ -152,6 +152,8 @@ define('CLIENT_SECRET_PATH', APPPATH . '../client_secret.json');
 =========================================*/
 define('LOCAL', 1);
 define('REMOTE', 2);
+define('MANDATORY', 1);
+define('ADDITIONAL', 2);
 /* ======================================
        Auto generated system user ID
 =========================================*/

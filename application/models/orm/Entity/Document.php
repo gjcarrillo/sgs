@@ -47,7 +47,14 @@ class Document
      *
      * @ORM\Column(name="storage", type="smallint", precision=2, scale=0, nullable=false, unique=false)
      */
-    private $storage = 1;
+    private $storage = LOCAL;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="type", type="smallint", precision=2, scale=0, nullable=false, unique=false)
+     */
+    private $type = MANDATORY;
 
     /**
      * @var \Entity\Request
@@ -160,6 +167,29 @@ class Document
     public function getStorage()
     {
         return $this->storage;
+    }
+
+    /**
+     * Set type
+     *
+     * @param integer $type
+     * @return Document
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    /**
+     * Get type
+     *
+     * @return integer
+     */
+    public function getType()
+    {
+        return $this->type;
     }
 
     /**

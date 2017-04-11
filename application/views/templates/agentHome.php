@@ -179,7 +179,7 @@
                         ng-click="openNewRequestDialog($event, lKey)"
                         class="requestItems"
                         ng-class="{'md-primary md-raised' : selectedAction == 'N' + lKey}">
-                        {{loanType.description}}
+                        {{loanType.DescripcionDelPrestamo}}
                     </md-button>
                     <md-divider></md-divider>
                 </div>
@@ -200,7 +200,7 @@
                         ng-click="null"
                         class="requestItems"
                         ng-class="{'md-primary md-raised' : selectedAction == 'R' + lKey}">
-                        {{loanType.description}}
+                        {{loanType.DescripcionDelPrestamo}}
                     </md-button>
                     <md-divider></md-divider>
                 </div>
@@ -352,13 +352,13 @@
                     <md-expansion-panel-group md-component-id="requests">
                         <md-expansion-panel ng-repeat="(lKey, loanType) in loanTypes" md-component-id="{{lKey}}">
                             <md-expansion-panel-collapsed>
-                                <div>Solicitudes de {{loanType.description}}</div>
+                                <div>Solicitudes de {{loanType.DescripcionDelPrestamo}}</div>
                                 <span flex></span>
                                 <md-expansion-panel-icon></md-expansion-panel-icon>
                             </md-expansion-panel-collapsed>
                             <md-expansion-panel-expanded>
                                 <md-expansion-panel-header>
-                                    <div class="md-title">{{loanType.description}}</div>
+                                    <div class="md-title">{{loanType.DescripcionDelPrestamo}}</div>
                                     <div class="md-summary">Haga clic en una fila para ver más detalles de la solicitud</div>
                                     <md-expansion-panel-icon></md-expansion-panel-icon>
                                 </md-expansion-panel-header>

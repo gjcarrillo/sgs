@@ -152,7 +152,7 @@ class NewRequestController extends CI_Controller {
 					$result['message'] = "No ha" . ($span == 1 ? "" : "n") .
 										 " transcurrido al menos " . $span . ($span == 1 ? " mes " : " meses ") .
 										 "desde su última otorgación de préstamo del tipo: " .
-										 $this->utils->mapLoanType($data['loanType']);
+										 $loanTypes[$data['loanType']]->DescripcionDelPrestamo;
 				} else if ($data['reqAmount'] < $minAmount || $data['reqAmount'] > $maxAmount) {
 					$result['message'] = 'Monto solicitado no válido.';
 				} else if (!in_array($data['due'], $terms)) {
@@ -195,7 +195,7 @@ class NewRequestController extends CI_Controller {
 					$history->addAction($action);
 					$em->persist($action);
 					$action = new \Entity\HistoryAction();
-					$action->setSummary("Tipo de préstamo: " . $this->utils->mapLoanType($data['loanType']));
+					$action->setSummary("Tipo de préstamo: " . $loanTypes[$data['loanType']]->DescripcionDelPrestamo);
 					$action->setBelongingHistory($history);
 					$em->persist($action);
 					$history->addAction($action);

@@ -288,9 +288,6 @@ sgdp.run(['$rootScope', '$location', '$state', 'Auth', '$cookies', '$http', 'Con
                       case '/userInfo':
                           // check for agent or manager rights
                           return userType <= 2;
-                      //case '/perspective':
-                      //    // check for agent or manager rights
-                      //    return userType <= 2;
                   }
                   //  Going to login (.otherwise('login')), so keep going!
                   return true;

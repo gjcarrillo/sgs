@@ -459,10 +459,10 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                $scope.req.status != $scope.REJECTED_STRING && $scope.req.status != $scope.PRE_APPROVED;
     };
 
-    $scope.isDocEditable = function (name) {
+    $scope.isDocEditable = function (type) {
         return $scope.req.validationDate && $scope.userType($scope.AGENT) &&
                $scope.req.status != $scope.APPROVED && $scope.req.status != $scope.REJECTED &&
-               $scope.req.status != $scope.PRE_APPROVED && name != 'Constancia';
+               $scope.req.status != $scope.PRE_APPROVED && type != Constants.DocTypes.MANDATORY;
     };
 
     $scope.loadUserData = function(userId) {

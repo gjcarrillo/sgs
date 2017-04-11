@@ -575,12 +575,12 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
                                   'solicitar un nuevo préstamo.');
         } else if (data.opened.hasOpened && !editMode) {
             Utils.showAlertDialog('No permitido', 'Estimado usuario, no puede realizar otra solicitud del tipo ' +
-                                                  Config.loanConcepts[concept].description + ' debido a que ya posee ' +
+                                                  Config.loanConcepts[concept].DescripcionDelPrestamo + ' debido a que ya posee ' +
                                                   'una solicitud (con ID #' + Utils.pad(data.opened.id, 6) + ') de ' +
                                                   'dicho tipo abierta.');
         } else if (!data.granting.allow) {
             Utils.showAlertDialog('No permitido', 'Estimado usuario, no puede realizar otra solicitud del tipo ' +
-                                                  Config.loanConcepts[concept].description + ' debido a que aún no ' +
+                                                  Config.loanConcepts[concept].DescripcionDelPrestamo + ' debido a que aún no ' +
                                                   'ha' + (data.granting.span == 1 ? '' : 'n') +
                                                   ' transcurrido ' + data.granting.span + (data.granting.span == 1 ? ' mes' : ' meses') +
                                                   ' desde el último préstamo otorgado.<br/><br/>' +

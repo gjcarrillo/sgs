@@ -127,7 +127,7 @@ class EditRequestController extends CI_Controller {
 					$result['message'] = "No ha" . ($span == 1 ? "" : "n") .
 										 " transcurrido al menos " . $span . ($span == 1 ? " mes " : " meses ") .
 										 "desde su última otorgación de préstamo del tipo: " .
-										 $this->utils->mapLoanType($data['loanType']);
+                                         $loanTypes[$data['loanType']]->DescripcionDelPrestamo;
 				} else if ($data['reqAmount'] < $minAmount || $data['reqAmount'] > $maxAmount) {
 					$result['message'] = 'Monto solicitado no válido.';
 				} else if (!in_array($data['due'], $terms)) {
@@ -161,8 +161,8 @@ class EditRequestController extends CI_Controller {
 						if ($request->getLoanType() != $data['loanType']) {
 							$action = new \Entity\HistoryAction();
 							$action->setSummary("Tipo de préstamo cambiado.");
-							$action->setDetail("Cambiado de " . $this->utils->mapLoanType($request->getLoanType()) .
-											   " a " . $this->utils->mapLoanType($data['loanType']));
+							$action->setDetail("Cambiado de " . $loanTypes[$request->getLoanType()]->DescripcionDelPrestamo .
+											   " a " . $loanTypes[$data['loanType']]->DescripcionDelPrestamo);
 							$action->setBelongingHistory($history);
 							$request->setLoanType($data['loanType']);
 							$history->addAction($action);

@@ -43,7 +43,7 @@ class RequestsModel extends CI_Model
             $em = $this->doctrine->em;
             $request = $em->find('\Entity\Request', $rid);
             if ($request === null ||
-                ($request->getUserOwner()->getId() != $uid && $this->session->id == APPLICANT)) {
+                ($request->getUserOwner()->getId() != $uid)) {
                 throw new Exception('No se ha encontrado solicitud con ID ' .
                                      str_pad($_GET['rid'], 6, '0', STR_PAD_LEFT));
             } else {
@@ -63,7 +63,7 @@ class RequestsModel extends CI_Model
             $requests = $query->getResult();
             $result = array();
             foreach ($requests as $request) {
-                if ($request->getUserOwner()->getId() != $uid && $this->session->type == APPLICANT)
+                if ($request->getUserOwner()->getId() != $uid)
                     continue;
                 // Add this request to result
                 array_push($result, $this->utils->reqToArray($request));
@@ -91,7 +91,7 @@ class RequestsModel extends CI_Model
             $requests = $requestsRepo->findBy(array("status" => $status));
             $result = array();
             foreach ($requests as $request) {
-                if ($request->getUserOwner()->getId() != $uid && $this->session->type == APPLICANT)
+                if ($request->getUserOwner()->getId() != $uid)
                     continue;
                 // Add this request to result
                 array_push($result, $this->utils->reqToArray($request));
@@ -113,7 +113,7 @@ class RequestsModel extends CI_Model
             $requests = $requestsRepo->findBy(array("loanType" => $loanType));
             $result = array();
             foreach ($requests as $request) {
-                if ($request->getUserOwner()->getId() != $uid && $this->session->type == APPLICANT)
+                if ($request->getUserOwner()->getId() != $uid)
                     continue;
                 // Add this request to result
                 array_push($result, $this->utils->reqToArray($request));
@@ -138,7 +138,7 @@ class RequestsModel extends CI_Model
             $requests = $requestsRepo->findBy(array("status" => $statuses));
             $result = array();
             foreach ($requests as $request) {
-                if ($request->getUserOwner()->getId() != $uid && $this->session->type == APPLICANT)
+                if ($request->getUserOwner()->getId() != $uid)
                     continue;
                 // Add this request to result
                 array_push($result, $this->utils->reqToArray($request));
@@ -218,12 +218,11 @@ class RequestsModel extends CI_Model
             $doc = $em->find('\Entity\Document', $data['id']);
             // Get it's request.
             $request = $doc->getBelongingRequest();
-            if (!$this->isRequestValidated($request) ||
-                $this->isRequestClosed($request) ||
-                // can't delete auto-generated document.
-                $doc->getLpath() == $request->getDocuments()[0]->getLpath()) {
+            if (!$this->isRequestValidated($request) || $this->isRequestClosed($request)) {
                 // request must be validated & not yet closed.
                 $result['message'] = 'Esta solicitud no puede ser modificada.';
+            } else if ($doc->getType() != ADDITIONAL) {
+                $result['message'] = 'Este documento no puede ser eliminado.';
             } else {
                 if ($doc->getStorage() == REMOTE) {
                     // Delete document from drive
@@ -375,6 +374,8 @@ class RequestsModel extends CI_Model
 
     public function generateRequestDocument ($request) {
         // Get extra data for the pdf template.
+        $this->load->model('configModel');
+        $loanTypes = $this->configModel->getLoanTypes();
         $data['reqAmount'] = $request->getRequestedAmount();
         $data['tel'] = $request->getContactNumber();
         $data['email'] = $request->getContactEmail();
@@ -385,7 +386,7 @@ class RequestsModel extends CI_Model
         $data['username'] = $request->getUserOwner()->getFirstName() . ' ' . $request->getUserOwner()->getLastName();
         $data['requestId'] = str_pad($request->getId(), 6, '0', STR_PAD_LEFT);
         $data['date'] = new DateTime('now', new DateTimeZone('America/Barbados'));
-        $data['loanTypeString'] = $this->utils->mapLoanType($data['loanType']);
+        $data['loanTypeString'] = $loanTypes[$data['loanType']]->DescripcionDelPrestamo;
         $data['paymentFee'] = $this->utils->calculatePaymentFee($data['reqAmount'],
                                                                 $data['due'],
                                                                 $this->utils->getInterestRate($data['loanType']));
@@ -404,7 +405,7 @@ class RequestsModel extends CI_Model
         $pdf->Output($pdfFilePath, 'F'); // save to file
     }
 
-    // Helper function that adds a set of docs to a request in database & returns an html string with
+    // Helper function that adds a set of additional docs to a request in database & returns an html string with
     // registered changes (for email notification).
     public function addDocuments($request, $history, $docs) {
         if ($this->isRequestClosed($request)) {
@@ -432,6 +433,7 @@ class RequestsModel extends CI_Model
                         }
                         $doc->setLpath($data['lpath']);
                         $doc->setBelongingRequest($request);
+                        $doc->setType(ADDITIONAL);
                         $request->addDocument($doc);
 
                         $em->persist($doc);

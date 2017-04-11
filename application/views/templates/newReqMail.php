@@ -174,7 +174,7 @@
                                                         <tr class="total" style="font-family: 'Open Sans, Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
                                                             <td style="font-family: 'Open Sans, Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; border-top-width: 2px; border-top-color: #333; border-top-style: solid; border-bottom-color: #333; border-bottom-width: 2px; border-bottom-style: solid; font-weight: 700; margin: 0; padding: 5px 0;"valign="top">Cuotas a pagar</td>
                                                             <td class="alignright" style="font-family: 'Open Sans, Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; text-align: right; border-top-width: 2px; border-top-color: #333; border-top-style: solid; border-bottom-color: #333; border-bottom-width: 2px; border-bottom-style: solid; font-weight: 700; margin: 0; padding: 5px 0;" align="right" valign="top">
-                                                                Bs. <?php echo number_format($paymentFee, 2); ?> durante <?php echo $due; ?> meses</td>
+                                                                Bs. <?php echo number_format($paymentFee, 2); ?> durante <?php echo $due; ?> <?php echo $due == 1 ? 'mes' : 'meses'; ?></td>
                                                         </tr>
                                                     </table>
                                                 </td>
