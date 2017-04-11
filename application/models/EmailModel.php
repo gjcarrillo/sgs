@@ -28,13 +28,14 @@ class EmailModel extends CI_Model
         }
     }
 
-    public function sendRequestUpdateEmail($reqId, $changes) {
+    public function sendRequestUpdateEmail($reqId, $conceptStr, $changes) {
         try {
             $em = $this->doctrine->em;
             $request = $em->find('\Entity\Request', $reqId);
             $mailData['updates'] = $changes;
             $mailData['homeUrl'] = $this->config->base_url();
             $mailData['reqId'] = $reqId;
+            $mailData['conceptStr'] = $conceptStr;
             $mailData['email'] = $request->getContactEmail();
             $mailData['subject'] = 'Actualización de Solicitud';
             $html = $this->load->view('templates/updateEmail', $mailData, true); // render the view into HTML

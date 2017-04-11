@@ -7,6 +7,7 @@ class EditRequestController extends CI_Controller {
         parent::__construct();
         $this->load->library('session');
 		$this->load->model('requestsModel', 'requests');
+		$this->load->model('configModel');
 	}
 
 	public function index() {
@@ -42,7 +43,8 @@ class EditRequestController extends CI_Controller {
 		} else {
 			$data = json_decode(file_get_contents('php://input'), true);
 			try {
-				$em = $this->doctrine->em;
+                $loanTypes = $this->configModel->getLoanTypes();
+                $em = $this->doctrine->em;
 				// Update request
 				$request = $em->find('\Entity\Request', $data['id']);
 				if (!$this->requests->isRequestValidated($request) || $this->requests->isRequestClosed($request)) {
@@ -73,15 +75,19 @@ class EditRequestController extends CI_Controller {
 						$request->setComment($data['comment']);
 					}
 					$em->merge($request);
-					$result['request'] = $this->utils->reqToArray($request);
 					if (isset($data['newDocs'])) {
 						$changes = $changes . $this->requests->addDocuments($request, $history, $data['newDocs']);
 					}
 					$em->persist($history);
-					$em->flush();
-					$this->load->model('emailModel', 'email');
-					$this->email->sendRequestUpdateEmail($request->getId(), $changes);
-					$result['message'] = "success";
+                    $em->flush();
+                    $result['request'] = $this->utils->reqToArray($request);
+                    $this->load->model('emailModel', 'email');
+                    $this->email->sendRequestUpdateEmail(
+                        $request->getId(),
+                        $loanTypes[$request->getLoanType()]->DescripcionDelPrestamo,
+                        $changes
+                    );
+                    $result['message'] = "success";
 				}
 			} catch (Exception $e) {
 				$result['message'] = $this->utils->getErrorMsg($e);
@@ -99,7 +105,6 @@ class EditRequestController extends CI_Controller {
 		} else {
 			try {
 				$em = $this->doctrine->em;
-				$this->load->model('configModel');
 				$this->load->model('userModel');
 				$maxAmount = $this->configModel->getMaxReqAmount();
 				$minAmount = $this->configModel->getMinReqAmount();
@@ -215,9 +220,10 @@ class EditRequestController extends CI_Controller {
 		if ($_SESSION['type'] != AGENT) {
 			$this->load->view('errors/index.html');
 		} else {
-			$data = json_decode(file_get_contents('php://input'), true);
+            $data = json_decode(file_get_contents('php://input'), true);
 			try {
-				$em = $this->doctrine->em;
+                $loanTypes = $this->configModel->getLoanTypes();
+                $em = $this->doctrine->em;
 				$document = $em->find('\Entity\Document', $data['id']);
 				$request = $document->getBelongingRequest();
 				if (!$this->requests->isRequestValidated($request) || $this->requests->isRequestClosed($request)) {
@@ -248,7 +254,11 @@ class EditRequestController extends CI_Controller {
 						$document->setDescription($data['description']);
 						$em->merge($document);
 						$this->load->model('emailModel', 'email');
-						$this->email->sendRequestUpdateEmail($request->getId(), $changes);
+                        $this->email->sendRequestUpdateEmail(
+                            $request->getId(),
+                            $loanTypes[$request->getLoanType()]->DescripcionDelPrestamo,
+                            $changes
+                        );
 						$em->flush();
 						$result['request'] = $this->utils->reqToArray($request);
 					}

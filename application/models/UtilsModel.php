@@ -31,17 +31,6 @@ class UtilsModel extends CI_Model
     }
 
     /**
-     * Maps the loan type's code to it' corresponding string name.
-     *
-     * @param $typeCode - integer representing request type's code.
-     * @return string representing the corresponding loan type.
-     */
-    public function mapLoanType($typeCode) {
-       $loanTypes = LOAN_TYPES_NAMES;
-        return $loanTypes[$typeCode];
-    }
-
-    /**
      * Obtains the history action code corresponding to a specified action.
      *
      * @param $action - action string.
@@ -61,17 +50,6 @@ class UtilsModel extends CI_Model
     public function getHistoryActionName($action) {
         $actions = HISTORY_ACTIONS_NAMES;
         return $actions[$action];
-    }
-
-    /**
-     * Maps the specified status to it' verb equivalent.
-     *
-     * @param $status - status string.
-     * @return string - status string as verb.
-     */
-    public function statusToVerb($status) {
-        $verbs = STATUSES_VERB;
-        return $verbs[$status];
     }
 
     /**
@@ -291,6 +269,7 @@ class UtilsModel extends CI_Model
         $result['reqAmount'] = $request->getRequestedAmount();
         $result['approvedAmount'] = $request->getApprovedAmount();
         $result['userOwner'] = $request->getUserOwner()->getId();
+        $result['userOwnerName'] = $request->getUserOwner()->getFirstName() . ' ' . $request->getUserOwner()->getFirstName();
         $result['reunion'] = $request->getReunion();
         $result['status'] = $request->getStatus();
         $result['type'] = $request->getLoanType();

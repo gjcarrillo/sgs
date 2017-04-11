@@ -9,6 +9,10 @@ var obj = {
         MANAGER: 2,
         APPLICANT: 3
     },
+    LoanTypes: {
+        PERSONAL_LOAN: 40,
+        CASH_VOUCHER: 31
+    },
     Statuses: {
         RECEIVED: 'Recibida',
         PRE_APPROVED: 'Pre-Aprobada',

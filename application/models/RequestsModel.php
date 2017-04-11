@@ -13,6 +13,7 @@ class RequestsModel extends CI_Model
     public function __construct() {
         parent::__construct();
         $this->load->model('driveModel');
+        $this->load->model('configModel');
         $this->load->library('session');
     }
 
@@ -118,7 +119,6 @@ class RequestsModel extends CI_Model
                 array_push($result, $this->utils->reqToArray($request));
             }
             if (empty($result)) {
-                $this->load->model('configModel');
                 $loanTypes = $this->configModel->getLoanTypes();
                 throw new Exception("No se han encontrado solicitudes del tipo " . $loanTypes[$loanType]->DescripcionDelPrestamo);
             } else {
@@ -210,6 +210,7 @@ class RequestsModel extends CI_Model
 
     public function deleteDocument () {
         try {
+            $loanTypes = $this->configModel->getLoanTypes();
             $data = json_decode($this->input->raw_input_stream, true);
             $em = $this->doctrine->em;
             // Delete the document from the server.
@@ -253,9 +254,13 @@ class RequestsModel extends CI_Model
                 $em->persist($history);
                 // Delete the document.
                 $em->remove($doc);
-                $this->load->model('emailModel', 'email');
-                $this->email->sendRequestUpdateEmail($request->getId(), $changes);
                 $result['request'] = $this->utils->reqToArray($request);
+                $this->load->model('emailModel', 'email');
+                $this->email->sendRequestUpdateEmail(
+                    $request->getId(),
+                    $loanTypes[$request->getLoanType()]->DescripcionDelPrestamo,
+                    $changes
+                );
                 // Persist the changes in database.
                 $em->flush();
                 $result['message'] = "success";
@@ -592,6 +597,7 @@ class RequestsModel extends CI_Model
 
     public function approveRequest ($rid) {
         try {
+            $loanTypes = $this->configModel->getLoanTypes();
             $em = $this->doctrine->em;
             $request = $em->find('\Entity\Request', $rid);
             $this->load->model('userModel');
@@ -619,7 +625,11 @@ class RequestsModel extends CI_Model
             $request->setStatus(APPROVED);
             $em->merge($request);
             $this->load->model('emailModel', 'email');
-            $this->email->sendRequestUpdateEmail($request->getId(), $changes);
+            $this->email->sendRequestUpdateEmail(
+                $request->getId(),
+                $loanTypes[$request->getLoanType()]->DescripcionDelPrestamo,
+                $changes
+            );
             $em->flush();
         } catch (Exception $e) {
             throw $e;

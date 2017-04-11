@@ -49,7 +49,7 @@ class NewRequestController extends CI_Controller {
 	 */
 	public function getAvailabilityData() {
 		$result['message'] = "error";
-		if ($this->input->get('userId') != $this->session->id && $this->session->type != AGENT) {
+		if ($this->input->get('userId') != $this->session->id && $this->session->type == APPLICANT) {
 			$this->load->view('errors/index.html');
 		} else {
 			try {
@@ -87,7 +87,7 @@ class NewRequestController extends CI_Controller {
 					$result['message'] = "Parece que su información personal aún no ha sido ingresada en nuestro sistema.";
 				} else {
 					$result['concurrence'] = $userData->concurrencia;
-					if ($this->input->get('concept') == 40) {
+					if ($this->input->get('concept') == PERSONAL_LOAN) {
 						// Applicant must be 6 months old to request personal loans.
 						$admissionDate = date_create_from_format('d/m/Y', $userData->ingreso);
 						if (!$admissionDate) {
@@ -139,7 +139,7 @@ class NewRequestController extends CI_Controller {
 				$terms = $this->utils->extractLoanTerms($loanTypes[$data['loanType']]);
 				if ($userData->concurrencia >= 40) {
 					$result['message'] = "Concurrencia muy alta (40% ó más)";
-				} else if ($data['loanType'] == 40 && ($diff['months'] + ($diff['years'] * 12) < 6)) {
+				} else if ($data['loanType'] == PERSONAL_LOAN && ($diff['months'] + ($diff['years'] * 12) < 6)) {
 					$result['message'] = "Deben transcurrir seis meses desde su fecha de ingreso.";
 				} else if (!$this->utils->checkPreviousRequests($data['userId'], $data['loanType'])) {
 					// Another request of same type is already open.

@@ -62,9 +62,10 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
         $scope.selectAction($scope.selectedAction);
     }
 
-    $scope.fetchRequests = function (searchInput) {
+    $scope.fetchUser = function (searchInput) {
         $scope.selectedAction = null;
         $scope.requests = {};
+        $scope.searchInput = searchInput;
         $scope.fetchId = $scope.idPrefix + searchInput;
         $scope.loading = true;
         Agent.validateUser($scope.fetchId).then(

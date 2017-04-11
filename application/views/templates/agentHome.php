@@ -31,10 +31,10 @@
                     aria-label="Search"
                     ng-model="searchInput"
                     ng-keyup="$event.keyCode == 13 &&
-                        fetchRequests(searchInput)"
+                        fetchUser(searchInput)"
                     type="text"/>
                 <md-icon
-                    ng-click="fetchRequests(searchInput)"
+                    ng-click="fetchUser(searchInput)"
                     class="search-icon">
                     search
                 </md-icon>

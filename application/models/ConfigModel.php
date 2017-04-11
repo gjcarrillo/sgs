@@ -83,11 +83,11 @@ class ConfigModel extends CI_Model
     }
 
     public function getLoanTypes() {
-        $type['40'] = $this->getPersonalLoan(1);
+        $type[PERSONAL_LOAN] = $this->getPersonalLoan(1);
         // Add (plural) description.
-        $type['40']->description = 'PRÉSTAMOS PERSONALES';
-        $type['31'] = $this->getShortTermLoan(1);
-        $type['31']->description = 'VALES DE CAJA';
+        $type[PERSONAL_LOAN]->description = 'PRÉSTAMOS PERSONALES';
+        $type[CASH_VOUCHER] = $this->getShortTermLoan(1);
+        $type[CASH_VOUCHER]->description = 'VALES DE CAJA';
 
         return $type;
     }

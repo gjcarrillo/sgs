@@ -27,10 +27,10 @@ function manager($http, $q, Requests) {
         {category: 'report', name: 'Intervalo de fecha', id: 6},
         {category: 'report', name: 'Semana actual', id: 7}
     ];
-    data.model.perform = new Array(data.queries.length);
+    data.model.perform = {};
     // initialize all ng-model variables.
     for (var i = 0; i < data.queries.length; i++) {
-        data.model.perform[i] = {};
+        data.model.perform[data.queries[i].id] = {};
     }
     data.selectedQuery = -1;
     data.showOptions = true;
@@ -51,7 +51,13 @@ function manager($http, $q, Requests) {
     data.pendingRequests = {};
     data.selectedPendingReq = '';
     data.selectedPendingLoan = -1;
-    data.req = null; // Selected request obj.
+    data.selectedList = null;
+    data.selectedAction = null;
+    data.loanTypes = null;
+    data.contentAvailable = false;
+    data.contentLoaded = false;
+    data.fetchId = null;
+    data.idPrefix = 'V';
     // End of data initialization.
 
     self.data = data;
@@ -183,8 +189,6 @@ function manager($http, $q, Requests) {
             .then(
             function (response) {
                 if (response.data.message === "success") {
-                    response.data.requests = Requests.filterRequests(response.data.requests);
-                    response.data.pie.bulbColors = self.generateBulbColors(response.data.pie);
                     qLoanType.resolve(response.data);
                 } else {
                     qLoanType.reject(response.data.message);
@@ -206,7 +210,8 @@ function manager($http, $q, Requests) {
             {params: {rid: rid}})
             .then(
             function (response) {
-                if (response.data.message === "success") {
+                console.log(response);
+                if (response.data.message == "success") {
                     qRequests.resolve(response.data.request);
                 } else {
                     qRequests.reject(response.data.message);
@@ -317,6 +322,7 @@ function manager($http, $q, Requests) {
             })
             .then(
             function (response) {
+                console.log(response);
                 if (response.data.message === "success") {
                     qAmount.resolve(response.data.approvedAmount);
                 } else {

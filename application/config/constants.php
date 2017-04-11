@@ -103,11 +103,6 @@ define('JWT_SECRET_KEY', getenv('JWT_SECRET_KEY'));
 =========================================*/
 define('PERSONAL_LOAN', 40);
 define('CASH_VOUCHER', 31);
-define('LOAN_TYPES', array(40, 31));
-define('LOAN_TYPES_NAMES', array(
-   40 => "PRÉSTAMO PERSONAL",
-   31 => "VALE DE CAJA"
-));
 /* ======================================
                 STATUSES
 =========================================*/
@@ -115,10 +110,7 @@ define('RECEIVED', 'Recibida');
 define('PRE_APPROVED', 'Pre-Aprobada');
 define('APPROVED', 'Aprobada');
 define('REJECTED', 'Rechazada');
-define('APPROVED_VERB', 'aprobar');
-define('REJECTED_VERB', 'rechazar');
 define('STATUSES', array('Recibida', 'Pre-Aprobada', 'Aprobada', 'Rechazada'));
-define('STATUSES_VERB', array(RECEIVED => 'recibir', APPROVED => 'aprobar', REJECTED => 'rechazar'));
 /* ======================================
                 MAILGUN
 =========================================*/
@@ -163,4 +155,4 @@ define('REMOTE', 2);
 /* ======================================
        Auto generated system user ID
 =========================================*/
-define('SID', 'AGSID95883');
+define('SID', 'SGS');

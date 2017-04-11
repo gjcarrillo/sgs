@@ -68,10 +68,14 @@
                 </md-card-actions>
             </md-card>
             <!-- Information of interest -->
-            <md-card ng-show="showMsg && req.status == APPROVED && !loading" md-theme="manual-card" class="margin-16 interest-info-card">
+            <md-card ng-show="req.status == APPROVED && !loading" md-theme="manual-card" class="margin-16 interest-info-card">
                 <md-card-content>
-                    <span style="color: #2E7D32">
+                    <span style="color: #2E7D32" ng-if="!userType(MANAGER)">
                         Puede volver a solicitar un préstamo del tipo {{loanTypes[req.type].DescripcionDelPrestamo}}
+                        a partir de la fecha {{dateAvailable}}
+                    </span>
+                    <span style="color: #2E7D32" ng-if="userType(MANAGER)">
+                        Este asociado puede volver a solicitar un préstamo del del tipo {{loanTypes[req.type].DescripcionDelPrestamo}}
                         a partir de la fecha {{dateAvailable}}
                     </span>
                 </md-card-content>
@@ -101,6 +105,28 @@
                             <div
                                 id="request-summary-actions"
                                 hide show-gt-sm>
+                                <!-- User personal data -->
+                                <md-button
+                                    ng-if="!userType(APPLICANT)"
+                                    ng-click="loadUserData(req.userOwner)"
+                                    class="md-icon-button">
+                                    <md-icon class="md-secondary">
+                                        person
+                                    </md-icon>
+                                    <md-tooltip>Datos del asociado</md-tooltip>
+                                </md-button>
+                                <!-- Update btn for MANAGERs -->
+                                <md-button
+                                    class="md-icon-button"
+                                    ng-if="showManagerEditBtn()"
+                                    ng-click="openManageRequestDialog($event)">
+                                    <md-icon class="md-secondary">
+                                        edit
+                                    </md-icon>
+                                    <md-tooltip>
+                                        Gestionar solicitud
+                                    </md-tooltip>
+                                </md-button>
                                 <!-- History btn -->
                                 <md-button
                                     ng-if="!userType(APPLICANT)"
@@ -170,10 +196,29 @@
                                     </md-icon>
                                 </md-button>
                                 <md-menu-content>
-                                    <!-- History btn -->
-                                    <md-menu-item>
+                                    <!-- User personal data -->
+                                    <md-menu-item ng-if="!userType(APPLICANT)">
                                         <md-button
-                                            ng-if="!userType(APPLICANT)"
+                                            ng-click="loadUserData(req.userOwner)">
+                                            <md-icon class="md-secondary">
+                                                person
+                                            </md-icon>
+                                            Datos del asociado
+                                        </md-button>
+                                    </md-menu-item>
+                                    <!-- Update btn for MANAGERs -->
+                                    <md-menu-item ng-if="showManagerEditBtn()">
+                                        <md-button
+                                            ng-click="openManageRequestDialog($event)">
+                                            <md-icon class="md-secondary">
+                                                edit
+                                            </md-icon>
+                                            Gestionar solicitud
+                                        </md-button>
+                                    </md-menu-item>
+                                    <!-- History btn -->
+                                    <md-menu-item ng-if="!userType(APPLICANT)">
+                                        <md-button
                                             ng-click="loadHistory()">
                                             <md-icon class="md-secondary">
                                                 history
@@ -182,9 +227,8 @@
                                         </md-button>
                                     </md-menu-item>
                                     <!-- Update btn for AGENTS -->
-                                    <md-menu-item>
+                                    <md-menu-item ng-if="showAgentEditBtn()">
                                         <md-button
-                                            ng-if="showAgentEditBtn()"
                                             ng-click="openUpdateRequestDialog($event)">
                                             <md-icon class="md-secondary">
                                                 edit

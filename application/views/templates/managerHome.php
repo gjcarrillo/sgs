@@ -171,7 +171,7 @@
                     <md-divider></md-divider>
             </div>
             <!-- Result for specific user requests query -->
-            <div ng-if="showResult == 0">
+            <div ng-if="showResult != null && !loading">
                 <div id="back-to-query" class="md-toolbar-tools md-whiteframe-z1">
                     <md-button ng-click="goBack()" class="md-icon-button">
                         <md-icon>arrow_back</md-icon>
@@ -179,9 +179,10 @@
                     <span>Atrás</span>
                 </div>
                 <md-list class="sidenavList">
-                    <md-list-item id="user-data" ng-click="loadUserData(fetchId)">
+                    <!-- Show applicant info link only if query type is by ID-->
+                    <md-list-item ng-if="showResult == 0" id="user-data" ng-click="loadUserData(fetchId)">
                         <p class="sidenavTitle">
-                            Datos del afiliado
+                            Datos del asociado
                         </p>
                     </md-list-item>
                     <md-divider></md-divider>
@@ -201,61 +202,6 @@
                         </div>
                         <md-divider></md-divider>
                     </md-list>
-                </md-list>
-            </div>
-            <!-- Result for multiple users requests query -->
-            <div ng-if="fetchedRequests()">
-                <div id="back-to-query" class="md-toolbar-tools md-whiteframe-z1">
-                    <md-button ng-click="goBack()" class="md-icon-button">
-                        <md-icon>arrow_back</md-icon>
-                    </md-button>
-                    <span>Atrás</span>
-                </div>
-                <md-list class="sidenavList">
-                    <md-list-item ng-click="showPie()">
-                        <p class="sidenavTitle">
-                            Estadísticas
-                        </p>
-                    </md-list-item>
-                    <md-divider></md-divider>
-                    <div id="result-data" ng-repeat="(rKey, request) in requests" ng-if="request.length > 0">
-                        <md-list-item ng-click="toggleList(rKey)">
-                            <p class="sidenavTitle">
-                                {{listTitle[rKey]}}
-                            </p>
-                            <md-icon ng-class="md-secondary" ng-if="!showList[rKey]">keyboard_arrow_down</md-icon>
-                            <md-icon ng-class="md-secondary" ng-if="showList[rKey]">keyboard_arrow_up</md-icon>
-                        </md-list-item>
-                        <md-divider></md-divider>
-                        <div class="slide-toggle" ng-show="showList[rKey]">
-                            <div layout="column" layout-align="center" ng-repeat="(lKey, loan) in request">
-                                <md-button
-                                    ng-click="selectRequest(rKey, lKey)"
-                                    class="requestItems"
-                                    ng-class="{'md-primary md-raised' : selectedReq === rKey &&
-                                            selectedLoan === lKey }">
-                                    <md-icon ng-if="showResult !== 1"
-                                             ng-style="getBulbColor(loan.status, rKey, lKey)">
-                                        lightbulb_outline
-                                    </md-icon>
-                                    Solicitud ID &#8470; {{pad(loan.id, 6)}}
-                                    <md-icon
-                                        ng-if="loan.status === PRE_APPROVED_STRING && showResult == 1 &&
-                                           model.perform[1].status == RECEIVED_STRING"
-                                        style="color:#4CAF50">
-                                        check_circle
-                                    </md-icon>
-                                    <md-icon
-                                        ng-if="loan.status === REJECTED_STRING && showResult == 1  &&
-                                           model.perform[1].status == RECEIVED_STRING"
-                                        style="color:#F44336">
-                                        check_circle
-                                    </md-icon>
-                                </md-button>
-                                <md-divider ng-if="$last"></md-divider>
-                            </div>
-                        </div>
-                    </div>
                 </md-list>
             </div>
         </md-content>
@@ -319,80 +265,68 @@
                     <span style="color:red">{{pieError}}</span>
                 </div>
             </div>
-            <!-- Approved amount result -->
-            <div layout layout-align="center center" class="full-content-height" ng-if="showApprovedAmount">
-                <div
-                    layout="column"
-                    layout-align="center center"
-                    layout-padding class="md-whiteframe-z3 information-card">
-                    <span>{{approvedAmountTitle}}</span>
-                    <h1 style="font-weight:300" class="md-display-1">Bs {{approvedAmount | number:2}}</h1>
-                </div>
-            </div>
             <md-content class="bg document-container">
                 <!-- Query by request ID -->
-                <div ng-show="selectedAction == 10" layout-padding layout="column">
-                    <br/>
-                    <div>
-                        Ingrese el ID de la solicitud
+                <div ng-show="selectedAction == 10" class="margin-16" layout>
+                    <div layout="column">
+                        <span>Ingrese el ID de la solicitud</span>
+                        <md-input-container
+                            class="no-vertical-margin"
+                            md-no-float>
+                            <input
+                                placeholder="Ej: 253"
+                                type="number"
+                                min="0"
+                                aria-label="requestId"
+                                ng-model="model.perform[selectedAction].id"
+                                ng-keyup="$event.keyCode == 13 && fetchRequestById()">
+                        </md-input-container>
                     </div>
-                    <md-input-container
-                        class="no-vertical-margin"
-                        md-no-float>
-                        <input
-                            placeholder="Ej: 253"
-                            type="number"
-                            min="0"
-                            aria-label="requestId"
-                            ng-model="model.perform[10].id"
-                            ng-keyup="$event.keyCode == 13 && fetchRequestById(selectedAction)">
-                    </md-input-container>
                     <div layout layout-align="center center">
                         <md-button
-                            ng-disabled="!model.perform[10].id"
-                            ng-click="fetchRequestById(model.perform[10].id)"
+                            ng-disabled="!model.perform[selectedAction].id || loading"
+                            ng-click="fetchRequestById()"
                             class="md-raised md-primary">
                             <md-icon>search</md-icon>Consultar
                         </md-button>
                     </div>
                 </div>
                 <!-- Query by specific user -->
-                <div ng-show="selectedAction == 0 && showResult == null" layout-padding layout="column">
-                    <br/>
-                    <div>
-                        Ingrese cédula de identidad
-                    </div>
-                    <div layout layout-align="start start">
-                        <md-input-container
-                            class="no-vertical-margin"
-                            md-no-float>
-                            <md-select
-                                md-select-fix="idPrefix"
-                                aria-label="V or E ID"
-                                ng-model="idPrefix">
-                                <md-option value="V">
-                                    V
-                                </md-option>
-                                <md-option value="E">
-                                    E
-                                </md-option>
-                            </md-select>
-                        </md-input-container>
-                        <md-input-container
-                            class="no-vertical-margin"
-                            md-no-float>
-                            <input
-                                placeholder="Ej: 123456789"
-                                type="number"
-                                min="0"
-                                aria-label="userId"
-                                ng-model="model.perform[0].id"
-                                ng-keyup="$event.keyCode == 13 && fetchUserRequests(selectedAction)">
-                        </md-input-container>
+                <div ng-show="selectedAction == 0 && showResult == null" class="margin-16" layout>
+                    <div layout="column">
+                        <span>Ingrese cédula de identidad</span>
+                        <div layout layout-align="start start">
+                            <md-input-container
+                                class="no-vertical-margin"
+                                md-no-float>
+                                <md-select
+                                    md-select-fix="idPrefix"
+                                    aria-label="V or E ID"
+                                    ng-model="idPrefix">
+                                    <md-option value="V">
+                                        V
+                                    </md-option>
+                                    <md-option value="E">
+                                        E
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                            <md-input-container
+                                class="no-vertical-margin"
+                                md-no-float>
+                                <input
+                                    placeholder="Ej: 123456789"
+                                    type="number"
+                                    min="0"
+                                    aria-label="userId"
+                                    ng-model="model.perform[0].id"
+                                    ng-keyup="$event.keyCode == 13 && fetchUserRequests(selectedAction)">
+                            </md-input-container>
+                        </div>
                     </div>
                     <div layout layout-align="center center">
                         <md-button
-                            ng-disabled="!model.perform[selectedAction].id"
+                            ng-disabled="!model.perform[selectedAction].id || loading"
                             ng-click="fetchUserRequests(selectedAction)"
                             class="md-raised md-primary">
                             <md-icon>search</md-icon>Consultar
@@ -400,26 +334,27 @@
                     </div>
                 </div>
                 <!-- Query by status -->
-                <div ng-show="selectedAction == 1" layout="column" layout-padding>
-                    <br/>
-                    <span>Elija el estatus</span>
-                    <md-input-container
-                        class="no-vertical-margin"
-                        md-no-float>
-                        <md-select
-                            md-select-fix="model.perform[1].status"
-                            md-on-open="loadStatuses()"
-                            md-on-close="onStatusClose()"
-                            placeholder="Estatus"
-                            ng-model="model.perform[1].status">
-                            <md-option ng-repeat="(sKey, status) in statuses" ng-value="status">
-                                {{status}}
-                            </md-option>
-                        </md-select>
-                    </md-input-container>
+                <div ng-show="selectedAction == 1 && showResult == null" layout class="margin-16">
+                    <div layout="column">
+                        <span>Elija el estatus</span>
+                        <md-input-container
+                            class="no-vertical-margin"
+                            md-no-float>
+                            <md-select
+                                md-select-fix="model.perform[1].status"
+                                md-on-open="loadStatuses()"
+                                md-on-close="onStatusClose()"
+                                placeholder="Estatus"
+                                ng-model="model.perform[1].status">
+                                <md-option ng-repeat="(sKey, status) in statuses" ng-value="status">
+                                    {{status}}
+                                </md-option>
+                            </md-select>
+                        </md-input-container>
+                    </div>
                     <div layout layout-align="center center">
                         <md-button
-                            ng-disabled="!model.perform[selectedAction].status"
+                            ng-disabled="!model.perform[selectedAction].status || loading"
                             ng-click="fetchRequestsByStatus(model.perform[selectedAction].status, selectedAction)"
                             class="md-raised md-primary">
                             <md-icon>search</md-icon>Consultar
@@ -427,24 +362,25 @@
                     </div>
                 </div>
                 <!-- Query by loan type -->
-                <div ng-show="selectedAction == 8" layout="column" layout-padding>
-                    <br/>
-                    <span>Elija el tipo de solicitud</span>
-                    <md-input-container
-                        class="no-vertical-margin"
-                        md-no-float>
-                        <md-select
-                            md-select-fix="model.perform[8].loanType"
-                            placeholder="Tipo"
-                            ng-model="model.perform[8].loanType">
-                            <md-option ng-repeat="(lKey, loanType) in loanTypes" ng-value="concept">
-                                {{loanType.DescripcionDelPrestamo}}
-                            </md-option>
-                        </md-select>
-                    </md-input-container>
+                <div ng-show="selectedAction == 8 && showResult == null" layout class="margin-16">
+                    <div layout="column">
+                        <span>Elija el tipo de solicitud</span>
+                        <md-input-container
+                            class="no-vertical-margin"
+                            md-no-float>
+                            <md-select
+                                md-select-fix="model.perform[selectedAction].loanType"
+                                placeholder="Tipo"
+                                ng-model="model.perform[selectedAction].loanType">
+                                <md-option ng-repeat="(lKey, loanType) in loanTypes" ng-value="lKey">
+                                    {{loanType.DescripcionDelPrestamo}}
+                                </md-option>
+                            </md-select>
+                        </md-input-container>
+                    </div>
                     <div layout layout-align="center center">
                         <md-button
-                            ng-disabled="!model.perform[selectedAction].loanType"
+                            ng-disabled="!model.perform[selectedAction].loanType || loading"
                             ng-click="fetchRequestsByLoanType(model.perform[selectedAction].loanType, selectedAction)"
                             class="md-raised md-primary">
                             <md-icon>search</md-icon>Consultar
@@ -452,12 +388,11 @@
                     </div>
                 </div>
                 <!-- Query pending requests -->
-                <div ng-show="selectedAction == 9" layout="column" layout-padding>
-                    <br/>
+                <div ng-show="selectedAction == 9 && showResult == null" layout="column"  layout-align="center center" layout-margin>
                     <span>Lista y estadísticas de solicitudes pendientes</span>
                     <div layout layout-align="center center">
                         <md-button
-                            ng-disabled="!model.perform[selectedAction]"
+                            ng-disabled="!model.perform[selectedAction] || loading"
                             ng-click="fetchPendingRequests(selectedAction)"
                             class="md-raised md-primary">
                             <md-icon>search</md-icon>Consultar
@@ -465,19 +400,19 @@
                     </div>
                 </div>
                 <!-- Query by interval of dates -->
-                <div ng-show="selectedAction == 2" layout="column" layout-padding>
-                    <div>
+                <div ng-show="selectedAction == 2 && showResult == null" layout class="margin-16">
+                    <div layout="column">
                         <p>Desde</p>
-                        <md-datepicker ng-model="model.perform[2].from" md-placeholder="Ingese fecha"></md-datepicker>
+                        <md-datepicker class="bg" ng-model="model.perform[selectedAction].from" md-placeholder="Ingese fecha"></md-datepicker>
                     </div>
-                    <div>
+                    <div layout="column">
                         <p>Hasta</p>
-                        <md-datepicker ng-model="model.perform[2].to" md-placeholder="Ingese fecha"></md-datepicker>
+                        <md-datepicker class="bg" ng-model="model.perform[selectedAction].to" md-placeholder="Ingese fecha"></md-datepicker>
                     </div>
                     <br />
-                    <div layout layout-align="center center">
+                    <div layout layout-align="center end">
                         <md-button
-                            ng-disabled="!model.perform[selectedAction].from || !model.perform[selectedAction].to"
+                            ng-disabled="!model.perform[selectedAction].from || !model.perform[selectedAction].to || loading"
                             ng-click="fetchRequestsByDateInterval(
                                 model.perform[selectedAction].from,
                                 model.perform[selectedAction].to,
@@ -489,37 +424,20 @@
                     </div>
                 </div>
 
-                <!-- Query by exact date -->
-                <div ng-show="selectedAction == 3" layout="column" layout-padding>
-                    <div>
-                        <p>Fecha exacta</p>
-                        <md-datepicker
-                            ng-model="model.perform[3].date"
-                            md-placeholder="Ingese fecha"></md-datepicker>
-                    </div>
-                    <div layout layout-align="center center">
-                        <md-button
-                            ng-disabled="!model.perform[selectedAction].date"
-                            ng-click="fetchRequestsByExactDate(model.perform[selectedAction].date, selectedAction)"
-                            class="md-raised md-primary">
-                            <md-icon>search</md-icon>Consultar
-                        </md-button>
-                    </div>
-                </div>
                 <!-- Query approved amount by interval of dates -->
-                <div ng-show="selectedAction == 4" layout="column" layout-padding>
-                    <div>
+                <div ng-show="selectedAction == 4" layout layout-padding>
+                    <div layout="column">
                         <p>Desde</p>
-                        <md-datepicker ng-model="model.perform[selectedAction].from" md-placeholder="Ingese fecha"></md-datepicker>
+                        <md-datepicker class="bg" ng-model="model.perform[selectedAction].from" md-placeholder="Ingese fecha"></md-datepicker>
                     </div>
-                    <div>
+                    <div layout="column">
                         <p>Hasta</p>
-                        <md-datepicker ng-model="model.perform[selectedAction].to" md-placeholder="Ingese fecha"></md-datepicker>
+                        <md-datepicker class="bg" ng-model="model.perform[selectedAction].to" md-placeholder="Ingese fecha"></md-datepicker>
                     </div>
-                    <div layout layout-align="center center">
+                    <div layout layout-align="center end">
                         <md-button
                             ng-disabled="!model.perform[selectedAction].from ||
-                                !model.perform[selectedAction].to || loadingContent"
+                                !model.perform[selectedAction].to || loading"
                             ng-click="getApprovedAmountByDateInterval(
                                 model.perform[selectedAction].from,
                                 model.perform[selectedAction].to
@@ -530,42 +448,41 @@
                     </div>
                 </div>
                 <!-- Query approved amount from spcific user (ID) -->
-                <div ng-show="selectedAction == 5" layout-padding layout="column">
-                    <br/>
-                    <div>
-                        Ingrese cédula de identidad
-                    </div>
-                    <div layout layout-align="start start">
-                        <md-input-container
-                            class="no-vertical-margin"
-                            md-no-float>
-                            <md-select
-                                md-select-fix="idPrefix"
-                                aria-label="V or E ID"
-                                ng-model="idPrefix">
-                                <md-option value="V">
-                                    V
-                                </md-option>
-                                <md-option value="E">
-                                    E
-                                </md-option>
-                            </md-select>
-                        </md-input-container>
-                        <md-input-container
-                            class="no-vertical-margin"
-                            md-no-float>
-                            <input
-                                placeholder="Ej: 123456789"
-                                type="number"
-                                min="0"
-                                aria-label="Search"
-                                ng-model="model.perform[5].id"
-                                ng-keyup="$event.keyCode == 13 && getApprovedAmountById(selectedAction)">
-                        </md-input-container>
+                <div ng-show="selectedAction == 5" class="margin-16" layout>
+                    <div layout="column">
+                        <span>Ingrese cédula de identidad</span>
+                        <div layout layout-align="start start">
+                            <md-input-container
+                                class="no-vertical-margin"
+                                md-no-float>
+                                <md-select
+                                    md-select-fix="idPrefix"
+                                    aria-label="V or E ID"
+                                    ng-model="idPrefix">
+                                    <md-option value="V">
+                                        V
+                                    </md-option>
+                                    <md-option value="E">
+                                        E
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                            <md-input-container
+                                class="no-vertical-margin"
+                                md-no-float>
+                                <input
+                                    placeholder="Ej: 123456789"
+                                    type="number"
+                                    min="0"
+                                    aria-label="Search"
+                                    ng-model="model.perform[selectedAction].id"
+                                    ng-keyup="$event.keyCode == 13 && getApprovedAmountById(selectedAction)">
+                            </md-input-container>
+                        </div>
                     </div>
                     <div layout layout-align="center center">
                         <md-button
-                            ng-disabled="!model.perform[selectedAction].id || loadingContent"
+                            ng-disabled="!model.perform[selectedAction].id || loading"
                             ng-click="getApprovedAmountById(selectedAction)"
                             class="md-raised md-primary">
                             <md-icon>search</md-icon>Consultar
@@ -573,17 +490,17 @@
                     </div>
                 </div>
 
-                <!-- Query approved requests report by interval of dates -->
-                <div ng-show="selectedAction == 6" layout="column" layout-padding>
-                    <div>
+                <!-- Query closed requests report by interval of dates -->
+                <div ng-show="selectedAction == 6" layout layout-padding>
+                    <div layout="column">
                         <p>Desde</p>
-                        <md-datepicker ng-model="model.perform[selectedAction].from" md-placeholder="Ingese fecha"></md-datepicker>
+                        <md-datepicker class="bg" ng-model="model.perform[selectedAction].from" md-placeholder="Ingese fecha"></md-datepicker>
                     </div>
-                    <div>
+                    <div layout="column">
                         <p>Hasta</p>
-                        <md-datepicker ng-model="model.perform[selectedAction].to" md-placeholder="Ingese fecha"></md-datepicker>
+                        <md-datepicker class="bg" ng-model="model.perform[selectedAction].to" md-placeholder="Ingese fecha"></md-datepicker>
                     </div>
-                    <div layout layout-align="center center">
+                    <div layout layout-align="center end">
                         <md-button
                             ng-disabled="!model.perform[selectedAction].from ||
                                 !model.perform[selectedAction].to"
@@ -598,8 +515,8 @@
                         <md-progress-circular ng-if="loadingReport" md-mode="indeterminate">
                     </div>
                 </div>
-                <!-- Query this week's approved requests -->
-                <div ng-show="selectedAction == 7 && showResult == null" layout="column" layout-padding>
+                <!-- Query this week's closed requests -->
+                <div ng-show="selectedAction == 7" layout layout-padding>
                     <div>
                         <p>Reporte de solicitudes cerradas esta semana</p>
                     </div>
@@ -612,6 +529,16 @@
                         </md-button>
                         <md-progress-circular ng-if="loadingReport" md-mode="indeterminate">
                         </md-progress-circular>
+                    </div>
+                </div>
+                <!-- Approved amount result -->
+                <div layout layout-align="center center" class="margin-16" ng-if="showApprovedAmount">
+                    <div
+                        layout="column"
+                        layout-align="center center"
+                        layout-padding class="md-whiteframe-z3 information-card">
+                        <span>{{approvedAmountTitle}}</span>
+                        <h1 style="font-weight:300" class="md-display-1">Bs {{approvedAmount | number:2}}</h1>
                     </div>
                 </div>
 
@@ -641,6 +568,7 @@
                                                 <th md-column><span>ID</span></th>
                                                 <th md-column><span>Fecha</span></th>
                                                 <th md-column><span>Estatus</span></th>
+                                                <th md-column><span>Solicitante</span></th>
                                                 <th md-column><span>Monto solicitado</span></th>
                                             </tr>
                                             </thead>
@@ -649,13 +577,11 @@
                                                 <td md-cell ng-click="goToDetails(request)">{{pad(request.id, 6)}}</td>
                                                 <td md-cell ng-click="goToDetails(request)">{{request.creationDate}}</td>
                                                 <td md-cell ng-click="goToDetails(request)">{{request.status}}</td>
-                                                <td md-cell ng-click="goToDetails(request)">{{request.reqAmount | number:2}}</td>
-                                                <td ng-if="!request.validationDate" md-cell ng-click="goToDetails(request)">
-                                                    <md-icon style="color: red">
-                                                        warning
-                                                        <md-tooltip>Solicitud no validada</md-tooltip>
-                                                    </md-icon>
+                                                <td md-cell ng-click="goToDetails(request)">
+                                                    {{request.userOwner}}
+                                                    <md-tooltip>{{request.userOwnerName}}</md-tooltip>
                                                 </td>
+                                                <td md-cell ng-click="goToDetails(request)">{{request.reqAmount | number:2}}</td>
                                             </tr>
                                             </tbody>
                                         </table>
@@ -678,6 +604,51 @@
                             </md-expansion-panel-expanded>
                         </md-expansion-panel>
                     </md-expansion-panel-group>
+                </div>
+
+                <!-- Specific type requests list -->
+                <div class="margin-16" ng-if="!isObjEmpty(singleType) && !loadingContent && !pieloaded">
+                    <md-card ng-if="singleType.length > 0">
+                        <md-toolbar class="md-table-toolbar md-default">
+                            <div class="md-toolbar-tools">
+                                <span>Solicitudes de tipo {{loanTypes[model.perform[selectedAction].loanType].DescripcionDelPrestamo}}</span>
+                            </div>
+                        </md-toolbar>
+                        <md-table-container>
+                            <table md-table md-row-select ng-model="selected">
+                                <thead md-head>
+                                <tr md-row>
+                                    <th md-column><span>ID</span></th>
+                                    <th md-column><span>Fecha</span></th>
+                                    <th md-column><span>Estatus</span></th>
+                                    <th md-column><span>Solicitante</span></th>
+                                    <th md-column><span>Monto solicitado</span></th>
+                                </tr>
+                                </thead>
+                                <tbody md-body>
+                                <tr md-row ng-repeat="(rKey, request) in singleType | limitTo: query.limit: (query.page - 1) * query.limit track by $index">
+                                    <td md-cell ng-click="goToDetails(request)">{{pad(request.id, 6)}}</td>
+                                    <td md-cell ng-click="goToDetails(request)">{{request.creationDate}}</td>
+                                    <td md-cell ng-click="goToDetails(request)">{{request.status}}</td>
+                                    <td md-cell ng-click="goToDetails(request)">
+                                        {{request.userOwner}}
+                                        <md-tooltip>{{request.userOwnerName}}</md-tooltip>
+                                    </td>
+                                    <td md-cell ng-click="goToDetails(request)">{{request.reqAmount | number:2}}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </md-table-container>
+                        <md-table-pagination
+                            md-label="{page: 'Página:', rowsPerPage: 'Filas por página:', of: 'de'}"
+                            md-limit="query.limit"
+                            md-limit-options="[5, 10, 15, 20]"
+                            md-page="query.page"
+                            md-total="{{singleType.length}}"
+                            md-page-select>
+
+                        </md-table-pagination>
+                    </md-card>
                 </div>
             </md-content>
         </main>

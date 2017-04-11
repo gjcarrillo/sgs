@@ -3,10 +3,10 @@ angular
     .controller('DetailsController', details);
 
 details.$inject = ['$scope', 'Utils', 'Requests', 'Auth', 'Config', 'Constants', '$mdDialog', '$mdMedia',
-                   '$state', 'FileUpload', '$timeout'];
+                   '$state', 'FileUpload', '$timeout', 'Manager'];
 
 function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $mdMedia,
-                 $state, FileUpload, $timeout) {
+                 $state, FileUpload, $timeout, Manager) {
     'use strict';
 
     // If no data has been sent, show nothing.
@@ -39,7 +39,7 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
             },
             function (error) {
                 $scope.loading = false;
-                Utils.showAlertDialog('Oops!', error);
+                Utils.showAlertDialog('Mensaje', error);
             }
         )
     }
@@ -80,7 +80,7 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                     },
                     function (errorMsg) {
                         $scope.overlay = false;
-                        Utils.showAlertDialog('Oops!', errorMsg);
+                        Utils.showAlertDialog('Mensaje', errorMsg);
                     }
                 );
             }
@@ -158,17 +158,17 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                                         $scope.loading = false;
                                     },
                                     function (error) {
-                                        Utils.showAlertDialog('Oops!', error);
+                                        Utils.showAlertDialog('Mensaje', error);
                                     }
                                 );
                             },
                             function (error) {
-                                Utils.showAlertDialog('Oops!', error);
+                                Utils.showAlertDialog('Mensaje', error);
                             }
                         );
                     },
                     function (error) {
-                        Utils.showAlertDialog('Oops!', error);
+                        Utils.showAlertDialog('Mensaje', error);
                     }
                 );
             }
@@ -227,7 +227,7 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                     },
                     function(error) {
                         $scope.uploading = false;
-                        Utils.showAlertDialog('Oops!', error);
+                        Utils.showAlertDialog('Mensaje', error);
                     }
                 );
             }
@@ -279,14 +279,14 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                     function (error) {
                         $scope.overlay = false;
                         $scope.validating = false;
-                        Utils.showAlertDialog('Oops!', error);
+                        Utils.showAlertDialog('Mensaje', error);
                     }
                 );
             });
     };
 
     /**
-     * Custom dialog for updating an existing request
+     * Custom dialog for updating an existing request (as Agent)
      */
     $scope.openUpdateRequestDialog = function ($event) {
         var parentEl = angular.element(document.body);
@@ -387,7 +387,7 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                     },
                     function (errorMsg) {
                         $scope.uploading = false;
-                        Utils.showAlertDialog('Oops!', errorMsg);
+                        Utils.showAlertDialog('Mensaje!', errorMsg);
                     }
                 );
             }
@@ -407,6 +407,8 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
             }
         }
     };
+
+
 
 
     $scope.deleteDoc = function (ev, dKey) {
@@ -430,7 +432,7 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                     },
                     function (errorMsg) {
                         $scope.overlay = false;
-                        Utils.showAlertDialog('Oops!', errorMsg);
+                        Utils.showAlertDialog('Mensaje!', errorMsg);
                     }
                 )
             }
@@ -452,10 +454,20 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                $scope.req.status != $scope.PRE_APPROVED;
     };
 
+    $scope.showManagerEditBtn = function () {
+        return $scope.userType($scope.MANAGER) && $scope.req.status != $scope.APPROVED_STRING &&
+               $scope.req.status != $scope.REJECTED_STRING && $scope.req.status != $scope.PRE_APPROVED;
+    };
+
     $scope.isDocEditable = function (name) {
         return $scope.req.validationDate && $scope.userType($scope.AGENT) &&
                $scope.req.status != $scope.APPROVED && $scope.req.status != $scope.REJECTED &&
                $scope.req.status != $scope.PRE_APPROVED && name != 'Constancia';
+    };
+
+    $scope.loadUserData = function(userId) {
+        sessionStorage.setItem("fetchId", userId);
+        window.open(Utils.getUserDataUrl(), '_blank');
     };
 
     /*
@@ -486,15 +498,157 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                 if ($scope.missingField()) {return;}
                 doc.description = $scope.description;
                 Requests.updateDocDescription(doc).then(
-                    function () {},
+                    function (updatedReq) {
+                        sessionStorage.setItem("req", JSON.stringify(updatedReq));
+                        $state.go($state.current, {}, {reload: true})
+                    },
                     function (errorMsg) {
-                        Utils.showAlertDialog('Oops!', errorMsg);
+                        Utils.showAlertDialog('Mensaje!', errorMsg);
                     }
                 );
                 $mdDialog.hide();
             }
         }
     };
+
+    /**
+     * Custom dialog for updating an existing request (as Manager)
+     */
+    $scope.openManageRequestDialog = function($event, obj) {
+        var parentEl = angular.element(document.body);
+        $mdDialog.show({
+            parent: parentEl,
+            targetEvent: $event,
+            templateUrl: 'ManageRequestController',
+            clickOutsideToClose: false,
+            escapeToClose: false,
+            fullscreen: $mdMedia('xs'),
+            locals: {
+                fetchId: $scope.fetchId,
+                request: $scope.req,
+                parentScope: $scope,
+                obj: obj
+            },
+            controller: DialogController
+        });
+
+        // Isolated dialog controller
+        function DialogController($scope, $mdDialog, fetchId, request, parentScope, obj) {
+            $scope.files = [];
+            $scope.fetchId = fetchId;
+            $scope.uploading = false;
+            $scope.request = request;
+            $scope.mappedStatuses = Requests.getAllStatuses();
+            $scope.APPROVED_STRING = Constants.Statuses.APPROVED;
+            $scope.PRE_APPROVED_STRING = Constants.Statuses.PRE_APPROVED;
+            $scope.REJECTED_STRING = Constants.Statuses.REJECTED;
+            $scope.RECEIVED_STRING = Constants.Statuses.RECEIVED;
+
+            if (obj) {
+                $scope.model = obj;
+                if (obj.confirmed) updateRequest();
+            } else {
+                $scope.model = {};
+                if ($scope.mappedStatuses.indexOf(request.status) == -1) {
+                    $scope.mappedStatuses.push(request.status);
+                }
+                $scope.model.status = request.status;
+                $scope.model.comment = $scope.request.comment;
+                $scope.model.approvedAmount = $scope.request.reqAmount;
+            }
+
+            $scope.closeDialog = function() {
+                $mdDialog.hide();
+            };
+
+            $scope.missingField = function() {
+                if ($scope.model.status == $scope.PRE_APPROVED_STRING) {
+                    return typeof $scope.model.approvedAmount === "undefined";
+                } else {
+                    return (($scope.model.status == request.status
+                             || $scope.model.status == null) &&
+                            (typeof $scope.model.comment === "undefined"
+                             || $scope.model.comment == ""
+                             || $scope.model.comment == $scope.request.comment));
+                }
+            };
+
+            $scope.loadStatuses = function() {
+                return Config.getStatuses().then(
+                    function (statuses) {
+                        $scope.mappedStatuses = Requests.getAllStatuses();
+                        // Delete approved from available statuses.
+                        // Pre-approved -> Approved will be done automatically through cron jobs.
+                        $scope.mappedStatuses.splice($scope.mappedStatuses.indexOf($scope.APPROVED_STRING), 1);
+                        $scope.mappedStatuses = $scope.mappedStatuses.concat(statuses);
+                    }
+                );
+            };
+
+            /**
+             * Verifies if this request is being closed. If so, warn user that
+             * no more edition will be available after closure.
+             *
+             * @param ev - user event.
+             */
+            $scope.verifyEdition = function(ev) {
+                if ($scope.model.status === $scope.PRE_APPROVED_STRING ||
+                    $scope.model.status === $scope.REJECTED_STRING) {
+                    confirmClosure(ev);
+                } else {
+                    updateRequest();
+                }
+            };
+
+            // Shows a dialog asking user to confirm the request closure.
+            function confirmClosure(ev) {
+                Utils.showConfirmDialog(
+                    'Advertencia',
+                    'Al cambiar el estatus de la solicitud a <b>' + $scope.model.status +
+                    '</b> no se podrán realizar más cambios. ¿Desea proceder?',
+                    'Sí', 'Cancelar', ev, true
+                ).then(
+                    function () {
+                        // Re-open parent dialog and perform request creation
+                        $scope.model.confirmed = true;
+                        parentScope.openManageRequestDialog(null, $scope.model);
+                    },
+                    function () {
+                        // Re-open parent dialog and do nothing
+                        parentScope.openManageRequestDialog(null, $scope.model);
+                    }
+                );
+            }
+
+            // Updates the request.
+            function updateRequest() {
+                $scope.uploading = true;
+                $scope.request.status = $scope.model.status;
+                $scope.request.comment = $scope.model.comment;
+                $scope.request.reunion = $scope.model.reunion;
+                if ($scope.model.status == $scope.PRE_APPROVED_STRING) {
+                    $scope.request.approvedAmount = $scope.model.approvedAmount;
+                }
+                Manager.updateRequest($scope.request)
+                    .then(
+                    function (updatedReq) {
+                        Utils.showAlertDialog(
+                            'Solicitud actualizada',
+                            'La solicitud ha sido actualizada exitosamente.'
+                        );
+                        // Update saved request and reload view.
+                        sessionStorage.setItem("req", JSON.stringify(updatedReq));
+                        $state.go($state.current, {}, {reload: true})
+                    },
+                    function (error) {
+                        $scope.uploading = false;
+                        Utils.showAlertDialog('Mensaje!', error);
+                    }
+                );
+            }
+        }
+    };
+
 
     $scope.goHome = function () {
         Auth.sendHome();

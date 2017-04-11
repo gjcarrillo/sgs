@@ -17,7 +17,7 @@ function actions($scope, $http, $mdBottomSheet, $timeout, Constants, $window) {
     // Take the stored data of interest
     var request = JSON.parse(sessionStorage.getItem("req"));
 
-    $http.get('HistoryController/fetchRequestHistory', {params:request})
+    $http.get('HistoryController/fetchRequestHistory', {params:{id: request.id}})
         .then(function (response) {
             if (response.data.message === "success") {
                 $scope.history = response.data.history;

@@ -22,6 +22,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
     $scope.requests = Manager.data.requests;
     $scope.pendingRequests = Manager.data.pendingRequests;
     $scope.fetchError = Manager.data.fetchError;
+    $scope.fetchId = Manager.data.fetchId;
     $scope.approvalReportError = Manager.data.approvalReportError ;
     $scope.pie = Manager.data.pie;
     $scope.pieError = Manager.data.pieError;
@@ -29,10 +30,12 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
     $scope.showPendingList = Manager.data.showPendingList;
     $scope.showPendingReq = Manager.data.showPendingReq;
     $scope.showAdvSearch = Manager.data.showAdvSearch;
-    // Re-draw the pie if necessary.
-    if ($scope.pie) {
-        drawPie($scope.pie);
-    }
+    $scope.selectedList = Manager.data.selectedList;
+    $scope.selectedAction = Manager.data.selectedAction;
+    $scope.loanTypes = Manager.data.loanTypes;
+    $scope.contentAvailable = Manager.data.contentAvailable;
+    $scope.contentLoaded = Manager.data.contentLoaded;
+    $scope.idPrefix = Manager.data.idPrefix;
 
     $scope.selected = [];
 
@@ -51,40 +54,16 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
     $scope.mappedStatuses = Requests.getAllStatuses();
 
     $scope.loadingContent = false;
-    $scope.idPrefix = "V";
     $scope.loading = false;
     $scope.loadingReport = false;
 
-    // dataChanged notifies whether data changed through user interaction,
-    // thus needing to update pie and report data
-    var dataChanged = false;
-
     $scope.selectAction = function (id) {
         $scope.requests = {};
+        $scope.singleType = {};
+        $scope.showApprovedAmount = false;
         $scope.selectedAction = id;
         performAction(id);
     };
-
-    // Get configured loan types.
-    if (!$scope.loanTypes) {
-        $scope.loadingContent = true;
-        Requests.initializeListType().then(
-            function (list) {
-                $scope.loanTypes = list;
-                $scope.contentAvailable = true;
-                $timeout(function () {
-                    $scope.contentLoaded = true;
-                    // Fetch pending requests and automatically show first one to user (if any)
-                    $scope.selectAction('pending');
-                }, 600);
-            },
-            function (error) {
-                Utils.showAlertDialog('Oops!', 'Ha ocurrido un error en el sistema.<br/>' +
-                                               'Por favor intente más tarde.');
-                console.log(error);
-            }
-        );
-    }
 
     function performAction (action) {
         switch (action) {
@@ -110,6 +89,28 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
             });
     }
 
+    function reloadAdvQuery(action, input) {
+        switch (action) {
+            case 0:
+                $scope.fetchUserRequests(action);
+                break;
+            case 1:
+                $scope.fetchRequestsByStatus(input.status, action);
+                break;
+            case 2:
+                $scope.fetchRequestsByDateInterval(input.from, input.to, action);
+                break;
+            case 8:
+                $scope.fetchRequestsByLoanType(input.loanType, input);
+                break;
+            case 9:
+                $scope.fetchPendingRequests(action);
+                break;
+            case 10:
+                break;
+        }
+    }
+
     $scope.togglePanelList = function (index) {
         $scope.selectedList = $scope.selectedList == index ? null : index;
     };
@@ -118,18 +119,18 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
         window.location.replace(Constants.IPAPEDI_URL + 'administracion/admin');
     };
 
-    $scope.fetchRequestById = function(rid) {
+    $scope.fetchRequestById = function() {
         resetContent();
         $scope.loading = true;
+        var rid = $scope.model.perform[$scope.selectedAction].id;
         Manager.getRequestById(rid)
             .then(
-            function (data) {
-                $scope.selectRequest('', -1);
-                $scope.req = data;
+            function (req) {
+                $scope.goToDetails(req);
                 $scope.loading = false;
             },
             function (error) {
-                $scope.fetchError = error;
+                Utils.showAlertDialog('Mensaje', error);
                 $scope.loading = false;
             }
         );
@@ -144,16 +145,20 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
             function (data) {
                 $scope.requests = data.requests;
                 $scope.showOptions = false;
+                if ($scope.showResult == null) {
+                    // It means it fired query from PANEL.
+                    // Otherwise query was fired from coming back from details or actions view...
+                    // So show requests list instead.
+                    $scope.pieloaded = true;
+                }
                 $scope.showResult = index;
-                $scope.pieloaded = true;
                 $scope.report = data.report;
                 $scope.pie = data.pie;
-                $scope.pieloaded = true;
                 drawPie(data.pie);
                 $scope.loading = false;
             },
             function (error) {
-                $scope.fetchError = error;
+                Utils.showAlertDialog('Mensaje', error);
                 $scope.loading = false;
             }
         );
@@ -167,8 +172,13 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
             function (data) {
                 $scope.requests = data.requests;
                 $scope.showOptions = false;
+                if ($scope.showResult == null) {
+                    // It means it fired query from PANEL.
+                    // Otherwise query was fired from coming back from details or actions view...
+                    // So show requests list instead.
+                    $scope.pieloaded = true;
+                }
                 $scope.showResult = index;
-                $scope.pieloaded = true;
                 $scope.pie = data.pie;
                 drawPie(data.pie);
                 $scope.report = data.report;
@@ -176,7 +186,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 $scope.loading = false;
             },
             function (error) {
-                $scope.fetchError = error;
+                Utils.showAlertDialog('Mensaje', error);
                 $scope.loading = false;
             }
         );
@@ -188,17 +198,22 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
         Manager.fetchRequestsByLoanType(loanType)
             .then(
             function (data) {
-                $scope.requests = data.requests;
+                $scope.singleType = data.requests;
                 $scope.showOptions = false;
+                if ($scope.showResult == null) {
+                    // It means it fired query from PANEL.
+                    // Otherwise query was fired from coming back from details or actions view...
+                    // So show requests list instead.
+                    $scope.pieloaded = true;
+                }
                 $scope.showResult = index;
-                $scope.pieloaded = true;
                 $scope.pie = data.pie;
                 drawPie(data.pie);
                 $scope.report = data.report;
                 $scope.loading = false;
             },
             function (error) {
-                $scope.fetchError = error;
+                Utils.showAlertDialog('Mensaje', error);
                 $scope.loading = false;
             }
         );
@@ -210,15 +225,20 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
             function (data) {
                 $scope.requests = data.requests;
                 $scope.showOptions = false;
+                if ($scope.showResult == null) {
+                    // It means it fired query from PANEL.
+                    // Otherwise query was fired from coming back from details or actions view...
+                    // So show requests list instead.
+                    $scope.pieloaded = true;
+                }
                 $scope.showResult = index;
-                $scope.pieloaded = true;
                 $scope.pie = data.pie;
                 drawPie(data.pie);
                 $scope.report = data.report;
                 $scope.loading = false;
             },
             function (error) {
-                $scope.fetchError = error;
+                Utils.showAlertDialog('Mensaje', error);
                 $scope.loading = false;
             }
         );
@@ -232,37 +252,20 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
             function (data) {
                 $scope.requests = data.requests;
                 $scope.showOptions = false;
+                if ($scope.showResult == null) {
+                    // It means it fired query from PANEL.
+                    // Otherwise query was fired from coming back from details or actions view...
+                    // So show requests list instead.
+                    $scope.pieloaded = true;
+                }
                 $scope.showResult = index;
-                $scope.pieloaded = true;
                 $scope.pie = data.pie;
                 drawPie(data.pie);
                 $scope.report = data.report;
                 $scope.loading = false;
             },
             function (error) {
-                $scope.fetchError = error;
-                $scope.loading = false;
-            }
-        );
-    };
-
-    $scope.fetchRequestsByExactDate = function(date, index) {
-        resetContent();
-        $scope.loading = true;
-        Manager.fetchRequestsByExactDate(date)
-            .then(
-            function (data) {
-                $scope.requests = data.requests;
-                $scope.showOptions = false;
-                $scope.showResult = index;
-                $scope.pieloaded = true;
-                $scope.pie = data.pie;
-                drawPie(data.pie);
-                $scope.report = data.report;
-                $scope.loading = false;
-            },
-            function (error) {
-                $scope.fetchError = error;
+                Utils.showAlertDialog('Mensaje', error);
                 $scope.loading = false;
             }
         );
@@ -282,7 +285,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 $scope.loading = false;
             },
             function (error) {
-                $scope.fetchError = error;
+                Utils.showAlertDialog('Mensaje', error);
                 $scope.loading = false;
             }
         );
@@ -303,7 +306,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 $scope.loading = false;
             },
             function (error) {
-                $scope.fetchError = error;
+                Utils.showAlertDialog('Mensaje', error);
                 $scope.loading = false;
             }
         );
@@ -320,7 +323,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 $scope.generateExcelReport();
             },
             function (error) {
-                $scope.approvalReportError = error;
+                Utils.showAlertDialog('Mensaje', error);
                 $scope.loadingReport = false;
             }
         );
@@ -337,56 +340,34 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 $scope.generateExcelReport();
             },
             function (error) {
-                $scope.approvalReportError = error;
+                Utils.showAlertDialog('Mensaje', error);
                 $scope.loadingReport = false;
             }
         );
     };
 
-    $scope.toggleList = function (index) {
-        $scope.loanTypes[index].selected = !$scope.loanTypes[index].selected;
+    $scope.goToDetails = function (req) {
+        goToDetails(req);
     };
 
-    $scope.togglePendingList = function(index) {
-        $scope.showPendingList[index].selected = !$scope.showPendingList[index].selected;
-    };
+    /**
+     * Saves the necessary information and goes to request details view.
+     * (Made as a simple function so that isolated controllers can have access)
+     *
+     * @param req - request object.
+     */
+    function goToDetails(req) {
+        // Save controller state before navigating away.
+        preserveState();
+        sessionStorage.setItem("uid", req.userOwner);
+        sessionStorage.setItem("req", JSON.stringify(req));
+        sessionStorage.setItem("loanConcepts", JSON.stringify(Config.loanConcepts));
+        $state.go('details');
+    }
 
     $scope.loadUserData = function(userId) {
         sessionStorage.setItem("fetchId", userId);
         window.open(Utils.getUserDataUrl(), '_blank');
-        // Data not being changed so far - don't request data again if
-        // user clicks on Stats
-        setDataChanged(false);
-    };
-
-    $scope.selectRequest = function(req, loan) {
-        $scope.selectedPendingReq = '';
-        $scope.selectedPendingLoan = -1;
-        $scope.selectedReq = req;
-        $scope.selectedLoan = loan;
-        if (req != '' && loan != -1) {
-            $scope.req = $scope.requests[req][loan];
-        }
-        // Data not being changed so far - don't request data again if
-        // user clicks on Stats
-        setDataChanged(false);
-        // Close sidenav
-        $mdSidenav('left').toggle();
-    };
-
-    $scope.selectPendingReq = function(req, loan) {
-        $scope.selectedReq = '';
-        $scope.selectedLoan = -1;
-        $scope.selectedPendingReq = req;
-        $scope.selectedPendingLoan = loan;
-        if (req != '' && loan != -1) {
-            $scope.req = $scope.pendingRequests[req][loan];
-        }
-        // Data not being changed so far - don't request data again if
-        // user clicks on Stats
-        setDataChanged(false);
-        // Close sidenav
-        $mdSidenav('left').toggle();
     };
 
     $scope.loadStatuses = function() {
@@ -454,171 +435,15 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
         data.showPendingList = $scope.showPendingList;
         data.showPendingReq = $scope.showPendingReq;
         data.showAdvSearch = $scope.showAdvSearch;
+        data.selectedList = $scope.selectedList;
+        data.selectedAction = $scope.selectedAction;
+        data.loanTypes = $scope.loanTypes;
+        data.contentAvailable = $scope.contentAvailable;
+        data.contentLoaded = $scope.contentLoaded;
+        data.fetchId = $scope.fetchId;
+        data.idPrefix = $scope.idPrefix;
+
         Manager.updateData(data);
-    }
-
-    /**
-    * Custom dialog for updating an existing request
-    */
-    $scope.openEditRequestDialog = function($event, obj) {
-        var parentEl = angular.element(document.body);
-        $mdDialog.show({
-            parent: parentEl,
-            targetEvent: $event,
-            templateUrl: 'ManageRequestController',
-            clickOutsideToClose: false,
-            escapeToClose: false,
-            fullscreen: $mdMedia('xs'),
-            locals: {
-                fetchId: $scope.fetchId,
-                request: $scope.req,
-                parentScope: $scope,
-                obj: obj
-            },
-            controller: DialogController
-        });
-
-        // Isolated dialog controller
-        function DialogController($scope, $mdDialog, fetchId, request, parentScope, obj) {
-            $scope.files = [];
-            $scope.fetchId = fetchId;
-            $scope.uploading = false;
-            $scope.request = request;
-            $scope.mappedStatuses = Requests.getAllStatuses();
-            $scope.APPROVED_STRING = Constants.Statuses.APPROVED;
-            $scope.PRE_APPROVED_STRING = Constants.Statuses.PRE_APPROVED;
-            $scope.REJECTED_STRING = Constants.Statuses.REJECTED;
-            $scope.RECEIVED_STRING = Constants.Statuses.RECEIVED;
-
-            if (obj) {
-                $scope.model = obj;
-                if (obj.confirmed) updateRequest();
-            } else {
-                $scope.model = {};
-                if ($scope.mappedStatuses.indexOf(request.status) == -1) {
-                    $scope.mappedStatuses.push(request.status);
-                }
-                $scope.model.status = request.status;
-                $scope.model.comment = $scope.request.comment;
-                $scope.model.approvedAmount = $scope.request.reqAmount;
-            }
-
-            $scope.closeDialog = function() {
-                $mdDialog.hide();
-            };
-
-            $scope.missingField = function() {
-                if ($scope.model.status == $scope.PRE_APPROVED_STRING) {
-                    return typeof $scope.model.approvedAmount === "undefined";
-                } else {
-                    return (($scope.model.status == request.status
-                             || $scope.model.status == null) &&
-                        (typeof $scope.model.comment === "undefined"
-                        || $scope.model.comment == ""
-                        || $scope.model.comment == $scope.request.comment));
-                }
-            };
-
-            $scope.loadStatuses = function() {
-                return Config.getStatuses().then(
-                    function (statuses) {
-                        $scope.mappedStatuses = Requests.getAllStatuses();
-                        // Delete approved from available statuses.
-                        // Pre-approved -> Approved will be done automatically through cron jobs.
-                        $scope.mappedStatuses.splice($scope.mappedStatuses.indexOf($scope.APPROVED_STRING), 1);
-                        $scope.mappedStatuses = $scope.mappedStatuses.concat(statuses);
-                    }
-                );
-            };
-
-            /**
-             * Verifies if this request is being closed. If so, warn user that
-             * no more edition will be available after closure.
-             *
-             * @param ev - user event.
-             */
-            $scope.verifyEdition = function(ev) {
-                if ($scope.model.status === $scope.PRE_APPROVED_STRING ||
-                    $scope.model.status === $scope.REJECTED_STRING) {
-                    confirmClosure(ev);
-                } else {
-                    updateRequest();
-                }
-            };
-
-            // Shows a dialog asking user to confirm the request closure.
-            function confirmClosure(ev) {
-                Utils.showConfirmDialog(
-                    'Advertencia',
-                    'Al cambiar el estatus de la solicitud a <b>' + $scope.model.status +
-                    '</b> no se podrán realizar más cambios. ¿Desea proceder?',
-                    'Sí', 'Cancelar', ev, true
-                ).then(
-                    function () {
-                        // Re-open parent dialog and perform request creation
-                        $scope.model.confirmed = true;
-                        parentScope.openEditRequestDialog(null, $scope.model);
-                    },
-                    function () {
-                        // Re-open parent dialog and do nothing
-                        parentScope.openEditRequestDialog(null, $scope.model);
-                    }
-                );
-            }
-
-            // Updates the request.
-            function updateRequest() {
-                $scope.uploading = true;
-                $scope.request.status = $scope.model.status;
-                $scope.request.comment = $scope.model.comment;
-                $scope.request.reunion = $scope.model.reunion;
-                if ($scope.model.status == $scope.PRE_APPROVED_STRING) {
-                    $scope.request.approvedAmount = $scope.model.approvedAmount;
-                }
-                Manager.updateRequest($scope.request)
-                    .then(
-                    function () {
-                        // Update data on the pending request list so that changes would reflect
-                        // even when updating from advanced query lists.
-                        updatePendingList($scope.request.id, $scope.model.status,
-                                          $scope.model.comment, $scope.model.reunion,
-                                          $scope.model.approvedAmount);
-                        // Notify that data has changed, thus updating stats when requested
-                        setDataChanged(true);
-                        // Close dialog and alert user that operation was successful
-                        $mdDialog.hide();
-                        $scope.uploading = false;
-                        Utils.showAlertDialog('Solicitud actualizada',
-                                              'La solicitud fue actualizada exitosamente.');
-                    },
-                    function (error) {
-                        $scope.uploading = false;
-                        Utils.showAlertDialog('Oops!', error);
-                    }
-                );
-            }
-        }
-    };
-
-    /**
-     * Helper function that updates the pending requests list by reflecting updates
-     * from the selected request.
-     *
-     * @param id - unique id of the request to update.
-     * @param status - new status
-     * @param comment - new comment
-     * @param reunion - request closure's reunion
-     * @param approvedAmount - request's approved amount
-     */
-    function updatePendingList(id, status, comment, reunion, approvedAmount) {
-        var index = Requests.findRequest($scope.pendingRequests, id);
-
-        $scope.pendingRequests[index.request][index.loan].status = status;
-        $scope.pendingRequests[index.request][index.loan].comment = comment;
-        $scope.pendingRequests[index.request][index.loan].reunion = reunion;
-        if (status == $scope.APPROVED_STRING) {
-            $scope.pendingRequests[index.request][index.loan].approvedAmount = approvedAmount;
-        }
     }
 
     /**
@@ -1003,29 +828,9 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                         break;
                     case 4:
                         loadReqTerms();
-                    default: break;
                 }
             };
         }
-    };
-
-    /**
-     *  Will show result pane if any of the following queries were executed
-     */
-    $scope.fetchedRequests = function() {
-        return $scope.showResult == 1 ||
-            $scope.showResult == 2 ||
-            $scope.showResult == 3 ||
-            $scope.showResult == 8 ||
-            $scope.showResult == 9;
-    };
-
-    $scope.onQueryClose = function() {
-        if ($scope.model.query != $scope.selectedQuery) {
-            $scope.fetchError = '';
-        }
-        $scope.model.query = $scope.selectedQuery;
-        $scope.approvalReportError = '';
     };
 
     /**
@@ -1041,135 +846,22 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
        $mdSidenav('left').toggle();
     };
 
-    $scope.getBulbColor = function(status, typeIndex, loanIndex) {
-        // Selected loans won't have coloured bulbs ... looks ugly.
-        if ($scope.selectedReq === typeIndex
-            && $scope.selectedLoan === loanIndex) {
-            return;
-        }
-        return {'color': $scope.pie.bulbColors[status]};
-    };
-
     $scope.isObjEmpty = function(obj) {
         return Utils.isObjEmpty(obj);
     };
 
     $scope.showWatermark = function() {
         return $scope.isObjEmpty(requests) &&
-               !loadingContent &&
-               !showApprovedAmount &&
-               !pieLoading &&
-               !pieloaded &&
-               pieError == ''
+               !$scope.loadingContent &&
+               !$scope.showApprovedAmount &&
+               !$scope.pieLoading &&
+               !$scope.pieloaded &&
+               $scope.pieError == ''
     };
 
     $scope.showPie = function() {
-        $scope.pieloaded = false;
-        if (dataChanged) {
-            updatePie();
-            setDataChanged(false);
-        } else {
-            $scope.req = null;
-            if ($scope.pieError == '') { $scope.pieloaded = true; }
-        }
-        // Un-select requests
-        $scope.selectedReq = '';
-        $scope.selectedLoan = -1;
+        if ($scope.pieError == '') { $scope.pieloaded = true; }
     };
-
-    function updatePie() {
-        $scope.req = null;
-        $scope.pieLoading = true;
-        if ($scope.showResult == 0) {
-            // update user's pie
-            Manager.getUserRequests($scope.fetchId)
-                .then(
-                function (data) {
-                    $scope.report = data.report;
-                    $scope.pie = data.pie;
-                    drawPie(data.pie);
-                    $scope.pieLoading = false;
-                    $scope.pieloaded = true;
-                },
-                function (error) {
-                    $scope.pieLoading = false;
-                    $scope.pieError = error;
-                }
-            );
-        } else if ($scope.showResult == 1 &&
-                $scope.model.perform[1].status == $scope.RECEIVED_STRING) {
-            // update status pie
-            Manager.fetchRequestsByStatus($scope.RECEIVED_STRING)
-                .then(
-                function (data) {
-                    $scope.report = data.report;
-                    $scope.pie = data.pie;
-                    drawPie(data.pie);
-                    $scope.pieLoading = false;
-                    $scope.pieloaded = true;
-                },
-                function (error) {
-                    $scope.pieLoading = false;
-                    $scope.pieError = error;
-                }
-            );
-        } else if ($scope.showResult == 2 || $scope.showResult == 3) {
-            // update date interval pie
-            var from, to;
-            if ($scope.showResult == 2) {
-                from = $scope.model.perform[2].from;
-                to = $scope.model.perform[2].to;
-            } else {
-                from = $scope.model.perform[3].date;
-                to = from;
-            }
-            Manager.fetchRequestsByDateInterval(from, to)
-                .then(
-                function (data) {
-                    $scope.report = data.report;
-                    $scope.pie = data.pie;
-                    drawPie(data.pie);
-                    $scope.pieLoading = false;
-                    $scope.pieloaded = true;
-                },
-                function (error) {
-                    $scope.pieLoading = false;
-                    $scope.pieError = error;
-                }
-            );
-        } else if ($scope.showResult == 8) {
-            Manager.fetchRequestsByLoanType($scope.model.perform[8].loanType)
-                .then(
-                function (data) {
-                    $scope.report = data.report;
-                    $scope.pie = data.pie;
-                    drawPie(data.pie);
-                    $scope.pieLoading = false;
-                    $scope.pieloaded = true;
-                },
-                function (error) {
-                    $scope.pieLoading = false;
-                    $scope.pieError = error;
-                }
-            );
-
-        } else if ($scope.showResult == 9) {
-            Manager.fetchPendingRequests()
-                .then(
-                function (data) {
-                    $scope.report = data.report;
-                    $scope.pie = data.pie;
-                    drawPie(data.pie);
-                    $scope.pieLoading = false;
-                    $scope.pieloaded = true;
-                },
-                function (error) {
-                    $scope.pieLoading = false;
-                    $scope.pieError = error;
-                }
-            );
-        }
-    }
 
     function drawPie(pie) {
         // Recycle the chart
@@ -1224,14 +916,6 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
     };
 
     /**
-     * Helper function that performs as setter for dataChanged var.
-     * @param val: New value
-     */
-    function setDataChanged(val) {
-        dataChanged = val;
-    }
-
-    /**
      * Helper function that resets UI for all query results
      */
     function resetContent() {
@@ -1240,27 +924,44 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
         $scope.selectedLoan = -1;
         $scope.selectedPendingReq = '';
         $scope.selectedPendingLoan = -1;
-        $scope.req = null;
         $scope.showApprovedAmount = false;
         $scope.fetchError = '';
         $scope.approvalReportError = '';
         $scope.pieError = '';
-        $scope.showApprovedAmount = false;
+        $scope.pie = null;
         $scope.pieloaded = false;
     }
 
     $scope.showRequestList = function () {
         $scope.pieloaded = false;
         $scope.pieError = '';
-        setDataChanged(false);
         // Close sidenav
         $mdSidenav('left').toggle();
     };
 
-    /**
-     * Takes user to system config. state.
-     */
-    $scope.goToConfig = function() {
-        $state.go('config');
-    };
+    // Get configured loan types.
+    if (!$scope.loanTypes) {
+        $scope.loadingContent = true;
+        Requests.initializeListType().then(
+            function (list) {
+                $scope.loanTypes = list;
+                $scope.contentAvailable = true;
+                $timeout(function () {
+                    $scope.contentLoaded = true;
+                    // Fetch pending requests and automatically show first one to user (if any)
+                    $scope.selectAction('pending');
+                }, 600);
+            },
+            function (error) {
+                Utils.showAlertDialog('Oops!', 'Ha ocurrido un error en el sistema.<br/>' +
+                                               'Por favor intente más tarde.');
+                console.log(error);
+            }
+        );
+    } else {
+        $scope.selectAction($scope.selectedAction);
+        if ($scope.showResult != null) {
+            reloadAdvQuery($scope.selectedAction, $scope.model.perform[$scope.selectedAction]);
+        }
+    }
 }

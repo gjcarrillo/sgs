@@ -3,9 +3,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 include (APPPATH. '/libraries/ChromePhp.php');
 
 class ManageRequestController extends CI_Controller {
+
 	public function __construct() {
         parent::__construct();
         $this->load->library('session');
+		$this->load->model('configModel');
     }
 
 	public function index() {
@@ -22,6 +24,7 @@ class ManageRequestController extends CI_Controller {
 		} else {
 			$data = json_decode(file_get_contents('php://input'), true);
 			try {
+                $loanTypes = $this->configModel->getLoanTypes();
 				$em = $this->doctrine->em;
 				// Update request
 				$request = $em->find('\Entity\Request', $data['id']);
@@ -98,7 +101,11 @@ class ManageRequestController extends CI_Controller {
 					}
 					$em->merge($request);
 					$this->load->model('emailModel', 'email');
-					$this->email->sendRequestUpdateEmail($request->getId(), $changes);
+					$this->email->sendRequestUpdateEmail(
+                        $request->getId(),
+                        $loanTypes[$request->getLoanType()]->DescripcionDelPrestamo,
+                        $changes
+                    );
 					$result['request'] = $this->utils->reqToArray($request);
 					$em->flush();
 					$result['message'] = "success";

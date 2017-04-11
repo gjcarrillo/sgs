@@ -89,7 +89,8 @@
                             <table width="100%" cellpadding="0" cellspacing="0" style="font-family: 'Open Sans, Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
                                 <tr style="font-family: 'Open Sans, Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
                                     <td class="content-block" style="font-family: 'Open Sans, Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0 0 20px;" valign="top">
-                                        Estimado usuario, le notificamos que hemos realizado los siguientes cambios a su solicitud de préstamo &#8470; <?php echo str_pad($reqId, 6, '0', STR_PAD_LEFT); ?>:<br/><br/>
+                                        Estimado usuario, le notificamos que hemos realizado los siguientes cambios a su solicitud de préstamo &#8470; <?php echo str_pad($reqId, 6, '0', STR_PAD_LEFT); ?>
+                                        (<?php echo $conceptStr; ?>):<br/><br/>
                                     </td>
                                 </tr>
                                 <tr style="font-family: 'Open Sans, Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
