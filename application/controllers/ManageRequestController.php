@@ -85,6 +85,10 @@ class ManageRequestController extends CI_Controller {
 						$history->addAction($action);
 						$em->persist($action);
 					}
+                    // Add new additional documents (if any).
+                    if (isset($data['newDocs'])) {
+                        $changes = $changes . $this->requests->addDocuments($request, $history, $data['newDocs']);
+                    }
 					$em->persist($history);
 
 					if ($data['status'] === PRE_APPROVED && isset($data['approvedAmount'])) {
@@ -106,8 +110,8 @@ class ManageRequestController extends CI_Controller {
                         $loanTypes[$request->getLoanType()]->DescripcionDelPrestamo,
                         $changes
                     );
-					$result['request'] = $this->utils->reqToArray($request);
 					$em->flush();
+                    $result['request'] = $this->utils->reqToArray($request);
 					$result['message'] = "success";
 				}
 			} catch (Exception $e) {

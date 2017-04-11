@@ -87,6 +87,95 @@
                 </md-input-container>
             </div>
         </div>
+        <div layout layout-align="start center" layout-padding>
+            <div layout="column">
+                <div
+                    class="grey-color">
+                    Documentos adicionales
+                </div>
+                <div layout class="pointer">
+                    <md-input-container
+                        id="more-files"
+                        ngf-select="gatherFiles($files, $invalidFiles)"
+                        multiple
+                        ngf-pattern="'image/*,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheetapplication/vnd.openxmlformats-officedocument.spreadsheetml.template,,application/pdf,application/msword'"
+                        ngf-max-size="4MB"
+                        md-no-float
+                        class="md-icon-left no-vertical-margin">
+                        <input type="text" readonly ng-model="model.selectedFiles"
+                               class="pointer" placeholder="Clic para subir"/>
+                        <md-icon
+                            ng-show="model.files.length == 0"
+                            class="pointer grey-color">
+                            <md-tooltip>
+                                Subir archivo
+                            </md-tooltip>
+                            file_upload
+                        </md-icon>
+                        <md-icon
+                            ng-show="model.files.length > 0"
+                            ng-click="deleteFiles($event)"
+                            class="grey-color">
+                            <md-tooltip>Descartar todos los archivos</md-tooltip>
+                            delete
+                        </md-icon>
+                    </md-input-container>
+                </div>
+            </div>
+        </div>
+        <div layout layout-xs="column" layout-padding>
+            <!-- Files cards. One card for each file. Allows adding a description or individual removal for each one -->
+            <div ng-repeat="(dKey, doc) in model.files">
+                <md-card id="file-card">
+                    <md-card-title>
+                        <md-card-title-text>
+                            <span class="md-headline truncate">{{doc.name}}</span>
+                            <span class="md-subhead wrap-text">{{doc.description}}</span>
+                        </md-card-title-text>
+                    </md-card-title>
+                    <!-- Add description / Delete doc actions -->
+                    <md-card-actions ng-hide="isDescriptionEnabled(dKey) || uploading" layout="row" layout-align="end center">
+                        <md-button class="md-icon-button" ng-click="enableDescription(dKey)">
+                            <md-icon>
+                                <md-tooltip>Agregar descripción</md-tooltip>
+                                message
+                            </md-icon>
+                        </md-button>
+                        <md-button class="md-icon-button" ng-click="removeDoc(dKey)">
+                            <md-icon>
+                                <md-tooltip>Descartar archivo</md-tooltip>
+                                delete
+                            </md-icon>
+                        </md-button>
+                    </md-card-actions>
+                    <!-- Add description input -->
+                    <md-card-actions
+                        ng-show="isDescriptionEnabled(dKey) && !uploading"
+                        layout="row"
+                        layout-align="center center">
+                        <md-input-container md-no-float>
+                            <textarea
+                                id="{{dKey}}"
+                                type="text"
+                                ng-model="doc.description"
+                                placeholder="Descripción"
+                                ng-keyup="$event.keyCode == 13 && enableDescription(-1)">
+                            </textarea>
+                        </md-input-container>
+                        <md-button class="md-icon-button" ng-click="enableDescription(-1)"><md-icon>send</md-icon></md-button>
+                    </md-card-actions>
+                    <!-- Uploading progress -->
+                    <md-card-actions ng-show="uploading">
+                        <div class="md-padding">
+                            <md-progress-linear md-mode="determinate" value="{{doc.progress}}"></md-progress-linear>
+                        </div>
+                    </md-card-actions>
+                </md-card>
+            </div>
+        </div>
+        <div ng-repeat="f in errFiles" style="color:red" layout-padding>
+            Error en archivo {{f.name}}: {{showError(f.$error, f.$errorParam)}}
+        </div>
     </md-dialog-content>
     <md-dialog-actions>
         <md-button

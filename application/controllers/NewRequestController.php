@@ -21,8 +21,8 @@ class NewRequestController extends CI_Controller {
 	}
 
     public function upload() {
-		if ($_SESSION['type'] != AGENT) {
-			// Only agents can upload documents.
+		if ($_SESSION['type'] == APPLICANT) {
+			// Applicants cant upload documents.
 			$this->load->view('errors/index.html');
 		} else {
 			// Generate a version 4 (random) UUID object

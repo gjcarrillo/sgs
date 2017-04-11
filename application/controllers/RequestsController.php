@@ -153,7 +153,7 @@ class RequestsController extends CI_Controller {
     }
 
     public function deleteDocument() {
-        if ($this->session->type != AGENT) {
+        if ($this->session->type == APPLICANT) {
             $this->load->view('errors/index.html');
         } else {
             $this->load->model('requestsModel', 'requests');

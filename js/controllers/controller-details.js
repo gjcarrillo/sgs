@@ -460,7 +460,7 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
     };
 
     $scope.isDocEditable = function (type) {
-        return $scope.req.validationDate && $scope.userType($scope.AGENT) &&
+        return $scope.req.validationDate && !$scope.userType($scope.APPLICANT) &&
                $scope.req.status != $scope.APPROVED && $scope.req.status != $scope.REJECTED &&
                $scope.req.status != $scope.PRE_APPROVED && type != Constants.DocTypes.MANDATORY;
     };
@@ -524,7 +524,7 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
             escapeToClose: false,
             fullscreen: $mdMedia('xs'),
             locals: {
-                fetchId: $scope.fetchId,
+                fetchId: fetchId,
                 request: $scope.req,
                 parentScope: $scope,
                 obj: obj
@@ -534,7 +534,6 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
 
         // Isolated dialog controller
         function DialogController($scope, $mdDialog, fetchId, request, parentScope, obj) {
-            $scope.files = [];
             $scope.fetchId = fetchId;
             $scope.uploading = false;
             $scope.request = request;
@@ -546,12 +545,15 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
 
             if (obj) {
                 $scope.model = obj;
-                if (obj.confirmed) updateRequest();
+                if (obj.confirmed) performUpdate();
             } else {
                 $scope.model = {};
                 if ($scope.mappedStatuses.indexOf(request.status) == -1) {
                     $scope.mappedStatuses.push(request.status);
                 }
+                $scope.model.enabledDescription = -1;
+                $scope.model.selectedFiles = null;
+                $scope.model.files = [];
                 $scope.model.status = request.status;
                 $scope.model.comment = $scope.request.comment;
                 $scope.model.approvedAmount = $scope.request.reqAmount;
@@ -559,6 +561,42 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
 
             $scope.closeDialog = function() {
                 $mdDialog.hide();
+            };
+
+            $scope.showError = function (error, param) {
+                return FileUpload.showDocUploadError(error, param);
+            };
+            $scope.removeDoc = function (index) {
+                $scope.model.files.splice(index, 1);
+                $scope.model.selectedFiles = $scope.model.files.length > 0 ?
+                $scope.model.files.length + ' archivo(s)' : null;
+            };
+
+            $scope.isDescriptionEnabled = function (dKey) {
+                return $scope.enabledDescription == dKey;
+            };
+
+            $scope.enableDescription = function (dKey) {
+                $scope.enabledDescription = dKey;
+                $timeout(function () {
+                    $("#" + dKey).focus();
+                }, 300);
+            };
+            // Gathers the files whenever the file input's content is updated
+            $scope.gatherFiles = function (files, errFiles) {
+                $scope.model.files = files;
+                $scope.model.selectedFiles = $scope.model.files.length > 0 ?
+                $scope.model.files.length + ' archivo(s)' : null;
+                $scope.errFiles = errFiles;
+            };
+
+            // Deletes all selected files
+            $scope.deleteFiles = function (ev) {
+                $scope.model.files = [];
+                $scope.model.selectedFiles = null;
+                // Stop click event propagation, otherwise file chooser will
+                // also be opened.
+                ev.stopPropagation();
             };
 
             $scope.missingField = function() {
@@ -569,7 +607,8 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                              || $scope.model.status == null) &&
                             (typeof $scope.model.comment === "undefined"
                              || $scope.model.comment == ""
-                             || $scope.model.comment == $scope.request.comment));
+                             || $scope.model.comment == $scope.request.comment)
+                            && $scope.model.files.length == 0);
                 }
             };
 
@@ -596,9 +635,33 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                     $scope.model.status === $scope.REJECTED_STRING) {
                     confirmClosure(ev);
                 } else {
-                    updateRequest();
+                    performUpdate();
                 }
             };
+            function performUpdate() {
+                $scope.uploading = true;
+                if ($scope.model.files.length == 0) {
+                    updateRequest();
+                } else {
+                    // Add additional files to this request.
+                    uploadFiles($scope.model.files, fetchId);
+                }
+            }
+
+            // Uploads each of selected documents to the server
+            function uploadFiles(files, userId) {
+                FileUpload.uploadFiles(files, userId).then(
+                    function (docs) {
+                        console.log(docs);
+                        $scope.request.newDocs = docs;
+                        updateRequest();
+                    },
+                    function (errorMsg) {
+                        // Show file error message
+                        Utils.showAlertDialog('Mensaje', errorMsg);
+                    }
+                );
+            }
 
             // Shows a dialog asking user to confirm the request closure.
             function confirmClosure(ev) {
@@ -629,6 +692,7 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                 if ($scope.model.status == $scope.PRE_APPROVED_STRING) {
                     $scope.request.approvedAmount = $scope.model.approvedAmount;
                 }
+                console.log($scope.request);
                 Manager.updateRequest($scope.request)
                     .then(
                     function (updatedReq) {

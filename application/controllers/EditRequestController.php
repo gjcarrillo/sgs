@@ -19,7 +19,7 @@ class EditRequestController extends CI_Controller {
 	}
 
 	public function editionDialog() {
-		if ($_SESSION['type'] != AGENT) {
+		if ($_SESSION['type'] == APPLICANT) {
 			$this->load->view('errors/index.html');
 		} else {
 			$this->load->view('templates/editDocDescription');
@@ -217,7 +217,7 @@ class EditRequestController extends CI_Controller {
 	}
 
 	public function updateDocDescription() {
-		if ($_SESSION['type'] != AGENT) {
+		if ($_SESSION['type'] == APPLICANT) {
 			$this->load->view('errors/index.html');
 		} else {
             $data = json_decode(file_get_contents('php://input'), true);

@@ -269,7 +269,7 @@ class UtilsModel extends CI_Model
         $result['reqAmount'] = $request->getRequestedAmount();
         $result['approvedAmount'] = $request->getApprovedAmount();
         $result['userOwner'] = $request->getUserOwner()->getId();
-        $result['userOwnerName'] = $request->getUserOwner()->getFirstName() . ' ' . $request->getUserOwner()->getFirstName();
+        $result['userOwnerName'] = $request->getUserOwner()->getFirstName() . ' ' . $request->getUserOwner()->getLastName();
         $result['reunion'] = $request->getReunion();
         $result['status'] = $request->getStatus();
         $result['type'] = $request->getLoanType();
