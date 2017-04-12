@@ -74,12 +74,33 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
                 // Opened requests
                 getOpenedRequests();
                 break;
+            case 10:
+                // Active requests
+                getActiveRequests();
+                break;
             case 'edit': {
                 // Editable requests
                 editRequests();
                 break;
             }
         }
+    }
+
+    function getActiveRequests() {
+        $scope.requests = {};
+        $scope.activeRequests = [];
+        $scope.fetching = true;
+        // Fetch user's requests
+        Requests.getActiveRequests(fetchId).then(
+            function (requests) {
+                $scope.fetching = false;
+                $scope.activeRequests = requests;
+            },
+            function (errorMsg) {
+                $scope.loading = false;
+                Utils.handleError(errorMsg);
+            }
+        );
     }
 
     function getAllRequests () {
@@ -92,8 +113,8 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
                 $scope.requests = data;
             },
             function (errorMsg) {
-                $scope.fetchError = errorMsg;
                 $scope.loading = false;
+                Utils.handleError(errorMsg);
             }
         );
     }
@@ -225,7 +246,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
         return !$scope.loading && !$scope.fetching && $scope.fetchError == '' &&
                $scope.selectedAction != 1 && $scope.selectedAction != 2 && $scope.selectedAction != 3 &&
                $scope.selectedAction != 4 && $scope.selectedAction != 5 && $scope.selectedAction != 6 &&
-               $scope.selectedAction != 'edit';
+               $scope.selectedAction != 10 && $scope.selectedAction != 'edit';
     };
 
     $scope.loadStatuses = function() {

@@ -457,6 +457,50 @@
                         </md-table-pagination>
                     </md-card>
                 </div>
+
+                <!-- Active requests list -->
+                <div class="margin-16" ng-if="selectedAction == 10 && !fetching">
+                    <md-card ng-if="activeRequests.length > 0">
+                        <md-toolbar class="md-table-toolbar md-default">
+                            <div class="md-toolbar-tools">
+                                <span>Lista de solicitudes activas</span>
+                            </div>
+                        </md-toolbar>
+                        <md-table-container>
+                            <table md-table md-row-select ng-model="selected">
+                                <thead md-head>
+                                <tr md-row>
+                                    <th md-column><span>ID</span></th>
+                                    <th md-column><span>Tipo</span></th>
+                                    <th md-column><span>Último corte</span></th>
+                                    <th md-column><span>Saldo al corte (Bs)</span></th>
+                                    <th md-column><span>Saldo actual (Bs)</span></th>
+                                    <th md-column><span>Mensualidad (Bs)</span></th>
+                                </tr>
+                                </thead>
+                                <tbody md-body>
+                                <tr md-row ng-repeat="(rKey, request) in activeRequests | limitTo: query.limit: (query.page - 1) * query.limit track by $index">
+                                    <td md-cell ng-click="goToDetails(request)">{{pad(request.id, 6)}}</td>
+                                    <td md-cell ng-click="goToDetails(request)">{{loanTypes[request.type].DescripcionDelPrestamo}}</td>
+                                    <td md-cell ng-click="goToDetails(request)">{{request.fecha_edo}}</td>
+                                    <td md-cell ng-click="goToDetails(request)">{{request.saldo_edo | number:2}}</td>
+                                    <td md-cell ng-click="goToDetails(request)">{{request.saldo_actual | number:2}}</td>
+                                    <td md-cell ng-click="goToDetails(request)">{{request.mensualidad | number:2}}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </md-table-container>
+                        <md-table-pagination
+                            md-label="{page: 'Página:', rowsPerPage: 'Solicitudes por página:', of: 'de'}"
+                            md-limit="query.limit"
+                            md-limit-options="[5, 10, 15, 20]"
+                            md-page="query.page"
+                            md-total="{{activeRequests.length}}"
+                            md-page-select>
+
+                        </md-table-pagination>
+                    </md-card>
+                </div>
             </md-content>
         </main>
         <md-divider></md-divider>

@@ -14,6 +14,10 @@ class RequestsController extends CI_Controller {
         $this->load->library('session');
     }
 
+    public function index() {
+        $this->load->view('templates/details');
+    }
+
     // Obtain all requests with with all their documents.
     public function getUserRequests() {
         if ($this->input->get('fetchId') != $this->session->id &&
@@ -150,6 +154,21 @@ class RequestsController extends CI_Controller {
                     $this->input->get('concept')
                 );
                 $result['hasOpened'] = $result['id'] !== null;
+                $result['message'] = "success";
+            } catch (Exception $e) {
+                $result['message'] = $this->utils->getErrorMsg($e);
+            }
+        }
+        echo json_encode($result);
+    }
+
+    public function getActiveRequests() {
+        if ($this->input->get('uid') != $this->session->id &&
+            $this->session->type == APPLICANT) {
+            $result['message'] = 'forbidden.';
+        } else {
+            try {
+                $result['requests'] = $this->requests->getActiveRequests($this->input->get('uid'));
                 $result['message'] = "success";
             } catch (Exception $e) {
                 $result['message'] = $this->utils->getErrorMsg($e);

@@ -20,13 +20,12 @@ class AgentHomeController extends CI_Controller {
                 $result['message'] = 'forbidden';
             } else {
                 $uid = $this->input->get('uid');
-                $this->load->model('userModel');
-                $user = $this->userModel->getUser($uid);
+                $user = $this->users->getUser($uid);
                 if ($user !== null) {
                     // User exists.
                     $result['message'] = "success";
                 } else {
-                    $oldUser = $this->userModel->findIpapediUser($uid);
+                    $oldUser = $this->users->findIpapediUser($uid);
                     if ($oldUser === null) {
                         // User does not exist. Throw error.
                         throw new Exception('El usuario ' . $uid . ' no se encuentra registrado.');
@@ -43,7 +42,7 @@ class AgentHomeController extends CI_Controller {
                             $data['type'] = APPLICANT;
                             $data['phone'] = $oldUser->telefono;
                             $data['email'] = $oldUser->correo;
-                            $this->userModel->createUser($data);
+                            $this->users->createUser($data);
                             $result['message'] = "success";
                         } else {
                             // Inactive user. Throw error.

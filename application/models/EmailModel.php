@@ -47,7 +47,6 @@ class EmailModel extends CI_Model
 
     private function sendNewReqEmail($request) {
         try {
-            $this->load->model('configModel');
             $loanTypes = $this->configModel->getLoanTypes();
             $mailData['reqId'] = $request->getId();
             $user = $request->getUserOwner();

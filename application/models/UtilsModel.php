@@ -228,23 +228,6 @@ class UtilsModel extends CI_Model
     }
 
     /**
-     * Gets the annual interest rate of a specific loan type.
-     *
-     * @param $loanType - the loan type.
-     * @return int - annual interest rate.
-     */
-    public function getInterestRate ($loanType) {
-        switch ($loanType) {
-            case PERSONAL_LOAN:
-                return 12;
-            case CASH_VOUCHER:
-                return 2;
-            default:
-                return 12;
-        }
-    }
-
-    /**
      * Provides an error message based on exception object.
      *
      * @param $e - exception object.

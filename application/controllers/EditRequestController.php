@@ -7,7 +7,6 @@ class EditRequestController extends CI_Controller {
         parent::__construct();
         $this->load->library('session');
 		$this->load->model('requestsModel', 'requests');
-		$this->load->model('configModel');
 	}
 
 	public function index() {
@@ -92,11 +91,10 @@ class EditRequestController extends CI_Controller {
 		} else {
 			try {
 				$em = $this->doctrine->em;
-				$this->load->model('userModel');
 				$maxAmount = $this->configModel->getMaxReqAmount();
 				$minAmount = $this->configModel->getMinReqAmount();
 				$loanTypes = $this->configModel->getLoanTypes();
-				$userData = $this->userModel->getPersonalData($data['userId']);
+				$userData = $this->users->getPersonalData($data['userId']);
 				$lastLoan = $this->requests->getLastLoanInfo($data['userId'], $data['loanType']);
 				$terms = $this->utils->extractLoanTerms($loanTypes[$data['loanType']]);
 				$diff = $this->utils->getDateInterval(

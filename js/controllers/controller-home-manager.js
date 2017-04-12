@@ -920,6 +920,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
      */
     function resetContent() {
         $scope.requests = {};
+        $scope.singleType = {};
         $scope.selectedReq = '';
         $scope.selectedLoan = -1;
         $scope.selectedPendingReq = '';

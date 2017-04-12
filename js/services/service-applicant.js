@@ -24,6 +24,7 @@ function applicant () {
     data.queryList = [
         {id: 1, text: 'Todas mis solicitudes'},
         {id: 2, text: 'Solicitud por ID'},
+        {id: 10, text: 'Solicitudes activas'},
         {id: 3, text: 'Solicitudes por fecha'},
         {id: 4, text: 'Solicitudes por estatus'},
         {id: 5, text: 'Solicitudes por tipo'},

@@ -47,7 +47,6 @@ class NewRequestController extends CI_Controller {
 		} else {
 			try {
 				$em = $this->doctrine->em;
-				$this->load->model('configModel');
 				$span = $this->configModel->getRequestSpan($this->input->get('concept'));
 				$result['granting']['span'] = $span;
 				$config = $em->getRepository('\Entity\Config');
@@ -73,8 +72,7 @@ class NewRequestController extends CI_Controller {
 						$result['granting']['dateAvailable'] = $granting->modify('+' . $span . ' month')->format('d/m/Y');
 					}
 				}
-				$this->load->model('userModel');
-				$userData = $this->userModel->getPersonalData($this->input->get('userId'));
+				$userData = $this->users->getPersonalData($this->input->get('userId'));
 				if ($userData == null) {
 					// User info not found! This should never happen. Nevertheless, throw error.
 					$result['message'] = "Parece que su información personal aún no ha sido ingresada en nuestro sistema.";
@@ -118,12 +116,10 @@ class NewRequestController extends CI_Controller {
 			// Validate incoming data.
 			try {
 				$em = $this->doctrine->em;
-				$this->load->model('configModel');
-				$this->load->model('userModel');
 				$maxAmount = $this->configModel->getMaxReqAmount();
 				$minAmount = $this->configModel->getMinReqAmount();
 				$loanTypes = $this->configModel->getLoanTypes();
-				$userData = $this->userModel->getPersonalData($data['userId']);
+				$userData = $this->users->getPersonalData($data['userId']);
 				$lastLoan = $this->requests->getLastLoanInfo($data['userId'], $data['loanType']);
 				$diff = $this->utils->getDateInterval(
 					new DateTime('now', new DateTimeZone('America/Barbados')),

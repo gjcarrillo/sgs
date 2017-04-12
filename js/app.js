@@ -109,7 +109,7 @@ sgdp.config(function ($stateProvider, $urlRouterProvider, $mdThemingProvider,
             url: '/details',
             views: {
                 'content': {
-                    templateUrl: 'detailsController',
+                    templateUrl: 'requestsController',
                     controller: 'DetailsController'
                 },
                 'footer': {

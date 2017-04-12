@@ -10,10 +10,12 @@ include_once (APPPATH. '/libraries/ChromePhp.php');
  */
 class RequestsModel extends CI_Model
 {
+    private $loanTypes = null;
+
     public function __construct() {
         parent::__construct();
         $this->load->model('driveModel');
-        $this->load->model('configModel');
+        $this->loanTypes = $this->configModel->getLoanTypes();
         $this->load->library('session');
     }
 
@@ -47,6 +49,53 @@ class RequestsModel extends CI_Model
                                      str_pad($_GET['rid'], 6, '0', STR_PAD_LEFT));
             } else {
                 return $this->utils->reqToArray($request);
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * Gets the requests of a specific user that are still being paid.
+     *
+     * @param $uid - user's id.
+     * @return array of active requests.
+     * @throws Exception
+     */
+    public function getActiveRequests($uid) {
+        try {
+            $em = $this->doctrine->em;
+            $user = $em->find('\Entity\User', $uid);
+            if ($user === null) {
+                throw new Exception("La cédula ingresada no se encuentra en la base de datos");
+            } else {
+                $result = array();
+                $requests = $user->getRequests();
+                $requests = array_reverse($requests->getValues());
+                // Get active request for each request concept available.
+                foreach ($this->loanTypes as $lKey => $loanType) {
+                    $lastLoan = $this->getLastLoanInfo($uid, $lKey);
+                    if ($lastLoan !== null && $lastLoan->saldo_edo > 0) {
+                        // Loan still active found.
+                        foreach ($requests as $request) {
+                            if ($request->getStatus() == APPROVED && $request->getLoanType() == $lKey) {
+                                $array = $this->utils->reqToArray($request);
+                                $array['fecha_edo'] = $lastLoan->fecha_edo;
+                                $array['saldo_edo'] = $lastLoan->saldo_edo;
+                                $array['saldo_actual'] = $lastLoan->saldo_actual;
+                                if ($array['saldo_actual'] <= 0) {
+                                    $array['mensualidad'] = '------';
+                                } else {
+                                    $array['mensualidad'] = $lastLoan->otorg_cuota;
+                                }
+                                // Add this array to result.
+                                array_push($result, $array);
+                                break;
+                            }
+                        }
+                    }
+                }
+                return $result;
             }
         } catch (Exception $e) {
             throw $e;
@@ -118,8 +167,7 @@ class RequestsModel extends CI_Model
                 array_push($result, $this->utils->reqToArray($request));
             }
             if (empty($result)) {
-                $loanTypes = $this->configModel->getLoanTypes();
-                throw new Exception("No se han encontrado solicitudes del tipo " . $loanTypes[$loanType]->DescripcionDelPrestamo);
+                throw new Exception("No se han encontrado solicitudes del tipo " . $this->loanTypes[$loanType]->DescripcionDelPrestamo);
             } else {
                 return $result;
             }
@@ -209,7 +257,6 @@ class RequestsModel extends CI_Model
 
     public function deleteDocument () {
         try {
-            $loanTypes = $this->configModel->getLoanTypes();
             $data = json_decode($this->input->raw_input_stream, true);
             $em = $this->doctrine->em;
             // Delete the document from the server.
@@ -256,7 +303,7 @@ class RequestsModel extends CI_Model
                 $this->load->model('emailModel', 'email');
                 $this->email->sendRequestUpdateEmail(
                     $request->getId(),
-                    $loanTypes[$request->getLoanType()]->DescripcionDelPrestamo,
+                    $this->loanTypes[$request->getLoanType()]->DescripcionDelPrestamo,
                     $changes
                 );
                 // Persist the changes in database.
@@ -370,8 +417,6 @@ class RequestsModel extends CI_Model
 
     public function generateRequestDocument ($request) {
         // Get extra data for the pdf template.
-        $this->load->model('configModel');
-        $loanTypes = $this->configModel->getLoanTypes();
         $data['reqAmount'] = $request->getRequestedAmount();
         $data['tel'] = $request->getContactNumber();
         $data['email'] = $request->getContactEmail();
@@ -382,10 +427,10 @@ class RequestsModel extends CI_Model
         $data['username'] = $request->getUserOwner()->getFirstName() . ' ' . $request->getUserOwner()->getLastName();
         $data['requestId'] = str_pad($request->getId(), 6, '0', STR_PAD_LEFT);
         $data['date'] = new DateTime('now', new DateTimeZone('America/Barbados'));
-        $data['loanTypeString'] = $loanTypes[$data['loanType']]->DescripcionDelPrestamo;
+        $data['loanTypeString'] = $this->loanTypes[$data['loanType']]->DescripcionDelPrestamo;
         $data['paymentFee'] = $this->utils->calculatePaymentFee($data['reqAmount'],
                                                                 $data['due'],
-                                                                $this->utils->getInterestRate($data['loanType']));
+                                                                $this->loanTypes[$data['loanType']]->InteresAnual);
         // Generate the document.
         $html = $this->load->view('templates/requestPdf', $data, true); // render the view into HTML
         $this->load->library('pdf');
@@ -529,7 +574,7 @@ class RequestsModel extends CI_Model
             $fee = round($this->utils->calculatePaymentFee(
                 $request->getApprovedAmount(),
                 $request->getPaymentDue(),
-                $this->utils->getInterestRate($request->getLoanType())
+                $this->loanTypes[$request->getLoanType()]->InteresAnual
             ), 2);
             $newData = array(
                 'cedula' => $request->getUserOwner()->getId(),
@@ -539,7 +584,7 @@ class RequestsModel extends CI_Model
                 'saldo_actual' => $fee * intval($request->getPaymentDue(), 10),
                 'otorg_fecha' => (new DateTime('now', new DateTimeZone('America/Barbados')))->format('d/m/Y'),
                 'otorg_monto' => $request->getApprovedAmount(),
-                'otorg_inter' => $this->utils->getInterestRate($request->getLoanType()),
+                'otorg_inter' => $this->loanTypes[$request->getLoanType()]->InteresAnual,
                 'otorg_plazo' => $request->getPaymentDue(),
                 'otorg_cuota' => $fee
             );
@@ -598,11 +643,10 @@ class RequestsModel extends CI_Model
             $loanTypes = $this->configModel->getLoanTypes();
             $em = $this->doctrine->em;
             $request = $em->find('\Entity\Request', $rid);
-            $this->load->model('userModel');
             // Register History
             $history = new \Entity\History();
             $history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
-            $history->setUserResponsible($this->userModel->getSystemGeneratedUser());
+            $history->setUserResponsible($this->users->getSystemGeneratedUser());
             $history->setTitle($this->utils->getHistoryActionCode('closure'));
             $history->setOrigin($request);
             $request->addHistory($history);

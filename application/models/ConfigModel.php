@@ -8,6 +8,8 @@
  */
 class ConfigModel extends CI_Model
 {
+    private $loanTypes = null;
+
     public function __construct() {
         parent::__construct();
     }
@@ -80,10 +82,13 @@ class ConfigModel extends CI_Model
     }
 
     public function getLoanTypes() {
-        $type[PERSONAL_LOAN] = $this->getPersonalLoan(1);
-        $type[CASH_VOUCHER] = $this->getShortTermLoan(1);
-
-        return $type;
+        if ($this->loanTypes === null) {
+            $type[PERSONAL_LOAN] = $this->getPersonalLoan(1);
+            $type[CASH_VOUCHER] = $this->getShortTermLoan(1);
+            return $type;
+        } else {
+            return $this->loanTypes;
+        }
     }
 
     private function getPersonalLoan($id){

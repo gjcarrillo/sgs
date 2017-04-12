@@ -39,6 +39,28 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
     };
 
     /**
+     * Fetches the specified user's active requests.
+     *
+     * @param uid - user's id.
+     */
+    self.getActiveRequests = function (uid) {
+        var qReq = $q.defer();
+        $http.get('RequestsController/getActiveRequests',
+            {params: {uid: uid}}).then(
+            function (response) {
+                console.log(response);
+                if (response.data.message === "success") {
+                    if (typeof response.data.requests !== "undefined") {
+                        qReq.resolve(response.data.requests);
+                    }
+                } else {
+                    qReq.reject(response.data.message);
+                }
+            });
+        return qReq.promise;
+    };
+
+    /**
      * Fetches details of specified request.
      * @param id - request id.
      * @param uid - user owner's id.
