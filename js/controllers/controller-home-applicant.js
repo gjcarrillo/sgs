@@ -97,7 +97,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
                 $scope.activeRequests = requests;
             },
             function (errorMsg) {
-                $scope.loading = false;
+                $scope.fetching = false;
                 Utils.handleError(errorMsg);
             }
         );

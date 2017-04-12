@@ -95,6 +95,9 @@ class RequestsModel extends CI_Model
                         }
                     }
                 }
+                if (empty($result)) {
+                    throw new Exception('No se encontraron solicitudes activas');
+                }
                 return $result;
             }
         } catch (Exception $e) {

@@ -123,7 +123,7 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
                 $scope.activeRequests = requests;
             },
             function (errorMsg) {
-                $scope.loading = false;
+                $scope.fetching = false;
                 Utils.handleError(errorMsg);
             }
         );
