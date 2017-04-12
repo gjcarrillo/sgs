@@ -11,16 +11,12 @@ class ManageRequestController extends CI_Controller {
     }
 
 	public function index() {
-		if ($_SESSION['type'] != MANAGER) {
-			$this->load->view('errors/index.html');
-		} else {
-			$this->load->view('templates/manageRequest');
-		}
+		$this->load->view('templates/manageRequest');
 	}
 
 	public function updateRequest() {
-		if ($_SESSION['type'] != MANAGER) {
-			$this->load->view('errors/index.html');
+		if ($this->session->type != MANAGER) {
+			$result['message'] = 'forbidden';
 		} else {
 			$data = json_decode(file_get_contents('php://input'), true);
 			try {
@@ -117,8 +113,7 @@ class ManageRequestController extends CI_Controller {
 			} catch (Exception $e) {
 				$result['message'] = $this->utils->getErrorMsg($e);
 			}
-
-			echo json_encode($result);
 		}
+		echo json_encode($result);
 	}
 }

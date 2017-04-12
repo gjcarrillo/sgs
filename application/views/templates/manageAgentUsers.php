@@ -106,15 +106,15 @@
                                 <md-input-container id="user-phone" style="margin:0" class="md-block" md-no-float>
                                     <input
                                         ng-model="model.phone"
-                                        type="number"
+                                        type="text"
                                         name="phone"
                                         min="1"
-                                        minlength="10"
-                                        maxlength="10"
-                                        placeholder="Ej: 4141234567"/>
+                                        minlength="11"
+                                        maxlength="11"
+                                        placeholder="Ej: 04141234567"/>
                                     <div ng-messages="userForm.phone.$error" ng-show="userForm.phone.$dirty">
-                                        <div ng-message="minlength">Ehemplo: 4123456789.</div>
-                                        <div ng-message="maxlength">El número debe tener 10 dígitos.</div>
+                                        <div ng-message="minlength">Ejemplo: 04123456789.</div>
+                                        <div ng-message="maxlength">El número debe tener 11 dígitos.</div>
                                     </div>
                                 </md-input-container>
                             </div>

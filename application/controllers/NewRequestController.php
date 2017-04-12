@@ -12,18 +12,12 @@ class NewRequestController extends CI_Controller {
     }
 
 	public function index() {
-		if ($this->session->type == MANAGER) {
-			$this->load->view('errors/index.html');
-		} else {
-			// Managers can't create requests
-			$this->load->view('templates/newRequest');
-		}
+		$this->load->view('templates/newRequest');
 	}
 
     public function upload() {
-		if ($_SESSION['type'] == APPLICANT) {
-			// Applicants cant upload documents.
-			$this->load->view('errors/index.html');
+		if ($this->session->type == APPLICANT) {
+			$result['message'] = 'forbidden';
 		} else {
 			// Generate a version 4 (random) UUID object
 			$uuid4 = Uuid::uuid4();
@@ -34,10 +28,9 @@ class NewRequestController extends CI_Controller {
 
 	        $result['lpath'] = $_POST['userId'] . '.' . $code .
 				'.' . basename($_FILES['file']['name']);
-
-	        echo json_encode($result);
 		}
-    }
+		echo json_encode($result);
+	}
 
 	/**
 	 * Gets a user's availability data (i.e. conditions for creating new request of specific concept). This is:
@@ -50,7 +43,7 @@ class NewRequestController extends CI_Controller {
 	public function getAvailabilityData() {
 		$result['message'] = "error";
 		if ($this->input->get('userId') != $this->session->id && $this->session->type == APPLICANT) {
-			$this->load->view('errors/index.html');
+			$result['message'] = 'forbidden';
 		} else {
 			try {
 				$em = $this->doctrine->em;
@@ -118,9 +111,9 @@ class NewRequestController extends CI_Controller {
 
     public function createRequest() {
 		$data = json_decode(file_get_contents('php://input'), true);
-		if ($data['userId'] != $_SESSION['id'] && $_SESSION['type'] != AGENT) {
+		if ($data['userId'] != $this->session->id && $this->session->type != AGENT) {
 			// Only agents can create requests for other people
-			$this->load->view('errors/index.html');
+			$result['message'] = 'forbidden';
 		} else {
 			// Validate incoming data.
 			try {
@@ -223,8 +216,7 @@ class NewRequestController extends CI_Controller {
 	        } catch (Exception $e) {
 				$result['message'] = $this->utils->getErrorMsg($e);
 	        }
-
-	        echo json_encode($result);
 		}
-    }
+		echo json_encode($result);
+	}
 }

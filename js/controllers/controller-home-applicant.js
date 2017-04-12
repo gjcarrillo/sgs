@@ -52,9 +52,8 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
                 }, 600);
             },
             function (error) {
-                Utils.showAlertDialog('Oops!', 'Ha ocurrido un error en el sistema.<br/>' +
-                                               'Por favor intente más tarde.');
-                console.log(error);
+                $scope.loading = false;
+                Utils.handleError(error);
             }
         );
     } else if ($scope.selectedAction) {
@@ -108,7 +107,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
             },
             function (error) {
                 $scope.fetching = false;
-                Utils.showAlertDialog('Mensaje', error);
+                Utils.handleError(error);
             }
         );
     };
@@ -123,7 +122,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
             },
             function (error) {
                 $scope.fetching = false;
-                Utils.showAlertDialog('Mensaje', error);
+                Utils.handleError(error);
             }
         );
     };
@@ -138,7 +137,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
             },
             function (error) {
                 $scope.fetching = false;
-                Utils.showAlertDialog('Mensaje', error);
+                Utils.handleError(error);
             }
         );
     };
@@ -154,7 +153,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
             },
             function (error) {
                 $scope.fetching = false;
-                Utils.showAlertDialog('Mensaje', error);
+                Utils.handleError(error);
             }
         );
     };
@@ -169,7 +168,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
             },
             function (error) {
                 $scope.fetching = false;
-                Utils.showAlertDialog('Mensaje', error);
+                Utils.handleError(error);
             }
         );
     }
@@ -310,17 +309,17 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
                                         $scope.loading = false;
                                     },
                                     function (error) {
-                                        Utils.showAlertDialog('Oops!', error);
+                                        Utils.handleError(error);
                                     }
                                 );
                             },
                             function (error) {
-                                Utils.showAlertDialog('Oops!', error);
+                                Utils.handleError(error);
                             }
                         );
                     },
                     function (error) {
-                        Utils.showAlertDialog('Oops!', error);
+                        Utils.handleError(error);
                     }
                 );
             }
@@ -380,7 +379,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
                     },
                     function(error) {
                         $scope.uploading = false;
-                        Utils.showAlertDialog('Oops!', error);
+                        Utils.handleError(error);
                     }
                 );
             }
@@ -483,17 +482,17 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
                                         $scope.loading = false;
                                     },
                                     function (error) {
-                                        Utils.showAlertDialog('Oops!', error);
+                                        Utils.handleError(error);
                                     }
                                 );
                             },
                             function (error) {
-                                Utils.showAlertDialog('Oops!', error);
+                                Utils.handleError(error);
                             }
                         );
                     },
                     function (error) {
-                        Utils.showAlertDialog('Oops!', error);
+                        Utils.handleError(error);
                     }
                 );
             }
@@ -551,7 +550,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
                     },
                     function(error) {
                         $scope.uploading = false;
-                        Utils.showAlertDialog('Oops!', error);
+                        Utils.handleError(error);
                     }
                 );
             }
@@ -600,7 +599,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
                     },
                     function (errorMsg) {
                         $scope.overlay = false;
-                        Utils.showAlertDialog('Oops!', errorMsg);
+                        Utils.handleError(errorMsg);
                     }
                 );
             }

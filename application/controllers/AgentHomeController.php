@@ -10,27 +10,14 @@ class AgentHomeController extends CI_Controller {
     }
 
 	public function index() {
-        if ($this->session->type != AGENT) {
-			$this->load->view('errors/index.html');
-		} else {
-			$this->load->view('templates/agentHome');
-		}
-    }
-
-    public function deleteDocument() {
-        if ($this->session->type != AGENT) {
-            $this->load->view('errors/index.html');
-        } else {
-            $this->load->model('requestsModel', 'requests');
-            echo $this->requests->deleteDocument();
-        }
+        $this->load->view('templates/agentHome');
     }
 
     public function validateUser() {
         $result['message'] = "error";
         try {
             if ($this->session->type != AGENT) {
-                $this->load->view('errors/index.html');
+                $result['message'] = 'forbidden';
             } else {
                 $uid = $this->input->get('uid');
                 $this->load->model('userModel');

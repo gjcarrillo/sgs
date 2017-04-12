@@ -17,4 +17,8 @@ class MainController extends CI_Controller {
 	public function overlay () {
 		$this->load->view('templates/overlay');
 	}
+
+	public function expired() {
+		$this->load->view('templates/sessionExpired');
+	}
 }

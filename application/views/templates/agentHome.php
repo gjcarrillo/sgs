@@ -393,7 +393,7 @@
                                         </table>
                                     </md-table-container>
                                     <md-table-pagination ng-show="requests[lKey].length > 0"
-                                                         md-label="{page: 'Página:', rowsPerPage: 'Filas por página:', of: 'de'}"
+                                                         md-label="{page: 'Página:', rowsPerPage: 'Solicitudes por página:', of: 'de'}"
                                                          md-limit="query.limit"
                                                          md-limit-options="[5, 10, 15, 20]"
                                                          md-page="query.page"
@@ -468,7 +468,7 @@
                             </table>
                         </md-table-container>
                         <md-table-pagination
-                            md-label="{page: 'Página:', rowsPerPage: 'Filas por página:', of: 'de'}"
+                            md-label="{page: 'Página:', rowsPerPage: 'Solicitudes por página:', of: 'de'}"
                             md-limit="query.limit"
                             md-limit-options="[5, 10, 15, 20]"
                             md-page="query.page"
@@ -484,7 +484,7 @@
                     <md-card ng-if="singleType.length > 0">
                         <md-toolbar class="md-table-toolbar md-default">
                             <div class="md-toolbar-tools">
-                                <span>Solicitudes de tipo {{loanTypes[queries[selectedAction]].DescripcionDelPrestamo}}</span>
+                                <span>Lista de solicitudes</span>
                             </div>
                         </md-toolbar>
                         <md-table-container>
@@ -514,7 +514,7 @@
                             </table>
                         </md-table-container>
                         <md-table-pagination
-                            md-label="{page: 'Página:', rowsPerPage: 'Filas por página:', of: 'de'}"
+                            md-label="{page: 'Página:', rowsPerPage: 'Solicitudes por página:', of: 'de'}"
                             md-limit="query.limit"
                             md-limit-options="[5, 10, 15, 20]"
                             md-page="query.page"

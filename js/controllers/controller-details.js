@@ -39,7 +39,7 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
             },
             function (error) {
                 $scope.loading = false;
-                Utils.showAlertDialog('Mensaje', error);
+                Utils.handleError(error);
             }
         )
     }
@@ -80,7 +80,7 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                     },
                     function (errorMsg) {
                         $scope.overlay = false;
-                        Utils.showAlertDialog('Mensaje', errorMsg);
+                        Utils.handleError(errorMsg);
                     }
                 );
             }
@@ -158,17 +158,17 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                                         $scope.loading = false;
                                     },
                                     function (error) {
-                                        Utils.showAlertDialog('Mensaje', error);
+                                        Utils.handleError(error);
                                     }
                                 );
                             },
                             function (error) {
-                                Utils.showAlertDialog('Mensaje', error);
+                                Utils.handleError(error);
                             }
                         );
                     },
                     function (error) {
-                        Utils.showAlertDialog('Mensaje', error);
+                        Utils.handleError(error);
                     }
                 );
             }
@@ -227,7 +227,7 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                     },
                     function(error) {
                         $scope.uploading = false;
-                        Utils.showAlertDialog('Mensaje', error);
+                        Utils.handleError(error);
                     }
                 );
             }
@@ -279,7 +279,7 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                     function (error) {
                         $scope.overlay = false;
                         $scope.validating = false;
-                        Utils.showAlertDialog('Mensaje', error);
+                        Utils.handleError(error);
                     }
                 );
             });
@@ -387,7 +387,7 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                     },
                     function (errorMsg) {
                         $scope.uploading = false;
-                        Utils.showAlertDialog('Mensaje!', errorMsg);
+                        Utils.handleError(errorMsg);
                     }
                 );
             }
@@ -432,7 +432,7 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                     },
                     function (errorMsg) {
                         $scope.overlay = false;
-                        Utils.showAlertDialog('Mensaje!', errorMsg);
+                        Utils.handleError(errorMsg);
                     }
                 )
             }
@@ -503,7 +503,7 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                         $state.go($state.current, {}, {reload: true})
                     },
                     function (errorMsg) {
-                        Utils.showAlertDialog('Mensaje!', errorMsg);
+                        Utils.handleError(errorMsg);
                     }
                 );
                 $mdDialog.hide();
@@ -658,7 +658,7 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                     },
                     function (errorMsg) {
                         // Show file error message
-                        Utils.showAlertDialog('Mensaje', errorMsg);
+                        Utils.handleError(errorMsg);
                     }
                 );
             }
@@ -706,7 +706,7 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                     },
                     function (error) {
                         $scope.uploading = false;
-                        Utils.showAlertDialog('Mensaje!', error);
+                        Utils.handleError(error);
                     }
                 );
             }

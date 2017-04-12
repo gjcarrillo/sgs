@@ -22,7 +22,7 @@ function info($scope, $http, Utils, Constants) {
                 $scope.picture = response.data.picture ? Constants.IPAPEDI_URL + 'img/profiles_img/' +
                                                          response.data.picture : 'images/avatar_circle.png';
             } else {
-                Utils.showAlertDialog('Oops!', response.data.message);
+                Utils.handleError(response.data.message);
             }
             $scope.loading = false;
         });

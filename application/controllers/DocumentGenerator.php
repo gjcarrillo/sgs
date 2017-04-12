@@ -16,7 +16,7 @@ class DocumentGenerator extends CI_Controller {
 	public function generateSimpleRequestsReport() {
 		$result = null;
 		if ($this->session->type != MANAGER) {
-			$this->load->view('errors/index.html');
+			$result['message'] = 'forbidden';
 		} else {
 			$data = json_decode(file_get_contents('php://input'), true);
 			// load PHPExcel library
@@ -135,7 +135,7 @@ class DocumentGenerator extends CI_Controller {
 	public function generateRequestsReport() {
 		$result = null;
 		if ($this->session->type != MANAGER) {
-			$this->load->view('errors/index.html');
+			$result['message'] = 'forbidden';
 		} else {
 			$data = json_decode(file_get_contents('php://input'), true);
 			// load PHPExcel library
@@ -255,7 +255,7 @@ class DocumentGenerator extends CI_Controller {
 	public function generateStatusRequestsReport() {
 		$result = null;
 		if ($this->session->type != MANAGER) {
-			$this->load->view('errors/index.html');
+			$result['message'] = 'forbidden';
 		} else {
 			$data = json_decode(file_get_contents('php://input'), true);
 			// load PHPExcel library
@@ -378,7 +378,7 @@ class DocumentGenerator extends CI_Controller {
 	public function generateClosedRequestsReport() {
 		$result = null;
 		if ($this->session->type != MANAGER) {
-			$this->load->view('errors/index.html');
+			$result['message'] = 'forbidden';
 		} else {
 			$data = json_decode(file_get_contents('php://input'), true);
 			// load PHPExcel library
@@ -486,18 +486,21 @@ class DocumentGenerator extends CI_Controller {
 	}
 
 	public function download() {
+		$result = null;
 		if ($this->session->type != MANAGER) {
-			$this->load->view('errors/index.html');
+			$result['message'] = 'forbidden';
 		} else {
 			header('Content-Disposition: attachment; filename=' . $_GET['docName']);
 			// The document source
 			readfile(DropPath . $_GET['docName']);
 		}
+		echo json_encode($result);
 	}
 
 	public function downloadReport() {
+		$result = null;
 		if ($this->session->type != MANAGER) {
-			$this->load->view('errors/index.html');
+			$result['message'] = 'forbidden';
 		} else {
 			ignore_user_abort(true);
 			header('Content-Type: application/vnd.ms-excel'); //mime type
@@ -507,5 +510,6 @@ class DocumentGenerator extends CI_Controller {
 			// Delete it from server HD now that it's been sent to browser
 			unlink(DropPath . $_GET['lpath']);
 		}
+		echo json_encode($result);
 	}
 }

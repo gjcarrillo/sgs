@@ -93,6 +93,18 @@ sgdp.config(function ($stateProvider, $urlRouterProvider, $mdThemingProvider,
                 }
             }
         })
+        .state('expired', {
+            url: '/expired',
+            views: {
+                'content': {
+                    templateUrl: 'index.php/MainController/expired',
+                    controller: 'SessionExpiredController'
+                },
+                'footer': {
+                    templateUrl: 'index.php/MainController/footer'
+                }
+            }
+        })
         .state('details', {
             url: '/details',
             views: {
@@ -228,6 +240,7 @@ sgdp.run(['$rootScope', '$location', '$state', 'Auth', '$cookies', '$http', 'Con
                       !url.startsWith('/validate') &&
                       !url.startsWith('/delete') &&
                       !url.startsWith('/incompatible') &&
+                      !url.startsWith('/expired') &&
                       !url.startsWith('/transition')) {
                       // if user is not logged in and is trying to access
                       // private content, send to login.
@@ -242,8 +255,8 @@ sgdp.run(['$rootScope', '$location', '$state', 'Auth', '$cookies', '$http', 'Con
                       // check if user actually has access permission to intended url
 
                       e.preventDefault();
-                      // if user does not have the proper permission, send home
-                      Auth.sendHome();
+                      // if user does not have the proper permission, send to session expired view.
+                      $state.go('expired');
                   }
               });
 
@@ -272,22 +285,18 @@ sgdp.run(['$rootScope', '$location', '$state', 'Auth', '$cookies', '$http', 'Con
                       case '/applicantHome':
                           // Anyone can access user home page
                           return true;
-                      case '/validate':
-                          return userType == 3;
-                      case '/delete':
-                          return userType == 3;
                       case '/agentHome':
                           // Check for agent rights
-                          return userType == 1;
+                          return userType == Constants.Users.AGENT;
                       case '/managerHome':
                           // Check for manager rights
-                          return userType == 2;
+                          return userType == Constants.Users.MANAGER;
                       case '/actions':
                           // check for agent or manager rights
-                          return userType <= 2;
+                          return userType == Constants.Users.MANAGER || userType == Constants.Users.AGENT;
                       case '/userInfo':
                           // check for agent or manager rights
-                          return userType <= 2;
+                          return userType == Constants.Users.MANAGER || userType == Constants.Users.AGENT;
                   }
                   //  Going to login (.otherwise('login')), so keep going!
                   return true;
@@ -330,21 +339,23 @@ sgdp.animation('.slide-toggle', ['$animateCss', function ($animateCss) {
 
 
 sgdp.config(function($mdIconProvider) {
-    $mdIconProvider.icon('account-box', 'images/icons/ic_account_box_black_48px.svg', 24);
-    $mdIconProvider.icon('assignment', 'images/icons/ic_assignment_black_48px.svg', 24);
-    $mdIconProvider.icon('assessment', 'images/icons/ic_assessment_black_48px.svg', 24);
-    $mdIconProvider.icon('error', 'images/icons/ic_error_black_48px.svg', 24);
-    $mdIconProvider.icon('verified-user', 'images/icons/ic_verified_user_black_48px.svg', 24);
+    //$mdIconProvider.icon('account-box', 'images/icons/ic_account_box_black_48px.svg', 24);
+    //$mdIconProvider.icon('assignment', 'images/icons/ic_assignment_black_48px.svg', 24);
+    //$mdIconProvider.icon('assessment', 'images/icons/ic_assessment_black_48px.svg', 24);
+    //$mdIconProvider.icon('error', 'images/icons/ic_error_black_48px.svg', 24);
+    //$mdIconProvider.icon('verified-user', 'images/icons/ic_verified_user_black_48px.svg', 24);
+    $mdIconProvider.icon('expired', 'images/icons/ic_access_time_black_48px.svg', 24);
 });
 
 // Cache svg's
 sgdp.run(function($http, $templateCache) {
     var urls = [
-        'images/icons/ic_account_box_black_48px.svg',
-        'images/icons/ic_assignment_black_48px.svg',
-        'images/icons/ic_assessment_black_48px.svg',
-        'images/icons/ic_error_black_48px.svg',
-        'images/icons/ic_verified_user_black_48px.svg'
+        //'images/icons/ic_account_box_black_48px.svg',
+        //'images/icons/ic_assignment_black_48px.svg',
+        //'images/icons/ic_assessment_black_48px.svg',
+        //'images/icons/ic_error_black_48px.svg',
+        //'images/icons/ic_verified_user_black_48px.svg',
+        'images/icons/ic_access_time_black_48px.svg'
     ];
     angular.forEach(urls, function(url) {
         $http.get(url, {cache: $templateCache});

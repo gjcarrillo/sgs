@@ -4,9 +4,9 @@ var login = angular
     .module('sgdp.login', ['ngCookies', 'ngMaterial'])
     .factory('Auth', auth);
 
-auth.$inject = ['$cookies', '$location', '$http', '$rootScope', '$q', 'Agent', 'Manager', 'Constants'];
+auth.$inject = ['$cookies', '$location', '$http', '$rootScope', '$q', 'Applicant', 'Agent', 'Manager', 'Constants'];
 
-function auth($cookies, $location, $http, $rootScope, $q, Agent, Manager, Constants) {
+function auth($cookies, $location, $http, $rootScope, $q, Applicant, Agent, Manager, Constants) {
     var self = this;
 
     self.login = function (username, password) {
@@ -37,8 +37,12 @@ function auth($cookies, $location, $http, $rootScope, $q, Agent, Manager, Consta
         return qLogin.promise;
     };
 
-    self.logout = function () {
-        var type = $cookies.getObject('session').type;
+    self.removeSession = function () {
+        $cookies.remove('session');
+    };
+
+    self.logout = function (permission) {
+        var type = permission || self.permission();
         // remove cookie
         $cookies.remove('session');
         // Remove possible data on browser's session storage
@@ -54,7 +58,7 @@ function auth($cookies, $location, $http, $rootScope, $q, Agent, Manager, Consta
     };
 
     self.permission = function () {
-        return $cookies.getObject('session').type;
+        return $cookies.getObject('session') ? $cookies.getObject('session').type : null;
     };
 
     self.userType = function (type) {
@@ -142,6 +146,7 @@ function auth($cookies, $location, $http, $rootScope, $q, Agent, Manager, Consta
     // Clears possible data stored on browser
     function cleanBrowser() {
         sessionStorage.removeItem("req");
+        Applicant.clearData();
         Agent.clearData();
         Manager.clearData();
     }

@@ -358,10 +358,14 @@ md-select.no-md-select .md-select-value {
     line-height: 36px;
 }
 
-.perspective-svg {
+.grey-svg {
     color: grey;
     height: 128px;
     width: 128px;
+}
+
+.expired-card {
+    max-width: 70%;
 }
 
 .validation-error-msg {

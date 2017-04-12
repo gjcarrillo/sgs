@@ -234,7 +234,6 @@ function manager($http, $q, Requests) {
             function (response) {
                 if (response.data.message === "success") {
                     response.data.requests = Requests.filterRequests(response.data.requests);
-                    response.data.pie.bulbColors = self.generateBulbColors(response.data.pie);
                     qRequests.resolve(response.data);
                 } else {
                     qRequests.reject(response.data.message);
@@ -264,7 +263,6 @@ function manager($http, $q, Requests) {
             function (response) {
                 if (response.data.message === "success") {
                     response.data.requests = Requests.filterRequests(response.data.requests);
-                    response.data.pie.bulbColors = self.generateBulbColors(response.data.pie);
                     qRequests.resolve(response.data);
                 } else {
                     qRequests.reject(response.data.message);
@@ -293,7 +291,6 @@ function manager($http, $q, Requests) {
             function (response) {
                 if (response.data.message === "success") {
                     response.data.requests = Requests.filterRequests(response.data.requests);
-                    response.data.pie.bulbColors = self.generateBulbColors(response.data.pie);
                     qRequests.resolve(response.data);
                 } else {
                     qRequests.reject(response.data.message);

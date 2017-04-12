@@ -15,27 +15,33 @@ class RequestsController extends CI_Controller {
     }
 
     // Obtain all requests with with all their documents.
-    // NOTICE: sensitive information
     public function getUserRequests() {
         if ($this->input->get('fetchId') != $this->session->id &&
             $this->session->type == APPLICANT) {
             // if fetch id is not the same as logged in user, must be an
             // agent or manager to be able to execute query!
-            $this->load->view('errors/index.html');
+            $result['message'] = 'forbidden';
         } else {
-            echo $this->requests->getUserRequests();
+            $result['requests'] = $this->requests->getUserRequests();
+            $result['message'] = 'success';
         }
+        echo json_encode ($result);
     }
 
     public function getRequestById() {
-        try {
-            $result['request'] = $this->requests->getRequestById(
-                $this->input->get('rid'),
-                $this->input->get('uid')
-            );
-            $result['message'] = 'success';
-        } catch (Exception $e) {
-            $result['message'] = $this->utils->getErrorMsg($e);
+        if ($this->input->get('uid') != $this->session->id &&
+            $this->session->type == APPLICANT) {
+            $result['message'] = 'forbidden.';
+        } else {
+            try {
+                $result['request'] = $this->requests->getRequestById(
+                    $this->input->get('rid'),
+                    $this->input->get('uid')
+                );
+                $result['message'] = 'success';
+            } catch (Exception $e) {
+                $result['message'] = $this->utils->getErrorMsg($e);
+            }
         }
         echo json_encode($result);
     }
@@ -43,7 +49,7 @@ class RequestsController extends CI_Controller {
     public function getRequestsByDate() {
         if ($this->input->get('uid') != $this->session->id &&
             $this->session->type == APPLICANT) {
-            $result['message'] = 'Forbidden.';
+            $result['message'] = 'forbidden.';
         } else {
             try {
                 // from first second of the day
@@ -63,14 +69,14 @@ class RequestsController extends CI_Controller {
             } catch (Exception $e) {
                 $result['message'] = $this->utils->getErrorMsg($e);
             }
-            echo json_encode($result);
         }
+        echo json_encode($result);
     }
 
     public function getRequestsByStatus() {
         if ($this->input->get('uid') != $this->session->id &&
             $this->session->type == APPLICANT) {
-            $result['message'] = 'Forbidden.';
+            $result['message'] = 'forbidden.';
         } else {
             try {
                 $result['requests'] = $this->requests->getRequestByStatus(
@@ -88,7 +94,7 @@ class RequestsController extends CI_Controller {
     public function getRequestsByType() {
         if ($this->input->get('uid') != $this->session->id &&
             $this->session->type == APPLICANT) {
-            $result['message'] = 'Forbidden.';
+            $result['message'] = 'forbidden.';
         } else {
             try {
                 $result['requests'] = $this->requests->getRequestByType(
@@ -99,14 +105,14 @@ class RequestsController extends CI_Controller {
             } catch (Exception $e) {
                 $result['message'] = $this->utils->getErrorMsg($e);
             }
-            echo json_encode($result);
         }
+        echo json_encode($result);
     }
 
     public function getOpenedRequests () {
         if ($this->input->get('uid') != $this->session->id &&
             $this->session->type == APPLICANT) {
-            $result['message'] = 'Forbidden.';
+            $result['message'] = 'forbidden.';
         } else {
             try {
                 $result['requests'] = $this->requests->getOpenedRequests($this->input->get('uid'));
@@ -114,14 +120,14 @@ class RequestsController extends CI_Controller {
             } catch (Exception $e) {
                 $result['message'] = $this->utils->getErrorMsg($e);
             }
-            echo json_encode($result);
         }
+        echo json_encode($result);
     }
 
     public function getUserEditableRequests () {
         if ($this->input->get('fetchId') != $this->session->id &&
             $this->session->type == APPLICANT) {
-            $result['message'] = 'Forbidden.';
+            $result['message'] = 'forbidden.';
         } else {
             try {
                 $result['requests'] = $this->requests->getUserEditableRequests($this->input->get('fetchId'));
@@ -136,7 +142,7 @@ class RequestsController extends CI_Controller {
     public function getUserOpenedRequest () {
         if ($this->input->get('fetchId') != $this->session->id &&
             $this->session->type == APPLICANT) {
-            $result['message'] = 'Forbidden.';
+            $result['message'] = 'forbidden.';
         } else {
             try {
                 $result['id'] = $this->requests->getUserOpenedRequest(
@@ -154,31 +160,24 @@ class RequestsController extends CI_Controller {
 
     public function deleteDocument() {
         if ($this->session->type == APPLICANT) {
-            $this->load->view('errors/index.html');
+            $result['message'] = 'forbidden.';
         } else {
-            $this->load->model('requestsModel', 'requests');
-            echo $this->requests->deleteDocument();
+            try {
+                $result['request'] = $this->requests->deleteDocument();
+                $result['message'] = "success";
+            } catch (Exception $e) {
+                $result['message'] = $this->utils->getErrorMsg($e);
+            }
         }
+        echo json_encode($result);
     }
 
     public function download() {
-        $this->load->model('requestsModel', 'requests');
         $this->requests->downloadDocument();
     }
 
     public function downloadAll() {
-        $this->load->model('requestsModel', 'requests');
         $this->requests->downloadAllDocuments();
-    }
-
-    public function deleteRequestView() {
-        // Validations are performed when executing (automatically) deleteRequestJWT
-        $this->load->view('templates/deleteRequest');
-    }
-
-    public function deleteRequestJWT() {
-        // Validations are performed when executing deletion function
-        echo $this->requests->deleteRequestJWT();
     }
 
     public function deleteRequestUI() {
@@ -187,9 +186,11 @@ class RequestsController extends CI_Controller {
         $request = $em->find('\Entity\Request', $data['id']);
         if ($this->session->id != $request->getUserOwner()->getId() && $this->session->type != AGENT) {
             // Only agents can delete a requests that aren't their own.
-            $this->load->view('errors/index.html');
+            $result['message'] = 'forbidden';
         } else {
-            echo $this->requests->deleteRequestUI();
+            $this->requests->deleteRequestUI();
+            $result['message'] = 'success';
         }
+        echo json_encode($result);
     }
 }

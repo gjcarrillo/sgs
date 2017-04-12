@@ -44,7 +44,7 @@ function fileUpload($q, Upload, $http) {
         }, function (response) {
             // Show upload error
             if (response.status > 0)
-                qUpload.reject(response.status + ': ' + response.data);
+                qUpload.reject(response.data.message);
         }, function (evt) {
             // Upload file upload progress
             file.progress = Math.min(100, parseInt(100.0 *
@@ -94,7 +94,7 @@ function fileUpload($q, Upload, $http) {
             }, function (response) {
                 if (response.status > 0) {
                     // Show file error message
-                    qUploadFiles.reject(docs);
+                    qUploadFiles.reject(response.data.message);
                 }
             }, function (evt) {
                 // Fetch file updating progress

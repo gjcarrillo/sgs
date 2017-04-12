@@ -27,7 +27,7 @@ function actions($scope, $http, $mdBottomSheet, $timeout, Constants, $window) {
 
     $scope.showListBottomSheet = function(selectedHistory) {
         $mdBottomSheet.show({
-            templateUrl: 'DetailsBottomSheetController',
+            templateUrl: 'HistoryController/actionDetails',
             locals:{
                 actions:selectedHistory.actions
             },

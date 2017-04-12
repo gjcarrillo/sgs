@@ -11,35 +11,23 @@ class EditRequestController extends CI_Controller {
 	}
 
 	public function index() {
-		if ($_SESSION['type'] != AGENT) {
-			$this->load->view('errors/index.html');
-		} else {
-			$this->load->view('templates/editRequest');
-		}
+		$this->load->view('templates/editRequest');
 	}
 
 	public function editionDialog() {
-		if ($_SESSION['type'] == APPLICANT) {
-			$this->load->view('errors/index.html');
-		} else {
-			$this->load->view('templates/editDocDescription');
-		}
+		$this->load->view('templates/editDocDescription');
 	}
 
 	public function emailEditionDialog() {
-		if ($_SESSION['type'] != APPLICANT) {
-			$this->load->view('errors/index.html');
-		} else {
-			$this->load->view('templates/editEmail');
-		}
+		$this->load->view('templates/editEmail');
 	}
 
 	/**
 	 * Update request for Agent users (i.e. comment & files attachment)
 	 */
 	public function updateRequest() {
-		if ($_SESSION['type'] != AGENT) {
-			$this->load->view('errors/index.html');
+		if ($this->session->type != AGENT) {
+			$result['message'] = 'forbidden';
 		} else {
 			$data = json_decode(file_get_contents('php://input'), true);
 			try {
@@ -92,16 +80,15 @@ class EditRequestController extends CI_Controller {
 			} catch (Exception $e) {
 				$result['message'] = $this->utils->getErrorMsg($e);
 			}
-
-			echo json_encode($result);
 		}
+		echo json_encode($result);
 	}
 
 	public function editRequest() {
 		$data = json_decode(file_get_contents('php://input'), true);
-		if ($data['userId'] != $_SESSION['id'] && $_SESSION['type'] != AGENT) {
+		if ($data['userId'] != $this->session->id && $this->session->type != AGENT) {
 			// Only agents can edit requests for other people
-			$this->load->view('errors/index.html');
+			$result['message'] = 'forbidden';
 		} else {
 			try {
 				$em = $this->doctrine->em;
@@ -211,14 +198,13 @@ class EditRequestController extends CI_Controller {
 			} catch (Exception $e) {
 				$result['message'] = $this->utils->getErrorMsg($e);
 			}
-
-			echo json_encode($result);
 		}
+		echo json_encode($result);
 	}
 
 	public function updateDocDescription() {
-		if ($_SESSION['type'] == APPLICANT) {
-			$this->load->view('errors/index.html');
+		if ($this->session->type == APPLICANT) {
+			$result['message'] = 'forbidden';
 		} else {
             $data = json_decode(file_get_contents('php://input'), true);
 			try {
@@ -267,8 +253,7 @@ class EditRequestController extends CI_Controller {
 			} catch (Exception $e) {
 				$result['message'] = $this->utils->getErrorMsg($e);
 			}
-
-			echo json_encode($result);
 		}
+		echo json_encode($result);
 	}
 }

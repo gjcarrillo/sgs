@@ -10,16 +10,12 @@ class ManageAgentUsers extends CI_Controller {
     }
 
 	public function index() {
-		if ($_SESSION['type'] != MANAGER) {
-			$this->load->view('errors/index.html');
-		} else {
-			$this->load->view('templates/manageAgentUsers');
-		}
+		$this->load->view('templates/manageAgentUsers');
 	}
 
 	public function createNewAgent() {
-		if ($_SESSION['type'] != MANAGER) {
-			$this->load->view('errors/index.html');
+		if ($this->session->type != MANAGER) {
+			$result['message'] = 'forbidden';
 		} else {
 			$data = json_decode(file_get_contents('php://input'), true);
 			try {
@@ -49,13 +45,13 @@ class ManageAgentUsers extends CI_Controller {
 			} catch (Exception $e) {
 				$result['message'] = $this->utils->getErrorMsg($e);
 			}
-			echo json_encode($result);
 		}
+		echo json_encode($result);
 	}
 
 	public function upgradeUser () {
 		if ($this->session->type != MANAGER) {
-			$this->load->view('errors/index.html');
+			$result['message'] = 'forbidden';
 		} else {
 			$data = json_decode(file_get_contents('php://input'), true);
 			try {
@@ -64,13 +60,13 @@ class ManageAgentUsers extends CI_Controller {
 			} catch (Exception $e) {
 				$result['message'] = $this->utils->getErrorMsg($e);
 			}
-			echo json_encode($result);
 		}
+		echo json_encode($result);
 	}
 
 	public function degradeUser () {
 		if ($this->session->type != MANAGER) {
-			$this->load->view('errors/index.html');
+			$result['message'] = 'forbidden';
 		} else {
 			$data = json_decode(file_get_contents('php://input'), true);
 			try {
@@ -79,14 +75,14 @@ class ManageAgentUsers extends CI_Controller {
 			} catch (Exception $e) {
 				$result['message'] = $this->utils->getErrorMsg($e);
 			}
-			echo json_encode($result);
 		}
+		echo json_encode($result);
 	}
 
 	public function fetchAllAgents() {
 		$result = null;
-		if ($_SESSION['type'] != MANAGER) {
-			$this->load->view('errors/index.html');
+		if ($this->session->type != MANAGER) {
+			$result['message'] = 'forbidden';
 		} else {
 			try {
 				$em = $this->doctrine->em;
@@ -100,13 +96,13 @@ class ManageAgentUsers extends CI_Controller {
 			} catch (Exception $e) {
 				$result['message'] = $this->utils->getErrorMsg($e);
 			}
-			echo json_encode($result);
 		}
+		echo json_encode($result);
 	}
 
 	public function deleteAgentUser() {
-		if ($_SESSION['type'] != MANAGER) {
-			$this->load->view('errors/index.html');
+		if ($this->session->type != MANAGER) {
+			$result['message'] = 'forbidden';
 		} else {
 			$data = file_get_contents('php://input');
 			try {
@@ -120,7 +116,7 @@ class ManageAgentUsers extends CI_Controller {
 			} catch (Exception $e) {
 				$result['message'] = $this->utils->getErrorMsg($e);
 			}
-			echo json_encode($result);
 		}
+		echo json_encode($result);
 	}
 }

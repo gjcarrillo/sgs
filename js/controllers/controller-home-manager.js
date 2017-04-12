@@ -84,8 +84,8 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 $scope.requests = requests;
                 $scope.loadingContent = false;
             }, function (error) {
-                Utils.showAlertDialog('Oops!', error);
                 $scope.loadingContent = false;
+                Utils.handleError(error);
             });
     }
 
@@ -130,7 +130,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 $scope.loading = false;
             },
             function (error) {
-                Utils.showAlertDialog('Mensaje', error);
+                Utils.handleError(error);
                 $scope.loading = false;
             }
         );
@@ -158,7 +158,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 $scope.loading = false;
             },
             function (error) {
-                Utils.showAlertDialog('Mensaje', error);
+                Utils.handleError(error);
                 $scope.loading = false;
             }
         );
@@ -186,7 +186,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 $scope.loading = false;
             },
             function (error) {
-                Utils.showAlertDialog('Mensaje', error);
+                Utils.handleError(error);
                 $scope.loading = false;
             }
         );
@@ -213,7 +213,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 $scope.loading = false;
             },
             function (error) {
-                Utils.showAlertDialog('Mensaje', error);
+                Utils.handleError(error);
                 $scope.loading = false;
             }
         );
@@ -238,7 +238,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 $scope.loading = false;
             },
             function (error) {
-                Utils.showAlertDialog('Mensaje', error);
+                Utils.handleError(error);
                 $scope.loading = false;
             }
         );
@@ -265,7 +265,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 $scope.loading = false;
             },
             function (error) {
-                Utils.showAlertDialog('Mensaje', error);
+                Utils.handleError(error);
                 $scope.loading = false;
             }
         );
@@ -285,7 +285,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 $scope.loading = false;
             },
             function (error) {
-                Utils.showAlertDialog('Mensaje', error);
+                Utils.handleError(error);
                 $scope.loading = false;
             }
         );
@@ -306,7 +306,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 $scope.loading = false;
             },
             function (error) {
-                Utils.showAlertDialog('Mensaje', error);
+                Utils.handleError(error);
                 $scope.loading = false;
             }
         );
@@ -323,7 +323,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 $scope.generateExcelReport();
             },
             function (error) {
-                Utils.showAlertDialog('Mensaje', error);
+                Utils.handleError(error);
                 $scope.loadingReport = false;
             }
         );
@@ -340,7 +340,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 $scope.generateExcelReport();
             },
             function (error) {
-                Utils.showAlertDialog('Mensaje', error);
+                Utils.handleError(error);
                 $scope.loadingReport = false;
             }
         );
@@ -501,7 +501,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                     },
                     function (error) {
                         $scope.uploading = false;
-                        Utils.showAlertDialog('Oops!', error);
+                        Utils.handleError(error);
                     }
                 );
             };
@@ -518,7 +518,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                         $scope.userAgents = agents;
                     },
                     function (error) {
-                        Utils.showAlertDialog('Oops!', error);
+                        Utils.handleError(error);
                     }
                 );
             };
@@ -538,7 +538,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                     },
                     function (error) {
                         $scope.uploading = false;
-                        Utils.showAlertDialog('Oops!', error);
+                        Utils.handleError(error);
                     }
                 );
             };
@@ -583,8 +583,8 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                         $scope.statuses.inUse = statuses.inUse;
                     },
                     function (err) {
-                        $scope.statuses.errorMsg = err;
                         $scope.statuses.loading = false;
+                        Utils.handleError(err);
                     }
                 );
             }
@@ -612,7 +612,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                     },
                     function (err) {
                         $scope.uploading = false;
-                        Utils.showAlertDialog('Oops!', err);
+                        Utils.handleError(err);
                         Manager.clearData();
                         $state.go($state.current, {}, {reload: true});
                     }
@@ -637,7 +637,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                     },
                     function (err) {
                         $scope.amount.max.loading = false;
-                        $scope.amount.errorMsg = err;
+                        Utils.handleError(err);
                     }
                 );
 
@@ -651,7 +651,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                     },
                     function (err) {
                         $scope.amount.min.loading = false;
-                        $scope.amount.errorMsg = err;
+                        Utils.handleError(err);
                     }
                 );
             }
@@ -668,7 +668,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                     },
                     function (err) {
                         $scope.uploading = false;
-                        Utils.showAlertDialog('Oops!', err);
+                        Utils.handleError(err);
                     }
                 );
             };
@@ -715,8 +715,8 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                         $scope.existing = _.cloneDeep(spans);
                     },
                     function (err) {
-                        $scope.span.errorMsg = err;
                         $scope.span.loading = false;
+                        Utils.handleError(err);
                     }
                 );
             }
@@ -733,8 +733,8 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                     },
                     function (err) {
                         console.log(err);
-                        $scope.span.errorMsg = err;
                         $scope.uploading = false;
+                        Utils.handleError(err);
                     }
                 );
             };
@@ -779,8 +779,8 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                         $scope.existing = _.cloneDeep(terms);
                     },
                     function (err) {
-                        $scope.terms.errorMsg = err;
                         $scope.terms.loading = false;
+                        Utils.handleError(err);
                     }
                 );
             }
@@ -798,8 +798,8 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                     },
                     function (err) {
                         console.log(err);
-                        $scope.terms.errorMsg = err;
                         $scope.uploading = false;
+                        Utils.handleError(err);
                     }
                 );
             };
@@ -909,7 +909,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 location.href = downloadURL;
             },
             function (error) {
-                Utils.showAlertDialog('Oops!', error);
+                Utils.handleError(error);
                 $scope.loadingReport = false;
             }
         );
@@ -953,8 +953,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 }, 600);
             },
             function (error) {
-                Utils.showAlertDialog('Oops!', 'Ha ocurrido un error en el sistema.<br/>' +
-                                               'Por favor intente más tarde.');
+                Utils.handleError(error);
                 console.log(error);
             }
         );

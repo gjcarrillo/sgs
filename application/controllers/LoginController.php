@@ -15,7 +15,7 @@ class LoginController extends CI_Controller {
 
     public function authenticate() {
         $data = json_decode($this->input->raw_input_stream, true);
-        $result['message'] = 'Error';
+        $result['message'] = 'error';
        try {
            $em = $this->doctrine->em;
            $user = $em->find('\Entity\User', $data['id']);
@@ -35,7 +35,6 @@ class LoginController extends CI_Controller {
        }catch(Exception $e){
            $result['message'] = $this->utils->getErrorMsg($e);
        }
-
        echo json_encode($result);
     }
 
@@ -102,8 +101,8 @@ class LoginController extends CI_Controller {
                 } else {
                     $result['message'] = "Usuario INACTIVO. Por favor contacte a un administrador.";
                 }
-                return $result;
             }
+            return $result;
         } catch (Exception $e) {
             throw $e;
         }
@@ -140,8 +139,8 @@ class LoginController extends CI_Controller {
                 } else {
                     $result['message'] = "Usuario INACTIVO. Por favor contacte a un administrador.";
                 }
-                return $result;
             }
+            return $result;
         } catch (Exception $e) {
             throw $e;
         }
@@ -152,6 +151,7 @@ class LoginController extends CI_Controller {
     }
 
     public function updateSession () {
+        $result['message'] = 'error';
         $data = json_decode(file_get_contents('php://input'), true);
         $dataSession = array(
             "id" => $_SESSION['id'],
@@ -161,21 +161,26 @@ class LoginController extends CI_Controller {
             "logged" => true,
         );
         // Applicant must NEVER be allowed to upgrade it's session.
-        if ($_SESSION['type'] == AGENT && $data['newType'] == APPLICANT) {
+        if ($this->session->type == AGENT && $data['newType'] == APPLICANT) {
             $this->session->set_userdata($dataSession);
-        } else if ($_SESSION['type'] == MANAGER && $data['newType'] == APPLICANT) {
+        } else if ($this->session->type == MANAGER && $data['newType'] == APPLICANT) {
             $this->session->set_userdata($dataSession);
         } else {
-            $this->load->view('errors/index.html');
+            $result['message'] = 'forbidden';
         }
+        $result['message'] = 'success';
+        echo json_encode($result);
     }
 
     public function transition() {
         $this->load->view('templates/transition');
     }
 
+    /**
+     * Used for IPAPEDI en linea to SGS transition for user authentication.
+     */
     public function verifyUser () {
-        $result['message'] = 'Error';
+        $result['message'] = 'error';
         try {
             $data = json_decode($this->input->raw_input_stream, true);
             $urlDecoded = JWT::urlsafeB64Decode($data['token']);
@@ -220,7 +225,6 @@ class LoginController extends CI_Controller {
         } catch(Exception $e){
             $result['message'] = $this->utils->getErrorMsg($e);
         }
-
         echo json_encode($result);
     }
 }

@@ -18,24 +18,23 @@ class RequestsModel extends CI_Model
     }
 
     public function getUserRequests() {
-        $result['requests'] = array();
+        $result = array();
         try {
             $em = $this->doctrine->em;
             $user = $em->find('\Entity\User', $this->input->get('fetchId'));
             if ($user === null) {
-                $result['message'] = "La cédula ingresada no se encuentra en la base de datos";
+                throw new Exception("La cédula ingresada no se encuentra en la base de datos");
             } else {
                 $requests = $user->getRequests();
                 $requests = array_reverse($requests->getValues());
                 foreach ($requests as $rKey => $request) {
-                    $result['requests'][$rKey] = $this->utils->reqToArray($request);
+                    $result[$rKey] = $this->utils->reqToArray($request);
                 }
-                $result['message'] = "success";
+                return $result;
             }
         } catch (Exception $e) {
-            $result['message'] = $this->utils->getErrorMsg($e);
+            throw $e;
         }
-        return json_encode($result);
     }
 
     public function getRequestById($rid, $uid) {
@@ -253,7 +252,7 @@ class RequestsModel extends CI_Model
                 $em->persist($history);
                 // Delete the document.
                 $em->remove($doc);
-                $result['request'] = $this->utils->reqToArray($request);
+                $result = $this->utils->reqToArray($request);
                 $this->load->model('emailModel', 'email');
                 $this->email->sendRequestUpdateEmail(
                     $request->getId(),
@@ -262,12 +261,11 @@ class RequestsModel extends CI_Model
                 );
                 // Persist the changes in database.
                 $em->flush();
-                $result['message'] = "success";
+                return $result;
             }
         } catch (Exception $e) {
-            $result['message'] = $this->utils->getErrorMsg($e);
+            throw $e;
         }
-        return json_encode($result);
     }
 
     public function downloadDocument () {
@@ -345,7 +343,7 @@ class RequestsModel extends CI_Model
             $em = $this->doctrine->em;
             $request = $em->find('\Entity\Request', $data['id']);
             if ($this->isRequestValidated($request) || $this->isRequestClosed($request)) {
-                $result['message'] = 'Esta solicitud no puede ser eliminada.';
+                throw new Exception('Esta solicitud no puede ser eliminada.');
             } else {
                 // Must delete all documents belonging to this request first
                 $docs = $request->getDocuments();
@@ -364,12 +362,10 @@ class RequestsModel extends CI_Model
                 $em->remove($request);
                 // Persist the changes in database.
                 $em->flush();
-                $result['message'] = "success";
             }
         } catch (Exception $e) {
-            $result['message'] = $this->utils->getErrorMsg($e);
+            throw $e;
         }
-        return json_encode($result);
     }
 
     public function generateRequestDocument ($request) {

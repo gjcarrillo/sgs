@@ -14,16 +14,12 @@ class ManagerHomeController extends CI_Controller {
     }
 
 	public function index() {
-		if ($this->session->type != MANAGER) {
-			$this->load->view('errors/index.html');
-		} else {
-			$this->load->view('templates/managerHome');
-		}
+        $this->load->view('templates/managerHome');
 	}
 
     public function getRequestById() {
-        if ($_SESSION['type'] != MANAGER) {
-            $this->load->view('errors/index.html');
+        if ($this->session->type != MANAGER) {
+            $result['message'] = 'forbidden';
         } else {
             try {
                 $result['message'] = 'Ha ocurrido un error en el servidor. Por favor intente más tarde.';
@@ -41,15 +37,15 @@ class ManagerHomeController extends CI_Controller {
             } catch (Exception $e) {
                 $result['message'] = $this->utils->getErrorMsg($e);
             }
-            echo json_encode($result);
         }
+        echo json_encode($result);
     }
 
 	// Obtain all valid requests from a user with with all their documents.
 	public function getUserRequests() {
-		if ($_SESSION['type'] != MANAGER) {
-			$this->load->view('errors/index.html');
-		} else {
+        if ($this->session->type != MANAGER) {
+            $result['message'] = 'forbidden';
+        } else {
 			try {
                 $result = null;
 				$em = $this->doctrine->em;
@@ -139,13 +135,13 @@ class ManagerHomeController extends CI_Controller {
 			} catch (Exception $e) {
                 $result['message'] = $this->utils->getErrorMsg($e);
             }
-			echo json_encode($result);
 		}
-	}
+        echo json_encode($result);
+    }
 
     public function fetchPendingRequests() {
-        if ($_SESSION['type'] != MANAGER) {
-            $this->load->view('errors/index.html');
+        if ($this->session->type != MANAGER) {
+            $result['message'] = 'forbidden';
         } else {
             $result = null;
             try {
@@ -234,14 +230,13 @@ class ManagerHomeController extends CI_Controller {
             } catch (Exception $e) {
                 $result['message'] = $this->utils->getErrorMsg($e);
             }
-
-            echo json_encode($result);
         }
+        echo json_encode($result);
     }
 
     public function loadPendingRequests() {
-        if ($_SESSION['type'] != MANAGER) {
-            $this->load->view('errors/index.html');
+        if ($this->session->type != MANAGER) {
+            $result['message'] = 'forbidden';
         } else {
             $result['requests'] = array();
             try {
@@ -261,13 +256,13 @@ class ManagerHomeController extends CI_Controller {
             } catch (Exception $e) {
                 $result['message'] = $this->utils->getErrorMsg($e);
             }
-            echo json_encode($result);
         }
+        echo json_encode($result);
     }
 
     public function fetchRequestsByStatus() {
-        if ($_SESSION['type'] != MANAGER) {
-            $this->load->view('errors/index.html');
+        if ($this->session->type != MANAGER) {
+            $result['message'] = 'forbidden';
         } else {
             $result = null;
             try {
@@ -366,14 +361,13 @@ class ManagerHomeController extends CI_Controller {
             } catch (Exception $e) {
                 $result['message'] = $this->utils->getErrorMsg($e);
             }
-
-            echo json_encode($result);
         }
+        echo json_encode($result);
     }
 
     public function fetchRequestsByDateInterval() {
-        if ($_SESSION['type'] != MANAGER) {
-            $this->load->view('errors/index.html');
+        if ($this->session->type != MANAGER) {
+            $result['message'] = 'forbidden';
         } else {
             $result = null;
             try {
@@ -489,14 +483,14 @@ class ManagerHomeController extends CI_Controller {
             } catch (Exception $e) {
                 $result['message'] = $this->utils->getErrorMsg($e);
             }
-            echo json_encode($result);
         }
+        echo json_encode($result);
     }
 
 	public function fetchRequestsByLoanType() {
-		if ($_SESSION['type'] != MANAGER) {
-			$this->load->view('errors/index.html');
-		} else {
+        if ($this->session->type != MANAGER) {
+            $result['message'] = 'forbidden';
+        } else {
             $result = null;
 			try {
 				$em = $this->doctrine->em;
@@ -584,14 +578,13 @@ class ManagerHomeController extends CI_Controller {
 			} catch (Exception $e) {
                 $result['message'] = $this->utils->getErrorMsg($e);
             }
-
-			echo json_encode($result);
-		}
-	}
+        }
+        echo json_encode($result);
+    }
 
     public function getApprovedAmountByDateInterval() {
-        if ($_SESSION['type'] != MANAGER) {
-            $this->load->view('errors/index.html');
+        if ($this->session->type != MANAGER) {
+            $result['message'] = 'forbidden';
         } else {
             try {
                 // Compute approved amount within specified time
@@ -647,13 +640,13 @@ class ManagerHomeController extends CI_Controller {
             } catch (Exception $e) {
                 $result['message'] = $this->utils->getErrorMsg($e);
             }
-            echo json_encode($result);
         }
+        echo json_encode($result);
     }
 
     public function getApprovedAmountById() {
-        if ($_SESSION['type'] != MANAGER) {
-            $this->load->view('errors/index.html');
+        if ($this->session->type != MANAGER) {
+            $result['message'] = 'forbidden';
         } else {
             try {
                 $em = $this->doctrine->em;
@@ -679,14 +672,14 @@ class ManagerHomeController extends CI_Controller {
             } catch (Exception $e) {
                 $result['message'] = $this->utils->getErrorMsg($e);
             }
-            echo json_encode($result);
         }
+        echo json_encode($result);
     }
 
 	public function getClosedReportByDateInterval() {
-		if ($_SESSION['type'] != MANAGER) {
-			$this->load->view('errors/index.html');
-		} else {
+        if ($this->session->type != MANAGER) {
+            $result['message'] = 'forbidden';
+        } else {
 			try {
 				// Compute approved amount within specified time
 				// from first second of the day
@@ -771,14 +764,13 @@ class ManagerHomeController extends CI_Controller {
 			} catch (Exception $e) {
                 $result['message'] = $this->utils->getErrorMsg($e);
             }
-			echo json_encode($result);
-		}
-	}
+        }
+        echo json_encode($result);
+    }
 
-	public function getClosedReportByCurrentWeek()
-    {
-        if ($_SESSION['type'] != MANAGER) {
-            $this->load->view('errors/index.html');
+	public function getClosedReportByCurrentWeek() {
+        if ($this->session->type != MANAGER) {
+            $result['message'] = 'forbidden';
         } else {
             try {
                 // start first day of week, end last day of week
@@ -894,7 +886,7 @@ class ManagerHomeController extends CI_Controller {
             } catch (Exception $e) {
                 $result['message'] = $this->utils->getErrorMsg($e);
             }
-            echo json_encode($result);
         }
+        echo json_encode($result);
     }
 }

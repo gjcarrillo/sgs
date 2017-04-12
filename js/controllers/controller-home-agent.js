@@ -51,9 +51,9 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
                 $scope.loading = false;
             },
             function (error) {
-                Utils.showAlertDialog('Oops!', 'Ha ocurrido un error en el sistema.<br/>' +
-                                               'Por favor intente más tarde.');
-                console.log(error);
+                $scope.loading = false;
+                Utils.handleError(error);
+
             }
         );
     }
@@ -81,7 +81,7 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
             },
             function (error) {
                 $scope.loading = false;
-                Utils.showAlertDialog('Mensaje', error);
+                Utils.handleError(error);
             }
         );
     };
@@ -118,7 +118,7 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
                 $scope.requests = data;
             },
             function (error) {
-                Utils.showAlertDialog('Mensaje', error);
+                Utils.handleError(error);
                 $scope.fetching = false;
             }
         );
@@ -133,7 +133,7 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
             },
             function (error) {
                 $scope.fetching = false;
-                Utils.showAlertDialog('Mensaje', error);
+                Utils.handleError(error);
             }
         );
     };
@@ -148,7 +148,7 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
             },
             function (error) {
                 $scope.fetching = false;
-                Utils.showAlertDialog('Mensaje', error);
+                Utils.handleError(error);
             }
         );
     };
@@ -163,7 +163,7 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
             },
             function (error) {
                 $scope.fetching = false;
-                Utils.showAlertDialog('Mensaje', error);
+                Utils.handleError(error);
             }
         );
     };
@@ -179,7 +179,7 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
             },
             function (error) {
                 $scope.fetching = false;
-                Utils.showAlertDialog('Mensaje', error);
+                Utils.handleError(error);
             }
         );
     };
@@ -194,7 +194,7 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
             },
             function (error) {
                 $scope.fetching = false;
-                Utils.showAlertDialog('Mensaje', error);
+                Utils.handleError(error);
             }
         );
     }
@@ -332,17 +332,17 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
                                         $scope.loading = false;
                                     },
                                     function (error) {
-                                        Utils.showAlertDialog('Oops!', error);
+                                        Utils.handleError(error);
                                     }
                                 );
                             },
                             function (error) {
-                                Utils.showAlertDialog('Oops!', error);
+                                Utils.handleError(error);
                             }
                         );
                     },
                     function (error) {
-                        Utils.showAlertDialog('Oops!', error);
+                        Utils.handleError(error);
                     }
                 );
             }
@@ -402,7 +402,7 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
                     },
                     function(error) {
                         $scope.uploading = false;
-                        Utils.showAlertDialog('Oops!', error);
+                        Utils.handleError(error);
                     }
                 );
             }
@@ -505,17 +505,17 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
                                         $scope.loading = false;
                                     },
                                     function (error) {
-                                        Utils.showAlertDialog('Oops!', error);
+                                        Utils.handleError(error);
                                     }
                                 );
                             },
                             function (error) {
-                                Utils.showAlertDialog('Oops!', error);
+                                Utils.handleError(error);
                             }
                         );
                     },
                     function (error) {
-                        Utils.showAlertDialog('Oops!', error);
+                        Utils.handleError(error);
                     }
                 );
             }
@@ -573,7 +573,7 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
                     },
                     function(error) {
                         $scope.uploading = false;
-                        Utils.showAlertDialog('Oops!', error);
+                        Utils.handleError(error);
                     }
                 );
             }
@@ -622,7 +622,7 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
                     },
                     function (errorMsg) {
                         $scope.overlay = false;
-                        Utils.showAlertDialog('Oops!', errorMsg);
+                        Utils.handleError(error);
                     }
                 );
             }

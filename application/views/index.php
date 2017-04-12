@@ -67,6 +67,7 @@
     <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-home-manager.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-history.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-user-info.js"></script>
+    <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-session-expired.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-incompatibility.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/directives/directive-animate-change.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/directives/directive-select-fix.js"></script>

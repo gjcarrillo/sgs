@@ -30,8 +30,8 @@ class ConfigModel extends CI_Model
     }
 
     public function getStatusesForConfig() {
-        $result['statuses']['inUse'] = [];
-        $result['statuses']['existing'] = [];
+        $result['inUse'] = [];
+        $result['existing'] = [];
         try {
             $em = $this->doctrine->em;
             // Look for all configured statuses
@@ -41,17 +41,16 @@ class ConfigModel extends CI_Model
             foreach ($statuses as $status) {
                 if (count($requestsRepo->findBy(array('status' => $status->getValue()))) > 0) {
                     // Being used. Cannot be edited.
-                    array_push($result['statuses']['inUse'], $status->getValue());
+                    array_push($result['inUse'], $status->getValue());
                 } else {
                     // Unused status. Can be edited.
-                    array_push($result['statuses']['existing'], $status->getValue());
+                    array_push($result['existing'], $status->getValue());
                 }
             }
-            $result['message'] = 'success';
+            return $result;
         } catch (Exception $e) {
-            $result['message'] = $this->utils->getErrorMsg($e);
+            throw $e;
         }
-        return json_encode($result);
     }
 
     public function saveStatuses() {
@@ -75,11 +74,9 @@ class ConfigModel extends CI_Model
                 );
                 $this->db->insert('config', $newData);
             }
-            $result['message'] = 'success';
         } catch (Exception $e) {
-            $result['message'] = $this->utils->getErrorMsg($e);
+            throw $e;
         }
-        return json_encode($result);
     }
 
     public function getLoanTypes() {
@@ -180,11 +177,9 @@ class ConfigModel extends CI_Model
                 $this->db->where('id', $minAmount->getId());
                 $this->db->update('config', $newMinData);
             }
-            $result['message'] = 'success';
         } catch (Exception $e) {
-            $result['message'] = $this->utils->getErrorMsg($e);
+            throw $e;
         }
-        return json_encode($result);
     }
 
     /** Requests month span for applying to same type of loan configuration **/
@@ -286,7 +281,6 @@ class ConfigModel extends CI_Model
 
     // Updates the month requests span, required to applying to same type of loan.
     public function updateRequestsSpan($loanTypes) {
-        $result['message'] = 'error';
         try {
             $em = $this->doctrine->em;
             // Look for all configured statuses
@@ -305,11 +299,9 @@ class ConfigModel extends CI_Model
                     $this->db->update('config', $entry);
                 }
             }
-            $result['message'] = 'success';
         } catch (Exception $e) {
-            $result['message'] = $this->utils->getErrorMsg($e);
+            throw $e;
         }
-        return json_encode($result);
     }
 
     // Updates the requests terms for each loan type.

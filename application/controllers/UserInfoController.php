@@ -10,24 +10,19 @@ class UserInfoController extends CI_Controller {
     }
 
 	public function index() {
-		if ($_SESSION['type'] == APPLICANT) {
-			$this->load->view('errors/index.html');
-		} else {
-			$this->load->view('templates/userInfo');
-		}
+		$this->load->view('templates/userInfo');
 	}
 
 	public function getUserInfo() {
 		$result['message'] = "error";
 		try {
-			if ($_SESSION['type'] == APPLICANT) {
-				$this->load->view('errors/index.html');
+			if ($this->session->type == APPLICANT) {
+				$result['message'] = 'forbidden';
 			} else {
 				$result = $this->users->getIpapediUserInfo($this->input->get('userId'));
 				$result['message'] = "success";
 			}
 		} catch (Exception $e) {
-			\ChromePhp::log($e);
 			$result['message'] = $this->utils->getErrorMsg($e);
 		}
 		echo json_encode($result);

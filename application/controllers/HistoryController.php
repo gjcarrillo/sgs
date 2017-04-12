@@ -10,16 +10,16 @@ class HistoryController extends CI_Controller {
     }
 
 	public function index() {
-		if ($_SESSION['type'] == APPLICANT) {
-			$this->load->view('errors/index.html');
-		} else {
-			$this->load->view('templates/history');
-		}
+		$this->load->view('templates/history');
+	}
+
+	public function actionDetails () {
+		$this->load->view('templates/detailsBottomSheet');
 	}
 
 	public function fetchRequestHistory() {
-		if ($_SESSION['type'] == APPLICANT) {
-			$this->load->view('errors/index.html');
+		if ($this->session->type == APPLICANT) {
+			$result['message'] = 'forbidden';
 		} else {
 			try {
 				$em = $this->doctrine->em;
@@ -45,8 +45,7 @@ class HistoryController extends CI_Controller {
 			} catch(Exception $e) {
 				$result['message'] = $this->utils->getErrorMsg($e);
 			}
-
-			echo json_encode($result);
 		}
+		echo json_encode($result);
 	}
 }

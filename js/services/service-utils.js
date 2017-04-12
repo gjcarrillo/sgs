@@ -5,9 +5,9 @@ angular
     .module('sgdp.service-utils', ['ngSanitize'])
     .factory('Utils', utils);
 
-utils.$inject = ['$mdDialog', 'Constants'];
+utils.$inject = ['$mdDialog', 'Constants', '$state'];
 
-function utils($mdDialog, Constants) {
+function utils($mdDialog, Constants, $state) {
     'use strict';
 
     var self = this;
@@ -141,6 +141,20 @@ function utils($mdDialog, Constants) {
      */
     self.getSupportedBrowsers = function () {
         return supportedBrowsers;
+    };
+
+    self.handleError = function (error) {
+        if (error == 'forbidden') {
+            $state.go('expired');
+        } else {
+            if (error) {
+                self.showAlertDialog('Mensaje', error);
+            } else {
+                self.showAlertDialog('Mensaje', 'Ha ocurrido un error desconocido en el sistema.</br></br>' +
+                                                'Por favor intente de nuevo más tarde. Si el error persiste, por favor ' +
+                                                'contacte a un administrador para reportar el problema.');
+            }
+        }
     };
 
     return self;
