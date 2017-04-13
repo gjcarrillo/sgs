@@ -88,6 +88,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
 
     function getActiveRequests() {
         $scope.requests = {};
+        $scope.showMsg = true;
         $scope.activeRequests = [];
         $scope.fetching = true;
         // Fetch user's requests
@@ -181,6 +182,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
 
     function getOpenedRequests () {
         $scope.requests = {};
+        $scope.showMsg = true;
         $scope.fetching = true;
         Requests.getOpenedRequests(fetchId).then(
             function (requests) {
@@ -204,8 +206,8 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
                 $scope.editableReq = data;
             },
             function (errorMsg) {
-                $scope.fetchError = errorMsg;
-                $scope.loading = false;
+                $scope.fetching = false;
+                Utils.handleError(errorMsg);
             }
         );
     }

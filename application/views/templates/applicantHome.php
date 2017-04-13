@@ -280,6 +280,19 @@
                         </md-button>
                     </div>
                 </div>
+                <!-- Help card for opened requests -->
+                <md-card ng-show="showMsg && selectedAction == 6 && !fetching" md-theme="help-card" class="margin-16">
+                    <md-card-content layout layout-align="space-between start">
+                        <div layout layout-align="center center">
+                            <md-icon style="color:#827717; margin-right:10px">info_outline</md-icon>
+                            <span> Le recordamos que las solicitudes abiertas son aquellas que aún no han sido Aprobadas o Rechazadas.</span>
+                        </div>
+                        <md-button ng-click="showMsg = !showMsg" class="md-icon-button">
+                            <md-icon>close</md-icon>
+                            <md-tooltip>Cerrar</md-tooltip>
+                        </md-button>
+                    </md-card-content>
+                </md-card>
                 <!-- Requests list -->
                 <div class="margin-16" ng-show="!isObjEmpty(requests) && !fetching">
                     <md-expansion-panel-group md-component-id="requests">
@@ -346,22 +359,18 @@
                 </div>
                 <!-- Editable requests list -->
                 <div class="margin-16" ng-if="selectedAction == 'edit' && !fetching">
-                    <md-card ng-show="showMsg" md-theme="manual-card" class="margin-16">
+                    <md-card ng-show="showMsg" md-theme="help-card" class="margin-16">
                         <md-card-content layout layout-align="space-between start">
-                            <span style="color: #2E7D32">
-                                Le recordamos que las solicitudes editables son aquellas que aún no han sido validadas.
-                            </span>
+                            <div layout layout-align="center center">
+                                <md-icon style="color:#827717; margin-right:10px">info_outline</md-icon>
+                                <span> Le recordamos que las solicitudes editables son aquellas que aún no han sido validadas.</span>
+                            </div>
                             <md-button ng-click="showMsg = !showMsg" class="md-icon-button">
                                 <md-icon>close</md-icon>
                                 <md-tooltip>Cerrar</md-tooltip>
                             </md-button>
                         </md-card-content>
                     </md-card>
-                    <div ng-if="editableReq.length == 0" class="margin-16">
-                        <p style="color:red">
-                            Usted no posee solicitudes editables.
-                        </p>
-                    </div>
                     <md-card ng-if="editableReq.length > 0">
                         <md-toolbar class="md-table-toolbar md-default">
                             <div class="md-toolbar-tools">
@@ -460,6 +469,19 @@
 
                 <!-- Active requests list -->
                 <div class="margin-16" ng-if="selectedAction == 10 && !fetching">
+                    <!-- Help card -->
+                    <md-card ng-show="showMsg" md-theme="help-card" class="margin-16">
+                        <md-card-content layout layout-align="space-between start">
+                            <div layout layout-align="center center">
+                                <md-icon style="color:#827717; margin-right:10px">info_outline</md-icon>
+                                <span> Le recordamos que las solicitudes activas son aquellas cuya deuda sigue viegente.</span>
+                            </div>
+                            <md-button ng-click="showMsg = !showMsg" class="md-icon-button">
+                                <md-icon>close</md-icon>
+                                <md-tooltip>Cerrar</md-tooltip>
+                            </md-button>
+                        </md-card-content>
+                    </md-card>
                     <md-card ng-if="activeRequests.length > 0">
                         <md-toolbar class="md-table-toolbar md-default">
                             <div class="md-toolbar-tools">

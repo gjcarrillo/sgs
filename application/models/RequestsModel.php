@@ -220,6 +220,9 @@ class RequestsModel extends CI_Model
                     // Add this request obj to editable requests array.
                     array_push($editables, $req);
                 }
+                if (empty($editables)) {
+                    throw new Exception('No se han encontrado solicitudes editables');
+                }
                 return $editables;
             }
         } catch (Exception $e) {

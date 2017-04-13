@@ -113,6 +113,7 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
     }
 
     function getActiveRequests() {
+        $scope.showMsg = true;
         $scope.requests = {};
         $scope.activeRequests = [];
         $scope.fetching = true;
@@ -206,6 +207,7 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
     };
 
     function getOpenedRequests () {
+        $scope.showMsg = true;
         $scope.requests = {};
         $scope.fetching = true;
         Requests.getOpenedRequests($scope.fetchId).then(
@@ -230,8 +232,8 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
                 $scope.editableReq = data;
             },
             function (errorMsg) {
-                $scope.fetchError = errorMsg;
-                $scope.loading = false;
+                Utils.handleError(errorMsg);
+                $scope.fetching = false;
             }
         );
     }
