@@ -96,14 +96,24 @@ class EditRequestController extends CI_Controller {
 				$loanTypes = $this->configModel->getLoanTypes();
 				$userData = $this->users->getPersonalData($data['userId']);
 				$lastLoan = $this->requests->getLastLoanInfo($data['userId'], $data['loanType']);
+				$allLoans = $this->requests->getAllLoansInfo($data['userId']);
+				$newConcurrence = $this->users->calculateNewConcurrence(
+					$allLoans,
+					$userData->sueldo,
+					$this->utils->calculatePaymentFee($data['reqAmount'],$data['due'],$loanTypes[$data['loanType']]->InteresAnual)
+				);
 				$terms = $this->utils->extractLoanTerms($loanTypes[$data['loanType']]);
 				$diff = $this->utils->getDateInterval(
 					new DateTime('now', new DateTimeZone('America/Barbados')),
 					date_create_from_format('d/m/Y', $userData->ingreso)
 				);
-				if ($userData->concurrencia >= 40) {
-					$result['message'] = "Concurrencia muy alta (40% ó más)";
-				} else if ($data['loanType'] == 40 && ($diff['months'] + ($diff['years'] * 12) < 6)) {
+				if ($userData->concurrencia > 40) {
+					$result['message'] = "Concurrencia muy alta (más de 40%)";
+				} else if ($newConcurrence > 40) {
+					$result['message'] = "Su concurrencia con el nuevo préstamo excede el 40%. Su concurrencia " .
+										 "actual le permite una cuota máxima de Bs. " .
+										 number_format($this->users->calculateMaxFeeByConcurrence($allLoans, $userData->sueldo), 2);
+				} else if ($data['loanType'] == PERSONAL_LOAN && ($diff['months'] + ($diff['years'] * 12) < 6)) {
 					$result['message'] = "Deben transcurrir seis meses desde su fecha de ingreso.";
 				} else if ($this->requests->getSpanLeft($data['userId'], $data['loanType']) > 0 &&
 					($lastLoan != null && $lastLoan->saldo_edo > 0)) {

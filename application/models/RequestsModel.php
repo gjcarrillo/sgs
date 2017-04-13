@@ -707,4 +707,28 @@ class RequestsModel extends CI_Model
             throw $e;
         }
     }
+
+    /**
+     * Obtains all loan request of specified type registered in ipapedi_db.
+     *
+     * @param $uid - applicant's id.
+     * @return array with all loan info. null if no requests found.
+     * @throws Exception
+     */
+    public function getAllLoansInfo($uid) {
+        try {
+            $this->ipapedi_db = $this->load->database('ipapedi_db', true);
+            $this->ipapedi_db->select('*');
+            $this->ipapedi_db->from('db_dt_prestamos');
+            $this->ipapedi_db->where('cedula', $uid);
+            $query = $this->ipapedi_db->get();
+            if (empty($query->result())) {
+                return null;
+            } else {
+                return $query->result();
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
 }

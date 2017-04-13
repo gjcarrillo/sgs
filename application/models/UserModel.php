@@ -254,4 +254,42 @@ class UserModel extends CI_Model
         $user = $em->find('\Entity\User', $uid);
         return $user !== null;
     }
+
+    /**
+     * Calculates the concurrence with the new request's payment fee. This is the
+     * sum of the payment fee of all active requests in proportion to the applicant's wage.
+     *
+     * @param $loans - all applicant's loan info.
+     * @param $wage - applicant's wage.
+     * @param $newFee - new loan's payment fee.
+     * @return float - calculated concurrence percentage.
+     */
+    public function calculateNewConcurrence($loans, $wage, $newFee) {
+        $sum = $newFee;
+        foreach ($loans as $loan) {
+            if ($loan->saldo_edo > 0) {
+                // Active loan. Take into account.
+                $sum += intval($loan->otorg_cuota, 10);
+            }
+        }
+        return $sum * 100 / $wage;
+    }
+
+    /**
+     * Calculates what is the max payment fee of the new request without exceeding 40% concurrence.
+     *
+     * @param $loans - all applicant's loan info.
+     * @param $wage - applicant's wage.
+     * @return float - max amount of money user can request without exceeding 40% concurrence.
+     */
+    public function calculateMaxFeeByConcurrence($loans, $wage) {
+        $sum = 0;
+        foreach ($loans as $loan) {
+            if ($loan->saldo_edo > 0) {
+                // Active loan. Take into account.
+                $sum += intval($loan->otorg_cuota, 10);
+            }
+        }
+        return 0.4 * $wage - $sum;
+    }
 }
