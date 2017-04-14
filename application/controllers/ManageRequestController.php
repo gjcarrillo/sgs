@@ -1,6 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 include (APPPATH. '/libraries/ChromePhp.php');
+use Ramsey\Uuid\Uuid;
 
 class ManageRequestController extends CI_Controller {
 
@@ -10,7 +11,7 @@ class ManageRequestController extends CI_Controller {
     }
 
 	public function index() {
-		$this->load->view('templates/manageRequest');
+		$this->load->view('templates/dialogs/manageRequest');
 	}
 
 	public function updateRequest() {
@@ -37,7 +38,7 @@ class ManageRequestController extends CI_Controller {
 					$history->setOrigin($request);
 					$request->addHistory($history);
 					// Register it's corresponding actions
-					if (isset($data['status'])) {
+					if (isset($data['status']) && $data['status'] != $request->getStatus()) {
 						$action = new \Entity\HistoryAction();
 						$action->setSummary("Cambio de estatus.");
 						if ($data['status'] === REJECTED) {
@@ -82,7 +83,7 @@ class ManageRequestController extends CI_Controller {
 					}
                     // Add new additional documents (if any).
                     if (isset($data['newDocs'])) {
-                        $changes = $changes . $this->requests->addDocuments($request, $history, $data['newDocs']);
+                        $changes = $changes . $this->requests->addDocuments($request, $history, $data['newDocs'], false);
                     }
 					$em->persist($history);
 
@@ -90,6 +91,18 @@ class ManageRequestController extends CI_Controller {
 						$request->setApprovedAmount($data['approvedAmount']);
 						// ALERT: FOR TESTING PURPOSES ONLY!!!! DELETE LATER!
 						$this->requests->addGrantingDate($request);
+						// Add approval document
+						$uuid4 = Uuid::uuid4();
+						$code = $uuid4->toString(); // i.e. 25769c6c-d34d-4bfe-ba98-e0ee856f3e7a
+						$docs = array();
+						$doc = array(
+							'docName' => 'Monto abonado',
+							'description' => 'Detalles del monto abonado',
+							'lpath' => $request->getUserOwner()->getId() . '.' . $code . '.' . 'Monto abonado.pdf'
+						);
+						array_push($docs, $doc);
+						$changes = $changes . $this->requests->addDocuments($request, $history, $docs, true);
+						$this->requests->generateApprovalDocument($request, $doc);
 					}
 					if (isset($data['reunion'])) {
 						$request->setReunion($data['reunion']);

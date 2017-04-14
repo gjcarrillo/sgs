@@ -38,7 +38,7 @@ class EmailModel extends CI_Model
             $mailData['conceptStr'] = $conceptStr;
             $mailData['email'] = $request->getContactEmail();
             $mailData['subject'] = 'Actualización de Solicitud';
-            $html = $this->load->view('templates/updateEmail', $mailData, true); // render the view into HTML
+            $html = $this->load->view('templates/emailTemplates/updateEmail', $mailData, true); // render the view into HTML
             $this->sendEmail($mailData['email'], $mailData['subject'], $html);
         } catch (Exception $e) {
             throw $e;
@@ -60,7 +60,7 @@ class EmailModel extends CI_Model
             $mailData['due'] = $request->getPaymentDue();
             $mailData['paymentFee'] = $this->utils->calculatePaymentFee($mailData['reqAmount'], $mailData['due'], 12);
             $mailData['subject'] = 'Nueva Solicitud de Préstamo';
-            $html = $this->load->view('templates/newReqMail', $mailData, true); // render the view into HTML
+            $html = $this->load->view('templates/emailTemplates/newReqMail', $mailData, true); // render the view into HTML
             $this->sendEmail($mailData['email'], $mailData['subject'], $html);
         } catch (Exception $e) {
             throw $e;

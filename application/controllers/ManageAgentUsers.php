@@ -10,7 +10,7 @@ class ManageAgentUsers extends CI_Controller {
     }
 
 	public function index() {
-		$this->load->view('templates/manageAgentUsers');
+		$this->load->view('templates/dialogs/manageAgentUsers');
 	}
 
 	public function createNewAgent() {

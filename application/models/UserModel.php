@@ -59,8 +59,8 @@ class UserModel extends CI_Model
             $user = new \Entity\User();
             $user->setId($data['id']);
             $user->setPassword(base64_encode($data['password']));
-            $user->setFirstName($data['firstName']);
-            $user->setLastname($data['lastName']);
+            $user->setFirstName(trim($data['firstName']));
+            $user->setLastname(trim($data['lastName']));
             $user->setType($data['type']);
             $user->setStatus($data['status']);
             if (isset($data['phone'])) {
@@ -291,5 +291,16 @@ class UserModel extends CI_Model
             }
         }
         return 0.4 * $wage - $sum;
+    }
+
+    public function isReqAmountValid($reqAmount, $concept, $userData) {
+        switch (intval($concept, 10)) {
+            case CASH_VOUCHER:
+                $percentage = $this->configModel->getCashVoucherPercentage();
+                $maxAmount = $userData->sueldo * $percentage / 100;
+                return $reqAmount > 0 && $reqAmount <= $maxAmount;
+            case PERSONAL_LOAN:
+                return true;
+        }
     }
 }

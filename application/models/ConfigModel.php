@@ -119,28 +119,14 @@ class ConfigModel extends CI_Model
     }
 
     /** Max. requested amount configuration **/
-    public function getMaxReqAmount() {
+    public function getCashVoucherPercentage() {
         try {
             $em = $this->doctrine->em;
             // Look for all configured statuses
             $config = $em->getRepository('\Entity\Config');
             // Get the max. request amount
-            $maxAmount = $config->findOneBy(array("key" => 'MAX_AMOUNT'));
+            $maxAmount = $config->findOneBy(array("key" => 'MAX_AMOUNT' . CASH_VOUCHER));
             return $maxAmount === null ? null : $maxAmount->getValue();
-        } catch (Exception $e) {
-            throw $e;
-        }
-    }
-
-    /** Min. requested amount configuration **/
-    public function getMinReqAmount() {
-        try {
-            $em = $this->doctrine->em;
-            // Look for all configured statuses
-            $config = $em->getRepository('\Entity\Config');
-            // Get the min. request amount
-            $minAmount = $config->findOneBy(array("key" => 'MIN_AMOUNT'));
-            return $minAmount === null ? null : $minAmount->getValue();
         } catch (Exception $e) {
             throw $e;
         }
@@ -156,15 +142,10 @@ class ConfigModel extends CI_Model
             // Look for all configured statuses
             $config = $em->getRepository('\Entity\Config');
             // Get the max. request amount
-            $maxAmount = $config->findOneBy(array("key" => 'MAX_AMOUNT'));
-            $minAmount = $config->findOneBy(array("key" => 'MIN_AMOUNT'));
+            $maxAmount = $config->findOneBy(array("key" => 'MAX_AMOUNT' . CASH_VOUCHER));
             $newMaxData = array(
-                'key' => 'MAX_AMOUNT',
+                'key' => 'MAX_AMOUNT' . CASH_VOUCHER,
                 'value' => $data['maxAmount']
-            );
-            $newMinData = array(
-                'key' => 'MIN_AMOUNT',
-                'value' => $data['minAmount']
             );
             if ($maxAmount === null) {
                 // Create it.
@@ -173,14 +154,6 @@ class ConfigModel extends CI_Model
                 // Update it.
                 $this->db->where('id', $maxAmount->getId());
                 $this->db->update('config', $newMaxData);
-            }
-            if ($minAmount === null) {
-                // Create it.
-                $this->db->insert('config', $newMinData);
-            } else {
-                // Update it.
-                $this->db->where('id', $minAmount->getId());
-                $this->db->update('config', $newMinData);
             }
         } catch (Exception $e) {
             throw $e;
@@ -217,6 +190,8 @@ class ConfigModel extends CI_Model
         try {
             // Get loan types.
             $loanTypes = $this->getLoanTypes();
+            // CASH VOUCHER is monthly. Should not be configured.
+            unset($loanTypes[CASH_VOUCHER]);
             $em = $this->doctrine->em;
             // Look for this loan type's configured terms.
             $config = $em->getRepository('\Entity\Config');

@@ -319,6 +319,7 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
             // Hold scope reference to constants
             $scope.APPLICANT = Constants.Users.APPLICANT;
             $scope.AGENT = Constants.Users.AGENT;
+            $scope.LoanTypes = Constants.LoanTypes;
 
             // obj could have a reference to user data, saved
             // before confirmation dialog was opened.
@@ -346,6 +347,7 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
                                 data.opened = opened;
                                 Requests.getLoanTerms(concept).then(
                                     function (terms) {
+                                        $scope.percentage = data.percentage;
                                         $scope.maxReqAmount = Requests.getMaxAmount();
                                         $scope.minReqAmount = Requests.getMinAmount();
                                         $scope.model.terms = terms;
@@ -382,10 +384,14 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
                 if ($scope.model.reqAmount && $scope.model.due) {
                     return Requests.calculatePaymentFee($scope.model.reqAmount,
                                                         $scope.model.due,
-                                                        Requests.getInterestRate($scope.model.type));
+                                                        $scope.model.type);
                 } else {
                     return 0;
                 }
+            };
+
+            $scope.getInterestRate = function () {
+                return Requests.getInterestRate($scope.model.type);
             };
 
             $scope.closeDialog = function () {
@@ -489,6 +495,7 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
             // Hold scope reference to constants
             $scope.APPLICANT = Constants.Users.APPLICANT;
             $scope.AGENT = Constants.Users.AGENT;
+            $scope.LoanTypes = Constants.LoanTypes;
 
             // obj could have a reference to user data, saved
             // before confirmation dialog was opened.
@@ -516,6 +523,7 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
                 $scope.loading = true;
                 Requests.getAvailabilityData(fetchId, model.type).then(
                     function (data) {
+                        $scope.percentage = data.percentage;
                         Requests.checkPreviousRequests(fetchId, model.type).then(
                             function (opened) {
                                 data.opened = opened;
@@ -562,10 +570,14 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
                 if ($scope.model.reqAmount && $scope.model.due) {
                     return Requests.calculatePaymentFee($scope.model.reqAmount,
                                                         $scope.model.due,
-                                                        Requests.getInterestRate($scope.model.type));
+                                                        $scope.model.type);
                 } else {
                     return 0;
                 }
+            };
+
+            $scope.getInterestRate = function () {
+                return Requests.getInterestRate($scope.model.type);
             };
 
             // Edits request in database.

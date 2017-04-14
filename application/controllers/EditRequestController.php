@@ -10,15 +10,11 @@ class EditRequestController extends CI_Controller {
 	}
 
 	public function index() {
-		$this->load->view('templates/editRequest');
+		$this->load->view('templates/dialogs/editRequest');
 	}
 
 	public function editionDialog() {
-		$this->load->view('templates/editDocDescription');
-	}
-
-	public function emailEditionDialog() {
-		$this->load->view('templates/editEmail');
+		$this->load->view('templates/dialogs/editDocDescription');
 	}
 
 	/**
@@ -63,7 +59,7 @@ class EditRequestController extends CI_Controller {
 					}
 					$em->merge($request);
 					if (isset($data['newDocs'])) {
-						$changes = $changes . $this->requests->addDocuments($request, $history, $data['newDocs']);
+						$changes = $changes . $this->requests->addDocuments($request, $history, $data['newDocs'], false);
 					}
 					$em->persist($history);
                     $em->flush();
@@ -91,8 +87,6 @@ class EditRequestController extends CI_Controller {
 		} else {
 			try {
 				$em = $this->doctrine->em;
-				$maxAmount = $this->configModel->getMaxReqAmount();
-				$minAmount = $this->configModel->getMinReqAmount();
 				$loanTypes = $this->configModel->getLoanTypes();
 				$userData = $this->users->getPersonalData($data['userId']);
 				$lastLoan = $this->requests->getLastLoanInfo($data['userId'], $data['loanType']);
@@ -109,7 +103,7 @@ class EditRequestController extends CI_Controller {
 				);
 				if ($userData->concurrencia > 40) {
 					$result['message'] = "Concurrencia muy alta (más de 40%)";
-				} else if ($newConcurrence > 40) {
+				} else if ($data['loanType'] != CASH_VOUCHER && $newConcurrence > 40) {
 					$result['message'] = "Su concurrencia con el nuevo préstamo excede el 40%. Su concurrencia " .
 										 "actual le permite una cuota máxima de Bs. " .
 										 number_format($this->users->calculateMaxFeeByConcurrence($allLoans, $userData->sueldo), 2);
@@ -123,7 +117,7 @@ class EditRequestController extends CI_Controller {
 										 " transcurrido al menos " . $span . ($span == 1 ? " mes " : " meses ") .
 										 "desde su última otorgación de préstamo del tipo: " .
                                          $loanTypes[$data['loanType']]->DescripcionDelPrestamo;
-				} else if ($data['reqAmount'] < $minAmount || $data['reqAmount'] > $maxAmount) {
+				} else if (!$this->users->isReqAmountValid($data['reqAmount'], $data['loanType'], $userData)) {
 					$result['message'] = 'Monto solicitado no válido.';
 				} else if (!in_array($data['due'], $terms)) {
 					$result['message'] = 'Plazo de pago no válido.';

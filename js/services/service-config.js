@@ -97,33 +97,13 @@ function config ($http, $q) {
      *
      * @returns {*} - promise with the operation's result.
      */
-    self.getMaxReqAmount = function () {
+    self.getCashVoucherPercentage = function () {
         var qReqAmount = $q.defer();
-        $http.get('ConfigController/getMaxReqAmount')
+        $http.get('ConfigController/getCashVoucherPercentage')
             .then(
             function (response) {
                 if (response.data.message === "success") {
-                    qReqAmount.resolve(parseInt(response.data.maxAmount, 10));
-                } else {
-                    qReqAmount.reject(response.data.message);
-                }
-            });
-
-        return qReqAmount.promise;
-    };
-
-    /**
-     * Fetches the min. possible amount of money a user can request.
-     *
-     * @returns {*} - promise with the operation's result.
-     */
-    self.getMinReqAmount = function () {
-        var qReqAmount = $q.defer();
-        $http.get('ConfigController/getMinReqAmount')
-            .then(
-            function (response) {
-                if (response.data.message === "success") {
-                    qReqAmount.resolve(parseInt(response.data.minAmount, 10));
+                    qReqAmount.resolve(parseInt(response.data.percentage, 10));
                 } else {
                     qReqAmount.reject(response.data.message);
                 }

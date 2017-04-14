@@ -20,6 +20,10 @@ footer {
     width: 40%;
 }
 
+.wide-dialog {
+    min-width: 60%;
+}
+
 .help-card {
     max-width: 60%;
 }
@@ -424,6 +428,10 @@ md-list-item.md-3-line>.md-no-style .md-list-item-text h4 {
 
     .sidenav-height {
         height: calc(100vh - 5px);
+    }
+    
+    .wide-dialog {
+        min-width: 100%;
     }
 
     .token-card {

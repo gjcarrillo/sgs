@@ -51,7 +51,7 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
     $scope.calculatePaymentFee = function() {
         return $scope.req ? Requests.calculatePaymentFee($scope.req.reqAmount,
                                                          $scope.req.due,
-                                                         Requests.getInterestRate($scope.req.type)) : 0;
+                                                         $scope.req.type) : 0;
     };
 
     $scope.downloadDoc = function (doc) {
@@ -119,6 +119,7 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
             // Hold scope reference to constants
             $scope.APPLICANT = Constants.Users.APPLICANT;
             $scope.AGENT = Constants.Users.AGENT;
+            $scope.LoanTypes = Constants.LoanTypes;
 
             // obj could have a reference to user data, saved
             // before confirmation dialog was opened.
@@ -146,6 +147,7 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                 $scope.loading = true;
                 Requests.getAvailabilityData(fetchId, model.type).then(
                     function (data) {
+                        $scope.percentage = data.percentage;
                         Requests.checkPreviousRequests(fetchId, model.type).then(
                             function (opened) {
                                 data.opened = opened;
@@ -192,10 +194,14 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                 if ($scope.model.reqAmount && $scope.model.due) {
                     return Requests.calculatePaymentFee($scope.model.reqAmount,
                                                         $scope.model.due,
-                                                        Requests.getInterestRate($scope.model.type));
+                                                        $scope.model.type);
                 } else {
                     return 0;
                 }
+            };
+
+            $scope.getInterestRate = function () {
+                return Requests.getInterestRate($scope.model.type);
             };
 
             // Edits request in database.

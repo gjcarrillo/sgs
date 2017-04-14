@@ -16,7 +16,7 @@ class ConfigController extends CI_Controller
     }
 
     public function index() {
-        $this->load->view('templates/systemConfig');
+        $this->load->view('templates/dialogs/systemConfig');
     }
 
     public function getLoanTypes() {
@@ -78,13 +78,12 @@ class ConfigController extends CI_Controller
         echo json_encode($result);
     }
 
-    /** Min. requested amount configuration **/
-    public function getMinReqAmount() {
+    public function getCashVoucherPercentage() {
         if ($this->session->type != MANAGER) {
             $result['message'] = 'forbidden';
         } else {
             try {
-                $result['minAmount'] = $this->configModel->getMinReqAmount();
+                $result['percentage'] = $this->configModel->getCashVoucherPercentage();
                 $result['message'] = 'success';
             } catch (Exception $e) {
                 $result['message'] = $this->utils->getErrorMsg($e);
@@ -93,8 +92,9 @@ class ConfigController extends CI_Controller
         echo json_encode($result);
     }
 
+
     /**
-     * Sets both min. and max. request amount.
+     * Sets both max. request amount percentage of cash voucher.
      */
     public function setReqAmount() {
         if ($this->session->type != MANAGER) {

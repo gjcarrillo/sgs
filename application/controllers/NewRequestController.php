@@ -12,7 +12,7 @@ class NewRequestController extends CI_Controller {
     }
 
 	public function index() {
-		$this->load->view('templates/newRequest');
+		$this->load->view('templates/dialogs/newRequest');
 	}
 
     public function upload() {
@@ -50,8 +50,6 @@ class NewRequestController extends CI_Controller {
 				$span = $this->configModel->getRequestSpan($this->input->get('concept'));
 				$result['granting']['span'] = $span;
 				$config = $em->getRepository('\Entity\Config');
-				$result['maxReqAmount'] = $config->findOneBy(array('key' => 'MAX_AMOUNT'))->getValue();
-				$result['minReqAmount'] = $config->findOneBy(array('key' => 'MIN_AMOUNT'))->getValue();
 				$lastLoan = $this->requests->getLastLoanInfo($this->input->get('userId'), $this->input->get('concept'));
 				if ($lastLoan == null) {
 					// Seems like this is their first request. Grant permission to create!
@@ -95,6 +93,14 @@ class NewRequestController extends CI_Controller {
 						}
 					}
 				}
+				// Get max req amount
+				if ($this->input->get('concept') == CASH_VOUCHER) {
+					$percentage = $config->findOneBy(array('key' => 'MAX_AMOUNT' . CASH_VOUCHER))->getValue();
+					$result['maxReqAmount'] = $userData->sueldo * $percentage / 100;
+					$result['percentage'] = $percentage;
+				} else {
+					$result['maxReqAmount'] = $config->findOneBy(array('key' => 'MAX_AMOUNT'))->getValue();
+				}
 				// Get user's phone and email
 				$user = $em->find('Entity\User', $this->input->get('userId'));
 				$result['userPhone'] = $user->getPhone();
@@ -116,8 +122,6 @@ class NewRequestController extends CI_Controller {
 			// Validate incoming data.
 			try {
 				$em = $this->doctrine->em;
-				$maxAmount = $this->configModel->getMaxReqAmount();
-				$minAmount = $this->configModel->getMinReqAmount();
 				$loanTypes = $this->configModel->getLoanTypes();
 				$userData = $this->users->getPersonalData($data['userId']);
 				$lastLoan = $this->requests->getLastLoanInfo($data['userId'], $data['loanType']);
@@ -134,7 +138,7 @@ class NewRequestController extends CI_Controller {
 				$terms = $this->utils->extractLoanTerms($loanTypes[$data['loanType']]);
 				if ($userData->concurrencia > 40) {
 					$result['message'] = "Concurrencia muy alta (mayor a 40%)";
-				} else if ($newConcurrence > 40) {
+				} else if ($data['loanType'] != CASH_VOUCHER && $newConcurrence > 40) {
 					$result['message'] = "Su concurrencia con el nuevo préstamo excede el 40%. Su concurrencia " .
 										 "actual le permite una cuota máxima de Bs. " .
 										 number_format($this->users->calculateMaxFeeByConcurrence($allLoans, $userData->sueldo), 2);
@@ -152,7 +156,7 @@ class NewRequestController extends CI_Controller {
 										 " transcurrido al menos " . $span . ($span == 1 ? " mes " : " meses ") .
 										 "desde su última otorgación de préstamo del tipo: " .
 										 $loanTypes[$data['loanType']]->DescripcionDelPrestamo;
-				} else if ($data['reqAmount'] < $minAmount || $data['reqAmount'] > $maxAmount) {
+				} else if (!$this->users->isReqAmountValid($data['reqAmount'], $data['loanType'], $userData)) {
 					$result['message'] = 'Monto solicitado no válido.';
 				} else if (!in_array($data['due'], $terms)) {
 					$result['message'] = 'Plazo de pago no válido.';
@@ -212,7 +216,7 @@ class NewRequestController extends CI_Controller {
 					$em->persist($request);
 					$em->merge($user);
 					// Create the new request doc.
-					$this->requests->addDocuments($request, $history, $data['docs']);
+					$this->requests->addDocuments($request, $history, $data['docs'], true);
 					$em->persist($history);
 					$em->flush();
 					$result['request'] = $this->utils->reqToArray($request);

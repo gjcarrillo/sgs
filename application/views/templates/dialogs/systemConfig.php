@@ -1,4 +1,4 @@
-<md-dialog aria-label="Edit Request" style="min-width: 60%">
+<md-dialog aria-label="Edit Request" class="wide-dialog">
     <!-- Dialog title -->
     <md-toolbar class="md-table-toolbar md-default">
         <div class="md-toolbar-tools">
@@ -73,28 +73,10 @@
                     <form name="amountsForm">
                         <div layout="column">
                             <div layout>
-                                <span class="grey-color">Monto mínimo (Bs)</span>
-                                <md-progress-circular
-                                    ng-if="amount.min.loading"
-                                    md-mode="indeterminate"
-                                    md-diameter="30">
-                                </md-progress-circular>
-                            </div>
-                            <md-input-container
-                                id="min-amount"
-                                md-no-float>
-                                <input required name="minAmount"
-                                       type="number"
-                                       ng-max="amount.max.new"
-                                       ng-model="amount.min.new"
-                                       placeholder="Ej: 200000"/>
-                                <div ng-messages="amountsForm.minAmount.$error" ng-show="amountsForm.minAmount.$dirty">
-                                    <div ng-message="required">¡Este campo es obligatorio!</div>
-                                    <div ng-message="max">Monto máximo: Bs. {{amount.max.new | number:2}}</div>
-                                </div>
-                            </md-input-container>
-                            <div layout>
-                                <span class="grey-color">Monto máximo (Bs)</span>
+                                <span class="grey-color">
+                                    Especifique el porcentage del sueldo del asociado que se puede solicitar en
+                                    préstamos de {{loanConcepts[LoanTypes.CASH_VOUCHER].DescripcionDelPrestamo}}.
+                                </span>
                                 <md-progress-circular
                                     ng-if="amount.max.loading"
                                     md-mode="indeterminate"
@@ -109,17 +91,13 @@
                                        type="number"
                                        ng-min="amount.min.new"
                                        ng-model="amount.max.new"
-                                       placeholder="Ej: 500000"/>
+                                       placeholder="Ej: 30"/>
                                 <div ng-messages="amountsForm.maxAmount.$error" ng-show="amountsForm.maxAmount.$dirty">
                                     <div ng-message="required">¡Este campo es obligatorio!</div>
-                                    <div ng-message="min">Monto mínimo: Bs. {{amount.min.new | number:2}}</div>
                                 </div>
                             </md-input-container>
                         </div>
                     </form>
-                    <div ng-if="amount.errorMsg != ''" layout layout-align="center center" class="md-padding">
-                        <span style="color:red">{{amount.errorMsg}}</span>
-                    </div>
                 </md-content>
             </md-tab>
             <!-- Requests frequency restrain -->
@@ -194,7 +172,7 @@
                             </md-input-container>
                             <div ng-if="selectedQuery" layout="column">
                                 <span class="grey-color">Ingrese los plazos a pagar en meses (presione ENTER para ingresarlos) <br/><br/></span>
-                                <span class="grey-color">Debe ser mayor a 1 mes y menor a
+                                <span class="grey-color">Debe ser menor a
                                     {{loanTypes[selectedQuery].PlazoEnMeses}}
                                     {{loanTypes[selectedQuery].PlazoEnMeses == 1 ? 'mes' : 'meses'}}
                                     <br/></span>
@@ -205,7 +183,7 @@
                                     delete-hint="Borrar Plazo">
                                     <input type="number"
                                            name="terms"
-                                           placeholder="Ingrese un plazo (ej: 2)"/>
+                                           placeholder="Ingrese un plazo (ej: 24)"/>
                                     <div ng-messages="termsForm.terms.$error" ng-show="termsForm.terms.$dirty">
                                         <div ng-message="max">
                                             El plazo debe ser menor a {{loanTypes[selectedQuery].PlazoEnMeses}}

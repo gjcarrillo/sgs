@@ -272,9 +272,9 @@ class RequestsModel extends CI_Model
             $request = $doc->getBelongingRequest();
             if (!$this->isRequestValidated($request) || $this->isRequestClosed($request)) {
                 // request must be validated & not yet closed.
-                $result['message'] = 'Esta solicitud no puede ser modificada.';
+                throw new Exception('Esta solicitud no puede ser modificada.');
             } else if ($doc->getType() != ADDITIONAL) {
-                $result['message'] = 'Este documento no puede ser eliminado.';
+                throw new Exception('Este documento no puede ser eliminado.');
             } else {
                 if ($doc->getStorage() == REMOTE) {
                     // Delete document from drive
@@ -438,23 +438,49 @@ class RequestsModel extends CI_Model
                                                                 $data['due'],
                                                                 $this->loanTypes[$data['loanType']]->InteresAnual);
         // Generate the document.
-        $html = $this->load->view('templates/requestPdf', $data, true); // render the view into HTML
+        if ($request->getLoanType() == CASH_VOUCHER) {
+            $data['interest'] = $this->loanTypes[$data['loanType']]->InteresAnual;
+            $html = $this->load->view('templates/docsTemplates/cashVoucher/newRequest', $data, true);
+        } else if ($request->getLoanType() == PERSONAL_LOAN) {
+            $html = $this->load->view('templates/docsTemplates/personalLoan/newRequest', $data, true);
+        }
         $this->load->library('pdf');
         $pdf = $this->pdf->load();
         $pdf->WriteHTML($html); // write the HTML into the PDF
-        // Set footer
-        $pdf->SetHTMLFooter (
-            '<p style="font-size: 14px">
-			* Cuotas y plazo de pago sujetos a cambios en base a solicitudes posteriores
-			del afiliado en cuestión.
-		</p>');
         $pdfFilePath = DropPath . $data['lpath'];
         $pdf->Output($pdfFilePath, 'F'); // save to file
     }
 
+    public function generateApprovalDocument ($request, $doc) {
+        // Get extra data for the pdf template.
+        $data['reqAmount'] = $request->getRequestedAmount();
+        $data['tel'] = $request->getContactNumber();
+        $data['email'] = $request->getContactEmail();
+        $data['due'] = $request->getPaymentDue();
+        $data['userId'] = $request->getUserOwner()->getId();
+        $data['username'] = $request->getUserOwner()->getFirstName() . ' ' . $request->getUserOwner()->getLastName();
+        $data['requestId'] = str_pad($request->getId(), 6, '0', STR_PAD_LEFT);
+        $data['date'] = new DateTime('now', new DateTimeZone('America/Barbados'));
+        $data['loanTypeString'] = $this->loanTypes[$request->getLoanType()]->DescripcionDelPrestamo;
+        $data['paymentFee'] = $this->utils->calculatePaymentFee($data['reqAmount'],
+                                                                $data['due'],
+                                                                $this->loanTypes[$request->getLoanType()]->InteresAnual);
+        // Generate the document.
+        if ($request->getLoanType() == CASH_VOUCHER) {
+            $data['approvedAmount'] = $request->getApprovedAmount();
+            $data['interest'] = $this->loanTypes[$request->getLoanType()]->InteresAnual;
+            $html = $this->load->view('templates/docsTemplates/cashVoucher/requestApproval', $data, true);
+            $this->load->library('pdf');
+            $pdf = $this->pdf->load();
+            $pdf->WriteHTML($html); // write the HTML into the PDF
+            $pdfFilePath = DropPath . $doc['lpath'];
+            $pdf->Output($pdfFilePath, 'F'); // save to file
+        }
+    }
+
     // Helper function that adds a set of additional docs to a request in database & returns an html string with
     // registered changes (for email notification).
-    public function addDocuments($request, $history, $docs) {
+    public function addDocuments($request, $history, $docs, $isMandatory) {
         if ($this->isRequestClosed($request)) {
             // request must not yet closed.
             throw new Exception('Esta solicitud no puede ser modificada.');
@@ -469,6 +495,7 @@ class RequestsModel extends CI_Model
                         // 'duplicates' in database, because document name is not unique
                         if (isset($data['description'])) {
                             $doc->setDescription($data['description']);
+                            $doc->setType($isMandatory ? MANDATORY : ADDITIONAL);
                             $em->merge($doc);
                         }
                     } else {
@@ -480,7 +507,7 @@ class RequestsModel extends CI_Model
                         }
                         $doc->setLpath($data['lpath']);
                         $doc->setBelongingRequest($request);
-                        $doc->setType(ADDITIONAL);
+                        $doc->setType($isMandatory ? MANDATORY : ADDITIONAL);
                         $request->addDocument($doc);
 
                         $em->persist($doc);

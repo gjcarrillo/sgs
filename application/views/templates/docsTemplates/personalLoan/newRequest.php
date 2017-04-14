@@ -17,7 +17,7 @@
         }
     </style>
 </head>
-<body>
+<body style="font-family: 'Open Sans','Helvetica Neue',Helvetica,sans-serif;font-size: 14px;">
 <img src="images/1x1.jpg"/ height="150">
 <br /><br />
 <p>
@@ -30,7 +30,7 @@
 
     Yo, <?php echo $username; ?>, portador de la cédula de identidad  <?php echo $userId; ?>, hago constar que he realizado la
     solicitud de un préstamo del tipo  <?php echo $loanTypeString; ?>, correspondiente al identificador
-    <?php echo $requestId; ?> con las siguientes especificaciones:<br /><br />
+    <?php echo $requestId; ?> con la siguiente información:<br /><br />
 
 </p>
 <ul>
@@ -38,12 +38,12 @@
     <li>Monto solicitado: Bs.  <?php echo number_format($reqAmount, 2); ?></li>
     <li>Teléfono de contacto:  <?php echo $tel; ?></li>
     <li>Correo electrónico:  <?php echo $email; ?></li>
-    <li>Cuotas a pagar: Bs. <?php echo number_format($paymentFee, 2); ?>, durante un periodo de  <?php echo $due; ?> meses. *</li>
+    <li>Cuotas a pagar: Bs. <?php echo number_format($paymentFee, 2); ?>, durante un periodo de  <?php echo $due; ?> <?php echo $due == 1 ? 'mes.' : 'meses consecutivos.'; ?></li>
 </ul>
 <br />
 <p>
-    Asimismo, dicha información será corroborada tras realizar la correspondiente
-    verificación por correo electrónico.<br /><br /><br />
+    Dicha información será corroborada tras realizar la correspondiente
+    verificación a través del sistema.<br /><br /><br />
 
     Constancia expedida a los días <?php echo $date->format('d') ?> del mes <?php echo $date->format('m') ?>, del año
     <?php echo $date->format('Y') ?>.<br />

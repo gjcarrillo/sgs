@@ -383,7 +383,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
     $scope.calculatePaymentFee = function() {
         return $scope.req ? Requests.calculatePaymentFee($scope.req.reqAmount,
                                                          $scope.req.due,
-                                                         Requests.getInterestRate($scope.req.type)) : 0;
+                                                         $scope.req.type) : 0;
     };
 
     // Helper function for formatting numbers with leading zeros
@@ -560,6 +560,8 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
         function DialogController($mdDialog, $scope, Config) {
             $scope.uploading = false;
             $scope.selectedQuery = null;
+            $scope.loanConcepts = Config.loanConcepts;
+            $scope.LoanTypes = Config.LoanTypes;
             /**
              * =================================================
              *          Requests status configuration
@@ -626,9 +628,9 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
              */
             $scope.amount = {max: {}, min: {}, errorMsg: ''};
 
-            function loadMaxAndMinAmount() {
+            function loadCashVoucherPercentage() {
                 $scope.amount.max.loading = true;
-                Config.getMaxReqAmount()
+                Config.getCashVoucherPercentage()
                     .then (
                     function (maxAmount) {
                         $scope.amount.max.loading = false;
@@ -640,20 +642,6 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                         Utils.handleError(err);
                     }
                 );
-
-                $scope.amount.min.loading = true;
-                Config.getMinReqAmount()
-                    .then (
-                    function (minAmount) {
-                        $scope.amount.min.loading = false;
-                        $scope.amount.min.existing = minAmount;
-                        $scope.amount.min.new = minAmount;
-                    },
-                    function (err) {
-                        $scope.amount.min.loading = false;
-                        Utils.handleError(err);
-                    }
-                );
             }
 
             $scope.updateReqAmount = function() {
@@ -662,9 +650,11 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                     .then (
                     function () {
                         $scope.uploading = false;
-                        Utils.showAlertDialog('Actualización exitosa',
-                                              'La cantidad posible de dinero a solicitar ha sido exitosamente ' +
-                                              'actualizada.');
+                        Utils.showAlertDialog(
+                            'Actualización exitosa',
+                            'La cantidad posible de dinero a solicitar para ' +
+                            Config.loanConcepts[Constants.LoanTypes.CASH_VOUCHER].DescripcionDelPrestamo +
+                            ' ha sido exitosamente actualizada.');
                     },
                     function (err) {
                         $scope.uploading = false;
@@ -674,10 +664,8 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
             };
 
             $scope.missingField = function() {
-                return (typeof $scope.amount.min.new === "undefined" ||
-                        typeof $scope.amount.max.new === "undefined") ||
-                       ($scope.amount.min.existing === $scope.amount.min.new &&
-                       $scope.amount.max.existing === $scope.amount.max.new);
+                return typeof $scope.amount.max.new === "undefined" ||
+                       $scope.amount.max.existing === $scope.amount.max.new;
             };
 
             /**
@@ -774,6 +762,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 Config.getRequestsTerms()
                     .then(
                     function (terms) {
+                        console.log(terms);
                         $scope.loanTypes = terms;
                         $scope.terms.loading = false;
                         $scope.existing = _.cloneDeep(terms);
@@ -821,7 +810,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                         loadStatusesForConfig();
                         break;
                     case 2:
-                        loadMaxAndMinAmount();
+                        loadCashVoucherPercentage();
                         break;
                     case 3:
                         loadReqFrequencies();

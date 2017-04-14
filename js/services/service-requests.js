@@ -496,18 +496,23 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
      *
      * @param reqAmount - the amount of money the applicant is requesting.
      * @param paymentDue - number in months the applicant chose to pay his debt.
-     * @param interest - payment interest (percentage).
+     * @param concept - request concept.
      * @returns {number} - monthly payment fee.
      */
-    self.calculatePaymentFee = function (reqAmount, paymentDue, interest) {
-        var rate = interest / 100;
-        // monthly payment.
-        var nFreq = 12;
-        // calculate the interest as a factor.
-        var interestFactor = rate / nFreq;
-        // calculate the monthly paymeny fee.
-        var paymentFee = reqAmount / ((1 - Math.pow(interestFactor + 1, paymentDue * -1)) / interestFactor);
-        return $filter('number')(paymentFee, 2);
+    self.calculatePaymentFee = function (reqAmount, paymentDue, concept) {
+        if (concept == Constants.LoanTypes.CASH_VOUCHER) {
+            // For cash vouchers, the interest is taken for cashed amount.
+            return $filter('number')(reqAmount, 2);
+        } else if (concept == Constants.LoanTypes.PERSONAL_LOAN){
+            var rate = Config.loanConcepts[concept].InteresAnual / 100;
+            // monthly payment.
+            var nFreq = 12;
+            // calculate the interest as a factor.
+            var interestFactor = rate / nFreq;
+            // calculate the monthly paymen fee.
+            var paymentFee = reqAmount / ((1 - Math.pow(interestFactor + 1, paymentDue * -1)) / interestFactor);
+            return $filter('number')(paymentFee, 2);
+        }
     };
 
     /**
