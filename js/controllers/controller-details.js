@@ -461,8 +461,8 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
     };
 
     $scope.showManagerEditBtn = function () {
-        return $scope.userType($scope.MANAGER) && $scope.req.status != $scope.APPROVED_STRING &&
-               $scope.req.status != $scope.REJECTED_STRING && $scope.req.status != $scope.PRE_APPROVED;
+        return $scope.userType($scope.MANAGER) && $scope.req.status != $scope.APPROVED &&
+               $scope.req.status != $scope.REJECTED && $scope.req.status != $scope.PRE_APPROVED;
     };
 
     $scope.isDocEditable = function (type) {

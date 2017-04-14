@@ -645,6 +645,10 @@ class RequestsModel extends CI_Model
             $this->ipapedi_db = $this->load->database('ipapedi_db', true);
             $em = $this->doctrine->em;
             $request = $em->find('\Entity\Request', $rid);
+            if ($request->getLoanType() == CASH_VOUCHER) {
+                // Cash Vouchers do not get registered under db_dt_prestamos, so allow approval.
+                return true;
+            }
             $this->ipapedi_db->select('*');
             $this->ipapedi_db->from('db_dt_prestamos');
             $this->ipapedi_db->where('cedula', $request->getUserOwner()->getId());
@@ -694,7 +698,8 @@ class RequestsModel extends CI_Model
             $changes = "<li>Cambio de estatus: <s>" . $request->getStatus() .
                        "</s> " . APPROVED . "." . "</li>";
             $changes = $changes .
-                       '<br/><div>El préstamo solicitado ha sido abonado. Puede entrar en IPAPEDI en línea ' .
+                       '<br/><div>El préstamo solicitado ha sido abonado.' .
+                       $request->getLoanType() == CASH_VOUCHER ? '</div>' : ' Puede entrar en IPAPEDI en línea ' .
                        'para ver los cambios realizados en su Estado de Cuenta.</div>';
             $em->persist($history);
             $request->setStatus(APPROVED);
@@ -757,6 +762,132 @@ class RequestsModel extends CI_Model
             } else {
                 return $query->result();
             }
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function getLastRequest($uid, $concept) {
+        try {
+            $em = $this->doctrine->em;
+            $owner = $em->find('\Entity\User', $uid);
+            $requests = $em->getRepository('\Entity\Request')->findBy(
+                array('userOwner' => $owner, 'loanType' => $concept),
+                array('creationDate' => 'ASC')
+            );
+            return $requests === null ? null : $requests[0];
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * Gets a user's availability data (i.e. conditions for creating new request of cash voucher). This is:
+     * 1. Concurrence.
+     * 2. Max possible amount of money to request.
+     * 3. Request frequency constrain.
+     *
+     * @param $uid - user's id.
+     * @return mixed - cash voucher's availability data.
+     * @throws Exception
+     */
+    public function getCashVoucherAvailabilityData($uid) {
+        try {
+            $em = $this->doctrine->em;
+            $span = $this->configModel->getRequestSpan(CASH_VOUCHER);
+            $result['granting']['span'] = $span;
+            $config = $em->getRepository('\Entity\Config');
+            $lastRequest = $this->requests->getLastRequest($uid, CASH_VOUCHER);
+            if ($lastRequest == null) {
+                // Seems like this is their first request. Grant permission to create!
+                $result['granting']['allow'] = true;
+            } else {
+                $currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
+                $diff = $this->utils->getDateInterval($currentDate, $lastRequest->getCreationDate());
+                $result['granting']['allow'] =
+                    // Allow if time constrain is over.
+                    ($diff['months'] + ($diff['years'] * 12) >= $span);
+                // Tell user when will he be able to request again in case time constrain is not over.
+                $result['granting']['dateAvailable'] =
+                    $lastRequest->getCreationDate()->modify('+' . $span . ' month')->format('d/m/Y');
+            }
+            $userData = $this->users->getPersonalData($uid);
+            if ($userData == null) {
+                // User info not found! This should never happen. Nevertheless, throw error.
+                throw new Exception("Parece que su información personal aún no ha sido ingresada en nuestro sistema.");
+            } else {
+                $result['concurrence'] = $userData->concurrencia;
+            }
+            // Get max req amount
+            $percentage = $config->findOneBy(array('key' => 'MAX_AMOUNT' . CASH_VOUCHER))->getValue();
+            $result['maxReqAmount'] = $userData->sueldo * $percentage / 100;
+            $result['percentage'] = $percentage;
+            return $result;
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * Gets a user's availability data (i.e. conditions for creating new request of personal loan). This is:
+     * 1. Concurrence.
+     * 2. Max possible amount of money to request.
+     * 3. Request frequency constrain.
+     * 4. Whether user has at least six months old in the system.
+     *
+     * @param $uid - user's id.
+     * @return mixed - personal loan's availability data.
+     * @throws Exception
+     */
+    public function getPersonalLoanAvailabilityData($uid) {
+        try {
+            $em = $this->doctrine->em;
+            $span = $this->configModel->getRequestSpan(PERSONAL_LOAN);
+            $result['granting']['span'] = $span;
+            $config = $em->getRepository('\Entity\Config');
+            $lastLoan = $this->requests->getLastLoanInfo($uid, PERSONAL_LOAN);
+            if ($lastLoan == null) {
+                // Seems like this is their first request. Grant permission to create!
+                $result['granting']['allow'] = true;
+            } else {
+                $granting = date_create_from_format('d/m/Y', $lastLoan->otorg_fecha);
+                if (!$granting) {
+                    // No granting date found in most recent granting entry. Perhaps it was rejected.
+                    // Go ahead and allow this request type creation
+                    $result['granting']['allow'] = true;
+                } else {
+                    $currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
+                    $diff = $this->utils->getDateInterval($currentDate, $granting);
+                    $result['granting']['allow'] =
+                        // Allow if time constrain is over OR if all the debt was paid.
+                        ($diff['months'] + ($diff['years'] * 12) >= $span) || ($lastLoan->saldo_edo <= 0);
+                    // Tell user when will he be able to request again in case time constrain is not over.
+                    $result['granting']['dateAvailable'] = $granting->modify('+' . $span . ' month')->format('d/m/Y');
+                }
+            }
+            $userData = $this->users->getPersonalData($uid);
+            if ($userData == null) {
+                // User info not found! This should never happen. Nevertheless, throw error.
+                throw new Exception("Parece que su información personal aún no ha sido ingresada en nuestro sistema.");
+            } else {
+                $result['concurrence'] = $userData->concurrencia;
+                // Applicant must be 6 months old to request personal loans.
+                $admissionDate = date_create_from_format('d/m/Y', $userData->ingreso);
+                if (!$admissionDate) {
+                    // People without admission date seem to be extremely old in ipapedi...
+                    // So go ahead and allow creation.
+                    $result['sixMonthsOld'] = true;
+                    $result['admissionDate'] = '01/01/1963';
+                } else {
+                    $today = new DateTime('now', new DateTimeZone('America/Barbados'));
+                    $diff = $this->utils->getDateInterval($today, $admissionDate);
+                    $result['sixMonthsOld'] = $diff['months'] + ($diff['years'] * 12) >= 6;
+                    $result['admissionDate'] = $userData->ingreso;
+                    $result['dateAvailable'] = $admissionDate->modify('+6 month')->format('d/m/Y');
+                }
+            }
+            $result['maxReqAmount'] = $config->findOneBy(array('key' => 'MAX_AMOUNT'))->getValue();
+            return $result;
         } catch (Exception $e) {
             throw $e;
         }

@@ -34,11 +34,6 @@ class NewRequestController extends CI_Controller {
 
 	/**
 	 * Gets a user's availability data (i.e. conditions for creating new request of specific concept). This is:
-	 * 1. Concurrence.
-	 * 2. Max possible amount of money to request.
-	 * 3. Request frequency constrain.
-	 * 4. Whether there is another request already opened.
-	 * 5. For Personal Loans, whether user has at least six months old in the system.
 	 */
 	public function getAvailabilityData() {
 		$result['message'] = "error";
@@ -46,61 +41,15 @@ class NewRequestController extends CI_Controller {
 			$result['message'] = 'forbidden';
 		} else {
 			try {
+				switch (intval($this->input->get('concept'), 10)) {
+					case CASH_VOUCHER:
+						$result = $this->requests->getCashVoucherAvailabilityData($this->input->get('userId'));
+						break;
+					case PERSONAL_LOAN:
+						$result = $this->requests->getPersonalLoanAvailabilityData($this->input->get('userId'));
+						break;
+				}
 				$em = $this->doctrine->em;
-				$span = $this->configModel->getRequestSpan($this->input->get('concept'));
-				$result['granting']['span'] = $span;
-				$config = $em->getRepository('\Entity\Config');
-				$lastLoan = $this->requests->getLastLoanInfo($this->input->get('userId'), $this->input->get('concept'));
-				if ($lastLoan == null) {
-					// Seems like this is their first request. Grant permission to create!
-					$result['granting']['allow'] = true;
-				} else {
-					$granting = date_create_from_format('d/m/Y', $lastLoan->otorg_fecha);
-					if (!$granting) {
-						// No granting date found in most recent granting entry. Perhaps it was rejected.
-						// Go ahead and allow this request type creation
-						$result['granting']['allow'] = true;
-					} else {
-						$currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
-						$diff = $this->utils->getDateInterval($currentDate, $granting);
-						$result['granting']['allow'] =
-							// Allow if time constrain is over OR if all the debt was paid.
-							($diff['months'] + ($diff['years'] * 12) >= $span) || ($lastLoan->saldo_edo <= 0);
-						// Tell user when will he be able to request again in case time constrain is not over.
-						$result['granting']['dateAvailable'] = $granting->modify('+' . $span . ' month')->format('d/m/Y');
-					}
-				}
-				$userData = $this->users->getPersonalData($this->input->get('userId'));
-				if ($userData == null) {
-					// User info not found! This should never happen. Nevertheless, throw error.
-					$result['message'] = "Parece que su información personal aún no ha sido ingresada en nuestro sistema.";
-				} else {
-					$result['concurrence'] = $userData->concurrencia;
-					if ($this->input->get('concept') == PERSONAL_LOAN) {
-						// Applicant must be 6 months old to request personal loans.
-						$admissionDate = date_create_from_format('d/m/Y', $userData->ingreso);
-						if (!$admissionDate) {
-							// People without admission date seem to be extremely old in ipapedi...
-							// So go ahead and allow creation.
-							$result['sixMonthsOld'] = true;
-							$result['admissionDate'] = '01/01/1963';
-						} else {
-							$today = new DateTime('now', new DateTimeZone('America/Barbados'));
-							$diff = $this->utils->getDateInterval($today, $admissionDate);
-							$result['sixMonthsOld'] = $diff['months'] + ($diff['years'] * 12) >= 6;
-							$result['admissionDate'] = $userData->ingreso;
-							$result['dateAvailable'] = $admissionDate->modify('+6 month')->format('d/m/Y');
-						}
-					}
-				}
-				// Get max req amount
-				if ($this->input->get('concept') == CASH_VOUCHER) {
-					$percentage = $config->findOneBy(array('key' => 'MAX_AMOUNT' . CASH_VOUCHER))->getValue();
-					$result['maxReqAmount'] = $userData->sueldo * $percentage / 100;
-					$result['percentage'] = $percentage;
-				} else {
-					$result['maxReqAmount'] = $config->findOneBy(array('key' => 'MAX_AMOUNT'))->getValue();
-				}
 				// Get user's phone and email
 				$user = $em->find('Entity\User', $this->input->get('userId'));
 				$result['userPhone'] = $user->getPhone();
