@@ -605,7 +605,7 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
                                                   Config.loanConcepts[concept].DescripcionDelPrestamo + ' debido a que ya posee ' +
                                                   'una solicitud (con ID #' + Utils.pad(data.opened.id, 6) + ') de ' +
                                                   'dicho tipo abierta.');
-        } else if (!data.granting.allow) {
+        } else if (!data.granting.allow && !editMode) {
             Utils.showAlertDialog('No permitido', 'Estimado usuario, no puede realizar otra solicitud del tipo ' +
                                                   Config.loanConcepts[concept].DescripcionDelPrestamo + ' debido a que aún no ' +
                                                   'ha' + (data.granting.span == 1 ? '' : 'n') +

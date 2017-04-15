@@ -48,7 +48,7 @@
                                         ng-readonly="uploading"
                                         ng-model="model.reqAmount"
                                         type="number"
-                                        max="{{maxReqAmount}}"
+                                        max="{{model.maxReqAmount}}"
                                         step="1000"
                                         name="reqAmount"
                                         required
@@ -61,8 +61,7 @@
                                     </md-icon>
                                     <div ng-messages="applicantForm.reqAmount.$error" ng-show="applicantForm.reqAmount.$dirty">
                                         <div ng-message="required">¡Este campo es obligatorio!</div>
-                                        <div ng-message="max">Monto máximo: Bs. {{maxReqAmount | number:2}}</div>
-                                        <div ng-message="min">Monto mínimo: Bs. {{minReqAmount | number:2}}</div>
+                                        <div ng-message="max">Monto máximo: Bs. {{model.maxReqAmount | number:2}}</div>
                                     </div>
                                 </md-input-container>
                             </div>
@@ -170,7 +169,8 @@
                         <md-divider></md-divider>
                         <md-card-content>
                             <div layout="column" layout-align="start">
-                                <span>{{percentage}}% de su sueldo.</span>
+                                <span>{{model.data.percentage}}% de su sueldo ({{model.data.salary | number:2}})</span>
+                                <span>Igual a: Bs. {{model.maxReqAmount | number:2}}</span>
                             </div>
                         </md-card-content>
                     </md-card>
@@ -183,7 +183,7 @@
                             <div layout="column" layout-align="start">
                                 <span>Monto del préstamo {{model.reqAmount | number:2}}</span><br/>
                                 <span>Menos 2% interés {{model.reqAmount * getInterestRate()/100 | number:2}}</span><br/>
-                                <span>Igual a: Bs. <b>{{model.reqAmount - model.reqAmount * getInterestRate()/100 | number:2}}</b></span>
+                                <span>Igual a: Bs. <b>{{(model.reqAmount - model.reqAmount * getInterestRate()/100 | number:2) || '----'}}</b></span>
                             </div>
                         </md-card-content>
                     </md-card>

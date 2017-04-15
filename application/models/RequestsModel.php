@@ -697,10 +697,14 @@ class RequestsModel extends CI_Model
             $em->persist($action);
             $changes = "<li>Cambio de estatus: <s>" . $request->getStatus() .
                        "</s> " . APPROVED . "." . "</li>";
-            $changes = $changes .
-                       '<br/><div>El préstamo solicitado ha sido abonado.' .
-                       $request->getLoanType() == CASH_VOUCHER ? '</div>' : ' Puede entrar en IPAPEDI en línea ' .
-                       'para ver los cambios realizados en su Estado de Cuenta.</div>';
+            if ($request->getLoanType() == CASH_VOUCHER) {
+                $changes = $changes .
+                           '<br/><div>El préstamo solicitado ha sido abonado.</div>';
+            } else {
+                $changes = $changes .
+                           '<br/><div>El préstamo solicitado ha sido abonado.</div>' .
+                           ' Puede entrar en IPAPEDI en línea para ver los cambios realizados en su Estado de Cuenta.</div>';
+            }
             $em->persist($history);
             $request->setStatus(APPROVED);
             $em->merge($request);
@@ -775,7 +779,7 @@ class RequestsModel extends CI_Model
                 array('userOwner' => $owner, 'loanType' => $concept),
                 array('creationDate' => 'ASC')
             );
-            return $requests === null ? null : $requests[0];
+            return empty($requests) ? null : $requests[0];
         } catch (Exception $e) {
             throw $e;
         }
@@ -803,13 +807,15 @@ class RequestsModel extends CI_Model
                 $result['granting']['allow'] = true;
             } else {
                 $currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
-                $diff = $this->utils->getDateInterval($currentDate, $lastRequest->getCreationDate());
+                // Add 2 days to take evaluation and granting process into account.
+                $creationDate = $lastRequest->getCreationDate()->modify('+2 day');
+                $diff = $this->utils->getDateInterval($currentDate, $creationDate);
                 $result['granting']['allow'] =
                     // Allow if time constrain is over.
                     ($diff['months'] + ($diff['years'] * 12) >= $span);
                 // Tell user when will he be able to request again in case time constrain is not over.
                 $result['granting']['dateAvailable'] =
-                    $lastRequest->getCreationDate()->modify('+' . $span . ' month')->format('d/m/Y');
+                    $creationDate->modify('+' . $span . ' month')->format('d/m/Y');
             }
             $userData = $this->users->getPersonalData($uid);
             if ($userData == null) {
@@ -820,6 +826,7 @@ class RequestsModel extends CI_Model
             }
             // Get max req amount
             $percentage = $config->findOneBy(array('key' => 'MAX_AMOUNT' . CASH_VOUCHER))->getValue();
+            $result['salary'] = $userData->sueldo;
             $result['maxReqAmount'] = $userData->sueldo * $percentage / 100;
             $result['percentage'] = $percentage;
             return $result;

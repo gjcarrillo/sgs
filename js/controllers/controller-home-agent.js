@@ -341,18 +341,20 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
                 $scope.loading = true;
                 Requests.getAvailabilityData(fetchId, concept).then(
                     function (data) {
-                        console.log(data);
+                        $scope.model.data = data;
                         Requests.checkPreviousRequests(fetchId, concept).then(
                             function (opened) {
                                 data.opened = opened;
                                 Requests.getLoanTerms(concept).then(
                                     function (terms) {
-                                        $scope.percentage = data.percentage;
-                                        $scope.maxReqAmount = Requests.getMaxAmount();
-                                        $scope.minReqAmount = Requests.getMinAmount();
+                                        $scope.model.maxReqAmount = Requests.getMaxAmount();
                                         $scope.model.terms = terms;
-                                        $scope.model.phone = data.userPhone ? Utils.pad(parseInt(data.userPhone, 10), 11) : '';
-                                        $scope.model.email = data.userEmail;
+                                        if (!$scope.model.phone) {
+                                            $scope.model.phone = data.userPhone ? Utils.pad(parseInt(data.userPhone, 10), 11) : '';
+                                        }
+                                        if (!$scope.model.email) {
+                                            $scope.model.email = data.userEmail;
+                                        }
                                         Requests.verifyAvailability(data, concept, false);
                                         $scope.loading = false;
                                     },
@@ -523,14 +525,13 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
                 $scope.loading = true;
                 Requests.getAvailabilityData(fetchId, model.type).then(
                     function (data) {
-                        $scope.percentage = data.percentage;
+                        $scope.model.data = data;
                         Requests.checkPreviousRequests(fetchId, model.type).then(
                             function (opened) {
                                 data.opened = opened;
                                 Requests.getLoanTerms(model.type).then(
                                     function (terms) {
-                                        $scope.maxReqAmount = Requests.getMaxAmount();
-                                        $scope.minReqAmount = Requests.getMinAmount();
+                                        $scope.model.maxReqAmount = Requests.getMaxAmount();
                                         $scope.model.terms = terms;
                                         Requests.verifyAvailability(data, model.type, true);
                                         $scope.loading = false;
