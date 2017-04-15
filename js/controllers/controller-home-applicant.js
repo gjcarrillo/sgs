@@ -114,7 +114,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
                 $scope.requests = data;
             },
             function (errorMsg) {
-                $scope.loading = false;
+                $scope.fetching = false;
                 Utils.handleError(errorMsg);
             }
         );
@@ -516,6 +516,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
                 $scope.loading = true;
                 Requests.getAvailabilityData(fetchId, model.type).then(
                     function (data) {
+                        console.log(data);
                         $scope.model.data = data;
                         Requests.checkPreviousRequests(fetchId, model.type).then(
                             function (opened) {

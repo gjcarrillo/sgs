@@ -421,8 +421,109 @@ class RequestsModel extends CI_Model
         }
     }
 
+    public function validateCashVoucherCreation ($data, $editMode) {
+        try {
+            $em = $this->doctrine->em;
+            $loanTypes = $this->configModel->getLoanTypes();
+            $userData = $this->users->getPersonalData($data['userId']);
+            $terms = $this->utils->extractLoanTerms($loanTypes[$data['loanType']]);
+            if ($userData->concurrencia > 40) {
+                throw new Exception("Concurrencia muy alta (mayor a 40%)");
+            } else if (!$editMode && !$this->utils->checkPreviousRequests($data['userId'], $data['loanType'])) {
+                // Another request of same type is already open.
+                throw new Exception('Usted ya posee una solicitud del tipo ' .
+                                     $loanTypes[$data['loanType']]->description . ' en transcurso.');
+            } else if ($this->requests->getSpanLeft($data['userId'], $data['loanType']) > 0) {
+                // Span between requests of same type not yet through.
+                $span = $em->getRepository('\Entity\Config')->findOneBy(array('key' => 'SPAN' . $data['loanType']))->getValue();
+                throw new Exception("No ha" . ($span == 1 ? "" : "n") .
+                                     " transcurrido al menos " . $span . ($span == 1 ? " mes " : " meses ") .
+                                     "desde su última otorgación de préstamo del tipo: " .
+                                     $loanTypes[$data['loanType']]->DescripcionDelPrestamo);
+            } else if (!$this->users->isReqAmountValid($data['reqAmount'], $data['loanType'], $userData)) {
+                throw new Exception('Monto solicitado no válido.');
+            } else if (!in_array($data['due'], $terms)) {
+                throw new Exception($result['message'] = 'Plazo de pago no válido.');
+            } else if (!$this->utils->isRequestTypeValid($loanTypes, $data['loanType'])) {
+                throw new Exception('Tipo de préstamo inválido.');
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function validatePersonalLoanCreation ($data, $editMode) {
+        try {
+            $em = $this->doctrine->em;
+            $loanTypes = $this->configModel->getLoanTypes();
+            $userData = $this->users->getPersonalData($data['userId']);
+            $userContribution = $this->users->getContributionData($data['userId']);
+            $lastLoan = $this->requests->getLastLoanInfo($data['userId'], $data['loanType']);
+            $allLoans = $this->requests->getAllLoansInfo($data['userId']);
+            $newConcurrence = $this->users->calculateNewConcurrence(
+                $allLoans,
+                $userData->sueldo,
+                $this->utils->calculatePaymentFee($data['reqAmount'],$data['due'],$loanTypes[$data['loanType']]->InteresAnual)
+            );
+            $diff = $this->utils->getDateInterval(
+                new DateTime('now', new DateTimeZone('America/Barbados')),
+                date_create_from_format('d/m/Y', $userData->ingreso)
+            );
+            $terms = $this->utils->extractLoanTerms($loanTypes[$data['loanType']]);
+            if ($userData->concurrencia > 40) {
+                throw new Exception("Concurrencia muy alta (mayor a 40%)");
+            } else if ($newConcurrence > 40) {
+                $maxPaymentFee = number_format($this->users->calculateMaxFeeByConcurrence($allLoans, $userData->sueldo), 2);
+                $maxTerms = $this->users->calculateMaxTermsByConcurrence($allLoans, $userData->sueldo,
+                                                                         $data['reqAmount'], $terms, $data['loanType']);
+                throw new Exception ("Su concurrencia con el nuevo préstamo excede el 40%. Su concurrencia " .
+                                     "actual (" . $userData->concurrencia ."%) le permite una cuota máxima de Bs. " .
+                                     number_format($maxPaymentFee, 2) .
+                                     ", por lo que debe elegir como mínimo un plazo de " . $maxTerms . " meses o " .
+                                     "solicitar un monto menor.");
+            } else if (($diff['months'] + ($diff['years'] * 12) < 6)) {
+                throw new Exception("Deben transcurrir seis meses desde su fecha de ingreso.");
+            } else if (!$editMode && !$this->utils->checkPreviousRequests($data['userId'], $data['loanType'])) {
+                // Another request of same type is already open.
+                throw new Exception ('Usted ya posee una solicitud del tipo ' .
+                                     $loanTypes[$data['loanType']]->description . ' en transcurso.');
+            } else if ($this->requests->getSpanLeft($data['userId'], $data['loanType']) > 0 &&
+                       ($lastLoan != null && $lastLoan->saldo_edo > 0)) {
+                // Span between requests of same type not yet through and debts still not paid.
+                $span = $em->getRepository('\Entity\Config')->findOneBy(array('key' => 'SPAN' . $data['loanType']))->getValue();
+                throw new Exception("No ha" . ($span == 1 ? "" : "n") .
+                                     " transcurrido al menos " . $span . ($span == 1 ? " mes " : " meses ") .
+                                     "desde su última otorgación de préstamo del tipo: " .
+                                     $loanTypes[$data['loanType']]->DescripcionDelPrestamo);
+            } else if (!$this->users->isReqAmountValid($data['reqAmount'], $data['loanType'], $userContribution)) {
+                throw new Exception('Monto solicitado no válido.');
+            } else if (!in_array($data['due'], $terms)) {
+                throw new Exception($result['message'] = 'Plazo de pago no válido.');
+            } else if (!$this->utils->isRequestTypeValid($loanTypes, $data['loanType'])) {
+                throw new Exception('Tipo de préstamo inválido.');
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
     public function generateRequestDocument ($request) {
-        // Get extra data for the pdf template.
+        // Generate the document.
+        if ($request->getLoanType() == CASH_VOUCHER) {
+            $data = $this->getNewCashVoucherDocData($request);
+            $html = $this->load->view('templates/docsTemplates/cashVoucher/newRequest', $data, true);
+        } else if ($request->getLoanType() == PERSONAL_LOAN) {
+            $data = $this->getPersonalLoanDocData($request);
+            $html = $this->load->view('templates/docsTemplates/personalLoan/newRequest', $data, true);
+        }
+        $this->load->library('pdf');
+        $pdf = $this->pdf->load();
+        $pdf->WriteHTML($html); // write the HTML into the PDF
+        $pdfFilePath = DropPath . $data['lpath'];
+        $pdf->Output($pdfFilePath, 'F'); // save to file
+    }
+
+    private function getNewCashVoucherDocData($request) {
         $data['reqAmount'] = $request->getRequestedAmount();
         $data['tel'] = $request->getContactNumber();
         $data['email'] = $request->getContactEmail();
@@ -437,18 +538,48 @@ class RequestsModel extends CI_Model
         $data['paymentFee'] = $this->utils->calculatePaymentFee($data['reqAmount'],
                                                                 $data['due'],
                                                                 $this->loanTypes[$data['loanType']]->InteresAnual);
-        // Generate the document.
-        if ($request->getLoanType() == CASH_VOUCHER) {
-            $data['interest'] = $this->loanTypes[$data['loanType']]->InteresAnual;
-            $html = $this->load->view('templates/docsTemplates/cashVoucher/newRequest', $data, true);
-        } else if ($request->getLoanType() == PERSONAL_LOAN) {
-            $html = $this->load->view('templates/docsTemplates/personalLoan/newRequest', $data, true);
-        }
-        $this->load->library('pdf');
-        $pdf = $this->pdf->load();
-        $pdf->WriteHTML($html); // write the HTML into the PDF
-        $pdfFilePath = DropPath . $data['lpath'];
-        $pdf->Output($pdfFilePath, 'F'); // save to file
+        $data['interest'] = $this->loanTypes[$data['loanType']]->InteresAnual;
+        return $data;
+    }
+
+    private function getPersonalLoanDocData ($request) {
+        $data['reqAmount'] = $request->getRequestedAmount();
+        $data['tel'] = $request->getContactNumber();
+        $data['email'] = $request->getContactEmail();
+        $data['due'] = $request->getPaymentDue();
+        $data['userId'] = $request->getUserOwner()->getId();
+        $data['loanType'] = $request->getLoanType();
+        $data['lpath'] = $request->getDocuments()[0]->getLpath();
+        $data['username'] = $request->getUserOwner()->getFirstName() . ' ' . $request->getUserOwner()->getLastName();
+        $data['requestId'] = str_pad($request->getId(), 6, '0', STR_PAD_LEFT);
+        $data['date'] = new DateTime('now', new DateTimeZone('America/Barbados'));
+        $data['loanTypeString'] = $this->loanTypes[$data['loanType']]->DescripcionDelPrestamo;
+        $data['paymentFee'] = $this->utils->calculatePaymentFee($data['reqAmount'],
+                                                                $data['due'],
+                                                                $this->loanTypes[$data['loanType']]->InteresAnual);
+        $medicalExpenses = $this->requests->getLastLoanInfo($data['userId'], MEDICAL_EXPENSES);
+        if ($medicalExpenses != null) {
+            $contribution = 0.2 * $data['reqAmount'];
+            $data['medicalContribution'] = $medicalExpenses->saldo_actual > $contribution ?
+                $contribution : $medicalExpenses->saldo_actual;
+        } else { $data['medicalContribution'] = 0;}
+        $lastLoan = $this->requests->getLastLoanInfo($data['userId'], PERSONAL_LOAN);
+        $data['lastLoanBalance'] = intval($lastLoan ? $lastLoan->saldo_actual : 0, 10);
+        $data['lastLoanFee'] = intval($lastLoan ? $lastLoan->otorg_cuota : 0, 10);
+        // Get interests adjustment data.
+        $data['daysOfMonth'] = intval(date("t"), 10);
+        $approvalDate = $request->getCreationDate()->modify('+1 day'); // Assume approval tomorrow. Warn user though.
+        $data['lastLoanInterestDays'] = intval($approvalDate->format('d'), 10);
+        $data['newLoanInterestDays'] = $data['daysOfMonth'] - $data['lastLoanInterestDays'];
+        $data['lastLoanInterestFee'] = ($lastLoan ? $lastLoan->saldo_actual : 0) * 0.01 /
+                                       $data['daysOfMonth'] * $data['lastLoanInterestDays'];
+        if ($data['lastLoanFee'] > 0) {
+            $data['newLoanInterestFee'] = ($data['reqAmount'] - $data['medicalContribution'] + $data['lastLoanFee']) *
+                                          0.01 / $data['daysOfMonth'] * $data['newLoanInterestDays'];
+        } else {$data['newLoanInterestFee'] = 0;}
+        $data['totalToReceive'] = $data['reqAmount'] - $data['medicalContribution'] + $data['lastLoanFee'] -
+                                  $data['newLoanInterestFee'] - $data['lastLoanBalance'];
+        return $data;
     }
 
     public function generateApprovalDocument ($request, $doc) {
@@ -537,27 +668,41 @@ class RequestsModel extends CI_Model
         try {
             $em = $this->doctrine->em;
             $span = $em->getRepository('\Entity\Config')->findOneBy(array('key' => 'SPAN' . $loanType))->getValue();
-
-            $this->ipapedi_db = $this->load->database('ipapedi_db', true);
-            $this->ipapedi_db->select('*');
-            $this->ipapedi_db->from('db_dt_prestamos');
-            $this->ipapedi_db->where('cedula', $uid);
-            $this->ipapedi_db->where('concepto', $loanType);
-            $query = $this->ipapedi_db->order_by('otorg_fecha',"desc")->get();
-            if (empty($query->result())) {
-                // User's first request.
+            if ($loanType == CASH_VOUCHER) {
+                // Cash vouchers do not get registered under db_dt_prestamos
+                $lastRequest = $this->requests->getLastRequest($uid, CASH_VOUCHER);
+                if ($lastRequest == null) {
+                    // Seems like this is their first request. Grant permission to create!
+                    return 0;
+                } else {
+                    // Add 2 days to take evaluation and granting process into account.
+                    $granting = $lastRequest->getCreationDate()->modify('+2 day');
+                }
+            } else {
+                $this->ipapedi_db = $this->load->database('ipapedi_db', true);
+                $this->ipapedi_db->select('*');
+                $this->ipapedi_db->from('db_dt_prestamos');
+                $this->ipapedi_db->where('cedula', $uid);
+                $this->ipapedi_db->where('concepto', $loanType);
+                $query = $this->ipapedi_db->order_by('otorg_fecha',"desc")->get();
+                if (empty($query->result())) {
+                    // User's first request.
+                    return 0;
+                } else {
+                    $granting = date_create_from_format('d/m/Y', $query->result()[0]->otorg_fecha);
+                    if (!$granting) {
+                        // No granting date found in granting entry. Perhaps it was rejected?
+                        // Go ahead and allow this request type creation
+                        return 0;
+                    }
+                }
+            }
+            $currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
+            $diff = $this->utils->getDateInterval($currentDate, $granting);
+            if ($diff['years'] > 0) {
                 return 0;
             } else {
-                $granting = date_create_from_format('d/m/Y', $query->result()[0]->otorg_fecha);
-                if (!$granting) {
-                    // No granting date found in granting entry. Perhaps it was rejected?
-                    // Go ahead and allow this request type creation
-                    return 0;
-                }
-                $currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
-                $interval = $granting->diff($currentDate);
-                $monthsPassed = $interval->format("%m");
-                return $span - $monthsPassed;
+                return $diff['months'] - $span;
             }
         } catch (Exception $e) {
             throw $e;

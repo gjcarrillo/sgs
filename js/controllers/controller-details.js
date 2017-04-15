@@ -147,14 +147,13 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                 $scope.loading = true;
                 Requests.getAvailabilityData(fetchId, model.type).then(
                     function (data) {
-                        $scope.percentage = data.percentage;
+                        $scope.model.data = data;
                         Requests.checkPreviousRequests(fetchId, model.type).then(
                             function (opened) {
                                 data.opened = opened;
                                 Requests.getLoanTerms(model.type).then(
                                     function (terms) {
-                                        $scope.maxReqAmount = Requests.getMaxAmount();
-                                        $scope.minReqAmount = Requests.getMinAmount();
+                                        $scope.model.maxReqAmount = Requests.getMaxAmount();
                                         $scope.model.terms = terms;
                                         Requests.verifyAvailability(data, model.type, true);
                                         $scope.loading = false;
@@ -238,9 +237,28 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                 );
             }
 
+            $scope.calculateMedicalDebtContribution = function () {
+                var contribution = 0.2 * $scope.model.reqAmount;
+                return $scope.model.data.medicalDebt > contribution ? contribution : $scope.model.data.medicalDebt;
+            };
+
+            $scope.calculateNewInterest = function () {
+                return ($scope.model.reqAmount - ($scope.calculateMedicalDebtContribution() || 0) + $scope.model.data.lastLoanFee) *
+                       0.01 / $scope.model.data.daysOfMonth * $scope.model.data.newLoanInterestDays;
+            };
+
+            $scope.calculateLoanAmount = function () {
+                var subtotal = $scope.model.reqAmount - ($scope.calculateMedicalDebtContribution() || 0);
+                return subtotal + (($scope.model.data.lastLoanFee - $scope.calculateNewInterest() - $scope.model.data.lastLoanBalance) || 0);
+            };
+
+            $scope.getInterestRate = function () {
+                return Requests.getInterestRate($scope.model.type);
+            };
+
             // Sets the bound input to the max possibe request amount
             $scope.setMax = function() {
-                $scope.model.reqAmount = $scope.maxReqAmount;
+                $scope.model.reqAmount = $scope.model.maxReqAmount;
             };
 
             // Shows a dialog asking user to confirm the request creation.

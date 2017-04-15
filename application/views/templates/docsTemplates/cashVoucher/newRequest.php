@@ -45,8 +45,8 @@
     Dicha información será corroborada tras realizar la correspondiente
     verificación a través del sistema.<br /><br />
 
-    Asimismo, entiendo que el monto <b>máximo</b> a abonar se basa en los siguientes cálculos:<br />
-<table class="invoice" style="font-family: 'Open Sans','Helvetica Neue',Helvetica,sans-serif; box-sizing: border-box; font-size: 14px; text-align: left; width: 80%; margin: 40px auto;">
+    Asimismo, entiendo que el monto <b>máximo</b> a abonar se basa en los siguientes cálculos correspondientes a la fecha actual:
+<table class="invoice" style="font-family: 'Open Sans','Helvetica Neue',Helvetica,sans-serif; box-sizing: border-box; font-size: 14px; text-align: left; width: 80%; margin: 20px auto;">
     <tr style="font-family: 'Open Sans','Helvetica Neue',Helvetica,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
         <td style="font-family: 'Open Sans','Helvetica Neue',Helvetica,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 5px 0;" valign="top">
             <table class="invoice-items" cellpadding="0" cellspacing="0" style="font-family: 'Open Sans','Helvetica Neue',Helvetica,sans-serif; box-sizing: border-box; font-size: 14px; width: 100%; margin: 0;">
@@ -75,7 +75,7 @@
             </table>
         </td>
     </tr>
-</table><br/><br/>
+</table><br/>
 
 Constancia expedida a los días <?php echo $date->format('d') ?> del mes <?php echo $date->format('m') ?>, del año
 <?php echo $date->format('Y') ?>.<br />

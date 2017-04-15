@@ -68,110 +68,77 @@ class NewRequestController extends CI_Controller {
 			// Only agents can create requests for other people
 			$result['message'] = 'forbidden';
 		} else {
-			// Validate incoming data.
 			try {
-				$em = $this->doctrine->em;
-				$loanTypes = $this->configModel->getLoanTypes();
-				$userData = $this->users->getPersonalData($data['userId']);
-				$lastLoan = $this->requests->getLastLoanInfo($data['userId'], $data['loanType']);
-				$allLoans = $this->requests->getAllLoansInfo($data['userId']);
-				$newConcurrence = $this->users->calculateNewConcurrence(
-					$allLoans,
-					$userData->sueldo,
-					$this->utils->calculatePaymentFee($data['reqAmount'],$data['due'],$loanTypes[$data['loanType']]->InteresAnual)
-				);
-				$diff = $this->utils->getDateInterval(
-					new DateTime('now', new DateTimeZone('America/Barbados')),
-					date_create_from_format('d/m/Y', $userData->ingreso)
-				);
-				$terms = $this->utils->extractLoanTerms($loanTypes[$data['loanType']]);
-				if ($userData->concurrencia > 40) {
-					$result['message'] = "Concurrencia muy alta (mayor a 40%)";
-				} else if ($data['loanType'] != CASH_VOUCHER && $newConcurrence > 40) {
-					$result['message'] = "Su concurrencia con el nuevo préstamo excede el 40%. Su concurrencia " .
-										 "actual le permite una cuota máxima de Bs. " .
-										 number_format($this->users->calculateMaxFeeByConcurrence($allLoans, $userData->sueldo), 2);
-				} else if ($data['loanType'] == PERSONAL_LOAN && ($diff['months'] + ($diff['years'] * 12) < 6)) {
-					$result['message'] = "Deben transcurrir seis meses desde su fecha de ingreso.";
-				} else if (!$this->utils->checkPreviousRequests($data['userId'], $data['loanType'])) {
-					// Another request of same type is already open.
-					$result['message'] = 'Usted ya posee una solicitud del tipo ' .
-										 $loanTypes[$data['loanType']]->description . ' en transcurso.';
-				} else if ($this->requests->getSpanLeft($data['userId'], $data['loanType']) > 0 &&
-						   ($lastLoan != null && $lastLoan->saldo_edo > 0)) {
-					// Span between requests of same type not yet through and debts still not paid.
-					$span = $em->getRepository('\Entity\Config')->findOneBy(array('key' => 'SPAN' . $data['loanType']))->getValue();
-					$result['message'] = "No ha" . ($span == 1 ? "" : "n") .
-										 " transcurrido al menos " . $span . ($span == 1 ? " mes " : " meses ") .
-										 "desde su última otorgación de préstamo del tipo: " .
-										 $loanTypes[$data['loanType']]->DescripcionDelPrestamo;
-				} else if (!$this->users->isReqAmountValid($data['reqAmount'], $data['loanType'], $userData)) {
-					$result['message'] = 'Monto solicitado no válido.';
-				} else if (!in_array($data['due'], $terms)) {
-					$result['message'] = 'Plazo de pago no válido.';
-				} else if (!$this->utils->isRequestTypeValid($loanTypes, $data['loanType'])) {
-					$result['message'] = 'Tipo de préstamo inválido.';
-				} else {
-					// Register History first
-					$request = new \Entity\Request();
-					$history = new \Entity\History();
-					$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
-					$history->setUserResponsible($this->users->getUser($this->session->id));
-					$history->setTitle($this->utils->getHistoryActionCode('creation'));
-					$history->setOrigin($request);
-					$request->addHistory($history);
-					// Register it's corresponding actions
-					$action = new \Entity\HistoryAction();
-					$action->setSummary("Estatus de la solicitud: " . RECEIVED . ".");
-					$action->setBelongingHistory($history);
-					$history->addAction($action);
-					$em->persist($action);
-					$action = new \Entity\HistoryAction();
-					$action->setSummary("Monto solicitado: Bs " . number_format($data['reqAmount'], 2));
-					$action->setBelongingHistory($history);
-					$history->addAction($action);
-					$em->persist($action);
-					$action = new \Entity\HistoryAction();
-					$action->setSummary("Número de contacto: " . $data['tel']);
-					$action->setBelongingHistory($history);
-					$history->addAction($action);
-					$em->persist($action);
-					$action = new \Entity\HistoryAction();
-					$action->setSummary("Dirección de correo: " . $data['email']);
-					$action->setBelongingHistory($history);
-					$history->addAction($action);
-					$em->persist($action);
-					$action = new \Entity\HistoryAction();
-					$action->setSummary("Plazo para pagar: " . $data['due'] . " meses.");
-					$action->setBelongingHistory($history);
-					$history->addAction($action);
-					$em->persist($action);
-					$action = new \Entity\HistoryAction();
-					$action->setSummary("Tipo de préstamo: " . $loanTypes[$data['loanType']]->DescripcionDelPrestamo);
-					$action->setBelongingHistory($history);
-					$em->persist($action);
-					$history->addAction($action);
-					$em->persist($history);
-					$request->setStatus(RECEIVED);
-					$request->setCreationDate(new DateTime('now', new DateTimeZone('America/Barbados')));
-					$request->setRequestedAmount($data['reqAmount']);
-					$request->setLoanType($data['loanType']);
-					$request->setPaymentDue($data['due']);
-					$request->setContactNumber($data['tel']);
-					$request->setContactEmail($data['email']);
-					$user = $em->find('\Entity\User', $data['userId']);
-					$request->setUserOwner($user);
-					$user->addRequest($request);
-					$em->persist($request);
-					$em->merge($user);
-					// Create the new request doc.
-					$this->requests->addDocuments($request, $history, $data['docs'], true);
-					$em->persist($history);
-					$em->flush();
-					$result['request'] = $this->utils->reqToArray($request);
-					$this->requests->generateRequestDocument($request);
-					$result['message'] = "success";
+				// Validate incoming data.
+				switch (intval($data['loanType'], 10)) {
+					case CASH_VOUCHER:
+						$this->requests->validateCashVoucherCreation($data, false);
+						break;
+					case PERSONAL_LOAN:
+						$this->requests->validatePersonalLoanCreation($data, false);
+						break;
 				}
+				$em = $this->doctrine->em;
+				// Register History first
+				$request = new \Entity\Request();
+				$history = new \Entity\History();
+				$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
+				$history->setUserResponsible($this->users->getUser($this->session->id));
+				$history->setTitle($this->utils->getHistoryActionCode('creation'));
+				$history->setOrigin($request);
+				$request->addHistory($history);
+				// Register it's corresponding actions
+				$action = new \Entity\HistoryAction();
+				$action->setSummary("Estatus de la solicitud: " . RECEIVED . ".");
+				$action->setBelongingHistory($history);
+				$history->addAction($action);
+				$em->persist($action);
+				$action = new \Entity\HistoryAction();
+				$action->setSummary("Monto solicitado: Bs " . number_format($data['reqAmount'], 2));
+				$action->setBelongingHistory($history);
+				$history->addAction($action);
+				$em->persist($action);
+				$action = new \Entity\HistoryAction();
+				$action->setSummary("Número de contacto: " . $data['tel']);
+				$action->setBelongingHistory($history);
+				$history->addAction($action);
+				$em->persist($action);
+				$action = new \Entity\HistoryAction();
+				$action->setSummary("Dirección de correo: " . $data['email']);
+				$action->setBelongingHistory($history);
+				$history->addAction($action);
+				$em->persist($action);
+				$action = new \Entity\HistoryAction();
+				$action->setSummary("Plazo para pagar: " . $data['due'] . " meses.");
+				$action->setBelongingHistory($history);
+				$history->addAction($action);
+				$em->persist($action);
+				$action = new \Entity\HistoryAction();
+				$loanTypes = $this->configModel->getLoanTypes();
+				$action->setSummary("Tipo de préstamo: " . $loanTypes[$data['loanType']]->DescripcionDelPrestamo);
+				$action->setBelongingHistory($history);
+				$em->persist($action);
+				$history->addAction($action);
+				$em->persist($history);
+				$request->setStatus(RECEIVED);
+				$request->setCreationDate(new DateTime('now', new DateTimeZone('America/Barbados')));
+				$request->setRequestedAmount($data['reqAmount']);
+				$request->setLoanType($data['loanType']);
+				$request->setPaymentDue($data['due']);
+				$request->setContactNumber($data['tel']);
+				$request->setContactEmail($data['email']);
+				$user = $em->find('\Entity\User', $data['userId']);
+				$request->setUserOwner($user);
+				$user->addRequest($request);
+				$em->persist($request);
+				$em->merge($user);
+				// Create the new request doc.
+				$this->requests->addDocuments($request, $history, $data['docs'], true);
+				$em->persist($history);
+				$em->flush();
+				$result['request'] = $this->utils->reqToArray($request);
+				$this->requests->generateRequestDocument($request);
+				$result['message'] = "success";
 	        } catch (Exception $e) {
 				$result['message'] = $this->utils->getErrorMsg($e);
 	        }

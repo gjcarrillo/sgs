@@ -311,6 +311,28 @@ class UserModel extends CI_Model
         return 0.4 * $wage - $sum;
     }
 
+    public function calculateMaxTermsByConcurrence($loans, $wage, $reqAmount, $terms, $concept) {
+        // Calculate actual concurrence based on other loans payment fees amount
+        $sum = 0;
+        foreach ($loans as $loan) {
+            if ($loan->saldo_edo > 0) {
+                // Active loan. Take into account.
+                $sum += intval($loan->otorg_cuota, 10);
+            }
+        }
+        // Check new concurrence with each term.
+        $loanTypes = $this->configModel->getLoanTypes();
+        asort($terms);
+        foreach ($terms as $term) {
+            $newFee = $this->utils->calculatePaymentFee($reqAmount, $term, $loanTypes[$concept]->InteresAnual);
+            $newConcurrence = ($sum + $newFee) * 100 / $wage;
+            if ($newConcurrence <= 40) {
+                return $term;
+            }
+        }
+        return 'No disponible';
+    }
+
     public function isReqAmountValid($reqAmount, $concept, $userData) {
         switch (intval($concept, 10)) {
             case CASH_VOUCHER:
@@ -318,6 +340,8 @@ class UserModel extends CI_Model
                 $maxAmount = $userData->sueldo * $percentage / 100;
                 return $reqAmount > 0 && $reqAmount <= $maxAmount;
             case PERSONAL_LOAN:
+                //$maxAmount = $userData->u_saldo_disp + $userData->p_saldo_disp;
+                //return $reqAmount > 0 && $reqAmount <= $maxAmount;
                 return true;
             default:
                 return false;
