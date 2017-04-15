@@ -103,6 +103,7 @@ define('JWT_SECRET_KEY', getenv('JWT_SECRET_KEY'));
 =========================================*/
 define('PERSONAL_LOAN', 40);
 define('CASH_VOUCHER', 31);
+define('MEDICAL_EXPENSES', 45);
 /* ======================================
                 STATUSES
 =========================================*/

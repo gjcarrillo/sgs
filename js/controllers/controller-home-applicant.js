@@ -318,6 +318,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
                 $scope.loading = true;
                 Requests.getAvailabilityData(fetchId, concept).then(
                     function (data) {
+                        console.log(data);
                         $scope.model.data = data;
                         Requests.checkPreviousRequests(fetchId, concept).then(
                             function (opened) {
@@ -350,6 +351,21 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
                     }
                 );
             }
+
+            $scope.calculateMedicalDebtContribution = function () {
+                var contribution = 0.2 * $scope.model.reqAmount;
+                return $scope.model.data.medicalDebt > contribution ? contribution : $scope.model.data.medicalDebt;
+            };
+
+            $scope.calculateNewInterest = function () {
+                return ($scope.model.reqAmount - ($scope.calculateMedicalDebtContribution() || 0) + $scope.model.data.lastLoanFee) *
+                       0.01 / $scope.model.data.daysOfMonth * $scope.model.data.newLoanInterestDays;
+            };
+
+            $scope.calculateLoanAmount = function () {
+                var subtotal = $scope.model.reqAmount - ($scope.calculateMedicalDebtContribution() || 0);
+                return subtotal + (($scope.model.data.lastLoanFee - $scope.calculateNewInterest() - $scope.model.data.lastLoanBalance) || 0);
+            };
 
             $scope.missingField = function () {
                 return typeof $scope.model.reqAmount === "undefined" ||
@@ -415,7 +431,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
 
             // Sets the bound input to the max possibe request amount
             $scope.setMax = function() {
-                $scope.model.reqAmount = $scope.maxReqAmount;
+                $scope.model.reqAmount = $scope.model.maxReqAmount;
             };
 
             // Shows a dialog asking user to confirm the request creation.
@@ -542,6 +558,21 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
                 $mdDialog.hide();
             };
 
+            $scope.calculateMedicalDebtContribution = function () {
+                var contribution = 0.2 * $scope.model.reqAmount;
+                return $scope.model.data.medicalDebt > contribution ? contribution : $scope.model.data.medicalDebt;
+            };
+
+            $scope.calculateNewInterest = function () {
+                return ($scope.model.reqAmount - ($scope.calculateMedicalDebtContribution() || 0) + $scope.model.data.lastLoanFee) *
+                       0.01 / $scope.model.data.daysOfMonth * $scope.model.data.newLoanInterestDays;
+            };
+
+            $scope.calculateLoanAmount = function () {
+                var subtotal = $scope.model.reqAmount - ($scope.calculateMedicalDebtContribution() || 0);
+                return subtotal + (($scope.model.data.lastLoanFee - $scope.calculateNewInterest() - $scope.model.data.lastLoanBalance) || 0);
+            };
+
             $scope.calculatePaymentFee = function() {
                 if ($scope.model.reqAmount && $scope.model.due) {
                     return Requests.calculatePaymentFee($scope.model.reqAmount,
@@ -591,7 +622,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
 
             // Sets the bound input to the max possibe request amount
             $scope.setMax = function() {
-                $scope.model.reqAmount = $scope.maxReqAmount;
+                $scope.model.reqAmount = $scope.model.maxReqAmount;
             };
 
             // Shows a dialog asking user to confirm the request creation.

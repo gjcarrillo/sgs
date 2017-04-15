@@ -243,6 +243,24 @@ class UserModel extends CI_Model
     }
 
     /**
+     * Obtains applicant's contribution data from ipapedi_db
+     * @param $id - user's id.
+     * @return array with contributuion data. null if no data was found.
+     */
+    public function getContributionData($id) {
+        $this->ipapedi_db = $this->load->database('ipapedi_db', true);
+        $this->ipapedi_db->select('*');
+        $this->ipapedi_db->from('db_dt_aportes');
+        $this->ipapedi_db->where('cedula', $id);
+        $query = $this->ipapedi_db->get();
+        if (empty($query->result())) {
+            return null;
+        } else {
+            return $query->result()[0];
+        }
+    }
+
+    /**
      * Determines whether if a specific user is registered.
      *
      * @param $uid = user's id.
@@ -301,6 +319,8 @@ class UserModel extends CI_Model
                 return $reqAmount > 0 && $reqAmount <= $maxAmount;
             case PERSONAL_LOAN:
                 return true;
+            default:
+                return false;
         }
     }
 }

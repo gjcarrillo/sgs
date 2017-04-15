@@ -851,7 +851,6 @@ class RequestsModel extends CI_Model
             $em = $this->doctrine->em;
             $span = $this->configModel->getRequestSpan(PERSONAL_LOAN);
             $result['granting']['span'] = $span;
-            $config = $em->getRepository('\Entity\Config');
             $lastLoan = $this->requests->getLastLoanInfo($uid, PERSONAL_LOAN);
             if ($lastLoan == null) {
                 // Seems like this is their first request. Grant permission to create!
@@ -870,6 +869,16 @@ class RequestsModel extends CI_Model
                         ($diff['months'] + ($diff['years'] * 12) >= $span) || ($lastLoan->saldo_edo <= 0);
                     // Tell user when will he be able to request again in case time constrain is not over.
                     $result['granting']['dateAvailable'] = $granting->modify('+' . $span . ' month')->format('d/m/Y');
+                    // Get last loan info
+                    $result['lastLoanBalance'] = intval($lastLoan->saldo_actual, 10);
+                    $result['lastLoanFee'] = intval($lastLoan->otorg_cuota, 10);
+                    $result['lastLoanGrantingDate'] = $lastLoan->otorg_fecha;
+                    // Get interests adjustment data.
+                    $result['daysOfMonth'] = intval(date("t"), 10);
+                    $approvalDate = $currentDate->modify('+1 day'); // Assume approval tomorrow. Warn user though.
+                    $result['lastLoanInterestDays'] = intval($approvalDate->format('d'), 10);
+                    $result['newLoanInterestDays'] = $result['daysOfMonth'] - $result['lastLoanInterestDays'];
+                    $result['lastLoanInterestFee'] = $lastLoan->saldo_actual * 0.01 / $result['daysOfMonth'] * $result['lastLoanInterestDays'];
                 }
             }
             $userData = $this->users->getPersonalData($uid);
@@ -893,7 +902,18 @@ class RequestsModel extends CI_Model
                     $result['dateAvailable'] = $admissionDate->modify('+6 month')->format('d/m/Y');
                 }
             }
-            $result['maxReqAmount'] = $config->findOneBy(array('key' => 'MAX_AMOUNT'))->getValue();
+            $userContribution = $this->users->getContributionData($uid);
+            if ($userContribution == null) {
+                // Contribution info not found! This should never happen. Nevertheless, throw error.
+                throw new Exception("Parece que aún no posee ningún tipo de aporte.");
+            } else {
+                $result['contribution'] = $userContribution->p_saldo_disp + $userContribution->u_saldo_disp;
+            }
+            $medicalExpenses = $this->requests->getLastLoanInfo($uid, MEDICAL_EXPENSES);
+            if ($medicalExpenses != null) {
+                $result['medicalDebt'] = $medicalExpenses->saldo_actual;
+            }
+            $result['maxReqAmount'] = $result['contribution'] * 0.8;
             return $result;
         } catch (Exception $e) {
             throw $e;
