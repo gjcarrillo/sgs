@@ -27,6 +27,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
     var fetchId = $cookies.getObject('session').id;
 
     $scope.selectAction = function (id) {
+        $mdSidenav('left').close();
         $scope.requests = {};
         $scope.selectedAction = id;
         performAction(id);
@@ -270,6 +271,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
      */
     $scope.openNewRequestDialog = function ($event, concept, obj) {
         $scope.selectedAction = 'N' + concept;
+        $mdSidenav('left').close();
         $scope.requests = {};
         var parentEl = angular.element(document.body);
         $mdDialog.show({

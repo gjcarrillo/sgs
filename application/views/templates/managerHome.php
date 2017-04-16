@@ -256,16 +256,7 @@
                     <canvas id="piechart" width="300" height="300"></canvas>
                 </div>
             </div>
-            <!-- Pie error -->
-            <div
-                class="full-content-height md-padding"
-                ng-if="pieError != '' && !req"
-                layout layout-align="center center">
-                <div layout="column" layout-align="center center" class="md-whiteframe-z2 pie-error-card">
-                    <span style="color:red">{{pieError}}</span>
-                </div>
-            </div>
-            <md-content class="bg document-container">
+            <md-content ng-if="!pieloaded && !showWatermark() && !loadingContent" class="bg document-container">
                 <!-- Query by request ID -->
                 <div ng-show="selectedAction == 10" class="margin-16" layout>
                     <div layout="column">
@@ -400,17 +391,17 @@
                     </div>
                 </div>
                 <!-- Query by interval of dates -->
-                <div ng-show="selectedAction == 2 && showResult == null" layout class="margin-16">
-                    <div layout="column">
+                <div ng-show="selectedAction == 2 && showResult == null" layout layout-xs="column">
+                    <div layout="column" layout-xs="row" layout-align-xs="start center" layout-margin>
                         <p>Desde</p>
                         <md-datepicker class="bg" ng-model="model.perform[selectedAction].from" md-placeholder="Ingese fecha"></md-datepicker>
                     </div>
-                    <div layout="column">
+                    <div layout="column" layout-xs="row" layout-align-xs="start center" layout-margin>
                         <p>Hasta</p>
                         <md-datepicker class="bg" ng-model="model.perform[selectedAction].to" md-placeholder="Ingese fecha"></md-datepicker>
                     </div>
                     <br />
-                    <div layout layout-align="center end">
+                    <div layout layout-align="center center">
                         <md-button
                             ng-disabled="!model.perform[selectedAction].from || !model.perform[selectedAction].to || loading"
                             ng-click="fetchRequestsByDateInterval(
@@ -425,16 +416,16 @@
                 </div>
 
                 <!-- Query approved amount by interval of dates -->
-                <div ng-show="selectedAction == 4" layout layout-padding>
-                    <div layout="column">
+                <div ng-show="selectedAction == 4" layout layout-xs="column">
+                    <div layout="column" layout-xs="row" layout-align-xs="start center" layout-margin>
                         <p>Desde</p>
                         <md-datepicker class="bg" ng-model="model.perform[selectedAction].from" md-placeholder="Ingese fecha"></md-datepicker>
                     </div>
-                    <div layout="column">
+                    <div layout="column" layout-xs="row" layout-align-xs="start center" layout-margin>
                         <p>Hasta</p>
                         <md-datepicker class="bg" ng-model="model.perform[selectedAction].to" md-placeholder="Ingese fecha"></md-datepicker>
                     </div>
-                    <div layout layout-align="center end">
+                    <div layout layout-align="center center">
                         <md-button
                             ng-disabled="!model.perform[selectedAction].from ||
                                 !model.perform[selectedAction].to || loading"
@@ -491,16 +482,16 @@
                 </div>
 
                 <!-- Query closed requests report by interval of dates -->
-                <div ng-show="selectedAction == 6" layout layout-padding>
-                    <div layout="column">
+                <div ng-show="selectedAction == 6" layout layout-xs="column">
+                    <div layout="column" layout-xs="row" layout-align-xs="start center" layout-margin>
                         <p>Desde</p>
                         <md-datepicker class="bg" ng-model="model.perform[selectedAction].from" md-placeholder="Ingese fecha"></md-datepicker>
                     </div>
-                    <div layout="column">
+                    <div layout="column" layout-xs="row" layout-align-xs="start center" layout-margin>
                         <p>Hasta</p>
                         <md-datepicker class="bg" ng-model="model.perform[selectedAction].to" md-placeholder="Ingese fecha"></md-datepicker>
                     </div>
-                    <div layout layout-align="center end">
+                    <div layout layout-align="center center">
                         <md-button
                             ng-disabled="!model.perform[selectedAction].from ||
                                 !model.perform[selectedAction].to"

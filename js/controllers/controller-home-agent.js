@@ -30,6 +30,7 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
     $scope.IPAPEDI_URL = Constants.IPAPEDI_URL;
 
     $scope.selectAction = function (id) {
+        $mdSidenav('left').close();
         $scope.requests = {};
         $scope.selectedAction = id;
         performAction(id);
@@ -292,6 +293,7 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
      * @param obj - optional obj containing user input data.
      */
     $scope.openNewRequestDialog = function ($event, concept, obj) {
+        $mdSidenav('left').close();
         $scope.selectedAction = 'N' + concept;
         $scope.requests = {};
         var parentEl = angular.element(document.body);
@@ -732,6 +734,10 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
 
     $scope.downloadManual = function () {
         window.open(Constants.BASEURL + 'public/manualAgente.pdf');
+    };
+
+    $scope.openMenu = function () {
+        $mdSidenav('left').toggle();
     };
 
     // Enables / disables search bar (for mobile screens)

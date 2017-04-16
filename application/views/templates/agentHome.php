@@ -113,7 +113,7 @@
                     placeholder="Ingrese una cédula"
                     aria-label="Search"
                     ng-model="searchInput"
-                    ng-keyup="$event.keyCode == 13 && fetchRequests(searchInput)"
+                    ng-keyup="$event.keyCode == 13 && fetchUser(searchInput)"
                     type="text"/>
                 <md-icon ng-click="clearSearch()" class="search-icon">close</md-icon>
             </div>
@@ -208,15 +208,6 @@
     <!-- Content -->
     <div layout="column" flex>
         <main class="main-w-footer">
-            <!-- Search error -->
-            <div
-                class="full-content-height md-padding"
-                ng-if="fetchError != ''"
-                layout layout-align="center center">
-                <div layout="column" layout-align="center center" class="md-whiteframe-z2 error-card">
-                    <span style="color:red">{{fetchError}}</span>
-                </div>
-            </div>
             <!-- Watermark -->
             <div
                 ng-if="showWatermark()"
@@ -233,7 +224,7 @@
                 <md-progress-circular aria-label="Loading..." md-mode="indeterminate" md-diameter="60">
                 </md-progress-circular>
             </div>
-            <md-content class="bg document-container">
+            <md-content ng-if="!showWatermark() && !fetching" class="bg document-container">
                 <!-- Request by ID -->
                 <div ng-if="selectedAction == 2 && !fetching" layout class="margin-16">
                     <div layout="column">
@@ -261,16 +252,16 @@
                     </div>
                 </div>
                 <!-- Request by date -->
-                <div ng-if="selectedAction == 3 && !fetching" layout class="margin-16">
-                    <div layout="column">
+                <div ng-if="selectedAction == 3 && !fetching" layout layout-xs="column">
+                    <div layout="column" layout-xs="row" layout-align-xs="start center" layout-margin>
                         <p>Desde</p>
                         <md-datepicker class="bg" ng-model="queries[selectedAction].from" md-placeholder="Ingese fecha"></md-datepicker>
                     </div>
-                    <div layout="column">
+                    <div layout="column" layout-xs="row" layout-align-xs="start center" layout-margin>
                         <p>Hasta</p>
                         <md-datepicker class="bg" ng-model="queries[selectedAction].to" md-placeholder="Ingese fecha"></md-datepicker>
                     </div>
-                    <div layout layout-align="center end">
+                    <div layout layout-align="center center">
                         <md-button
                             ng-disabled="!queries[selectedAction].from || !queries[selectedAction].to"
                             ng-click="getRequestsByDate(queries[selectedAction].from, queries[selectedAction].to)"

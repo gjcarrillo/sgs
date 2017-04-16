@@ -62,6 +62,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
         $scope.singleType = {};
         $scope.showApprovedAmount = false;
         $scope.selectedAction = id;
+        $mdSidenav('left').close();
         performAction(id);
     };
 
@@ -849,7 +850,10 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
     };
 
     $scope.showPie = function() {
-        if ($scope.pieError == '') { $scope.pieloaded = true; }
+        if ($scope.pieError == '') {
+            $scope.pieloaded = true;
+            $mdSidenav('left').close();
+        }
     };
 
     function drawPie(pie) {
