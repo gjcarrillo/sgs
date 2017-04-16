@@ -566,6 +566,9 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
             $scope.PRE_APPROVED_STRING = Constants.Statuses.PRE_APPROVED;
             $scope.REJECTED_STRING = Constants.Statuses.REJECTED;
             $scope.RECEIVED_STRING = Constants.Statuses.RECEIVED;
+            $scope.APPLICANT = Constants.Users.APPLICANT;
+            $scope.AGENT = Constants.Users.AGENT;
+            $scope.LoanTypes = Constants.LoanTypes;
 
             if (obj) {
                 $scope.model = obj;
@@ -581,6 +584,22 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                 $scope.model.status = request.status;
                 $scope.model.comment = $scope.request.comment;
                 $scope.model.approvedAmount = $scope.request.reqAmount;
+                getData();
+            }
+
+            function getData () {
+                $scope.loading = true;
+                Requests.getAvailabilityData(fetchId, request.type).then(
+                    function (data) {
+                        console.log(data);
+                        $scope.model.data = data;
+                        $scope.loading = false;
+                    },
+                    function (error) {
+                        $scope.loading = false;
+                        Utils.handleError(error);
+                    }
+                );
             }
 
             $scope.closeDialog = function() {
@@ -634,6 +653,25 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                              || $scope.model.comment == $scope.request.comment)
                             && $scope.model.files.length == 0);
                 }
+            };
+
+            $scope.calculateMedicalDebtContribution = function () {
+                var contribution = 0.2 * $scope.model.approvedAmount;
+                return $scope.model.data.medicalDebt > contribution ? contribution : $scope.model.data.medicalDebt;
+            };
+
+            $scope.calculateNewInterest = function () {
+                return ($scope.model.approvedAmount - ($scope.calculateMedicalDebtContribution() || 0) + $scope.model.data.lastLoanFee) *
+                       0.01 / $scope.model.data.daysOfMonth * $scope.model.data.newLoanInterestDays;
+            };
+
+            $scope.calculateLoanAmount = function () {
+                var subtotal = $scope.model.approvedAmount - ($scope.calculateMedicalDebtContribution() || 0);
+                return subtotal + (($scope.model.data.lastLoanFee - $scope.calculateNewInterest() - $scope.model.data.lastLoanBalance) || 0);
+            };
+
+            $scope.getInterestRate = function () {
+                return Requests.getInterestRate(request.type);
             };
 
             $scope.loadStatuses = function() {
