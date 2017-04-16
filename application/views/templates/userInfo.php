@@ -31,262 +31,104 @@
             </md-card-header>
             <md-divider></md-divider>
             <md-progress-linear md-mode="query" ng-if="loading"></md-progress-linear>
-            <!-- Show only on width >= 960 screen  -->
-            <md-card-content hide show-gt-sm ng-if="!loading">
-                <div layout layout-xs="column" layout-padding>
-                    <div flex="30" flex-xs="100">
-                        <span class="md-title user-info-title">Cédula</span>
-                        <br/><span>{{userData.cedula}}</span>
+            <md-card-content ng-if="!loading">
+                <div layout layout-xs="column" layout-align="space-around start" layout-align-xs="start start">
+                    <!-- User personal data -->
+                    <div layout="column" layout-padding>
+                        <span class="user-info-heading">DATOS PERSONALES</span>
+                        <!-- ID -->
+                        <div layout="column">
+                            <span class="md-title user-info-title">Cédula</span>
+                            <span>{{userData.cedula}}</span>
+                        </div>
+                        <!-- Admission date -->
+                        <div layout="column">
+                            <span class="md-title user-info-title">Fecha de ingreso</span>
+                            <span>{{userData.ingreso}}</span>
+                        </div>
+                        <div layout="column">
+                            <span class="md-title user-info-title">Estatus</span>
+                            <span>{{userData.status}}</span>
+                        </div>
+                        <!-- Salary -->
+                        <div layout="column">
+                            <span class="md-title user-info-title">Sueldo</span>
+                            <span>Bs. {{userData.sueldo | number:2}}</span>
+                        </div>
+                        <!-- Concurrence -->
+                        <div layout="column">
+                            <span class="md-title user-info-title">Concurrencia</span>
+                            <span ng-style="getConcurranceWarn()">Bs. {{userData.concurrencia}}</span>
+                        </div>
+                        <!-- Contribution percentage -->
+                        <div layout="column">
+                            <span class="md-title user-info-title">Porcentaje de aportes</span>
+                            <span>{{userData.pcj_aporte}}%</span>
+                        </div>
                     </div>
-                    <div flex="30" flex-offset="5">
-                        <span class="md-title user-info-title">Ingreso</span>
-                        <br/><span>{{userData.ingreso}}</span>
-                    </div>
-                    <div flex="30" flex-offset="5">
-                        <span class="md-title user-info-title">Estado</span>
-                        <br/><span>{{userData.status}}</span>
-                    </div>
-                </div>
-                <div layout layout-padding>
-                    <div flex="30">
-                        <span class="md-title user-info-title">Sueldo</span>
-                        <br/><span>Bs {{userData.sueldo | number:2}}</span>
-                    </div>
-                    <div flex="30" flex-offset="5">
-                        <span class="md-title user-info-title">Dependencia</span>
-                        <br/><span>{{userData.dependencia}}</span>
-                    </div>
-                    <div flex="30" flex-offset="5">
-                        <span class="md-title user-info-title">Fianzas</span>
-                        <br/><span>Bs {{userData.fianzas | number:2}}</span>
-                    </div>
-                </div>
-                <div layout layout-padding>
-                    <div flex="30">
-                        <span class="md-title user-info-title">Aporte</span>
-                        <br/><span>{{userData.pcj_aporte}}%</span>
-                    </div>
-                    <div flex="30" flex-offset="5">
-                        <span class="md-title user-info-title">Concurrencia</span>
-                        <br/><span ng-style="getConcurranceWarn()"><b>{{userData.concurrencia}}%</b></span>
-                    </div>
-                    <div flex="30" flex-offset="5">
-                        <span class="md-title user-info-title">Carga EGS</span>
-                        <br/><span>{{userData.carga_egs}}%</span>
-                    </div>
-                </div>
-                <div layout layout-padding>
-                    <div flex="30">
-                        <span class="md-title user-info-title">Carga EMI</span>
-                        <br/><span>{{userData.carga_emi}}%</span>
-                    </div>
-                    <div flex="30" flex-offset="5">
-                        <span class="md-title user-info-title">Carga GMM</span>
-                        <br/><span>{{userData.carga_gmm}}%</span>
-                    </div>
-                    <div flex="30" flex-offset="5">
-                        <span class="md-title user-info-title">Carga GMS</span>
-                        <br/><span>{{userData.carga_gms}}%</span>
-                    </div>
-                </div>
-                <div layout layout-padding>
-                    <div flex="30">
-                        <span class="md-title user-info-title">Carga HCM</span>
-                        <br/><span>{{userData.carga_hcm}}%</span>
-                    </div>
-                    <div flex="30" flex-offset="5">
-                        <span class="md-title user-info-title">Carga SEM</span>
-                        <br/><span>{{userData.carga_sem}}%</span>
-                    </div>
-                    <div flex="30" flex-offset="5">
-                        <span class="md-title user-info-title">Carga SF</span>
-                        <br/><span>{{userData.carga_sf}}%</span>
-                    </div>
-                </div>
-            </md-card-content>
-            <!-- Show only on 600px <= width < 960px screen  -->
-            <md-card-content hide show-sm ng-if="!loading">
-                <div layout layout-padding>
-                    <div flex="45">
-                        <span class="md-title user-info-title">Cédula</span>
-                        <br/><span>{{userData.cedula}}</span>
-                    </div>
-                    <div flex="45" flex-offset="10">
-                        <span class="md-title user-info-title">Ingreso</span>
-                        <br/><span>{{userData.ingreso}}</span>
-                    </div>
-                </div>
-                <div layout layout-padding>
-                    <div flex="45">
-                        <span class="md-title user-info-title">Estado</span>
-                        <br/><span>{{userData.status}}</span>
-                    </div>
-                    <div flex="45"  flex-offset="10">
-                        <span class="md-title user-info-title">Sueldo</span>
-                        <br/><span>Bs {{userData.sueldo | number:2}}</span>
-                    </div>
-                </div>
-                <div layout layout-padding>
-                    <div flex="45">
-                        <span class="md-title user-info-title">Dependencia</span>
-                        <br/><span>Bs {{userData.dependencia | number:2}}</span>
-                    </div>
-                    <div flex="45" flex-offset="10">
-                        <span class="md-title user-info-title">Fianzas</span>
-                        <br/><span>Bs {{userData.fianzas | number:2}}</span>
-                    </div>
-                </div>
-                <div layout layout-padding>
-                    <div flex="45">
-                        <span class="md-title user-info-title">Aporte</span>
-                        <br/><span>{{userData.pcj_aporte}}%</span>
-                    </div>
-                    <div flex="45" flex-offset="10">
-                        <span class="md-title user-info-title">Concurrencia</span>
-                        <br/><span ng-style="getConcurranceWarn()"><b>{{userData.concurrencia}}%</b></span>
-                    </div>
-                </div>
-                <div layout layout-padding>
-                    <div flex="45">
-                        <span class="md-title user-info-title">Carga EGS</span>
-                        <br/><span>{{userData.carga_egs}}%</span>
-                    </div>
-                    <div flex="45" flex-offset="10">
-                        <span class="md-title user-info-title">Carga EMI</span>
-                        <br/><span>{{userData.carga_emi}}%</span>
-                    </div>
-                </div>
-                <div layout layout-padding>
-                    <div flex="45">
-                        <span class="md-title user-info-title">Carga GMM</span>
-                        <br/><span>{{userData.carga_gmm}}%</span>
-                    </div>
-                    <div flex="45" flex-offset="10">
-                        <span class="md-title user-info-title">Carga GMS</span>
-                        <br/><span>{{userData.carga_gms}}%</span>
-                    </div>
-                </div>
-                <div layout layout-padding>
-                    <div flex="45">
-                        <span class="md-title user-info-title">Carga HCM</span>
-                        <br/><span>{{userData.carga_hcm}}%</span>
-                    </div>
-                    <div flex="45" flex-offset="10">
-                        <span class="md-title user-info-title">Carga SEM</span>
-                        <br/><span>{{userData.carga_sem}}%</span>
-                    </div>
-                </div>
-                <div layout layout-padding>
-                    <div flex>
-                        <span class="md-title user-info-title">Carga SF</span>
-                        <br/><span>{{userData.carga_sf}}%</span>
-                    </div>
-                </div>
-            </md-card-content>
-            <!-- Show only on width < 600px screen  -->
-            <md-card-content hide show-xs ng-if="!loading">
-                <div layout layout-padding>
-                    <div flex="70">
-                        <span class="md-title user-info-title">Cédula:</span>
-                        <span>{{userData.cedula}}</span>
-                    </div>
-                </div>
-                <md-divider></md-divider>
-                <div layout layout-padding>
-                    <div flex>
-                        <span class="md-title user-info-title">Ingreso:</span>
-                        <span>{{userData.ingreso}}</span>
-                    </div>
-                </div>
-                <md-divider></md-divider>
-                <div layout layout-padding>
-                    <div flex>
-                        <span class="md-title user-info-title">Estado:</span>
-                        <span>{{userData.status}}</span>
-                    </div>
-                </div>
-                <md-divider></md-divider>
-                <div layout layout-padding>
-                    <div flex>
-                        <span class="md-title user-info-title">Sueldo:</span>
-                        <span>Bs {{userData.sueldo | number:2}}</span>
-                    </div>
-                </div>
-                <md-divider></md-divider>
-                <div layout layout-padding>
-                    <div flex>
-                        <span class="md-title user-info-title">Dependencia:</span>
-                        <span>Bs {{userData.dependencia | number:2}}</span>
-                    </div>
-                </div>
-                <md-divider></md-divider>
-                <div layout layout-padding>
-                    <div flex>
-                        <span class="md-title user-info-title">Fianzas:</span>
-                        <span>Bs {{userData.fianzas | number:2}}</span>
-                    </div>
-                </div>
-                <md-divider></md-divider>
-                <div layout layout-padding>
-                    <div flex>
-                        <span class="md-title user-info-title">Aporte:</span>
-                        <span>{{userData.pcj_aporte}}%</span>
-                    </div>
-                </div>
-                <md-divider></md-divider>
-                <div layout layout-padding>
-                    <div flex>
-                        <span class="md-title user-info-title">Concurrencia:</span>
-                        <span ng-style="getConcurranceWarn()"><b>{{userData.concurrencia}}%</b></span>
-                    </div>
-                </div>
-                <md-divider></md-divider>
-                <div layout layout-padding>
-                    <div flex>
-                        <span class="md-title user-info-title">Carga EGS:</span>
-                        <span>{{userData.carga_egs}}%</span>
-                    </div>
-                </div>
-                <md-divider></md-divider>
-                <div layout layout-padding>
-                    <div flex>
-                        <span class="md-title user-info-title">Carga EMI:</span>
-                        <span>{{userData.carga_emi}}%</span>
-                    </div>
-                </div>
-                <md-divider></md-divider>
-                <div layout layout-padding>
-                    <div flex>
-                        <span class="md-title user-info-title">Carga GMM:</span>
-                        <span>{{userData.carga_gmm}}%</span>
-                    </div>
-                </div>
-                <md-divider></md-divider>
-                <div layout layout-padding>
-                    <div flex>
-                        <span class="md-title user-info-title">Carga GMS:</span>
-                        <span>{{userData.carga_gms}}%</span>
-                    </div>
-                </div>
-                <md-divider></md-divider>
-                <div layout layout-padding>
-                    <div flex>
-                        <span class="md-title user-info-title">Carga HCM:</span>
-                        <span>{{userData.carga_hcm}}%</span>
-                    </div>
-                </div>
-                <md-divider></md-divider>
-                <div layout layout-padding>
-                    <div flex>
-                        <span class="md-title user-info-title">Carga SEM:</span>
-                        <span>{{userData.carga_sem}}%</span>
-                    </div>
-                </div>
-                <md-divider></md-divider>
-                <div layout layout-padding>
-                    <div flex>
-                        <span class="md-title user-info-title">Carga SF:</span>
-                        <span>{{userData.carga_sf}}%</span>
+                    <!-- User contribution data -->
+                    <div layout="column">
+                        <div layout layout-xs="column" layout-align="space-between start" layout-align-xs="start start">
+                            <!-- User personal contribution data -->
+                            <div layout="column" layout-padding>
+                                <span class="user-info-heading">APORTES PERSONALES (AP)</span>
+                                <!-- Balance -->
+                                <div layout="column">
+                                    <span class="md-title user-info-title">Saldo de estado</span>
+                                    <span>Bs. {{userContribution.p_saldo_edo | abs | number:2}}</span>
+                                </div>
+                                <!-- Pending movements -->
+                                <div layout="column">
+                                    <span class="md-title user-info-title">Movimientos pendientes</span>
+                                    <span>Bs. {{userContribution.p_mov_pendientes | abs | number:2}}</span>
+                                </div>
+                                <!-- Debt UC/AP -->
+                                <div layout="column">
+                                    <span class="md-title user-info-title">Deuda UC/AP</span>
+                                    <span>Bs. {{userContribution.p_deuda_uc | abs | number:2}}</span>
+                                </div>
+                                <!-- Available balance -->
+                                <div layout="column">
+                                    <span class="md-title user-info-title">Saldo disponible</span>
+                                    <span>Bs. {{userContribution.p_saldo_disp | abs | number:2}}</span>
+                                </div>
+                            </div>
+                            <!-- User's university contribution data -->
+                            <div layout="column" layout-padding>
+                                <span class="user-info-heading">APORTES UNIVERSITARIOS (AU)</span>
+                                <!-- Balance -->
+                                <div layout="column">
+                                    <span class="md-title user-info-title">Saldo de estado</span>
+                                    <span>Bs. {{userContribution.u_saldo_edo | abs | number:2}}</span>
+                                </div>
+                                <!-- Pending movements -->
+                                <div layout="column">
+                                    <span class="md-title user-info-title">Movimientos pendientes</span>
+                                    <span>Bs. {{userContribution.u_mov_pendientes | abs | number:2}}</span>
+                                </div>
+                                <!-- Debt UC/AP -->
+                                <div layout="column">
+                                    <span class="md-title user-info-title">Deuda UC/AP</span>
+                                    <span>Bs. {{userContribution.u_deuda_uc | abs | number:2}}</span>
+                                </div>
+                                <!-- Available balance -->
+                                <div layout="column">
+                                    <span class="md-title user-info-title">Saldo disponible</span>
+                                    <span>Bs. {{userContribution.u_saldo_disp | abs | number:2}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <md-card md-theme="help-card">
+                            <md-card-title layout layout-align="center center">
+                                <span class="user-info-heading">TOTAL DE APORTES GLOBALES</span>
+                            </md-card-title>
+                            <md-divider></md-divider>
+                            <md-card-content>
+                                <div layout layout-align="center center">
+                                    <span>Bs. {{userContribution.totalContribution | abs | number:2}}</b></span>
+                                </div>
+                            </md-card-content>
+                        </md-card>
                     </div>
                 </div>
             </md-card-content>

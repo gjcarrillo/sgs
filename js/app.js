@@ -14,6 +14,7 @@ var sgdp = angular.module("sgdp",
         "sgdp.directive-select-fix",
         "sgdp.directive-helps",
         "sgdp.directive-overlay",
+        "sgdp.filter-abs",
         "ui.router",
         "ngMaterial",
         "md.data.table",
@@ -284,7 +285,7 @@ sgdp.run(['$rootScope', '$location', '$state', 'Auth', '$cookies', '$http', 'Con
                   switch (url) {
                       case '/applicantHome':
                           // Anyone can access user home page
-                          return true;
+                          return userType == Constants.Users.APPLICANT;
                       case '/agentHome':
                           // Check for agent rights
                           return userType == Constants.Users.AGENT;
@@ -295,8 +296,8 @@ sgdp.run(['$rootScope', '$location', '$state', 'Auth', '$cookies', '$http', 'Con
                           // check for agent or manager rights
                           return userType == Constants.Users.MANAGER || userType == Constants.Users.AGENT;
                       case '/userInfo':
-                          // check for agent or manager rights
-                          return userType == Constants.Users.MANAGER || userType == Constants.Users.AGENT;
+                          // every one can come here
+                          return true;
                   }
                   //  Going to login (.otherwise('login')), so keep going!
                   return true;

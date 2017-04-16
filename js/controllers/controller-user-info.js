@@ -17,10 +17,11 @@ function info($scope, $http, Utils, Constants) {
         .then(function(response) {
             console.log(response);
             if (response.data.message == "success") {
-                $scope.userData = response.data.data;
-                $scope.userName = response.data.userName;
-                $scope.picture = response.data.picture ? Constants.IPAPEDI_URL + 'img/profiles_img/' +
-                                                         response.data.picture : 'images/avatar_circle.png';
+                $scope.userData = response.data.personal.data;
+                $scope.userContribution = response.data.contribution;
+                $scope.userName = response.data.personal.userName;
+                $scope.picture = response.data.personal.picture ? Constants.IPAPEDI_URL + 'img/profiles_img/' +
+                                                         response.data.personal.picture : 'images/avatar_circle.png';
             } else {
                 Utils.handleError(response.data.message);
             }

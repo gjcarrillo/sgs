@@ -144,6 +144,13 @@
         md-component-id="left"
         md-is-locked-open="$mdMedia('gt-sm') && contentLoaded">
         <md-content class="sidenav-height">
+            <!-- User info -->
+            <md-list-item id="user-data" ng-click="loadUserData()">
+                <p class="sidenavTitle">
+                    Datos del asociado
+                </p>
+            </md-list-item>
+            <md-divider></md-divider>
             <!-- Queries list -->
             <md-list class="sidenavList">
                 <md-list-item ng-click="togglePanelList(1)">
@@ -184,28 +191,6 @@
                     <md-divider></md-divider>
                 </div>
             </md-list>
-
-            <!-- Refinancing request list -->
-            <md-list class="sidenavList">
-                <md-list-item ng-click="togglePanelList(3)">
-                    <p class="sidenavTitle">
-                        Refinanciamiento
-                    </p>
-                    <md-icon ng-class="md-secondary" ng-if="selectedList != 3">keyboard_arrow_down</md-icon>
-                    <md-icon ng-class="md-secondary" ng-if="selectedList == 3">keyboard_arrow_up</md-icon>
-                </md-list-item>
-                <md-divider></md-divider>
-                <div class="slide-toggle" ng-show="selectedList == 3" layout="column" layout-align="center" ng-repeat="(lKey, loanType) in loanTypes">
-                    <md-button
-                        ng-click="null"
-                        class="requestItems"
-                        ng-class="{'md-primary md-raised' : selectedAction == 'R' + lKey}">
-                        {{loanType.DescripcionDelPrestamo}}
-                    </md-button>
-                    <md-divider></md-divider>
-                </div>
-            </md-list>
-
             <!-- Edit requests -->
             <md-list class="sidenavList">
                 <div layout="column" layout-align="center">
@@ -387,6 +372,7 @@
                                                 <th md-column><span>Fecha</span></th>
                                                 <th md-column><span>Estatus</span></th>
                                                 <th md-column><span>Monto solicitado</span></th>
+                                                <th md-column><span>Monto aprobado</span></th>
                                             </tr>
                                             </thead>
                                             <tbody md-body>
@@ -395,6 +381,9 @@
                                                 <td md-cell ng-click="goToDetails(request)">{{request.creationDate}}</td>
                                                 <td md-cell ng-click="goToDetails(request)">{{request.status}}</td>
                                                 <td md-cell ng-click="goToDetails(request)">{{request.reqAmount | number:2}}</td>
+                                                <td md-cell ng-click="goToDetails(request)">
+                                                    {{(request.approvedAmount | number:2) || '----'}}
+                                                </td>
                                                 <td ng-if="!request.validationDate" md-cell ng-click="goToDetails(request)">
                                                     <md-icon style="color: red">
                                                         warning
@@ -504,6 +493,7 @@
                                     <th md-column><span>Fecha</span></th>
                                     <th md-column><span>Estatus</span></th>
                                     <th md-column><span>Monto solicitado</span></th>
+                                    <th md-column><span>Monto aprobado</span></th>
                                 </tr>
                                 </thead>
                                 <tbody md-body>
@@ -512,6 +502,9 @@
                                     <td md-cell ng-click="goToDetails(request)">{{request.creationDate}}</td>
                                     <td md-cell ng-click="goToDetails(request)">{{request.status}}</td>
                                     <td md-cell ng-click="goToDetails(request)">{{request.reqAmount | number:2}}</td>
+                                    <td md-cell ng-click="goToDetails(request)">
+                                        {{(request.approvedAmount | number:2) || '----'}}
+                                    </td>
                                     <td ng-if="!request.validationDate" md-cell ng-click="goToDetails(request)">
                                         <md-icon style="color: red">
                                             warning
@@ -541,7 +534,10 @@
                         <md-card-content layout layout-align="space-between start">
                             <div layout layout-align="center center">
                                 <md-icon style="color:#827717; margin-right:10px">info_outline</md-icon>
-                                <span> Le recordamos que las solicitudes activas son aquellas cuya deuda sigue viegente.</span>
+                                <span>
+                                    Le recordamos que las solicitudes activas son aquellas cuya deuda sigue viegente y registradas en su
+                                    <a href="{{IPAPEDI_URL + 'cuenta'}}" target="_blank">Estado de Cuenta</a>.
+                                </span>
                             </div>
                             <md-button ng-click="showMsg = !showMsg" class="md-icon-button">
                                 <md-icon>close</md-icon>

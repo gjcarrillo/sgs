@@ -324,6 +324,19 @@
                                 </p>
                             </div>
                         </md-list-item>
+                        <md-divider md-inset ng-if="req.validationDate"></md-divider>
+                        <md-list-item ng-if="req.validationDate" class="md-2-line noright"
+                                      id="request-contact-number">
+                            <md-icon class="phone-icon">verified_user</md-icon>
+                            <div class="md-list-item-text" layout="column">
+                                <h3>
+                                    Fecha de validación
+                                </h3>
+                                <p>
+                                    {{req.validationDate}}
+                                </p>
+                            </div>
+                        </md-list-item>
                         <md-divider md-inset></md-divider>
                         <md-list-item class="md-2-line noright"
                                       id="request-payment-due">

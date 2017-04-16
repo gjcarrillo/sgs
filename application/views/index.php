@@ -73,6 +73,7 @@
     <script type="text/javascript" src="<?php echo base_url(); ?>js/directives/directive-select-fix.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/directives/directive-helps.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/directives/directive-overlay.js"></script>
+    <script type="text/javascript" src="<?php echo base_url(); ?>js/filters/filter-abs.js"></script>
 
     <!-- Plugins -->
     <script type="text/javascript" src="<?php echo base_url(); ?>node_modules/moment/min/moment.min.js"></script>

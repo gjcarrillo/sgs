@@ -16,10 +16,13 @@ class UserInfoController extends CI_Controller {
 	public function getUserInfo() {
 		$result['message'] = "error";
 		try {
-			if ($this->session->type == APPLICANT) {
+			if ($this->input->get('userId') != $this->session->id && $this->session->type == APPLICANT) {
 				$result['message'] = 'forbidden';
 			} else {
-				$result = $this->users->getIpapediUserInfo($this->input->get('userId'));
+				$result['personal'] = $this->users->getIpapediUserInfo($this->input->get('userId'));
+				$result['contribution'] = $this->users->getContributionData($this->input->get('userId'));
+				$result['contribution']->totalContribution = intval($result['contribution']->u_saldo_disp, 10) +
+															   intval($result['contribution']->p_saldo_disp,10);
 				$result['message'] = "success";
 			}
 		} catch (Exception $e) {

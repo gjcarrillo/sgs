@@ -27,6 +27,7 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
     $scope.idPrefix = Agent.data.idPrefix;
     $scope.fetchId = Agent.data.fetchId;
     $scope.searchInput = Agent.data.searchInput;
+    $scope.IPAPEDI_URL = Constants.IPAPEDI_URL;
 
     $scope.selectAction = function (id) {
         $scope.requests = {};
@@ -744,5 +745,10 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
     $scope.clearSearch = function () {
         $('#search-input').val('');
         $scope.searchInput = '';
+    };
+
+    $scope.loadUserData = function() {
+        sessionStorage.setItem("fetchId", $scope.fetchId);
+        window.open(Utils.getUserDataUrl(), '_blank');
     };
 }

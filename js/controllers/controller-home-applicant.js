@@ -22,6 +22,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
     $scope.queryList = Applicant.data.queryList;
     $scope.queries = Applicant.data.queries;
     $scope.showMsg = true;
+    $scope.IPAPEDI_URL = Constants.IPAPEDI_URL;
 
     var fetchId = $cookies.getObject('session').id;
 
@@ -706,4 +707,9 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
 
         Applicant.updateData(data);
     }
+
+    $scope.loadUserData = function() {
+        sessionStorage.setItem("fetchId", fetchId);
+        window.open(Utils.getUserDataUrl(), '_blank');
+    };
 }

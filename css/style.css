@@ -144,6 +144,12 @@ footer {
     line-height: 200%;
 }
 
+.user-info-heading {
+    text-transform: uppercase;
+    text-decoration: underline !important;
+    font-weight: 500 !important;
+}
+
 .u-overflow-fix {
   overflow:visible;
 }
@@ -349,6 +355,10 @@ md-select.no-md-select .md-select-value {
 
 .amount-wrapper {
     padding-top: 16px;
+    background-color: #F5F5F6;
+}
+
+.grayish {
     background-color: #F5F5F6;
 }
 

@@ -561,7 +561,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
             $scope.uploading = false;
             $scope.selectedQuery = null;
             $scope.loanConcepts = Config.loanConcepts;
-            $scope.LoanTypes = Config.LoanTypes;
+            $scope.LoanTypes = Constants.LoanTypes;
             /**
              * =================================================
              *          Requests status configuration

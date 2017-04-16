@@ -1,4 +1,4 @@
-<md-dialog aria-label="New Request">
+<md-dialog aria-label="New Request" class="wide-dialog">
     <!-- Dialog title -->
     <md-toolbar class="md-table-toolbar md-default">
         <div class="md-toolbar-tools">
@@ -162,49 +162,49 @@
                 </div>
                 <!-- information of interest for cash voucher -->
                 <div layout="column" layout-align="start start" ng-if="model.type == LoanTypes.CASH_VOUCHER">
-                    <md-card>
+                    <md-card class="grayish">
                         <md-card-title>
-                            <span>Monto máximo a solicitar</span>
+                            <span class="grey-color"><b>Monto máximo a solicitar</b></span>
                         </md-card-title>
                         <md-divider></md-divider>
                         <md-card-content>
                             <div layout="column" layout-align="start">
                                 <span>{{model.data.percentage}}% de su sueldo ({{model.data.salary | number:2}})</span>
-                                <span>Igual a: Bs. {{model.maxReqAmount | number:2}}</span>
+                                <span>Igual a Bs. {{model.maxReqAmount | number:2}}</span>
                             </div>
                         </md-card-content>
                     </md-card>
-                    <md-card>
+                    <md-card class="grayish">
                         <md-card-title>
-                            <span>Cálculo de monto máximo a abonar</span>
+                            <span class="grey-color"><b>Cálculo de monto máximo a abonar</b></span>
                         </md-card-title>
                         <md-divider></md-divider>
                         <md-card-content>
                             <div layout="column" layout-align="start">
                                 <span>Monto del préstamo {{model.reqAmount | number:2}}</span>
                                 <span>Menos 2% interés {{model.reqAmount * getInterestRate()/100 | number:2}}</span>
-                                <span>Igual a: Bs. <b>{{(model.reqAmount - model.reqAmount * getInterestRate()/100 | number:2) || '----'}}</b></span>
+                                <span>Igual a Bs. <b>{{(model.reqAmount - model.reqAmount * getInterestRate()/100 | number:2) || '----'}}</b></span>
                             </div>
                         </md-card-content>
                     </md-card>
                 </div>
                 <!-- information of interest for personal loan -->
                 <div layout="column" layout-align="start start" ng-if="model.type == LoanTypes.PERSONAL_LOAN">
-                    <md-card>
+                    <md-card class="grayish">
                         <md-card-title>
-                            <span>Monto máximo a solicitar</span>
+                            <span class="grey-color"><b>Monto máximo a solicitar</b></span>
                         </md-card-title>
                         <md-divider></md-divider>
                         <md-card-content>
                             <div layout="column" layout-align="start">
                                 <span>80% de sus aportes totales ({{model.data.contribution | number:2}})</span>
-                                <span>Igual a: Bs. {{model.maxReqAmount | number:2}}</span>
+                                <span>Igual a Bs. {{model.maxReqAmount | number:2}}</span>
                             </div>
                         </md-card-content>
                     </md-card>
-                    <md-card>
+                    <md-card class="grayish">
                         <md-card-title>
-                            <span>Cálculo de monto máximo a abonar</span>
+                            <span class="grey-color"><b>Cálculo de monto máximo a abonar</b></span>
                         </md-card-title>
                         <md-divider></md-divider>
                         <md-card-content>

@@ -570,6 +570,7 @@
                                                 <th md-column><span>Estatus</span></th>
                                                 <th md-column><span>Solicitante</span></th>
                                                 <th md-column><span>Monto solicitado</span></th>
+                                                <th md-column><span>Monto aprobado</span></th>
                                             </tr>
                                             </thead>
                                             <tbody md-body>
@@ -577,11 +578,14 @@
                                                 <td md-cell ng-click="goToDetails(request)">{{pad(request.id, 6)}}</td>
                                                 <td md-cell ng-click="goToDetails(request)">{{request.creationDate}}</td>
                                                 <td md-cell ng-click="goToDetails(request)">{{request.status}}</td>
-                                                <td md-cell ng-click="goToDetails(request)">
+                                                <td md-cell ng-click="loadUserData(request.userOwner)">
                                                     {{request.userOwner}}
                                                     <md-tooltip>{{request.userOwnerName}}</md-tooltip>
                                                 </td>
                                                 <td md-cell ng-click="goToDetails(request)">{{request.reqAmount | number:2}}</td>
+                                                <td md-cell ng-click="goToDetails(request)">
+                                                    {{(request.approvedAmount | number:2) || '----'}}
+                                                </td>
                                             </tr>
                                             </tbody>
                                         </table>
@@ -623,6 +627,7 @@
                                     <th md-column><span>Estatus</span></th>
                                     <th md-column><span>Solicitante</span></th>
                                     <th md-column><span>Monto solicitado</span></th>
+                                    <th md-column><span>Monto aprobado</span></th>
                                 </tr>
                                 </thead>
                                 <tbody md-body>
@@ -630,11 +635,14 @@
                                     <td md-cell ng-click="goToDetails(request)">{{pad(request.id, 6)}}</td>
                                     <td md-cell ng-click="goToDetails(request)">{{request.creationDate}}</td>
                                     <td md-cell ng-click="goToDetails(request)">{{request.status}}</td>
-                                    <td md-cell ng-click="goToDetails(request)">
+                                    <td md-cell ng-click="loadUserData(request.userOwner)">
                                         {{request.userOwner}}
                                         <md-tooltip>{{request.userOwnerName}}</md-tooltip>
                                     </td>
                                     <td md-cell ng-click="goToDetails(request)">{{request.reqAmount | number:2}}</td>
+                                    <td md-cell ng-click="goToDetails(request)">
+                                        {{(request.approvedAmount | number:2) || '----'}}
+                                    </td>
                                 </tr>
                                 </tbody>
                             </table>
