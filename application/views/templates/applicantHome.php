@@ -178,7 +178,6 @@
                     </div>
                     <div layout layout-align="center center">
                         <md-button
-                            id="query-btn"
                             ng-disabled="!queries[selectedAction]"
                             ng-click="getRequestById(queries[selectedAction])"
                             class="md-raised md-primary">

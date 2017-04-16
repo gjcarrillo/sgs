@@ -106,9 +106,9 @@
                                     <span class="md-title user-info-title">Movimientos pendientes</span>
                                     <span>Bs. {{userContribution.u_mov_pendientes | abs | number:2}}</span>
                                 </div>
-                                <!-- Debt UC/AP -->
+                                <!-- Debt UC/AU -->
                                 <div layout="column">
-                                    <span class="md-title user-info-title">Deuda UC/AP</span>
+                                    <span class="md-title user-info-title">Deuda UC/AU</span>
                                     <span>Bs. {{userContribution.u_deuda_uc | abs | number:2}}</span>
                                 </div>
                                 <!-- Available balance -->

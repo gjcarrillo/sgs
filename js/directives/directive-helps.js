@@ -34,7 +34,7 @@ app.directive('applicantHelp', function(Helps, Requests, $mdMedia, $mdSidenav) {
                     content = "Consulte las solicitudes realizadas haciendo clic aquí.";
                     Helps.addFieldHelpWithHeader(tripToShowNavigation, '#query', content, 'e',
                                                  'Consultar solicitudes', false);
-                    content = "También puede crear una solicitud haciendo clic aquí";
+                    content = "Solicite un nuevo préstamo haciendo clic aquí";
                     Helps.addFieldHelpWithHeader(tripToShowNavigation, '#new-request', content, responsivePos,
                                                  'Crear solicitud', false);
                     content = "Puede editar las solicitudes que aún no estén validadas haciendo clic aquí.";
@@ -42,7 +42,7 @@ app.directive('applicantHelp', function(Helps, Requests, $mdMedia, $mdSidenav) {
                                                  'Editar solicitudes', false);
                     tripToShowNavigation.start();
                 } else if ($scope.contentLoaded) {
-                    content = "Haga clic en el ícono para abrir el panel de navegación y ver los datos de su cuenta, " +
+                    content = "Haga clic en el ícono para abrir el panel de navegación para ver los datos de su cuenta, " +
                               "consultar, editar o crear solicitudes";
                     Helps.addFieldHelp(tripToShowNavigation, '#nav-panel', content, 's', false);
                     tripToShowNavigation.start();
@@ -160,12 +160,12 @@ app.directive('agentHelp', function(Helps, Requests, $mdMedia, $mdSidenav) {
                     } else {
                         showMobileSearchbarHelp(Helps.getDialogsHelpOpt());
                     }
-                } else if (!$scope.req) {
+                } else if ($scope.showWatermark()) {
                     // User has not selected any request yet, tell him to do it.
                     showSidenavHelp(Helps.getDialogsHelpOpt());
                 } else {
                     // Guide user through request selection's possible actions.
-                    showRequestHelp(Helps.getDialogsHelpOpt());
+                    showActionsHelp(Helps.getDialogsHelpOpt());
                 }
             };
 
@@ -197,105 +197,128 @@ app.directive('agentHelp', function(Helps, Requests, $mdMedia, $mdSidenav) {
              * Shows tour-based help of side navigation panel
              * @param options: Obj containing tour.js options
              */
+
             function showSidenavHelp(options) {
+                var responsivePos = $mdMedia('xs') ? 'n' : 'e';
                 var tripToShowNavigation = new Trip([], options);
+                var content;
                 if ($mdSidenav('left').isLockedOpen()) {
                     options.showHeader = true;
-                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#requests-list',
-                                                 'Consulte datos de interés del asociado, o seleccione ' +
-                                                 'alguna de sus solicitudes en la lista para ver más detalles.', 'e',
-                                                 'Panel de navegación', true);
-                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#new-req-fab',
-                                                 'También puede abrir una solicitud haciendo clic aquí', 'w',
-                                                 'Nueva solicitud', true);
+                    content = "Haga clic aquí si desea ver los datos del asociado.";
+                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#user-data', content, 'e',
+                                                 'Ver datos', false);
+                    content = "Consulte las solicitudes realizadas haciendo clic aquí.";
+                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#query', content, 'e',
+                                                 'Consultar solicitudes', false);
+                    content = "Solicite un nuevo préstamo por el asociado haciendo clic aquí";
+                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#new-request', content, responsivePos,
+                                                 'Crear solicitud', false);
+                    content = "Puede editar las solicitudes que aún no estén validadas haciendo clic aquí.";
+                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#edit-request', content, responsivePos,
+                                                 'Editar solicitudes', false);
                     tripToShowNavigation.start();
-                } else {
-                    Helps.addFieldHelp(tripToShowNavigation, '#nav-panel',
-                                       'Haga clic en el ícono para abrir el panel de navegación,' +
-                                       ' donde podrá consultar datos del asociado o gestionar sus solicitudes.', 'e');
+                } else if ($scope.contentLoaded) {
+                    content = "Haga clic en el ícono para abrir el panel de navegación para ver los datos del asociado, " +
+                              "consultar, editar o crear solicitudes";
+                    Helps.addFieldHelp(tripToShowNavigation, '#nav-panel', content, 's', false);
                     tripToShowNavigation.start();
                 }
             }
 
             /**
-             * Shows tour-based help of selected request details section.
+             * Shows tour-based help of selected action.
              * @param options: Obj containing tour.js options
              */
-            function showRequestHelp(options) {
+            function showActionsHelp(options) {
                 options.showHeader = true;
-                var responsiveNorthPos = $mdMedia('xs') ? 'n' : 'w';
-                var responsiveSouthPos = $mdMedia('xs') ? 's' : 'w';
                 var tripToShowNavigation = new Trip([], options);
                 var content;
-                // Validation help
-                if (!$scope.req.validationDate) {
-                    content = "Esta solicitud no ha sido validada por su solicitante.";
-                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#validation-card', content, 's',
-                                                 'Validación de solicitud', true);
+
+                switch ($scope.selectedAction) {
+                    case 2:
+                        // request by id help.
+                        showRequestByIdHelp();
+                        break;
+                    case 3:
+                        // requests by date help.
+                        showRequestByDateHelp();
+                        break;
+                    case 4:
+                        // requests by status help.
+                        showRequestByStatusHelp();
+                        break;
+                    case 5:
+                        // requests by type help.
+                        showRequestByTypeHelp();
+                        break;
                 }
-                // Request summary information
-                content = "Aquí se muestra información acerca de la fecha de creación, monto solicitado " +
-                          ", y un comentario de haberlo realizado.";
-                Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-summary', content, 's',
-                                             'Resumen de la solicitud', true);
-                // Request status information
-                content = "Esta sección provee información acerca del estatus de la solicitud.";
-                Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-status-summary', content, 's',
-                                             'Resumen de estatus', true);
-                // Request payment due information
-                content = "Acá puede apreciar las cuotas a pagar, indicando el monto por mes y el plazo del pago en meses.";
-                Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-payment-due', content, 's',
-                                             'Cuotas a pagar', true);
-                // Request contact number
-                content = "Aquí se muestra el número de teléfono del solicitante.";
-                Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-contact-number', content, 'n',
-                                             'Número de contacto', true);
-                // Request contact email
-                content = "Éste es el correo electrónico a través del cual el sistema enviará información y " +
-                          "actualizaciones referente a la solicitud.";
-                Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-email', content, 'n',
-                                             'Correo electrónico', true);
-                // Request documents information
-                content = "Éste y los siguientes items contienen " +
-                          "el nombre y, de existir, una descripción de cada documento en la solicitud. " +
-                          "Puede verlos/descargarlos haciendo clic encima de ellos.";
-                Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-docs', content, 'n',
-                                             'Documentos', true);
-                // Additional documents.
-                content = "Siendo un documento adicional, " +
-                          "puede hacer clic en el botón de opciones para proveer una descripción, " +
-                          "descargarlos o incluso eliminarlos.";
-                Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-docs-actions', content, responsiveNorthPos,
-                                             'Documentos', true, 'fadeInLeft');
-                if ($scope.req.docs.length < 2) {
-                    // This request hasn't additional documents.
-                    tripToShowNavigation.tripData.splice(tripToShowNavigation.tripData.length - 1, 1);
-                }
-                if ($mdSidenav('left').isLockedOpen()) {
-                    if (!$scope.req.validationDate) {
-                        content = "Puede ver el historial de la solicitud, editar su información, descargar todos " +
-                                  "sus documentos, o eliminarla presionando el botón correspondiente.";
-                    } else {
-                        content = "Puede ver el historial de la solicitud, editarla con alguna actualización " +
-                                  "(si la solicitud no se ha cerrado), o descargar todos sus documentos presionando " +
-                                  "el botón correspondiente.";
+                showResultHelp();
+
+                function showResultHelp() {
+                    if (!$scope.isObjEmpty($scope.requests)) {
+                        content =
+                            "A continuación se muestra un panel con todas las solciitudes resultantes, " +
+                            "categorizadas por los tipos de solicitud disponibles por el sistema.<br/>" +
+                            "Para ver una lista de solicitudes, haga clic encima del tipo de préstamo correspondiente.<br/>" +
+                            "Para ver los detalles de una solicitud en particular, haga clic encima de la fila correspondiente.";
+                        Helps.addFieldHelpWithHeader(tripToShowNavigation, '#requests-group', content, 'w',
+                                                     'Panel de solicitudes');
+                        tripToShowNavigation.start();
+                    } else if ($scope.singleType.length > 0) {
+                        content = "A continuación se una tabla listando todas las solicitudes del tipo de préstamo especificado.<br/>" +
+                                  "Puede hacer ver los detalles de una solicitud haciendo clic encima de la fila correspondiente.";
+                        Helps.addFieldHelpWithHeader(tripToShowNavigation, '#single-type', content, 'w',
+                                                     'Solicitudes editables');
+                        tripToShowNavigation.start();
+                    } else if ($scope.editableReq.length > 0) {
+                        content = "A continuación se una tabla listando todas las solicitudes editables (que aún no han sido validadas).<br/>" +
+                                  "Puede editar o eliminar una solicitud haciendo clic en los botones correspondientes, o ver sus detalles " +
+                                  "haciendo clic encima de la fila correspondiente.";
+                        Helps.addFieldHelpWithHeader(tripToShowNavigation, '#editable-req', content, 'w',
+                                                     'Solicitudes editables');
+                        tripToShowNavigation.start();
+                    } else if ($scope.activeRequests.length > 0) {
+                        content = "A continuación se una tabla listando todas las solicitudes activas (cuya deuda sigue " +
+                                  "vigente y está registrada en el Estado de Cuenta del asociado).<br/>" +
+                                  "Puede visualizar detalles correspondientes a su saldo y mensualidad, o ver sus detalles " +
+                                  "haciendo clic encima de la fila correspondiente.";
+                        Helps.addFieldHelpWithHeader(tripToShowNavigation, '#active-req', content, 'w',
+                                                     'Solicitudes activas.');
+                        tripToShowNavigation.start();
                     }
-                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-summary-actions', content, responsiveSouthPos,
-                                                 'Acciones', true, 'fadeInLeft');
-                } else {
-                    if (!$scope.req.validationDate) {
-                        content = "Haga clic en el botón de opciones para ver el historial de la solicitud, editar " +
-                                  "su información, descargar todos sus documentos, o eliminarla";
-                    } else {
-                        content = "Haga clic en el botón de opciones para " +
-                                  "ver el historial de la solicitud, editarla con con alguna actualización (si la solicitud" +
-                                  " no ha cerrado), o descargar todos sus documentos.";
-                    }
-                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-summary-actions-menu',
-                                                 content, responsiveSouthPos,
-                                                 'Acciones', true, 'fadeInLeft');
                 }
-                tripToShowNavigation.start();
+
+                function showRequestByIdHelp() {
+                    content = "Ingrese el ID de la solicitud que desea consultar.";
+                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#req-id', content, 's',
+                                                 'ID de la solicitud');
+                    tripToShowNavigation.start();
+                }
+
+                function showRequestByDateHelp() {
+                    content = "Ingrese una fecha de creación como punto de inicio de la búsqueda.";
+                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#date-from', content, 's',
+                                                 'Intervalo de fecha');
+                    tripToShowNavigation.start();
+                    content = "Ingrese una fecha de creación como punto final de la búsqueda.";
+                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#date-to', content, 's',
+                                                 'Intervalo de fecha');
+                    tripToShowNavigation.start();
+                }
+
+                function showRequestByStatusHelp() {
+                    content = "Seleccione el estatus de las solicitudes que desea consultar.";
+                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#req-status', content, 's',
+                                                 'Estatus de las solicitudes');
+                    tripToShowNavigation.start();
+                }
+
+                function showRequestByTypeHelp() {
+                    content = "Seleccione el tipo de solicitud de aquellas que desea consultar.";
+                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#req-type', content, 's',
+                                                 'Tipo de solicitudes');
+                    tripToShowNavigation.start();
+                }
             }
         }
     };
@@ -521,9 +544,10 @@ app.directive('createHelp', function(Helps, Auth, Constants) {
                 content = "Escoja el plazo (en meses) en el que el asociado desea " +
                           "pagar su deuda.";
                 Helps.addFieldHelp(tripToShowNavigation, "#payment-due", content, 'n');
-                // Add loan type help.
-                content = "Escoja el tipo de préstamo que el asociado desea solicitar.";
-                Helps.addFieldHelp(tripToShowNavigation, "#loan-type", content, 'n');
+                // info card help
+                content = "Estas tarjetas muestran información de interés con respecto al monto máximo que el asociado " +
+                          "puede solicitar y el monto máximo que se le será otorgado.";
+                Helps.addFieldHelp(tripToShowNavigation, "#info", content, 'n');
                 tripToShowNavigation.start();
             }
 
@@ -570,8 +594,8 @@ app.directive('createHelp', function(Helps, Auth, Constants) {
                           "pagar su deuda.";
                 Helps.addFieldHelp(tripToShowNavigation, "#payment-due", content, 'n');
                 // Info help
-                content = "Aquí se muestra información de interés con respecto al monto máximo que usted puede solicitar " +
-                          "y el monto máximo que se le será otorgado.";
+                content = "Estas tarjetas muestras información de interés con respecto al monto máximo que usted puede " +
+                          "solicitar y el monto máximo que se le será otorgado.";
                 Helps.addFieldHelp(tripToShowNavigation, "#info", content, 'n');
                 // Add loan type help.
                 tripToShowNavigation.start();
@@ -619,8 +643,9 @@ app.directive('createHelp', function(Helps, Auth, Constants) {
                 content = "Escoja el plazo (en meses) en el que el asociado desea " +
                           "pagar su deuda.";
                 Helps.addFieldHelp(tripToShowNavigation, "#payment-due", content, 'n');
-                content = "Esta tarjeta muestra información de interés con respecto al monto máximo que el asociado puede solicitar " +
-                          "y el monto máximo que se le será otorgado.";
+                // info card help
+                content = "Estas tarjetas muestran información de interés con respecto al monto máximo que el asociado " +
+                          "puede solicitar y el monto máximo que se le será otorgado.";
                 Helps.addFieldHelp(tripToShowNavigation, "#info", content, 'n');
                 tripToShowNavigation.start();
             }
@@ -667,9 +692,10 @@ app.directive('createHelp', function(Helps, Auth, Constants) {
                 content = "Escoja el plazo (en meses) en el que desea " +
                           "pagar su deuda.";
                 Helps.addFieldHelp(tripToShowNavigation, "#payment-due", content, 'n');
-                // Add loan type help.
-                content = "Escoja el tipo de préstamo que desea solicitar.";
-                Helps.addFieldHelp(tripToShowNavigation, "#loan-type", content, 'n');
+                // info card help
+                content = "Estas tarjetas muestran información de interés con respecto al monto máximo que usted " +
+                          "puede solicitar y el monto máximo que se le será otorgado.";
+                Helps.addFieldHelp(tripToShowNavigation, "#info", content, 'n');
                 tripToShowNavigation.start();
             }
         }
