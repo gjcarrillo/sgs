@@ -89,8 +89,6 @@ class ManageRequestController extends CI_Controller {
 
 					if ($data['status'] === PRE_APPROVED && isset($data['approvedAmount'])) {
 						$request->setApprovedAmount($data['approvedAmount']);
-						// ALERT: FOR TESTING PURPOSES ONLY!!!! DELETE LATER!
-						$this->requests->addGrantingDate($request);
 						// Add approval document
 						$uuid4 = Uuid::uuid4();
 						$code = $uuid4->toString(); // i.e. 25769c6c-d34d-4bfe-ba98-e0ee856f3e7a
@@ -103,6 +101,8 @@ class ManageRequestController extends CI_Controller {
 						array_push($docs, $doc);
 						$changes = $changes . $this->requests->addDocuments($request, $history, $docs, true);
 						$this->requests->generateApprovalDocument($request, $doc);
+						// ALERT: FOR TESTING PURPOSES ONLY!!!! DELETE LATER!
+						$this->requests->addGrantingDate($request);
 					}
 					if (isset($data['reunion'])) {
 						$request->setReunion($data['reunion']);

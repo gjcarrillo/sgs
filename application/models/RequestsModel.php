@@ -525,6 +525,7 @@ class RequestsModel extends CI_Model
 
     private function getNewCashVoucherDocData($request) {
         $data['reqAmount'] = $request->getRequestedAmount();
+        $data['approvedAmount'] = $request->getApprovedAmount();
         $data['tel'] = $request->getContactNumber();
         $data['email'] = $request->getContactEmail();
         $data['due'] = $request->getPaymentDue();
@@ -544,6 +545,7 @@ class RequestsModel extends CI_Model
 
     private function getPersonalLoanDocData ($request) {
         $data['reqAmount'] = $request->getRequestedAmount();
+        $data['approvedAmount'] = $request->getApprovedAmount();
         $data['tel'] = $request->getContactNumber();
         $data['email'] = $request->getContactEmail();
         $data['due'] = $request->getPaymentDue();
@@ -584,29 +586,19 @@ class RequestsModel extends CI_Model
 
     public function generateApprovalDocument ($request, $doc) {
         // Get extra data for the pdf template.
-        $data['reqAmount'] = $request->getRequestedAmount();
-        $data['tel'] = $request->getContactNumber();
-        $data['email'] = $request->getContactEmail();
-        $data['due'] = $request->getPaymentDue();
-        $data['userId'] = $request->getUserOwner()->getId();
-        $data['username'] = $request->getUserOwner()->getFirstName() . ' ' . $request->getUserOwner()->getLastName();
-        $data['requestId'] = str_pad($request->getId(), 6, '0', STR_PAD_LEFT);
-        $data['date'] = new DateTime('now', new DateTimeZone('America/Barbados'));
-        $data['loanTypeString'] = $this->loanTypes[$request->getLoanType()]->DescripcionDelPrestamo;
-        $data['paymentFee'] = $this->utils->calculatePaymentFee($data['reqAmount'],
-                                                                $data['due'],
-                                                                $this->loanTypes[$request->getLoanType()]->InteresAnual);
-        // Generate the document.
         if ($request->getLoanType() == CASH_VOUCHER) {
-            $data['approvedAmount'] = $request->getApprovedAmount();
-            $data['interest'] = $this->loanTypes[$request->getLoanType()]->InteresAnual;
+            $data = $this->getNewCashVoucherDocData($request);
             $html = $this->load->view('templates/docsTemplates/cashVoucher/requestApproval', $data, true);
-            $this->load->library('pdf');
-            $pdf = $this->pdf->load();
-            $pdf->WriteHTML($html); // write the HTML into the PDF
-            $pdfFilePath = DropPath . $doc['lpath'];
-            $pdf->Output($pdfFilePath, 'F'); // save to file
+        } else if ($request->getLoanType() == PERSONAL_LOAN) {
+            $data = $this->getPersonalLoanDocData($request);
+            $html = $this->load->view('templates/docsTemplates/personalLoan/requestApproval', $data, true);
         }
+        // Generate the document.
+        $this->load->library('pdf');
+        $pdf = $this->pdf->load();
+        $pdf->WriteHTML($html); // write the HTML into the PDF
+        $pdfFilePath = DropPath . $doc['lpath'];
+        $pdf->Output($pdfFilePath, 'F'); // save to file
     }
 
     // Helper function that adds a set of additional docs to a request in database & returns an html string with

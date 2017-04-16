@@ -259,7 +259,7 @@ class UtilsModel extends CI_Model
         $result['phone'] = $request->getContactNumber();
         $result['due'] = $request->getPaymentDue();
         $result['email'] = $request->getContactEmail();
-        $result['validationDate'] = $request->getValidationDate();
+        $result['validationDate'] = $request->getValidationDate() ? $request->getValidationDate()->format('d/m/Y') : null;
         $docs = $request->getDocuments();
         foreach ($docs as $dKey => $doc) {
             $result['docs'][$dKey]['id'] = $doc->getId();

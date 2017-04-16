@@ -340,9 +340,8 @@ class UserModel extends CI_Model
                 $maxAmount = $userData->sueldo * $percentage / 100;
                 return $reqAmount > 0 && $reqAmount <= $maxAmount;
             case PERSONAL_LOAN:
-                //$maxAmount = $userData->u_saldo_disp + $userData->p_saldo_disp;
-                //return $reqAmount > 0 && $reqAmount <= $maxAmount;
-                return true;
+                $maxAmount = $userData->u_saldo_disp + $userData->p_saldo_disp;
+                return $reqAmount > 0 && $reqAmount <= $maxAmount;
             default:
                 return false;
         }
