@@ -29,6 +29,9 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
     $scope.selectAction = function (id) {
         $mdSidenav('left').close();
         $scope.requests = {};
+        $scope.singleType = [];
+        $scope.editableReq = [];
+        $scope.activeRequests = [];
         $scope.selectedAction = id;
         performAction(id);
     };

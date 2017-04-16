@@ -5,7 +5,7 @@
             <h2>{{title}}</h2>
             <span flex></span>
             <md-button ng-if="!loading"
-                       create-help=""
+                       create-help
                        class="md-icon-button"
                        ng-click="showHelp()"
                        aria-label="Help">
@@ -161,7 +161,7 @@
                     </div>
                 </div>
                 <!-- information of interest for cash voucher -->
-                <div layout="column" layout-align="start start" ng-if="model.type == LoanTypes.CASH_VOUCHER">
+                <div layout="column" layout-align="start start" ng-if="model.type == LoanTypes.CASH_VOUCHER" id="info">
                     <md-card class="grayish">
                         <md-card-title>
                             <span class="grey-color"><b>Monto máximo a solicitar</b></span>
@@ -189,7 +189,7 @@
                     </md-card>
                 </div>
                 <!-- information of interest for personal loan -->
-                <div layout="column" layout-align="start start" ng-if="model.type == LoanTypes.PERSONAL_LOAN">
+                <div layout="column" layout-align="start start" ng-if="model.type == LoanTypes.PERSONAL_LOAN" id="info">
                     <md-card class="grayish">
                         <md-card-title>
                             <span class="grey-color"><b>Monto máximo a solicitar</b></span>

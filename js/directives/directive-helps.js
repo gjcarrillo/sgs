@@ -8,12 +8,12 @@ app.directive('applicantHelp', function(Helps, Requests, $mdMedia, $mdSidenav) {
         restrict: 'A',
         link: function ($scope, elem) {
             $scope.showHelp = function () {
-                if (!$scope.req) {
-                    // User has not selected any request yet, tell him to do it.
+                if ($scope.showWatermark()) {
+                    // User has not selected any action yet, tell him to do it.
                     showSidenavHelp(Helps.getDialogsHelpOpt());
                 } else {
                     // Guide user through request selection's possible actions
-                    showRequestHelp(Helps.getDialogsHelpOpt());
+                    showActionsHelp(Helps.getDialogsHelpOpt());
                 }
             };
 
@@ -23,120 +23,129 @@ app.directive('applicantHelp', function(Helps, Requests, $mdMedia, $mdSidenav) {
              */
 
             function showSidenavHelp(options) {
-                var responsivePos = $mdMedia('xs') ? 'n' : 'w';
+                var responsivePos = $mdMedia('xs') ? 'n' : 'e';
                 var tripToShowNavigation = new Trip([], options);
                 var content;
-                if ($mdSidenav('left').isLockedOpen() && Requests.getTotalLoans($scope.requests) > 0) {
+                if ($mdSidenav('left').isLockedOpen()) {
                     options.showHeader = true;
-                    content = "Seleccione alguna de sus solicitudes en la lista para ver más detalles.";
-                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#requests-list', content, 'e',
-                                                 'Panel de navegación', true);
+                    content = "Haga clic aquí si desea ver sus datos.";
+                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#user-data', content, 'e',
+                                                 'Ver datos', false);
+                    content = "Consulte las solicitudes realizadas haciendo clic aquí.";
+                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#query', content, 'e',
+                                                 'Consultar solicitudes', false);
                     content = "También puede crear una solicitud haciendo clic aquí";
-                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#new-req-fab', content, responsivePos,
-                                                 'Crear solicitud', true);
+                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#new-request', content, responsivePos,
+                                                 'Crear solicitud', false);
+                    content = "Puede editar las solicitudes que aún no estén validadas haciendo clic aquí.";
+                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#edit-request', content, responsivePos,
+                                                 'Editar solicitudes', false);
                     tripToShowNavigation.start();
-                } else if ($scope.contentLoaded && Requests.getTotalLoans($scope.requests) > 0) {
-                    content = "Haga clic en el ícono para abrir el panel de navegación y seleccionar alguna " +
-                              "de sus solicitudes para ver más detalles";
-                    Helps.addFieldHelp(tripToShowNavigation, '#nav-panel', content, 's', true);
-                    content = "También puede crear una solicitud haciendo clic aquí";
-                    Helps.addFieldHelp(tripToShowNavigation, '#new-req-fab', content, responsivePos, true);
-                    tripToShowNavigation.start();
-                } else {
-                    options.showHeader = true;
-                    content = "Para crear una solicitud haga clic aquí";
-                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#new-req-fab', content, responsivePos,
-                                                 'Crear solicitud');
+                } else if ($scope.contentLoaded) {
+                    content = "Haga clic en el ícono para abrir el panel de navegación y ver los datos de su cuenta, " +
+                              "consultar, editar o crear solicitudes";
+                    Helps.addFieldHelp(tripToShowNavigation, '#nav-panel', content, 's', false);
                     tripToShowNavigation.start();
                 }
             }
 
             /**
-             * Shows tour-based help of selected request details section.
+             * Shows tour-based help of selected action.
              * @param options: Obj containing tour.js options
              */
-            function showRequestHelp(options) {
+            function showActionsHelp(options) {
                 options.showHeader = true;
-                var responsivePos = $mdMedia('xs') ? 's' : 'w';
                 var tripToShowNavigation = new Trip([], options);
                 var content;
-                // Validation help
-                if (!$scope.req.validationDate) {
-                    content = "Debe validar su solicitud a través del correo enviado al correo electrónico provisto. " +
-                              "Si no ha recibido el correo dentro de unos minutos, por favor haga clic en Reenviar." +
-                              "También puede cambiar la dirección del correo electrónico haciendo clic en \"Cambiar Correo\".";
-                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#validation-card', content, 's',
-                                                 'Validación de solicitud', true);
+
+                switch ($scope.selectedAction) {
+                    case 2:
+                        // request by id help.
+                        showRequestByIdHelp();
+                        break;
+                    case 3:
+                        // requests by date help.
+                        showRequestByDateHelp();
+                        break;
+                    case 4:
+                        // requests by status help.
+                        showRequestByStatusHelp();
+                        break;
+                    case 5:
+                        // requests by type help.
+                        showRequestByTypeHelp();
+                        break;
                 }
-                // Request summary information
-                content = "Aquí se muestra información acerca de la fecha de creación, monto solicitado " +
-                          "por usted, y un posible comentario.";
-                Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-summary', content, 's',
-                                             'Resumen de la solicitud', true);
-                // Request status information
-                content = "Esta sección provee información acerca del estatus de su solicitud.";
-                Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-status-summary', content, 's',
-                                             'Resumen de estatus', true);
-                // Request payment due information
-                content = "Acá puede apreciar las cuotas a pagar, indicando el monto por mes y el plazo del pago en meses.";
-                Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-payment-due', content, 's',
-                                             'Cuotas a pagar', true);
-                // Request contact number
-                content = "Aquí se muestra el número de teléfono que ingresó al crear la solicitud, a través del cual " +
-                          "lo estaremos contactando.";
-                Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-contact-number', content, 'n',
-                                             'Número de contacto', true);
-                // Request contact email
-                content = "Éste es el correo electrónico que ingresó al crear la solicitud, a través del cual " +
-                          "le enviaremos información y actualizaciones referente a su solicitud.";
-                Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-email', content, 'n',
-                                             'Correo electrónico', true);
-                // Request documents information
-                content = "Éste y los siguientes " +
-                          "items contienen el nombre y una posible descripción de " +
-                          "cada documento en su solicitud. Puede verlos/descargarlos " +
-                          "haciendo clic encima de ellos.";
-                Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-docs', content, 'n',
-                                             'Documentos', true);
-                if ($mdSidenav('left').isLockedOpen()) {
-                    if (!$scope.req.validationDate) {
-                        content = "También puede editar la información de su solicitud descargar todos los " +
-                                  "documentos, o eliminarla presionando el botón correspondiente.";
-                    } else {
-                        content = "También puede descargar todos los documentos haciendo clic aquí.";
+                showResultHelp();
+
+                function showResultHelp() {
+                    if (!$scope.isObjEmpty($scope.requests)) {
+                        content =
+                            "A continuación se muestra un panel con todas sus solciitudes resultantes, " +
+                            "categorizadas por los tipos de solicitud disponibles por el sistema.<br/>" +
+                            "Para ver una lista de solicitudes, haga clic encima del tipo de préstamo correspondiente.<br/>" +
+                            "Para ver los detalles de una solicitud en particular, haga clic encima de la fila correspondiente.";
+                        Helps.addFieldHelpWithHeader(tripToShowNavigation, '#requests-group', content, 'w',
+                                                     'Panel de solicitudes');
+                        tripToShowNavigation.start();
+                    } else if ($scope.singleType.length > 0) {
+                        content = "A continuación se una tabla listando todas sus solicitudes del tipo de préstamo especificado.<br/>" +
+                                  "Puede hacer ver los detalles de una solicitud haciendo clic encima de la fila correspondiente.";
+                        Helps.addFieldHelpWithHeader(tripToShowNavigation, '#single-type', content, 'w',
+                                                     'Solicitudes editables');
+                        tripToShowNavigation.start();
+                    } else if ($scope.editableReq.length > 0) {
+                        content = "A continuación se una tabla listando todas sus solicitudes editables (que aún no han sido validadas).<br/>" +
+                                  "Puede editar o eliminar una solicitud haciendo clic en los botones correspondientes, o ver sus detalles " +
+                                  "haciendo clic encima de la fila correspondiente.";
+                        Helps.addFieldHelpWithHeader(tripToShowNavigation, '#editable-req', content, 'w',
+                                                     'Solicitudes editables');
+                        tripToShowNavigation.start();
+                    } else if ($scope.activeRequests.length > 0) {
+                        content = "A continuación se una tabla listando todas sus solicitudes activas (cuya deuda sigue " +
+                                  "vigente y está registrada en su Estado de Cuenta).<br/>" +
+                                  "Puede visualizar detalles correspondientes a su saldo y mensualidad, o ver sus detalles " +
+                                  "haciendo clic encima de la fila correspondiente.";
+                        Helps.addFieldHelpWithHeader(tripToShowNavigation, '#active-req', content, 'w',
+                                                     'Solicitudes activas.');
+                        tripToShowNavigation.start();
                     }
-                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-summary-actions', content, responsivePos,
-                                                 'Acciones', true, 'fadeInLeft');
-                } else {
-                    if (!$scope.req.validationDate) {
-                        content = "También puede hacer clic en el botón de opciones para " +
-                                  "editar la información de su solicitud, o descargar todos los " +
-                                  "documentos, o eliminarla presionando el botón correspondiente.";
-                    } else {
-                        content = "También puede hacer clic en el botón de opciones para " +
-                                  "descargar todos los documentos presionando el botón correspondiente.";
-                    }
-                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-summary-actions-menu',
-                                                 content, responsivePos,
-                                                 'Acciones', true, 'fadeInLeft');
                 }
-                tripToShowNavigation.start();
+
+                function showRequestByIdHelp() {
+                    content = "Ingrese el ID de la solicitud que desea consultar.";
+                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#req-id', content, 's',
+                                                 'ID de la solicitud');
+                    tripToShowNavigation.start();
+                }
+
+                function showRequestByDateHelp() {
+                    content = "Ingrese una fecha de creación como punto de inicio de la búsqueda.";
+                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#date-from', content, 's',
+                                                 'Intervalo de fecha');
+                    tripToShowNavigation.start();
+                    content = "Ingrese una fecha de creación como punto final de la búsqueda.";
+                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#date-to', content, 's',
+                                                 'Intervalo de fecha');
+                    tripToShowNavigation.start();
+                }
+
+                function showRequestByStatusHelp() {
+                    content = "Seleccione el estatus de las solicitudes que desea consultar.";
+                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#req-status', content, 's',
+                                                 'Estatus de las solicitudes');
+                    tripToShowNavigation.start();
+                }
+
+                function showRequestByTypeHelp() {
+                    content = "Seleccione el tipo de solicitud de aquellas que desea consultar.";
+                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#req-type', content, 's',
+                                                 'Tipo de solicitudes');
+                    tripToShowNavigation.start();
+                }
             }
         }
     };
-});
-
-app.directive('applicantCreateHelp', function(Helps) {
-    return {
-        restrict: 'A',
-        link: function ($scope, elem) {
-            $scope.showHelp = function () {
-                showFormHelp(Helps.getDialogsHelpOpt());
-            };
-
-
-        }
-    }
 });
 
 app.directive('agentHelp', function(Helps, Requests, $mdMedia, $mdSidenav) {
@@ -167,7 +176,7 @@ app.directive('agentHelp', function(Helps, Requests, $mdMedia, $mdSidenav) {
             function showSearchbarHelp(options) {
                 var tripToShowNavigation = new Trip([], options);
                 Helps.addFieldHelp(tripToShowNavigation, '#search',
-                                   'Ingrese la cédula de identidad de algún afiliado para gestionar sus solicitudes.', 's');
+                                   'Ingrese la cédula de identidad de algún asociado para gestionar sus solicitudes.', 's');
                 tripToShowNavigation.start();
             }
 
@@ -180,7 +189,7 @@ app.directive('agentHelp', function(Helps, Requests, $mdMedia, $mdSidenav) {
                 var tripToShowNavigation = new Trip([], options);
                 Helps.addFieldHelp(tripToShowNavigation, '#toggle-search',
                                    'Haga clic en la lupa e ingrese la cédula de identidad ' +
-                                   'de algún afiliado para gestionar sus solicitudes.', pos);
+                                   'de algún asociado para gestionar sus solicitudes.', pos);
                 tripToShowNavigation.start();
             }
 
@@ -193,7 +202,7 @@ app.directive('agentHelp', function(Helps, Requests, $mdMedia, $mdSidenav) {
                 if ($mdSidenav('left').isLockedOpen()) {
                     options.showHeader = true;
                     Helps.addFieldHelpWithHeader(tripToShowNavigation, '#requests-list',
-                                                 'Consulte datos de interés del afiliado, o seleccione ' +
+                                                 'Consulte datos de interés del asociado, o seleccione ' +
                                                  'alguna de sus solicitudes en la lista para ver más detalles.', 'e',
                                                  'Panel de navegación', true);
                     Helps.addFieldHelpWithHeader(tripToShowNavigation, '#new-req-fab',
@@ -203,7 +212,7 @@ app.directive('agentHelp', function(Helps, Requests, $mdMedia, $mdSidenav) {
                 } else {
                     Helps.addFieldHelp(tripToShowNavigation, '#nav-panel',
                                        'Haga clic en el ícono para abrir el panel de navegación,' +
-                                       ' donde podrá consultar datos del afiliado o gestionar sus solicitudes.', 'e');
+                                       ' donde podrá consultar datos del asociado o gestionar sus solicitudes.', 'e');
                     tripToShowNavigation.start();
                 }
             }
@@ -292,6 +301,122 @@ app.directive('agentHelp', function(Helps, Requests, $mdMedia, $mdSidenav) {
     };
 });
 
+app.directive('detailsHelp', function(Helps, $mdMedia, Auth, Constants) {
+    return {
+        restrict: 'A',
+        link: function ($scope, elem) {
+            $scope.showHelp = function () {
+                showRequestDetailsHelp(Helps.getDialogsHelpOpt());
+            };
+
+            /**
+             * Shows tour-based help of selected request details section.
+             * @param options: Obj containing tour.js options
+             */
+            function showRequestDetailsHelp(options) {
+                options.showHeader = true;
+                var responsivePos = $mdMedia('xs') ? 's' : 'w';
+                var responsiveNorthPos = $mdMedia('xs') ? 'n' : 'w';
+                var tripToShowNavigation = new Trip([], options);
+                var content;
+                // Validation help
+                if (!$scope.req.validationDate) {
+                    if (Auth.userType(Constants.Users.AGENT)) {
+                        content = "Esta solicitud no ha sido validada.<br/> " +
+                                  "El asociado debe ingresar con sus credenciales y realizar la correspondiente validación";
+                    } else if (Auth.userType(Constants.Users.APPLICANT)) {
+                        content = "Esta solicitud no ha sido validada.<br/> " +
+                                  "Una vez esté completamente seguro de proceder con esta solicitud, por favor haga clic en " +
+                                  "el botón \"VALIDAR\".";
+                    }
+                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#validation-card', content, 's',
+                                                 'Validación de solicitud', true);
+                }
+                // Request summary information
+                content = "Aquí se muestra información acerca de la fecha de creación, monto solicitado " +
+                          "por usted, y un posible comentario.";
+                Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-summary', content, 's',
+                                             'Resumen de la solicitud', true);
+                // Request status information
+                content = "Esta sección provee información acerca del estatus de su solicitud.";
+                Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-status-summary', content, 's',
+                                             'Resumen de estatus', true);
+                // Request validation date
+                if ($scope.req.validationDate) {
+                    content = "A continuación se muestra la fecha en la se realizó la validación de la solicitud.";
+                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-validation-date', content, 's',
+                                                 'Fecha de validación', true);
+                }
+                // Request payment due information
+                content = "Acá puede apreciar las cuotas a pagar, indicando el monto por mes y el plazo del pago en meses.";
+                Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-payment-due', content, 'n',
+                                             'Cuotas a pagar', true);
+                // Request contact number
+                content = "Aquí se muestra el número de teléfono que se ingresó al crear la solicitud, a través del cual " +
+                          "lo estaremos contactando.";
+                Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-contact-number', content, 'n',
+                                             'Número de contacto', true);
+                // Request contact email
+                content = "Éste es el correo electrónico que se ingresó al crear la solicitud, a través del cual " +
+                          "le enviaremos información y actualizaciones referente a su solicitud.";
+                Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-email', content, 'n',
+                                             'Correo electrónico', true);
+                // Request documents information
+                content = "Éste y los siguientes " +
+                          "items contienen el nombre y una posible descripción de " +
+                          "cada documento en su solicitud. Puede verlos/descargarlos " +
+                          "haciendo clic encima de ellos.";
+                Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-docs', content, 'n',
+                                             'Documentos', true);
+                if (Auth.userType(Constants.Users.AGENT) && existsAdditionalDoc($scope.req.docs)) {
+                    content = "Siendo un documento adicional, " +
+                              "puede hacer clic en el botón de opciones para proveer una descripción, " +
+                              "descargarlos o eliminarlos.";
+                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-docs-actions', content, responsiveNorthPos,
+                                                 'Documentos', true, 'fadeInLeft');
+                }
+                if (!$mdMedia('xs')) {
+                    if (!$scope.req.validationDate) {
+                        content = "También puede editar la información de su solicitud, descargar todos los " +
+                                  "documentos, o eliminarla presionando el botón correspondiente.";
+                    } else {
+                        content = "También puede descargar todos los documentos haciendo clic aquí.";
+                    }
+                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-summary-actions', content, responsivePos,
+                                                 'Acciones', true, 'fadeInLeft');
+                } else {
+                    if (!$scope.req.validationDate) {
+                        content = "También puede hacer clic en el botón de opciones para " +
+                                  "editar la información de su solicitud, descargar todos los " +
+                                  "documentos, o eliminarla presionando el botón correspondiente.";
+                    } else {
+                        content = "También puede hacer clic en el botón de opciones para " +
+                                  "descargar todos los documentos presionando el botón correspondiente.";
+                    }
+                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-summary-actions-menu',
+                                                 content, responsivePos,
+                                                 'Acciones', true, 'fadeInLeft');
+                }
+                tripToShowNavigation.start();
+            }
+
+            function existsAdditionalDoc(docs) {
+                var exists = false;
+                for (var key in docs) {
+                    if (docs.hasOwnProperty(key)) {
+                        if (docs[key].type == Constants.DocTypes.ADDITIONAL) {
+                            exists = true;
+                            break;
+                        }
+                    }
+                }
+                return exists;
+            }
+
+        }
+    };
+});
+
 app.directive('agentUpdateHelp', function(Helps) {
     return {
         restrict: 'A',
@@ -375,12 +500,12 @@ app.directive('createHelp', function(Helps, Auth, Constants) {
                 var content;
                 if (!$scope.model.reqAmount) {
                     // Requested amount field
-                    content = "Ingrese la cantidad de Bs. solicitado por el afiliado.";
+                    content = "Ingrese la cantidad de Bs. solicitado por el asociado.";
                     Helps.addFieldHelp(tripToShowNavigation, "#req-amount", content, 's');
                 }
                 if (!$scope.model.phone) {
                     // Phone number field
-                    content = "Ingrese el número telefónico del afiliado, a través " +
+                    content = "Ingrese el número telefónico del asociado, a través " +
                               "del cual se le estará contactando.";
                     Helps.addFieldHelp(tripToShowNavigation, "#phone-numb",
                                        content, 'n');
@@ -393,11 +518,11 @@ app.directive('createHelp', function(Helps, Auth, Constants) {
                                        content, 'n');
                 }
                 // Add payment due help.
-                content = "Escoja el plazo (en meses) en el que el afiliado desea " +
+                content = "Escoja el plazo (en meses) en el que el asociado desea " +
                           "pagar su deuda.";
                 Helps.addFieldHelp(tripToShowNavigation, "#payment-due", content, 'n');
                 // Add loan type help.
-                content = "Escoja el tipo de préstamo que el afiliado desea solicitar.";
+                content = "Escoja el tipo de préstamo que el asociado desea solicitar.";
                 Helps.addFieldHelp(tripToShowNavigation, "#loan-type", content, 'n');
                 tripToShowNavigation.start();
             }
@@ -444,9 +569,11 @@ app.directive('createHelp', function(Helps, Auth, Constants) {
                 content = "Escoja el plazo (en meses) en el que desea " +
                           "pagar su deuda.";
                 Helps.addFieldHelp(tripToShowNavigation, "#payment-due", content, 'n');
+                // Info help
+                content = "Aquí se muestra información de interés con respecto al monto máximo que usted puede solicitar " +
+                          "y el monto máximo que se le será otorgado.";
+                Helps.addFieldHelp(tripToShowNavigation, "#info", content, 'n');
                 // Add loan type help.
-                content = "Escoja el tipo de préstamo que desea solicitar.";
-                Helps.addFieldHelp(tripToShowNavigation, "#loan-type", content, 'n');
                 tripToShowNavigation.start();
             }
 
@@ -477,24 +604,24 @@ app.directive('createHelp', function(Helps, Auth, Constants) {
                 if (!$scope.model.phone) {
                     // Requested amount field
                     content = "Ingrese el número telefónico, a través " +
-                              "del cual nos comunicaremos con el afiliado.";
+                              "del cual nos comunicaremos con el asociado.";
                     Helps.addFieldHelp(tripToShowNavigation, "#phone-numb",
                                        content, 'n');
                 }
                 if (!$scope.model.email) {
                     // Email field
                     content = "Ingrese el correo electrónico, a través del cual se le " +
-                              "enviará al afiliado información y actualizaciones referente a su solicitud.";
+                              "enviará al asociado información y actualizaciones referente a su solicitud.";
                     Helps.addFieldHelp(tripToShowNavigation, "#email",
                                        content, 'n');
                 }
                 // Add payment due help.
-                content = "Escoja el plazo (en meses) en el que el afiliado desea " +
+                content = "Escoja el plazo (en meses) en el que el asociado desea " +
                           "pagar su deuda.";
                 Helps.addFieldHelp(tripToShowNavigation, "#payment-due", content, 'n');
-                // Add loan type help.
-                content = "Escoja el tipo de préstamo que el afiliado desea solicitar.";
-                Helps.addFieldHelp(tripToShowNavigation, "#loan-type", content, 'n');
+                content = "Esta tarjeta muestra información de interés con respecto al monto máximo que el asociado puede solicitar " +
+                          "y el monto máximo que se le será otorgado.";
+                Helps.addFieldHelp(tripToShowNavigation, "#info", content, 'n');
                 tripToShowNavigation.start();
             }
 
@@ -578,16 +705,16 @@ app.directive('managerHelp', function(Helps, $mdSidenav) {
                 options.showHeader = true;
                 var trip = new Trip([], options);
                 var content = "Esta tarjeta muestra las estadísticas de " +
-                              "las solicitudes del afiliado. Los datos aparecen al " +
+                              "las solicitudes del asociado. Los datos aparecen al " +
                               "mover el ratón hacia alguna de las divisiones de la gráfica.";
                 Helps.addFieldHelpWithHeader(trip, '#piechart-tour', content, 'n', 'Estadísticas', true);
                 content = "Puede generar un reporte detallado haciendo clic aquí.";
                 Helps.addFieldHelpWithHeader(trip, '#report-btn', content, 's', 'Generación de reporte', true, 'fadeInDown');
                 if ($mdSidenav('left').isLockedOpen()) {
                     // Nav. panel information
-                    content = "Consulte datos del afiliado";
-                    Helps.addFieldHelpWithHeader(trip, '#user-data', content, 'e', 'Datos del afiliado', false, 'fadeInLeft');
-                    content = "Ésta es la lista de solicitudes del afiliado. Haga clic en el tipo de solicitud de " +
+                    content = "Consulte datos del asociado";
+                    Helps.addFieldHelpWithHeader(trip, '#user-data', content, 'e', 'Datos del asociado', false, 'fadeInLeft');
+                    content = "Ésta es la lista de solicitudes del asociado. Haga clic en el tipo de solicitud de " +
                               "su elección para ver sus solicitudes de préstamo. <br/>Para facilitar " +
                               "la elección, el estatus de cada una está identificada por un bombillo amarillo, verde " +
                               "y rojo para Recibida, Aprobada y Rechazada, respectivamente.";
@@ -999,9 +1126,9 @@ app.directive('userInfoHelp', function($mdMedia) {
                 var responsivePos = $mdMedia('xs') ? 's' : 'e';
                 var tripToShowNavigation = new Trip([
                     { sel : $("#info-card"),
-                        content : "Esta tarjeta muestra información personal de interés del afiliado " +
+                        content : "Esta tarjeta muestra información personal de interés del asociado " +
                                   $scope.userName,
-                        position : responsivePos, header: "Información del afiliado", expose: true, animation: 'fadeInUp' }
+                        position : responsivePos, header: "Información del asociado", expose: true, animation: 'fadeInUp' }
                 ], options);
                 tripToShowNavigation.start();
             }

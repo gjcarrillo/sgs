@@ -9,10 +9,10 @@
             <span>Detalles de solicitud ID {{pad(req.id, 6)}}</span>
         </h2>
         <span flex></span>
-        <!--<md-button class="md-icon-button" user-info-help ng-click="showHelp()" aria-label="Help">-->
-        <!--    <md-icon>help_outline</md-icon>-->
-        <!--    <md-tooltip md-direction="bottom">Ayuda</md-tooltip>-->
-        <!--</md-button>-->
+        <md-button class="md-icon-button" details-help ng-click="showHelp()" aria-label="Help">
+            <md-icon>help_outline</md-icon>
+            <md-tooltip md-direction="bottom">Ayuda</md-tooltip>
+        </md-button>
         <md-button class="md-icon-button" ng-click="logout()" aria-label="Logout">
             <md-icon>exit_to_app</md-icon>
             <md-tooltip md-direction="bottom">Cerrar sesión</md-tooltip>
@@ -326,7 +326,7 @@
                         </md-list-item>
                         <md-divider md-inset ng-if="req.validationDate"></md-divider>
                         <md-list-item ng-if="req.validationDate" class="md-2-line noright"
-                                      id="request-contact-number">
+                                      id="request-validation-date">
                             <md-icon class="phone-icon">verified_user</md-icon>
                             <div class="md-list-item-text" layout="column">
                                 <h3>

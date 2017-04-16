@@ -85,7 +85,7 @@
             </md-list-item>
             <md-divider></md-divider>
             <!-- Queries list -->
-            <md-list class="sidenavList">
+            <md-list class="sidenavList" id="query">
                 <md-list-item ng-click="togglePanelList(1)">
                     <p class="sidenavTitle">
                         Consultar
@@ -105,7 +105,7 @@
                 </div>
             </md-list>
             <!-- New requests -->
-            <md-list class="sidenavList">
+            <md-list class="sidenavList" id="new-request">
                 <md-list-item ng-click="togglePanelList(2)">
                     <p class="sidenavTitle">
                         Nueva Solicitud
@@ -125,7 +125,7 @@
                 </div>
             </md-list>
             <!-- Edit requests -->
-            <md-list class="sidenavList">
+            <md-list class="sidenavList" id="edit-request">
                 <div layout="column" layout-align="center">
                     <md-button
                         class="sidenavTitle"
@@ -163,6 +163,7 @@
                     <div layout="column">
                         <span>Ingrese el ID de la solicitud</span>
                         <md-input-container
+                            id="req-id"
                             class="no-vertical-margin"
                             md-no-float>
                             <input
@@ -177,6 +178,7 @@
                     </div>
                     <div layout layout-align="center center">
                         <md-button
+                            id="query-btn"
                             ng-disabled="!queries[selectedAction]"
                             ng-click="getRequestById(queries[selectedAction])"
                             class="md-raised md-primary">
@@ -186,11 +188,11 @@
                 </div>
                 <!-- Request by date -->
                 <div ng-if="selectedAction == 3 && !fetching" layout layout-xs="column">
-                    <div layout="column" layout-xs="row" layout-align-xs="start center" layout-margin>
+                    <div id="date-from" layout="column" layout-xs="row" layout-align-xs="start center" layout-margin>
                         <p>Desde</p>
                         <md-datepicker class="bg" ng-model="queries[selectedAction].from" md-placeholder="Ingese fecha"></md-datepicker>
                     </div>
-                    <div layout="column" layout-xs="row" layout-align-xs="start center" layout-margin>
+                    <div id="date-to" layout="column" layout-xs="row" layout-align-xs="start center" layout-margin>
                         <p>Hasta</p>
                         <md-datepicker class="bg" ng-model="queries[selectedAction].to" md-placeholder="Ingese fecha"></md-datepicker>
                     </div>
@@ -208,6 +210,7 @@
                     <div layout="column">
                         <span>Elija el estatus</span>
                         <md-input-container
+                            id="req-status"
                             class="no-vertical-margin"
                             md-no-float>
                             <md-select
@@ -235,6 +238,7 @@
                     <div layout="column">
                         <span>Elija el tipo de préstamo</span>
                         <md-input-container
+                            id="req-type"
                             class="no-vertical-margin"
                             md-no-float>
                             <md-select
@@ -270,7 +274,7 @@
                     </md-card-content>
                 </md-card>
                 <!-- Requests list -->
-                <div class="margin-16" ng-show="!isObjEmpty(requests) && !fetching">
+                <div class="margin-16" ng-show="!isObjEmpty(requests) && !fetching" id="requests-group">
                     <md-expansion-panel-group md-component-id="requests">
                         <md-expansion-panel ng-repeat="(lKey, loanType) in loanTypes" md-component-id="{{lKey}}">
                             <md-expansion-panel-collapsed>
@@ -351,7 +355,7 @@
                             </md-button>
                         </md-card-content>
                     </md-card>
-                    <md-card ng-if="editableReq.length > 0">
+                    <md-card ng-if="editableReq.length > 0" id="editable-req">
                         <md-toolbar class="md-table-toolbar md-default">
                             <div class="md-toolbar-tools">
                                 <span>Solicitudes editables</span>
@@ -403,7 +407,7 @@
 
                 <!-- Specific type requests list -->
                 <div class="margin-16" ng-if="selectedAction == 5 && !fetching">
-                    <md-card ng-if="singleType.length > 0">
+                    <md-card ng-if="singleType.length > 0" id="single-type">
                         <md-toolbar class="md-table-toolbar md-default">
                             <div class="md-toolbar-tools">
                                 <span>Lista de solicitudes</span>
@@ -469,7 +473,7 @@
                             </md-button>
                         </md-card-content>
                     </md-card>
-                    <md-card ng-if="activeRequests.length > 0">
+                    <md-card ng-if="activeRequests.length > 0" id="active-req">
                         <md-toolbar class="md-table-toolbar md-default">
                             <div class="md-toolbar-tools">
                                 <span>Lista de solicitudes activas</span>
