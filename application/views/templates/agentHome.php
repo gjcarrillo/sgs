@@ -283,20 +283,13 @@
                                 md-select-fix="queries[selectedAction]"
                                 md-on-open="loadStatuses()"
                                 placeholder="Estatus"
+                                ng-change="getRequestsByStatus(queries[selectedAction])"
                                 ng-model="queries[selectedAction]">
                                 <md-option ng-repeat="(sKey, status) in statuses" ng-value="status">
                                     {{status}}
                                 </md-option>
                             </md-select>
                         </md-input-container>
-                    </div>
-                    <div layout layout-align="center center">
-                        <md-button
-                            ng-disabled="!queries[selectedAction]"
-                            ng-click="getRequestsByStatus(queries[selectedAction])"
-                            class="md-raised md-primary">
-                            <md-icon>search</md-icon>Consultar
-                        </md-button>
                     </div>
                 </div>
                 <!-- Request by type -->
@@ -310,6 +303,7 @@
                             <md-select
                                 md-select-fix="queries[selectedAction]"
                                 placeholder="Tipo de préstamo"
+                                ng-change="getRequestsByType(queries[selectedAction])"
                                 ng-model="queries[selectedAction]">
                                 <md-option ng-repeat="(lKey, loanType) in loanTypes" ng-value="lKey">
                                     {{loanType.DescripcionDelPrestamo}}
@@ -317,21 +311,13 @@
                             </md-select>
                         </md-input-container>
                     </div>
-                    <div layout layout-align="center center">
-                        <md-button
-                            ng-disabled="!queries[selectedAction]"
-                            ng-click="getRequestsByType(queries[selectedAction])"
-                            class="md-raised md-primary">
-                            <md-icon>search</md-icon>Consultar
-                        </md-button>
-                    </div>
                 </div>
                 <!-- Help card for opened requests -->
                 <md-card ng-show="showMsg && selectedAction == 6 && !fetching" md-theme="help-card" class="margin-16">
                     <md-card-content layout layout-align="space-between start">
                         <div layout layout-align="center center">
                             <md-icon style="color:#827717; margin-right:10px">info_outline</md-icon>
-                            <span> Le recordamos que las solicitudes abiertas son aquellas que aún no han sido Aprobadas o Rechazadas.</span>
+                            <span> Le recordamos que las solicitudes pendientes son aquellas que aún no han sido Aprobadas o Rechazadas.</span>
                         </div>
                         <md-button ng-click="showMsg = !showMsg" class="md-icon-button">
                             <md-icon>close</md-icon>
@@ -351,7 +337,7 @@
                             <md-expansion-panel-expanded>
                                 <md-expansion-panel-header>
                                     <div class="md-title">{{loanType.DescripcionDelPrestamo}}</div>
-                                    <div class="md-summary">Haga clic en una fila para ver más detalles de la solicitud</div>
+                                    <div class="md-summary"></div>
                                     <md-expansion-panel-icon></md-expansion-panel-icon>
                                 </md-expansion-panel-header>
 
@@ -371,7 +357,7 @@
                                             </thead>
                                             <tbody md-body>
                                             <tr md-row ng-repeat="(rKey, request) in requests[lKey] | limitTo: query.limit: (query.page - 1) * query.limit track by $index">
-                                                <td md-cell ng-click="goToDetails(request)">{{pad(request.id, 6)}}</td>
+                                                <td md-cell ng-click="goToDetails(request)"><a>{{pad(request.id, 6)}}</a></td>
                                                 <td md-cell ng-click="goToDetails(request)">{{request.creationDate}}</td>
                                                 <td md-cell ng-click="goToDetails(request)">{{request.status}}</td>
                                                 <td md-cell ng-click="goToDetails(request)">{{request.reqAmount | number:2}}</td>
@@ -439,7 +425,7 @@
                                 </thead>
                                 <tbody md-body>
                                 <tr md-row ng-repeat="(rKey, request) in editableReq | limitTo: query.limit: (query.page - 1) * query.limit track by $index">
-                                    <td md-cell ng-click="goToDetails(request)">{{pad(request.id, 6)}}</td>
+                                    <td md-cell ng-click="goToDetails(request)"><a>{{pad(request.id, 6)}}</a></td>
                                     <td md-cell ng-click="goToDetails(request)">{{request.creationDate}}</td>
                                     <td md-cell ng-click="goToDetails(request)">{{loanTypes[request.type].DescripcionDelPrestamo}}</td>
                                     <td md-cell ng-click="goToDetails(request)">{{request.reqAmount | number:2}}</td>
@@ -492,7 +478,7 @@
                                 </thead>
                                 <tbody md-body>
                                 <tr md-row ng-repeat="(rKey, request) in singleType | limitTo: query.limit: (query.page - 1) * query.limit track by $index">
-                                    <td md-cell ng-click="goToDetails(request)">{{pad(request.id, 6)}}</td>
+                                    <td md-cell ng-click="goToDetails(request)"><a>{{pad(request.id, 6)}}</a></td>
                                     <td md-cell ng-click="goToDetails(request)">{{request.creationDate}}</td>
                                     <td md-cell ng-click="goToDetails(request)">{{request.status}}</td>
                                     <td md-cell ng-click="goToDetails(request)">{{request.reqAmount | number:2}}</td>
@@ -559,7 +545,7 @@
                                 </thead>
                                 <tbody md-body>
                                 <tr md-row ng-repeat="(rKey, request) in activeRequests | limitTo: query.limit: (query.page - 1) * query.limit track by $index">
-                                    <td md-cell ng-click="goToDetails(request)">{{pad(request.id, 6)}}</td>
+                                    <td md-cell ng-click="goToDetails(request)"><a>{{pad(request.id, 6)}}</a></td>
                                     <td md-cell ng-click="goToDetails(request)">{{loanTypes[request.type].DescripcionDelPrestamo}}</td>
                                     <td md-cell ng-click="goToDetails(request)">{{request.fecha_edo}}</td>
                                     <td md-cell ng-click="goToDetails(request)">{{request.saldo_edo | number:2}}</td>

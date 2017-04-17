@@ -25,10 +25,10 @@ function applicant () {
         {id: 1, text: 'Todas mis solicitudes'},
         {id: 2, text: 'Solicitud por ID'},
         {id: 10, text: 'Solicitudes activas'},
+        {id: 6, text: 'Solicitudes pendientes'},
         {id: 3, text: 'Solicitudes por fecha'},
         {id: 4, text: 'Solicitudes por estatus'},
-        {id: 5, text: 'Solicitudes por tipo'},
-        {id: 6, text: 'Solicitudes abiertas'}
+        {id: 5, text: 'Solicitudes por tipo'}
     ];
     data.queries = {};
     // initialize all ng-model variables.

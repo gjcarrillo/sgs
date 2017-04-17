@@ -18,6 +18,31 @@ class RequestsController extends CI_Controller {
         $this->load->view('templates/details');
     }
 
+    public function getDetails() {
+        try {
+            $em = $this->doctrine->em;
+            $request = $em->find('\Entity\Request', $this->input->get('rid'));
+            if ($request->getUserOwner()->getId() != $this->session->id &&
+                $this->session->type == APPLICANT) {
+                // if fetch id is not the same as logged in user, must be an
+                // agent or manager to be able to execute query!
+                $result['message'] = 'forbidden';
+            } else {
+                $result['request'] = $this->utils->reqToArray($request);
+                if ($request->getStatus() == APPROVED) {
+                    // Also get availability data.
+                    $result['availability'] = $this->requests->getAvailabilityData(
+                        $this->input->get('uid'),
+                        $request->getLoanType()
+                    );
+                }
+                $result['message'] = 'success';
+            }
+        } catch (Exception $e) {
+            $result['message'] = $this->utils->getErrorMsg($e);
+        }
+    }
+
     // Obtain all requests with with all their documents.
     public function getUserRequests() {
         if ($this->input->get('fetchId') != $this->session->id &&
@@ -26,8 +51,12 @@ class RequestsController extends CI_Controller {
             // agent or manager to be able to execute query!
             $result['message'] = 'forbidden';
         } else {
-            $result['requests'] = $this->requests->getUserRequests();
-            $result['message'] = 'success';
+            try {
+                $result['requests'] = $this->requests->getUserRequests();
+                $result['message'] = 'success';
+            } catch (Exception $e) {
+                $result['message'] = $this->utils->getErrorMsg($e);
+            }
         }
         echo json_encode ($result);
     }

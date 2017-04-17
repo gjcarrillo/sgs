@@ -149,6 +149,7 @@ class ManagerHomeController extends CI_Controller {
                 $requestsRepo = $em->getRepository('\Entity\Request');
                 $statuses = $this->utils->getAdditionalStatuses();
                 array_push($statuses, RECEIVED);
+                array_push($statuses, PRE_APPROVED);
                 $requests = $requestsRepo->findBy(array("status" => $statuses));
                 if (empty($requests)) {
                     $result['message'] = "No se encontraron solicitudes pendientes.";

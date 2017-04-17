@@ -41,14 +41,7 @@ class NewRequestController extends CI_Controller {
 			$result['message'] = 'forbidden';
 		} else {
 			try {
-				switch (intval($this->input->get('concept'), 10)) {
-					case CASH_VOUCHER:
-						$result = $this->requests->getCashVoucherAvailabilityData($this->input->get('userId'));
-						break;
-					case PERSONAL_LOAN:
-						$result = $this->requests->getPersonalLoanAvailabilityData($this->input->get('userId'));
-						break;
-				}
+				$result = $this->requests->getAvailabilityData($this->input->get('userId'), $this->input->get('concept'));
 				$em = $this->doctrine->em;
 				// Get user's phone and email
 				$user = $em->find('Entity\User', $this->input->get('userId'));

@@ -185,6 +185,7 @@ class RequestsModel extends CI_Model
             $requestsRepo = $em->getRepository('\Entity\Request');
             $statuses = $this->utils->getAdditionalStatuses();
             array_push($statuses, RECEIVED);
+            array_push($statuses, PRE_APPROVED);
             $requests = $requestsRepo->findBy(array("status" => $statuses));
             $result = array();
             foreach ($requests as $request) {
@@ -920,6 +921,24 @@ class RequestsModel extends CI_Model
         } catch (Exception $e) {
             throw $e;
         }
+    }
+
+    public function getAvailabilityData($uid, $concept) {
+        try {
+            switch (intval($concept, 10)) {
+                case CASH_VOUCHER:
+                    $result = $this->requests->getCashVoucherAvailabilityData($uid);
+                    break;
+                case PERSONAL_LOAN:
+                    $result = $this->requests->getPersonalLoanAvailabilityData($uid);
+                    break;
+                default:
+                    throw new Exception ('Tipo de préstamo no disponible');
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
+        return $result;
     }
 
     /**

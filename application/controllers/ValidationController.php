@@ -30,7 +30,7 @@ class ValidationController extends CI_Controller {
                 $em->merge($request);
                 $em->flush();
                 $em->clear();
-                $result['date'] = $request->getValidationDate();
+                $result['date'] = $request->getValidationDate()->format('d/m/Y');
                 $result['message'] = "success";
             }
         } catch (Exception $e) {

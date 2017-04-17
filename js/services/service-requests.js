@@ -604,14 +604,14 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
             Utils.showAlertDialog('No permitido', 'Estimado usuario, no puede realizar otra solicitud del tipo ' +
                                                   Config.loanConcepts[concept].DescripcionDelPrestamo + ' debido a que ya posee ' +
                                                   'una solicitud (con ID #' + Utils.pad(data.opened.id, 6) + ') de ' +
-                                                  'dicho tipo abierta.');
+                                                  'dicho tipo por atender.');
         } else if (!data.granting.allow && !editMode) {
             Utils.showAlertDialog('No permitido', 'Estimado usuario, no puede realizar otra solicitud del tipo ' +
                                                   Config.loanConcepts[concept].DescripcionDelPrestamo + ' debido a que aún no ' +
                                                   'ha' + (data.granting.span == 1 ? '' : 'n') +
                                                   ' transcurrido ' + data.granting.span + (data.granting.span == 1 ? ' mes' : ' meses') +
                                                   ' desde el último préstamo otorgado.<br/><br/>' +
-                                                  'Podrá volver a solicitar un préstamo de dicho tipo el ' + data.granting.dateAvailable +
+                                                  'Podrá volver a solicitar un préstamo de dicho tipo a partir del ' + data.granting.dateAvailable +
                                                   '<br/><br/>Alternativamente, puede pagar su deuda restante para solicitar ' +
                                                   'otro préstamo si así lo desea.');
         }
@@ -641,6 +641,27 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
 
     self.getInterestRate = function (loanType) {
         return Config.loanConcepts[loanType].InteresAnual;
+    };
+
+    /**
+     * Obtains the specified request's details.
+     * @param rid - request id.
+     * @returns {*}
+     */
+    self.getDetails = function (rid) {
+        var qReq = $q.defer();
+
+        $http.get('requestsController/getDetails',
+            {params: {rid: rid}}).then(
+            function (response) {
+                if (response.data.message == "success") {
+                    qReq.resolve(response.data);
+                } else {
+                    qReq.reject(response.data.message);
+                }
+            });
+
+        return qReq.promise;
     };
 
     return self;

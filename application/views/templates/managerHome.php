@@ -339,20 +339,13 @@
                                 md-on-open="loadStatuses()"
                                 md-on-close="onStatusClose()"
                                 placeholder="Estatus"
+                                ng-change="fetchRequestsByStatus(model.perform[selectedAction].status, selectedAction)"
                                 ng-model="model.perform[1].status">
                                 <md-option ng-repeat="(sKey, status) in statuses" ng-value="status">
                                     {{status}}
                                 </md-option>
                             </md-select>
                         </md-input-container>
-                    </div>
-                    <div layout layout-align="center center">
-                        <md-button
-                            ng-disabled="!model.perform[selectedAction].status || loading"
-                            ng-click="fetchRequestsByStatus(model.perform[selectedAction].status, selectedAction)"
-                            class="md-raised md-primary">
-                            <md-icon>search</md-icon>Consultar
-                        </md-button>
                     </div>
                 </div>
                 <!-- Query by loan type -->
@@ -366,20 +359,13 @@
                             <md-select
                                 md-select-fix="model.perform[selectedAction].loanType"
                                 placeholder="Tipo"
+                                ng-change="fetchRequestsByLoanType(model.perform[selectedAction].loanType, selectedAction)"
                                 ng-model="model.perform[selectedAction].loanType">
                                 <md-option ng-repeat="(lKey, loanType) in loanTypes" ng-value="lKey">
                                     {{loanType.DescripcionDelPrestamo}}
                                 </md-option>
                             </md-select>
                         </md-input-container>
-                    </div>
-                    <div layout layout-align="center center">
-                        <md-button
-                            ng-disabled="!model.perform[selectedAction].loanType || loading"
-                            ng-click="fetchRequestsByLoanType(model.perform[selectedAction].loanType, selectedAction)"
-                            class="md-raised md-primary">
-                            <md-icon>search</md-icon>Consultar
-                        </md-button>
                     </div>
                 </div>
                 <!-- Query pending requests -->
@@ -552,7 +538,7 @@
                             <md-expansion-panel-expanded>
                                 <md-expansion-panel-header>
                                     <div class="md-title">{{loanType.DescripcionDelPrestamo}}</div>
-                                    <div class="md-summary">Haga clic en una fila para ver más detalles de la solicitud</div>
+                                    <div class="md-summary"></div>
                                     <md-expansion-panel-icon></md-expansion-panel-icon>
                                 </md-expansion-panel-header>
 
@@ -573,16 +559,25 @@
                                             </thead>
                                             <tbody md-body>
                                             <tr md-row ng-repeat="(rKey, request) in requests[lKey] | limitTo: query.limit: (query.page - 1) * query.limit track by $index">
-                                                <td md-cell ng-click="goToDetails(request)">{{pad(request.id, 6)}}</td>
+                                                <td md-cell ng-click="goToDetails(request)"><a>{{pad(request.id, 6)}}</a></td>
                                                 <td md-cell ng-click="goToDetails(request)">{{request.creationDate}}</td>
                                                 <td md-cell ng-click="goToDetails(request)">{{request.status}}</td>
                                                 <td md-cell ng-click="loadUserData(request.userOwner)">
-                                                    {{request.userOwner}}
+                                                    <a>{{request.userOwner}}</a>
                                                     <md-tooltip>{{request.userOwnerName}}</md-tooltip>
                                                 </td>
                                                 <td md-cell ng-click="goToDetails(request)">{{request.reqAmount | number:2}}</td>
                                                 <td md-cell ng-click="goToDetails(request)">
                                                     {{(request.approvedAmount | number:2) || '----'}}
+                                                </td>
+                                                <td md-cell ng-if="isReqManageable(request)"
+                                                    ng-click="openManageRequestDialog($event, request)">
+                                                    <md-icon class="md-secondary">
+                                                        edit
+                                                    </md-icon>
+                                                    <md-tooltip>
+                                                        Gestionar solicitud
+                                                    </md-tooltip>
                                                 </td>
                                             </tr>
                                             </tbody>
@@ -630,16 +625,25 @@
                                 </thead>
                                 <tbody md-body>
                                 <tr md-row ng-repeat="(rKey, request) in singleType | limitTo: query.limit: (query.page - 1) * query.limit track by $index">
-                                    <td md-cell ng-click="goToDetails(request)">{{pad(request.id, 6)}}</td>
+                                    <td md-cell ng-click="goToDetails(request)"><a>{{pad(request.id, 6)}}</a></td>
                                     <td md-cell ng-click="goToDetails(request)">{{request.creationDate}}</td>
                                     <td md-cell ng-click="goToDetails(request)">{{request.status}}</td>
                                     <td md-cell ng-click="loadUserData(request.userOwner)">
-                                        {{request.userOwner}}
+                                        <a>{{request.userOwner}}</a>
                                         <md-tooltip>{{request.userOwnerName}}</md-tooltip>
                                     </td>
                                     <td md-cell ng-click="goToDetails(request)">{{request.reqAmount | number:2}}</td>
                                     <td md-cell ng-click="goToDetails(request)">
                                         {{(request.approvedAmount | number:2) || '----'}}
+                                    </td>
+                                    <td md-cell ng-if="isReqManageable(request)"
+                                        ng-click="openManageRequestDialog($event, request)">
+                                        <md-icon class="md-secondary">
+                                            edit
+                                        </md-icon>
+                                        <md-tooltip>
+                                            Gestionar solicitud
+                                        </md-tooltip>
                                     </td>
                                 </tr>
                                 </tbody>
