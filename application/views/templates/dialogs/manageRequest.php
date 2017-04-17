@@ -132,7 +132,8 @@
                 </div>
             </div>
             <!-- information of interest for cash voucher -->
-            <div layout="column" layout-align="start start" ng-if="request.type == LoanTypes.CASH_VOUCHER && model.status == PRE_APPROVED_STRING">
+            <div id="info" layout="column" layout-align="start start"
+                 ng-if="request.type == LoanTypes.CASH_VOUCHER && model.status == PRE_APPROVED_STRING">
                 <md-card class="grayish">
                     <md-card-title>
                         <span class="grey-color"><b>Monto solicitado</b></span>
@@ -159,7 +160,8 @@
                 </md-card>
             </div>
             <!-- information of interest for personal loan -->
-            <div layout="column" layout-align="start start" ng-if="request.type == LoanTypes.PERSONAL_LOAN && model.status == PRE_APPROVED_STRING">
+            <div id="info" layout="column" layout-align="start start"
+                 ng-if="request.type == LoanTypes.PERSONAL_LOAN && model.status == PRE_APPROVED_STRING">
                 <md-card class="grayish">
                     <md-card-title>
                         <span class="grey-color"><b>Monto solicitado</b></span>

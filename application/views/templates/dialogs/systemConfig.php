@@ -74,7 +74,7 @@
                         <div layout="column">
                             <div layout>
                                 <span class="grey-color">
-                                    Especifique el porcentage del sueldo del asociado que se puede solicitar en
+                                    Especifique el porcentaje del sueldo del asociado que se puede solicitar en
                                     préstamos de {{loanConcepts[LoanTypes.CASH_VOUCHER].DescripcionDelPrestamo}}.
                                 </span>
                                 <md-progress-circular
@@ -177,6 +177,7 @@
                                     {{loanTypes[selectedQuery].PlazoEnMeses == 1 ? 'mes' : 'meses'}}
                                     <br/></span>
                                 <md-chips
+                                    id="terms"
                                     md-on-add="checkTerm(selectedQuery)"
                                     ng-model="loanTypes[selectedQuery].terms"
                                     delete-button-label="Delelete term"

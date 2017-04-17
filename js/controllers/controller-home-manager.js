@@ -36,6 +36,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
     $scope.contentAvailable = Manager.data.contentAvailable;
     $scope.contentLoaded = Manager.data.contentLoaded;
     $scope.idPrefix = Manager.data.idPrefix;
+    $scope.singleType = [];
 
     $scope.selected = [];
 
@@ -59,7 +60,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
 
     $scope.selectAction = function (id) {
         $scope.requests = {};
-        $scope.singleType = {};
+        $scope.singleType = [];
         $scope.showApprovedAmount = false;
         $scope.selectedAction = id;
         $mdSidenav('left').close();
@@ -841,12 +842,13 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
     };
 
     $scope.showWatermark = function() {
-        return $scope.isObjEmpty(requests) &&
+        return $scope.isObjEmpty($scope.requests) &&
+               $scope.singleType.length == 0 &&
+               $scope.showResult == null &&
+               $scope.selectedAction == null &&
                !$scope.loadingContent &&
                !$scope.showApprovedAmount &&
-               !$scope.pieLoading &&
-               !$scope.pieloaded &&
-               $scope.pieError == ''
+               !$scope.pieloaded;
     };
 
     $scope.showPie = function() {
@@ -913,7 +915,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
      */
     function resetContent() {
         $scope.requests = {};
-        $scope.singleType = {};
+        $scope.singleType = [];
         $scope.selectedReq = '';
         $scope.selectedLoan = -1;
         $scope.selectedPendingReq = '';
@@ -942,8 +944,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 $scope.contentAvailable = true;
                 $timeout(function () {
                     $scope.contentLoaded = true;
-                    // Fetch pending requests and automatically show first one to user (if any)
-                    $scope.selectAction('pending');
+                    $scope.loadingContent = false;
                 }, 600);
             },
             function (error) {
