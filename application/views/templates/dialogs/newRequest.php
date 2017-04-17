@@ -168,9 +168,9 @@
                         </md-card-title>
                         <md-divider></md-divider>
                         <md-card-content>
-                            <div layout="column" layout-align="start">
-                                <span>{{model.data.percentage}}% de su sueldo ({{model.data.salary | number:2}})</span>
-                                <span>Igual a Bs. {{model.maxReqAmount | number:2}}</span>
+                            <div layout="column" layout-align="start" class="md-table-text">
+                                <span>{{model.data.percentage}}% de su sueldo ({{model.data.salary | number:2}})
+                                    igual a Bs. {{model.maxReqAmount | number:2}}</span>
                             </div>
                         </md-card-content>
                     </md-card>
@@ -179,13 +179,29 @@
                             <span class="grey-color"><b>Cálculo de monto máximo a abonar</b></span>
                         </md-card-title>
                         <md-divider></md-divider>
-                        <md-card-content>
-                            <div layout="column" layout-align="start">
-                                <span>Monto del préstamo {{model.reqAmount | number:2}}</span>
-                                <span>Menos 2% interés {{model.reqAmount * getInterestRate()/100 | number:2}}</span>
-                                <span>Igual a Bs. <b>{{(model.reqAmount - model.reqAmount * getInterestRate()/100 | number:2) || '----'}}</b></span>
-                            </div>
-                        </md-card-content>
+                        <md-table-container>
+                            <table md-table>
+                                <thead md-head>
+                                <tr md-row>
+                                    <th md-column><span>Descripción</span></th>
+                                    <th md-column><span>Monto Bs.</span></th>
+                                    <th md-column><span>Total Bs.</span></th>
+                                </tr>
+                                </thead>
+                                <tbody md-body>
+                                <tr md-row>
+                                    <td md-cell>Monto del préstamo</td>
+                                    <td md-cell>{{(model.reqAmount | number:2) || '----'}}</td>
+                                    <td md-cell>{{(model.reqAmount | number:2) || '----'}}</td>
+                                </tr>
+                                <tr md-row>
+                                    <td md-cell>2% de interés</td>
+                                    <td md-cell class="deduction">{{(model.reqAmount * getInterestRate()/100 | number:2) || '----'}}-</td>
+                                    <td md-cell>{{(model.reqAmount - model.reqAmount * getInterestRate()/100 | number:2) || '----'}}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </md-table-container>
                     </md-card>
                 </div>
                 <!-- information of interest for personal loan -->
@@ -196,9 +212,9 @@
                         </md-card-title>
                         <md-divider></md-divider>
                         <md-card-content>
-                            <div layout="column" layout-align="start">
-                                <span>80% de sus aportes totales ({{model.data.contribution | number:2}})</span>
-                                <span>Igual a Bs. {{model.maxReqAmount | number:2}}</span>
+                            <div layout="column" layout-align="start" class="md-table-text">
+                                <span>80% de sus aportes totales ({{model.data.contribution | number:2}})
+                                    igual a Bs. {{model.maxReqAmount | number:2}}</span>
                             </div>
                         </md-card-content>
                     </md-card>
@@ -207,16 +223,46 @@
                             <span class="grey-color"><b>Cálculo de monto máximo a abonar</b></span>
                         </md-card-title>
                         <md-divider></md-divider>
-                        <md-card-content>
-                            <div layout="column" layout-align="start">
-                                <span>Monto del préstamo {{model.reqAmount | number:2}}</span>
-                                <span>Menos abono (20%) deudas gastos médicos {{(calculateMedicalDebtContribution() | number:2) || '----'}}</span>
-                                <span>Menos saldo de préstamo anterior {{(model.data.lastLoanBalance | number:2) || '----'}}</span>
-                                <span>Más cuota de préstamo anterior {{(model.data.lastLoanFee | number:2) || '----'}}</span>
-                                <span>Menos intereses préstamo nuevo {{(calculateNewInterest() | number:2) || '----'}}</span>
-                                <span>Igual a Bs. <b>{{(calculateLoanAmount() | number:2) || '----'}}</b></span>
-                            </div>
-                        </md-card-content>
+                        <md-table-container>
+                            <table md-table>
+                                <thead md-head>
+                                <tr md-row>
+                                    <th md-column><span>Descripción</span></th>
+                                    <th md-column><span>Monto Bs.</span></th>
+                                    <th md-column><span>Total Bs.</span></th>
+                                </tr>
+                                </thead>
+                                <tbody md-body>
+                                <tr md-row>
+                                    <td md-cell>Monto del préstamo</td>
+                                    <td md-cell>{{(model.reqAmount | number:2) || '----'}}</td>
+                                    <td md-cell>{{(model.reqAmount | number:2) || '----'}}</td>
+                                </tr>
+                                <tr md-row>
+                                    <td md-cell>Abono (20%) deudas gastos médicos</td>
+                                    <td md-cell ng-class="{deduction : calculateTotals(1)}">{{(calculateMedicalDebtContribution() | number:2) || '----'}}-</td>
+                                    <td md-cell>{{(calculateTotals(1) | number:2) || '----'}}</td>
+                                </tr>
+                                <tr md-row>
+                                    <td md-cell>Saldo de préstamo anterior</td>
+                                    <td md-cell ng-class="{deduction : calculateTotals(2)}">{{(model.data.lastLoanBalance | number:2) || '----'}}-</td>
+                                    <td md-cell>{{(calculateTotals(2) | number:2) || '----'}}</td>
+                                </tr>
+                                <tr md-row>
+                                    <td md-cell>Cuota de préstamo anterior</td>
+                                    <td md-cell>{{(model.data.lastLoanFee | number:2) || '----'}}</td>
+                                    <td md-cell>{{(calculateTotals(3) | number:2) || '----'}}</td>
+                                </tr>
+                                <tr md-row>
+                                    <td md-cell>Intereses del préstamo nuevo en {{model.data.newLoanInterestDays}}
+                                        {{model.data.newLoanInterestDays == 1 ? 'día' : 'días'}}
+                                    </td>
+                                    <td md-cell ng-class="{deduction : calculateTotals(4)}">{{(calculateNewInterest() | number:2) || '----'}}-</td>
+                                    <td md-cell>{{(calculateTotals(4) | number:2) || '----'}}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </md-table-container>
                     </md-card>
                 </div>
             </div>

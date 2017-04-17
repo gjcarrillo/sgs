@@ -87,7 +87,7 @@ class ManageRequestController extends CI_Controller {
                     }
 					$em->persist($history);
 
-					if ($data['status'] === PRE_APPROVED && isset($data['approvedAmount'])) {
+					if ($data['status'] == PRE_APPROVED && isset($data['approvedAmount'])) {
 						$request->setApprovedAmount($data['approvedAmount']);
 						// Add approval document
 						$uuid4 = Uuid::uuid4();
@@ -100,6 +100,7 @@ class ManageRequestController extends CI_Controller {
 						);
 						array_push($docs, $doc);
 						$changes = $changes . $this->requests->addDocuments($request, $history, $docs, true);
+						$request->setStatus($data['status']);
 						$this->requests->generateApprovalDocument($request, $doc);
 						// ALERT: FOR TESTING PURPOSES ONLY!!!! DELETE LATER!
 						$this->requests->addGrantingDate($request);

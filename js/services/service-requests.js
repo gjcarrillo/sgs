@@ -664,5 +664,43 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
         return qReq.promise;
     };
 
+    self.calculateTotals = function (concept, reqAmount, subtotal, data) {
+        switch (parseInt(concept)) {
+            case Constants.LoanTypes.CASH_VOUCHER:
+                break;
+            case Constants.LoanTypes.PERSONAL_LOAN:
+                return self.calculatePersonalLoanTotals(reqAmount, subtotal, data);
+                break;
+        }
+    };
+
+    self.calculateMedicalDebtContribution = function (reqAmount, data) {
+        var contribution = 0.2 * reqAmount;
+        return data.medicalDebt > contribution ? contribution : data.medicalDebt;
+    };
+
+    self.calculateNewInterest = function (reqAmount, data) {
+        return (reqAmount - (self.calculateMedicalDebtContribution(reqAmount, data) || 0) + data.lastLoanFee) *
+               0.01 / data.daysOfMonth * data.newLoanInterestDays;
+    };
+
+    self.calculateLoanAmount = function (reqAmount, data) {
+        var subtotal = reqAmount - (self.calculateMedicalDebtContribution(reqAmount, data) || 0);
+        return subtotal + ((data.lastLoanFee - self.calculateNewInterest(reqAmount, data) - data.lastLoanBalance) || 0);
+    };
+
+    self.calculatePersonalLoanTotals = function(reqAmount, subtotal, data) {
+        switch (subtotal) {
+            case 1:
+                return reqAmount ? reqAmount - self.calculateMedicalDebtContribution(reqAmount, data) : null;
+            case 2:
+                return reqAmount ? reqAmount - self.calculateMedicalDebtContribution(reqAmount, data) - data.lastLoanBalance : null;
+            case 3:
+                return reqAmount ? reqAmount - self.calculateMedicalDebtContribution(reqAmount, data) - data.lastLoanBalance + data.lastLoanFee: null;
+            case 4:
+                return reqAmount ? reqAmount - self.calculateMedicalDebtContribution(reqAmount, data) - data.lastLoanBalance + data.lastLoanFee - data.newLoanInterestFee: null;
+        }
+    };
+
     return self;
 }

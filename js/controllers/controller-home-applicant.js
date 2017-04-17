@@ -359,18 +359,19 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
             }
 
             $scope.calculateMedicalDebtContribution = function () {
-                var contribution = 0.2 * $scope.model.reqAmount;
-                return $scope.model.data.medicalDebt > contribution ? contribution : $scope.model.data.medicalDebt;
+                return Requests.calculateMedicalDebtContribution($scope.model.reqAmount, $scope.model.data);
             };
 
             $scope.calculateNewInterest = function () {
-                return ($scope.model.reqAmount - ($scope.calculateMedicalDebtContribution() || 0) + $scope.model.data.lastLoanFee) *
-                       0.01 / $scope.model.data.daysOfMonth * $scope.model.data.newLoanInterestDays;
+                return Requests.calculateNewInterest($scope.model.reqAmount, $scope.model.data);
             };
 
             $scope.calculateLoanAmount = function () {
-                var subtotal = $scope.model.reqAmount - ($scope.calculateMedicalDebtContribution() || 0);
-                return subtotal + (($scope.model.data.lastLoanFee - $scope.calculateNewInterest() - $scope.model.data.lastLoanBalance) || 0);
+                return Requests.calculateLoanAmount($scope.model.reqAmount, $scope.model.data);
+            };
+
+            $scope.calculateTotals = function (subTotal) {
+                return Requests.calculateTotals($scope.model.type, $scope.model.reqAmount, subTotal, $scope.model.data);
             };
 
             $scope.missingField = function () {
@@ -566,18 +567,19 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
             };
 
             $scope.calculateMedicalDebtContribution = function () {
-                var contribution = 0.2 * $scope.model.reqAmount;
-                return $scope.model.data.medicalDebt > contribution ? contribution : $scope.model.data.medicalDebt;
+                return Requests.calculateMedicalDebtContribution($scope.model.reqAmount, $scope.model.data);
             };
 
             $scope.calculateNewInterest = function () {
-                return ($scope.model.reqAmount - ($scope.calculateMedicalDebtContribution() || 0) + $scope.model.data.lastLoanFee) *
-                       0.01 / $scope.model.data.daysOfMonth * $scope.model.data.newLoanInterestDays;
+                return Requests.calculateNewInterest($scope.model.reqAmount, $scope.model.data);
             };
 
             $scope.calculateLoanAmount = function () {
-                var subtotal = $scope.model.reqAmount - ($scope.calculateMedicalDebtContribution() || 0);
-                return subtotal + (($scope.model.data.lastLoanFee - $scope.calculateNewInterest() - $scope.model.data.lastLoanBalance) || 0);
+                return Requests.calculateLoanAmount($scope.model.reqAmount, $scope.model.data);
+            };
+
+            $scope.calculateTotals = function (subTotal) {
+                return Requests.calculateTotals($scope.model.type, $scope.model.reqAmount, subTotal, $scope.model.data);
             };
 
             $scope.calculatePaymentFee = function() {

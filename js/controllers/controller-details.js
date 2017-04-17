@@ -49,9 +49,10 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
 
     // Calculates the request's payment fee.
     $scope.calculatePaymentFee = function() {
-        return $scope.req ? Requests.calculatePaymentFee($scope.req.reqAmount,
-                                                         $scope.req.due,
-                                                         $scope.req.type) : 0;
+        return $scope.req ? Requests.calculatePaymentFee(
+            $scope.req.status != $scope.PRE_APPROVED && $scope.req.status != $scope.APPROVED ?
+                $scope.req.reqAmount : $scope.req.approvedAmount,
+            $scope.req.due, $scope.req.type) : 0;
     };
 
     $scope.downloadDoc = function (doc) {
@@ -656,18 +657,19 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
             };
 
             $scope.calculateMedicalDebtContribution = function () {
-                var contribution = 0.2 * $scope.model.approvedAmount;
-                return $scope.model.data.medicalDebt > contribution ? contribution : $scope.model.data.medicalDebt;
+                return Requests.calculateMedicalDebtContribution($scope.model.approvedAmount, $scope.model.data);
             };
 
             $scope.calculateNewInterest = function () {
-                return ($scope.model.approvedAmount - ($scope.calculateMedicalDebtContribution() || 0) + $scope.model.data.lastLoanFee) *
-                       0.01 / $scope.model.data.daysOfMonth * $scope.model.data.newLoanInterestDays;
+                return Requests.calculateNewInterest($scope.model.approvedAmount, $scope.model.data);
             };
 
             $scope.calculateLoanAmount = function () {
-                var subtotal = $scope.model.approvedAmount - ($scope.calculateMedicalDebtContribution() || 0);
-                return subtotal + (($scope.model.data.lastLoanFee - $scope.calculateNewInterest() - $scope.model.data.lastLoanBalance) || 0);
+                return Requests.calculateLoanAmount($scope.model.approvedAmount, $scope.model.data);
+            };
+
+            $scope.calculateTotals = function (subTotal) {
+                return Requests.calculateTotals($scope.model.type, $scope.model.approvedAmount, subTotal, $scope.model.data);
             };
 
             $scope.getInterestRate = function () {

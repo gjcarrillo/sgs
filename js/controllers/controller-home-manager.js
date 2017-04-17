@@ -240,18 +240,19 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
             };
 
             $scope.calculateMedicalDebtContribution = function () {
-                var contribution = 0.2 * $scope.model.approvedAmount;
-                return $scope.model.data.medicalDebt > contribution ? contribution : $scope.model.data.medicalDebt;
+                return Requests.calculateMedicalDebtContribution($scope.model.approvedAmount, $scope.model.data);
             };
 
             $scope.calculateNewInterest = function () {
-                return ($scope.model.approvedAmount - ($scope.calculateMedicalDebtContribution() || 0) + $scope.model.data.lastLoanFee) *
-                       0.01 / $scope.model.data.daysOfMonth * $scope.model.data.newLoanInterestDays;
+                return Requests.calculateNewInterest($scope.model.approvedAmount, $scope.model.data);
             };
 
             $scope.calculateLoanAmount = function () {
-                var subtotal = $scope.model.approvedAmount - ($scope.calculateMedicalDebtContribution() || 0);
-                return subtotal + (($scope.model.data.lastLoanFee - $scope.calculateNewInterest() - $scope.model.data.lastLoanBalance) || 0);
+                return Requests.calculateLoanAmount($scope.model.approvedAmount, $scope.model.data);
+            };
+
+            $scope.calculateTotals = function (subTotal) {
+                return Requests.calculateTotals(request.type, $scope.model.approvedAmount, subTotal, $scope.model.data);
             };
 
             $scope.getInterestRate = function () {
@@ -320,11 +321,11 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                     function () {
                         // Re-open parent dialog and perform request creation
                         $scope.model.confirmed = true;
-                        parentScope.openManageRequestDialog(null, $scope.model);
+                        parentScope.openManageRequestDialog(null, request, $scope.model);
                     },
                     function () {
                         // Re-open parent dialog and do nothing
-                        parentScope.openManageRequestDialog(null, $scope.model);
+                        parentScope.openManageRequestDialog(null, request, $scope.model);
                     }
                 );
             }
@@ -346,7 +347,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                             'La solicitud ha sido actualizada exitosamente.'
                         );
                         // Update saved request and reload view.
-                        $scope.goToDetails(updatedReq);
+                        goToDetails(updatedReq);
                     },
                     function (error) {
                         $scope.uploading = false;

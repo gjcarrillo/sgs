@@ -80,6 +80,10 @@ footer {
     width: 65%;
 }
 
+.deduction {
+    color: red !important;
+}
+
 .documents-margin {
     margin-top: 30px;
 }
@@ -96,6 +100,12 @@ footer {
 
 .fadeIn {
     animation-duration: 0.5s !important;
+}
+
+.md-table-text {
+    color: rgba(0,0,0,.87);
+    font-size: 14px;
+    white-space: nowrap;
 }
 
 .information-card {
@@ -171,7 +181,8 @@ footer {
 a {
   text-decoration: none;
   /* color: #8F731F; /* golden */
-  color: #F44336; /* A200 red */
+  /*color: #0D47A1; /!* 900 blue*!/*/
+    color: #F44336; /* A200 red */
 }
 
 a:hover {
