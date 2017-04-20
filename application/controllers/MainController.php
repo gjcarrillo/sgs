@@ -21,4 +21,8 @@ class MainController extends CI_Controller {
 	public function expired() {
 		$this->load->view('templates/sessionExpired');
 	}
+
+	public function perspective() {
+		$this->load->view('templates/perspective');
+	}
 }
