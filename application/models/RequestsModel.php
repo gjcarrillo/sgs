@@ -580,8 +580,7 @@ class RequestsModel extends CI_Model
         $data['lastLoanInterestFee'] = ($lastLoan ? $lastLoan->saldo_actual : 0) * 0.01 /
                                        $data['daysOfMonth'] * $data['lastLoanInterestDays'];
         if ($data['lastLoanFee'] > 0) {
-            $data['newLoanInterestFee'] = ($data['amount'] - $data['medicalContribution'] + $data['lastLoanFee']) *
-                                          0.01 / $data['daysOfMonth'] * $data['newLoanInterestDays'];
+            $data['newLoanInterestFee'] = $data['amount'] * 0.01 / $data['daysOfMonth'] * $data['newLoanInterestDays'];
         } else {$data['newLoanInterestFee'] = 0;}
         $data['totalToReceive'] = $data['amount'] - $data['medicalContribution'] + $data['lastLoanFee'] -
                                   $data['newLoanInterestFee'] - $data['lastLoanBalance'];
@@ -607,7 +606,7 @@ class RequestsModel extends CI_Model
         array_push($result, $data['amount'] - $data['medicalContribution'] - $data['lastLoanBalance'] +
                             $data['lastLoanFee']);
         array_push($result, $data['amount'] - $data['medicalContribution'] - $data['lastLoanBalance'] +
-                            $data['lastLoanInterestFee'] - $data['newLoanInterestFee']);
+                            $data['lastLoanFee'] - $data['newLoanInterestFee']);
 
         return $result;
     }
@@ -619,6 +618,7 @@ class RequestsModel extends CI_Model
     }
 
     public function generateApprovalDocument ($request, $doc) {
+        $data = null;
         // Get extra data for the pdf template.
         if ($request->getLoanType() == CASH_VOUCHER) {
             $data = $this->getNewCashVoucherDocData($request);
@@ -633,6 +633,7 @@ class RequestsModel extends CI_Model
         $pdf->WriteHTML($html); // write the HTML into the PDF
         $pdfFilePath = DropPath . $doc['lpath'];
         $pdf->Output($pdfFilePath, 'F'); // save to file
+        return end($data['totals']);
     }
 
     // Helper function that adds a set of additional docs to a request in database & returns an html string with
@@ -694,33 +695,21 @@ class RequestsModel extends CI_Model
         try {
             $em = $this->doctrine->em;
             $span = $em->getRepository('\Entity\Config')->findOneBy(array('key' => 'SPAN' . $loanType))->getValue();
-            if ($loanType == CASH_VOUCHER) {
-                // Cash vouchers do not get registered under db_dt_prestamos
-                $lastRequest = $this->requests->getLastRequest($uid, CASH_VOUCHER);
-                if ($lastRequest == null) {
-                    // Seems like this is their first request. Grant permission to create!
-                    return 0;
-                } else {
-                    // Add 2 days to take evaluation and granting process into account.
-                    $granting = $lastRequest->getCreationDate()->modify('+2 day');
-                }
+            $this->ipapedi_db = $this->load->database('ipapedi_db', true);
+            $this->ipapedi_db->select('*');
+            $this->ipapedi_db->from('db_dt_prestamos');
+            $this->ipapedi_db->where('cedula', $uid);
+            $this->ipapedi_db->where('concepto', $loanType);
+            $query = $this->ipapedi_db->order_by('otorg_fecha',"desc")->get();
+            if (empty($query->result())) {
+                // User's first request.
+                return 0;
             } else {
-                $this->ipapedi_db = $this->load->database('ipapedi_db', true);
-                $this->ipapedi_db->select('*');
-                $this->ipapedi_db->from('db_dt_prestamos');
-                $this->ipapedi_db->where('cedula', $uid);
-                $this->ipapedi_db->where('concepto', $loanType);
-                $query = $this->ipapedi_db->order_by('otorg_fecha',"desc")->get();
-                if (empty($query->result())) {
-                    // User's first request.
+                $granting = date_create_from_format('d/m/Y', $query->result()[0]->otorg_fecha);
+                if (!$granting) {
+                    // No granting date found in granting entry. Perhaps it was rejected?
+                    // Go ahead and allow this request type creation
                     return 0;
-                } else {
-                    $granting = date_create_from_format('d/m/Y', $query->result()[0]->otorg_fecha);
-                    if (!$granting) {
-                        // No granting date found in granting entry. Perhaps it was rejected?
-                        // Go ahead and allow this request type creation
-                        return 0;
-                    }
                 }
             }
             $currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
@@ -816,10 +805,6 @@ class RequestsModel extends CI_Model
             $this->ipapedi_db = $this->load->database('ipapedi_db', true);
             $em = $this->doctrine->em;
             $request = $em->find('\Entity\Request', $rid);
-            if ($request->getLoanType() == CASH_VOUCHER) {
-                // Cash Vouchers do not get registered under db_dt_prestamos, so allow approval.
-                return true;
-            }
             $this->ipapedi_db->select('*');
             $this->ipapedi_db->from('db_dt_prestamos');
             $this->ipapedi_db->where('cedula', $request->getUserOwner()->getId());
@@ -830,7 +815,7 @@ class RequestsModel extends CI_Model
                 // Still no new entry.
                 return false;
             } else {
-                $granting = date_create_from_format('d/m/Y', $query->result()[0]->otorg_fecha);
+                $granting = date_create_from_format('d/m/Y - h:i:sa', $query->result()[0]->otorg_fecha . ' - 11:59:59pm');
                 if (!$granting) {
                     // No granting date found in most recent granting entry. This means last loan request was rejected.
                     return false;
@@ -868,14 +853,9 @@ class RequestsModel extends CI_Model
             $em->persist($action);
             $changes = "<li>Cambio de estatus: <s>" . $request->getStatus() .
                        "</s> " . APPROVED . "." . "</li>";
-            if ($request->getLoanType() == CASH_VOUCHER) {
-                $changes = $changes .
-                           '<br/><div>El préstamo solicitado ha sido abonado.</div>';
-            } else {
-                $changes = $changes .
-                           '<br/><div>El préstamo solicitado ha sido abonado.</div>' .
-                           ' Puede entrar en IPAPEDI en línea para ver los cambios realizados en su Estado de Cuenta.</div>';
-            }
+            $changes = $changes .
+                       '<br/><div>El préstamo solicitado ha sido abonado.</div>' .
+                       ' Puede entrar en IPAPEDI en línea para ver los cambios realizados en su Estado de Cuenta.</div>';
             $em->persist($history);
             $request->setStatus(APPROVED);
             $em->merge($request);
@@ -990,21 +970,26 @@ class RequestsModel extends CI_Model
             $span = $this->configModel->getRequestSpan(CASH_VOUCHER);
             $result['granting']['span'] = $span;
             $config = $em->getRepository('\Entity\Config');
-            $lastRequest = $this->requests->getLastRequest($uid, CASH_VOUCHER);
-            if ($lastRequest == null) {
+            $lastLoan = $this->requests->getLastLoanInfo($uid, CASH_VOUCHER);
+            if ($lastLoan == null) {
                 // Seems like this is their first request. Grant permission to create!
                 $result['granting']['allow'] = true;
             } else {
-                $currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
-                // Add 2 days to take evaluation and granting process into account.
-                $creationDate = $lastRequest->getCreationDate()->modify('+2 day');
-                $diff = $this->utils->getDateInterval($currentDate, $creationDate);
-                $result['granting']['allow'] =
-                    // Allow if time constrain is over.
-                    ($diff['months'] + ($diff['years'] * 12) >= $span);
-                // Tell user when will he be able to request again in case time constrain is not over.
-                $result['granting']['dateAvailable'] =
-                    $creationDate->modify('+' . $span . ' month')->format('d/m/Y');
+                $granting = date_create_from_format('d/m/Y', $lastLoan->otorg_fecha);
+                if (!$granting) {
+                    // No granting date found in most recent granting entry. Perhaps it was rejected.
+                    // Go ahead and allow this request type creation
+                    $result['granting']['allow'] = true;
+                } else {
+                    $currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
+                    $diff = $this->utils->getDateInterval($currentDate, $granting);
+                    $result['granting']['allow'] =
+                        // Allow if time constrain is over.
+                        ($diff['months'] + ($diff['years'] * 12) >= $span);
+                    // Tell user when will he be able to request again in case time constrain is not over.
+                    $result['granting']['dateAvailable'] =
+                        $granting->modify('+' . $span . ' month')->format('d/m/Y');
+                }
             }
             $userData = $this->users->getPersonalData($uid);
             if ($userData == null) {

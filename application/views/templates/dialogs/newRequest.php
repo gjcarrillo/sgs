@@ -196,8 +196,8 @@
                                 </tr>
                                 <tr md-row>
                                     <td md-cell>2% de interés</td>
-                                    <td md-cell class="deduction">{{(model.reqAmount * getInterestRate()/100 | number:2) || '----'}}-</td>
-                                    <td md-cell>{{(model.reqAmount - model.reqAmount * getInterestRate()/100 | number:2) || '----'}}</td>
+                                    <td md-cell ng-class="{deduction : calculateTotals(1)}">{{(model.reqAmount * getInterestRate()/100 | number:2) || '----'}}-</td>
+                                    <td md-cell>{{(calculateTotals(1) | number:2) || '----'}}</td>
                                 </tr>
                                 </tbody>
                             </table>

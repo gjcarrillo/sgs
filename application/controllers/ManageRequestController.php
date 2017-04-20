@@ -73,10 +73,6 @@ class ManageRequestController extends CI_Controller {
 						$action->setSummary("Número de reunión especificado.");
 						$action->setDetail("Reunión #" . $data['reunion']);
 						$changes = $changes . '<li>Número de reunión especificado: ' . $data['reunion'] . '</li>';
-						if ($data['status'] == PRE_APPROVED) {
-							$changes = $changes . '<br/><div>El préstamo solicitado está siendo abonado. En menos de 24h ' .
-									   'hábiles estaremos notificándole al respecto.</div>';
-						}
 						$action->setBelongingHistory($history);
 						$history->addAction($action);
 						$em->persist($action);
@@ -85,8 +81,6 @@ class ManageRequestController extends CI_Controller {
                     if (isset($data['newDocs'])) {
                         $changes = $changes . $this->requests->addDocuments($request, $history, $data['newDocs'], false);
                     }
-					$em->persist($history);
-
 					if ($data['status'] == PRE_APPROVED && isset($data['approvedAmount'])) {
 						$request->setApprovedAmount($data['approvedAmount']);
 						// Add approval document
@@ -101,10 +95,20 @@ class ManageRequestController extends CI_Controller {
 						array_push($docs, $doc);
 						$changes = $changes . $this->requests->addDocuments($request, $history, $docs, true);
 						$request->setStatus($data['status']);
-						$this->requests->generateApprovalDocument($request, $doc);
+						$totalPaid = $this->requests->generateApprovalDocument($request, $doc);
+						$changes = $changes . '<br/><div>Se le está realizando el abono de Bs. ' . number_format($totalPaid, 2) .
+								   '. En menos de 24h hábiles estaremos notificándole al respecto.</div>';
+						// Register paid money in history action
+						$action = new \Entity\HistoryAction();
+						$action->setSummary("Monto a abonar calculado.");
+						$action->setDetail("Monto a abonar: Bs. " . number_format($totalPaid, 2));
+						$action->setBelongingHistory($history);
+						$history->addAction($action);
+						$em->persist($action);
 						// ALERT: FOR TESTING PURPOSES ONLY!!!! DELETE LATER!
 						$this->requests->addGrantingDate($request);
 					}
+					$em->persist($history);
 					if (isset($data['reunion'])) {
 						$request->setReunion($data['reunion']);
 					}

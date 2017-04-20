@@ -667,26 +667,19 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
     self.calculateTotals = function (concept, reqAmount, subtotal, data) {
         switch (parseInt(concept)) {
             case Constants.LoanTypes.CASH_VOUCHER:
-                break;
+                return self.calculateCashVoucherTotals(reqAmount, subtotal, concept);
             case Constants.LoanTypes.PERSONAL_LOAN:
                 return self.calculatePersonalLoanTotals(reqAmount, subtotal, data);
-                break;
         }
     };
 
     self.calculateMedicalDebtContribution = function (reqAmount, data) {
         var contribution = 0.2 * reqAmount;
-        return data.medicalDebt > contribution ? contribution : data.medicalDebt;
+        return contribution ? (data.medicalDebt > contribution ? contribution : data.medicalDebt) : null;
     };
 
     self.calculateNewInterest = function (reqAmount, data) {
-        return (reqAmount - (self.calculateMedicalDebtContribution(reqAmount, data) || 0) + data.lastLoanFee) *
-               0.01 / data.daysOfMonth * data.newLoanInterestDays;
-    };
-
-    self.calculateLoanAmount = function (reqAmount, data) {
-        var subtotal = reqAmount - (self.calculateMedicalDebtContribution(reqAmount, data) || 0);
-        return subtotal + ((data.lastLoanFee - self.calculateNewInterest(reqAmount, data) - data.lastLoanBalance) || 0);
+        return reqAmount * 0.01 / data.daysOfMonth * data.newLoanInterestDays;
     };
 
     self.calculatePersonalLoanTotals = function(reqAmount, subtotal, data) {
@@ -698,7 +691,14 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
             case 3:
                 return reqAmount ? reqAmount - self.calculateMedicalDebtContribution(reqAmount, data) - data.lastLoanBalance + data.lastLoanFee: null;
             case 4:
-                return reqAmount ? reqAmount - self.calculateMedicalDebtContribution(reqAmount, data) - data.lastLoanBalance + data.lastLoanFee - data.newLoanInterestFee: null;
+                return reqAmount ? reqAmount - self.calculateMedicalDebtContribution(reqAmount, data) - data.lastLoanBalance + data.lastLoanFee - self.calculateNewInterest(reqAmount, data): null;
+        }
+    };
+
+    self.calculateCashVoucherTotals = function (reqAmount, subtotal, concept) {
+        switch (subtotal) {
+            case 1:
+                return reqAmount - reqAmount * self.getInterestRate(concept) / 100;
         }
     };
 

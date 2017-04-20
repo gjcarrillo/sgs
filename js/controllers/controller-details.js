@@ -190,6 +190,22 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                 $mdDialog.hide();
             };
 
+            $scope.calculateMedicalDebtContribution = function () {
+                return Requests.calculateMedicalDebtContribution($scope.model.reqAmount, $scope.model.data);
+            };
+
+            $scope.calculateNewInterest = function () {
+                return Requests.calculateNewInterest($scope.model.reqAmount, $scope.model.data);
+            };
+
+            $scope.calculateLoanAmount = function () {
+                return Requests.calculateLoanAmount($scope.model.reqAmount, $scope.model.data);
+            };
+
+            $scope.calculateTotals = function (subTotal) {
+                return Requests.calculateTotals($scope.model.type, $scope.model.reqAmount, subTotal, $scope.model.data);
+            };
+
             $scope.calculatePaymentFee = function() {
                 if ($scope.model.reqAmount && $scope.model.due) {
                     return Requests.calculatePaymentFee($scope.model.reqAmount,
@@ -669,7 +685,7 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
             };
 
             $scope.calculateTotals = function (subTotal) {
-                return Requests.calculateTotals($scope.model.type, $scope.model.approvedAmount, subTotal, $scope.model.data);
+                return Requests.calculateTotals(request.type, $scope.model.approvedAmount, subTotal, $scope.model.data);
             };
 
             $scope.getInterestRate = function () {
