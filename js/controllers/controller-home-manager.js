@@ -742,7 +742,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                         if (created) {
                             $mdDialog.hide();
                             Utils.showAlertDialog('Operación exitosa',
-                                                  'El nuevo usuario Agente ha sido registrado exitosamente');
+                                                  'El nuevo usuario Asesor ha sido registrado exitosamente');
                         }
                         $scope.uploading = false;
                     },
@@ -780,7 +780,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                         $mdDialog.hide();
                         $scope.uploading = false;
                         Utils.showAlertDialog('Operación exitosa',
-                                              'Los privilegios de AGENTE han sido revocados del usuario ' +
+                                              'Los privilegios de ASESOR han sido revocados del usuario ' +
                                               $scope.selectedUser.value);
                     },
                     function (error) {

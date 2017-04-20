@@ -2,7 +2,7 @@
     <!-- Dialog title -->
     <md-toolbar class="md-table-toolbar md-default">
         <div class="md-toolbar-tools">
-            <h2>Administración de agentes</h2>
+            <h2>Administración de asesores</h2>
             <span flex></span>
             <md-button class="md-icon-button" manage-agents-help ng-click="showHelp()" aria-label="Help">
                 <md-icon>help_outline</md-icon>
@@ -22,7 +22,7 @@
                             <div layout="column" flex="45" flex-xs="100">
                                 <br/>
                                 <div class="grey-color">
-                                    ID de Agente *
+                                    ID de Asesor *
                                 </div>
                                 <div layout layout-align-gt-xs="start start" flex-xs="100">
                                     <md-input-container
@@ -146,7 +146,7 @@
                 <md-content>
                     <div layout="column" layout-padding>
                         <span class="grey-color">
-                            Por favor escoja el usuario agente al cual revocar privilegios
+                            Por favor escoja el usuario asesor al cual revocar privilegios
                         </span>
                         <md-input-container
                             id="select-agent"
