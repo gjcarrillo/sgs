@@ -23,9 +23,11 @@ class ManageAgentUsers extends CI_Controller {
 				$user = $em->find('\Entity\User', $data['id']);
 				if ($user != null && ($user->getStatus() == "ACTIVO" || $user->getStatus() == "activo")) {
 					if ($user->getType() == AGENT) {
-						$result['message'] = "El agente " . $data['id'] . " ya se encuentra registrado";
+						$result['message'] = "El agente " . $data['id'] . " ya se encuentra registrado.";
 					} else if ($user->getType() == MANAGER) {
 						$result['message'] = "El usuario " . $data['id'] . " posee privilegios de GERENTE.";
+					} else if ($user->getType() == REVISER) {
+						$result['message'] = 'El usuario ' . $data['id'] . " ya se encuentra registrado.";
 					} else {
 						$result['message'] = "El usuario " . $data['id'] . " posee privilegios de AFILIADO.";
 					}
@@ -33,9 +35,9 @@ class ManageAgentUsers extends CI_Controller {
 					if ($user != null) {
 						// User was most likely inactive.
 						$this->users->resurrectUser($user->getId());
+						$this->users->updateUserInfo($data);
 					} else {
 						// User not found. Create it.
-						$data['type'] = AGENT;
 						$data['status'] = "ACTIVO";
 						$this->users->createUser($data);
 					}
@@ -87,9 +89,11 @@ class ManageAgentUsers extends CI_Controller {
 			try {
 				$em = $this->doctrine->em;
 				// Get all agents
-				$agents = $em->getRepository('\Entity\User')->findBy(array('type' => AGENT, 'status' => "ACTIVO"));
+				$agents = $em->getRepository('\Entity\User')->findBy(array('type' => array(AGENT, REVISER), 'status' => "ACTIVO"));
 				foreach ($agents as $aKey => $agent) {
-					$result['agents'][$aKey] =
+					$result['agents'][$aKey]['type'] = $agent->getType();
+					$result['agents'][$aKey]['value'] = $agent->getId();
+					$result['agents'][$aKey]['display'] =
 						$agent->getId() . " (" . $agent->getFirstName() . " " . $agent->getLastName() . ")";
 				}
 				$result['message'] = "success";

@@ -1057,12 +1057,13 @@ app.directive('manageAgentsHelp', function(Helps, $mdMedia) {
                 var responsivePos = $mdMedia('xs') ? 'n' : 's';
                 var trip = new Trip([], options);
 
-                var contentId = "Ingrese el ID de usuario del " +
-                                "nuevo agente.";
+                var contentId = "Ingrese el ID del nuevo usuario.";
                 var contentPsw = "Ingrese la contraseña con que el nuevo " +
-                                 "gestor ingresará al sistema.";
-                var contentName = "Ingrese el nombre del gestor.";
-                var contentLastName = "Ingrese el apellido del gestor.";
+                                 "usuario ingresará al sistema.";
+                var repeatPsw = "Por medidas de seguridad, repita la contraseña.";
+                var userType = "Elija el tipo de usuario que desea crear.";
+                var contentName = "Ingrese el nombre del usuario.";
+                var contentLastName = "Ingrese el apellido del usuario.";
                 var contentPhone = "Ingrese el número telefónico (opcional).";
                 var contentEmail = "Ingrese el correo electrónico (opcional).";
                 if (typeof $scope.userId === "undefined") {
@@ -1072,6 +1073,14 @@ app.directive('manageAgentsHelp', function(Helps, $mdMedia) {
                 if (typeof $scope.model.psw === "undefined") {
                     Helps.addFieldHelp(trip, "#user-psw",
                                        contentPsw, responsivePos);
+                }
+                if (typeof $scope.model.psw2 === "undefined") {
+                    Helps.addFieldHelp(trip, "#psw2",
+                                       repeatPsw, responsivePos);
+                }
+                if (typeof $scope.model.type === "undefined") {
+                    Helps.addFieldHelp(trip, "#user-type",
+                                       userType, responsivePos);
                 }
                 if (typeof $scope.model.name === "undefined") {
                     Helps.addFieldHelp(trip, "#user-name",
@@ -1085,13 +1094,13 @@ app.directive('manageAgentsHelp', function(Helps, $mdMedia) {
                     Helps.addFieldHelp(trip, "#user-phone",
                                        contentPhone, responsivePos);
                 }
-                if (typeof $scope.model.phone === "undefined") {
+                if (typeof $scope.model.email === "undefined") {
                     Helps.addFieldHelp(trip, "#user-email",
                                        contentEmail, responsivePos);
                 }
                 if (!$scope.missingField()) {
                     var content = "Haga clic en REGISTRAR para crear " +
-                                  "el nuevo gestor.";
+                                  "el nuevo usuario.";
                     Helps.addFieldHelp(trip, "#register-btn",
                                        content, 'n');
                 }

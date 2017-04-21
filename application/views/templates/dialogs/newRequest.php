@@ -132,9 +132,9 @@
                         layout-align="center"
                         layout-align-xs="start start">
                         <div layout="column" id="payment-due">
-                    <span class="grey-color">
-                        <b>Plazo para pagar</b>:
-                    </span>
+                            <span class="grey-color">
+                                <b>Plazo para pagar</b>:
+                            </span>
                             <md-input-container style="margin: 0 !important;">
                                 <md-select
                                     ng-disabled="uploading"

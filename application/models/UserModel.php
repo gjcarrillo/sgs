@@ -93,6 +93,26 @@ class UserModel extends CI_Model
         }
     }
 
+    public function updateUserInfo($data) {
+        try {
+            $em = $this->doctrine->em;
+            $user = $em->find('\Entity\User', $data['id']);
+            $user->setPassword(base64_encode($data['password']));
+            $user->setFirstName(trim($data['firstName']));
+            $user->setLastname(trim($data['lastName']));
+            if (isset($data['phone'])) {
+                $user->setPhone($data['phone']);
+            }
+            if (isset($data['email'])) {
+                $user->setEmail($data['email']);
+            }
+            $em->merge($user);
+            $em->flush();
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
     public function degradeUser ($uid) {
         try {
             $em = $this->doctrine->em;
@@ -212,7 +232,7 @@ class UserModel extends CI_Model
                         'firstName' => 'Sistema',
                         'lastName' => 'De Gestión de Solicitudes',
                         'type' => APPLICANT,
-                        'status' => "INACTIVE"
+                        'status' => "INACTIVO"
                     )
                 );
                 return $em->find('\Entity\User', SID);

@@ -21,7 +21,7 @@
         <div hide show-gt-sm id="manager-options">
             <md-button class="md-icon-button" ng-click="openManageUserAgentDialog($event)" aria-label="Manage Agents">
                 <md-icon>account_box</md-icon>
-                <md-tooltip md-direction="bottom">Administrar usuarios asesores</md-tooltip>
+                <md-tooltip md-direction="bottom">Administrar usuarios</md-tooltip>
             </md-button>
             <md-button class="md-icon-button" ng-click="openConfigDialog($event)" aria-label="System Configuration">
                 <md-icon>settings</md-icon>
@@ -76,7 +76,7 @@
                 <md-menu-item>
                     <md-button ng-click="openManageUserAgentDialog($event)" aria-label="Manage Agents">
                         <md-icon>account_box</md-icon>
-                        Administrar asesores
+                        Administrar
                     </md-button>
                 </md-menu-item>
                 <md-menu-item>

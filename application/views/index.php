@@ -74,7 +74,8 @@
     <script type="text/javascript" src="<?php echo base_url(); ?>js/directives/directive-select-fix.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/directives/directive-helps.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/directives/directive-overlay.js"></script>
-    \<script type="text/javascript" src="<?php echo base_url(); ?>js/directives/directive-perspective.js"></script>
+    <script type="text/javascript" src="<?php echo base_url(); ?>js/directives/directive-perspective.js"></script>
+    <script type="text/javascript" src="<?php echo base_url(); ?>js/directives/directive-psw-match.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/filters/filter-abs.js"></script>
 
     <!-- Plugins -->

@@ -1,4 +1,4 @@
-<md-dialog aria-label="Edit Request">
+<md-dialog aria-label="Edit Request" ng-class="{'wide-dialog' : selectedTab == 1}">
     <!-- Dialog title -->
     <md-toolbar class="md-table-toolbar md-default">
         <div class="md-toolbar-tools">
@@ -19,10 +19,10 @@
                 <md-content>
                     <form name="userForm">
                         <div layout layout-xs="column" layout-padding>
-                            <div layout="column" flex="45" flex-xs="100">
+                            <div layout="column" flex="33" flex-xs="100">
                                 <br/>
                                 <div class="grey-color">
-                                    ID de Asesor *
+                                    ID de Usuario *
                                 </div>
                                 <div layout layout-align-gt-xs="start start" flex-xs="100">
                                     <md-input-container
@@ -47,7 +47,7 @@
                                     </md-input-container>
                                 </div>
                             </div>
-                            <div layout="column" flex="45" flex-xs="100" flex-offset="10" flex-offset-xs="0">
+                            <div layout="column" flex="33" flex-xs="100"  flex-offset-xs="0">
                                 <br/>
                                 <div class="grey-color">
                                     Contraseña *
@@ -55,6 +55,7 @@
                                 <md-input-container id="user-psw" style="margin:0" class="md-block" md-no-float>
                                     <input
                                         required
+                                        id="psw"
                                         name="psw"
                                         type="password"
                                         ng-maxlength="255"
@@ -68,9 +69,53 @@
                                     </div>
                                 </md-input-container>
                             </div>
+                            <div layout="column" flex="33" flex-xs="100"  flex-offset-xs="0">
+                                <br/>
+                                <div class="grey-color">
+                                    Repetir contraseña *
+                                </div>
+                                <md-input-container id="user-psw" style="margin:0" class="md-block" md-no-float>
+                                    <input
+                                        required
+                                        pw-check="psw"
+                                        id="psw2"
+                                        name="psw2"
+                                        type="password"
+                                        ng-model="model.password2"
+                                        placeholder="***********"/>
+                                    <div ng-messages="userForm.psw2.$error" ng-show="userForm.psw2.$dirty">
+                                        <div ng-message="required">¡Este campo es obligatorio!</div>
+                                        <div ng-show="userForm.psw2.$error.pwmatch">Las contraseñas no coinciden.</div>
+                                    </div>
+                                </md-input-container>
+                            </div>
                         </div>
                         <div layout layout-xs="column" layout-padding>
-                            <div layout="column" flex="45" flex-xs="100">
+                            <div layout="column" flex="33" flex-xs="100">
+                                <div class="grey-color">
+                                    Tipo de usuario *
+                                </div>
+                                <md-input-container
+                                    id="user-type"
+                                    class="md-block"
+                                    md-no-float
+                                    style="margin: 0 !important;">
+                                    <md-select
+                                        required
+                                        ng-disabled="uploading"
+                                        md-select-fix="model.type"
+                                        placeholder="Tipo de usuario"
+                                        ng-model="model.type">
+                                        <md-option ng-value="Users.AGENT">
+                                            ASESOR
+                                        </md-option>
+                                        <md-option ng-value="Users.REVISER">
+                                            REVISOR
+                                        </md-option>
+                                    </md-select>
+                                </md-input-container>
+                            </div>
+                            <div layout="column" flex="33" flex-xs="100">
                                 <div class="grey-color">
                                     Nombre *
                                 </div>
@@ -81,7 +126,7 @@
                                     </div>
                                 </md-input-container>
                             </div>
-                            <div layout="column" flex="45" flex-xs="100" flex-offset="10" flex-offset-xs="0">
+                            <div layout="column" flex="33" flex-xs="100"  flex-offset-xs="0">
                                 <div class="grey-color">
                                     Apellido *
                                 </div>
@@ -99,7 +144,7 @@
                             </div>
                         </div>
                         <div layout layout-xs="column" layout-padding>
-                            <div layout="column" flex="45" flex-xs="100">
+                            <div layout="column" flex="33" flex-xs="100">
                                 <div class="grey-color">
                                     Teléfono
                                 </div>
@@ -118,7 +163,7 @@
                                     </div>
                                 </md-input-container>
                             </div>
-                            <div layout="column" flex="45" flex-xs="100" flex-offset="10" flex-offset-xs="0">
+                            <div layout="column" flex="33" flex-xs="100"  flex-offset-xs="0">
                                 <div class="grey-color">
                                     Correo
                                 </div>
@@ -146,7 +191,7 @@
                 <md-content>
                     <div layout="column" layout-padding>
                         <span class="grey-color">
-                            Por favor escoja el usuario asesor al cual revocar privilegios
+                            Por favor escoja el usuario al cual revocar privilegios
                         </span>
                         <md-input-container
                             id="select-agent"
@@ -158,7 +203,16 @@
                                 md-select-fix="selectedUser"
                                 md-on-open="fetchAllAgents()"
                                 style="min-width: 200px;">
-                                <md-option ng-value="user" ng-repeat="user in userAgents">{{user.display}}</md-option>
+                                <md-optgroup label="Asesores">
+                                    <md-option ng-value="user" ng-repeat="user in userAgents | filter: {type: Users.AGENT }">
+                                        {{user.display}}
+                                    </md-option>
+                                </md-optgroup>
+                                <md-optgroup label="Revisores">
+                                    <md-option ng-value="user" ng-repeat="user in userAgents | filter: {type: Users.REVISER }">
+                                        {{user.display}}
+                                    </md-option>
+                                </md-optgroup>
                             </md-select>
                         </md-input-container>
                     </div>

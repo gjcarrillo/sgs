@@ -7,7 +7,8 @@ var obj = {
     Users: {
         AGENT: 1,
         MANAGER: 2,
-        APPLICANT: 3
+        APPLICANT: 3,
+        REVISER: 4
     },
     LoanTypes: {
         PERSONAL_LOAN: 40,

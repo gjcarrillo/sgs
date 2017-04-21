@@ -92,8 +92,9 @@ define('DropPath', getenv('DROP_PATH'));
              TYPES OF USERS
 =========================================*/
 define('AGENT', 1);
-define('APPLICANT', 3);
 define('MANAGER', 2);
+define('APPLICANT', 3);
+define('REVISER', 4);
 /* ======================================
              JWT SECRET KEY
 =========================================*/

@@ -714,6 +714,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
             $scope.model = {};
             $scope.idPrefix = "V";
             $scope.selectedTab = 1;
+            $scope.Users = Constants.Users;
 
             $scope.closeDialog = function() {
                 $mdDialog.hide();
@@ -723,6 +724,9 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                 return (
                     typeof $scope.userId === "undefined" ||
                     typeof $scope.model.password === "undefined" ||
+                    typeof $scope.model.password2 === "undefined" ||
+                    $scope.model.password !== $scope.model.password2 ||
+                    typeof $scope.model.type === "undefined" ||
                     typeof $scope.model.firstName === "undefined" ||
                     typeof $scope.model.lastName === "undefined"
                 );
@@ -742,7 +746,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                         if (created) {
                             $mdDialog.hide();
                             Utils.showAlertDialog('Operación exitosa',
-                                                  'El nuevo usuario Asesor ha sido registrado exitosamente');
+                                                  'El nuevo usuario ha sido registrado exitosamente');
                         }
                         $scope.uploading = false;
                     },
@@ -780,8 +784,9 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                         $mdDialog.hide();
                         $scope.uploading = false;
                         Utils.showAlertDialog('Operación exitosa',
-                                              'Los privilegios de ASESOR han sido revocados del usuario ' +
-                                              $scope.selectedUser.value);
+                                              'El usuario ' + $scope.selectedUser.value + ' se encuentra ahora <b>INACTIVO</b> y ' +
+                                              'no podrá iniciar sesión.<br/><br/>' +
+                                              'Si desea volver a cambiar su estatus a ACTIVO, regístrelo nuevamente.');
                     },
                     function (error) {
                         $scope.uploading = false;
