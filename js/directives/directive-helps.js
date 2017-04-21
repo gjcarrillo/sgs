@@ -148,6 +148,10 @@ app.directive('applicantHelp', function(Helps, Requests, $mdMedia, $mdSidenav) {
     };
 });
 
+app.directive('reviserHelp', function(Helps) {
+
+});
+
 app.directive('agentHelp', function(Helps, Requests, $mdMedia, $mdSidenav) {
     return {
         restrict: 'A',

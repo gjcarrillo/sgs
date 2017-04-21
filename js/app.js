@@ -10,11 +10,11 @@ var sgdp = angular.module("sgdp",
         "sgdp.service-config",
         "sgdp.service-agent",
         "sgdp.service-applicant",
+        "sgdp.service-reviser",
         "sgdp.directive-animate-change",
         "sgdp.directive-select-fix",
         "sgdp.directive-helps",
         "sgdp.directive-overlay",
-        "sgdp.directive-perspective",
         "sgdp.directive-psw-match",
         "sgdp.filter-abs",
         "ui.router",
@@ -72,6 +72,18 @@ sgdp.config(function ($stateProvider, $urlRouterProvider, $mdThemingProvider,
                 'content': {
                     templateUrl: 'index.php/ManagerHomeController',
                     controller: 'ManagerHomeController'
+                },
+                'footer': {
+                    templateUrl: 'index.php/MainController/footer'
+                }
+            }
+        })
+        .state('reviserHome', {
+            url: '/reviserHome',
+            views: {
+                'content': {
+                    templateUrl: 'index.php/ReviserHomeController',
+                    controller: 'ReviserHomeController'
                 },
                 'footer': {
                     templateUrl: 'index.php/MainController/footer'
@@ -306,9 +318,12 @@ sgdp.run(['$rootScope', '$location', '$state', 'Auth', '$cookies', '$http', 'Con
                       case '/managerHome':
                           // Check for manager rights
                           return userType == Constants.Users.MANAGER;
+                      case '/reviserHome':
+                          // Check for reviser rights
+                          return userType == Constants.Users.REVISER;
                       case '/actions':
-                          // check for agent or manager rights
-                          return userType == Constants.Users.MANAGER || userType == Constants.Users.AGENT;
+                          // check if user is not applicant
+                          return userType !== Constants.Users.APPLICANT;
                       case '/userInfo':
                           // every one can come here
                           return true;
@@ -316,7 +331,6 @@ sgdp.run(['$rootScope', '$location', '$state', 'Auth', '$cookies', '$http', 'Con
                           // check for agent rights
                           return userType == Constants.Users.AGENT;
                   }
-                  //  Going to login (.otherwise('login')), so keep going!
                   return true;
               }
           }
@@ -357,23 +371,25 @@ sgdp.animation('.slide-toggle', ['$animateCss', function ($animateCss) {
 
 
 sgdp.config(function($mdIconProvider) {
-    $mdIconProvider.icon('account-box', 'images/icons/ic_account_box_black_48px.svg', 24);
+    //$mdIconProvider.icon('account-box', 'images/icons/ic_account_box_black_48px.svg', 24);
     $mdIconProvider.icon('assignment', 'images/icons/ic_assignment_black_48px.svg', 24);
-    $mdIconProvider.icon('assessment', 'images/icons/ic_assessment_black_48px.svg', 24);
-    $mdIconProvider.icon('error', 'images/icons/ic_error_black_48px.svg', 24);
-    $mdIconProvider.icon('verified-user', 'images/icons/ic_verified_user_black_48px.svg', 24);
+    //$mdIconProvider.icon('assessment', 'images/icons/ic_assessment_black_48px.svg', 24);
+    //$mdIconProvider.icon('error', 'images/icons/ic_error_black_48px.svg', 24);
+    //$mdIconProvider.icon('verified-user', 'images/icons/ic_verified_user_black_48px.svg', 24);
     $mdIconProvider.icon('expired', 'images/icons/ic_access_time_black_48px.svg', 24);
+    $mdIconProvider.icon('search', 'images/icons/ic_search_black_48px.svg', 24);
 });
 
 // Cache svg's
 sgdp.run(function($http, $templateCache) {
     var urls = [
-        'images/icons/ic_account_box_black_48px.svg',
+        //'images/icons/ic_account_box_black_48px.svg',
         'images/icons/ic_assignment_black_48px.svg',
-        'images/icons/ic_assessment_black_48px.svg',
-        'images/icons/ic_error_black_48px.svg',
-        'images/icons/ic_verified_user_black_48px.svg',
-        'images/icons/ic_access_time_black_48px.svg'
+        //'images/icons/ic_assessment_black_48px.svg',
+        //'images/icons/ic_error_black_48px.svg',
+        //'images/icons/ic_verified_user_black_48px.svg',
+        'images/icons/ic_access_time_black_48px.svg',
+        'images/icons/ic_search_black_48px.svg'
     ];
     angular.forEach(urls, function(url) {
         $http.get(url, {cache: $templateCache});

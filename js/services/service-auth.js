@@ -50,7 +50,7 @@ function auth($cookies, $location, $http, $rootScope, $q, Applicant, Agent, Mana
         // Clear login form
         $rootScope.model = {};
         // redirect to IPAPEDI login page
-        if (type == Constants.Users.MANAGER || type == Constants.Users.AGENT) {
+        if (type == Constants.Users.MANAGER || type == Constants.Users.AGENT || type == Constants.Users.REVISER) {
             window.location.replace(Constants.IPAPEDI_URL + 'administracion/cerrarSesion');
         } else {
             window.location.replace(Constants.IPAPEDI_URL + 'asociados/cerrar');
@@ -68,12 +68,14 @@ function auth($cookies, $location, $http, $rootScope, $q, Applicant, Agent, Mana
     self.sendHome = function () {
         if (!self.isLoggedIn()) {
             $location.path('/login');
-        } else if ($cookies.getObject('session').type == 1) {
+        } else if ($cookies.getObject('session').type == Constants.Users.AGENT) {
             $location.path("/agentHome");
-        } else if ($cookies.getObject('session').type == 2) {
+        } else if ($cookies.getObject('session').type == Constants.Users.MANAGER) {
             $location.path("/managerHome");
-        } else {
+        } else if ($cookies.getObject('session').type == Constants.Users.APPLICANT) {
             $location.path("/applicantHome");
+        } else if ($cookies.getObject('session').type == Constants.Users.REVISER) {
+            $location.path("/reviserHome");
         }
     };
 
@@ -86,10 +88,11 @@ function auth($cookies, $location, $http, $rootScope, $q, Applicant, Agent, Mana
         $http.post('LoginController/updateSession', {newType: newType})
             .then(
             function (response) {
-                if (response.status == 200) {
+                console.log(response);
+                if (response.data.message == 'success') {
                     qSession.resolve();
                 } else {
-                    qSession.reject('Ha ocurrido un error en el servidor. Por favor intente más tarde');
+                    qSession.reject(response.data.message);
                 }
             }
         );

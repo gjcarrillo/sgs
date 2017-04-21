@@ -81,7 +81,7 @@ class UserModel extends CI_Model
             $em = $this->doctrine->em;
             $user = $em->find('\Entity\User', $uid);
             if ($user->getType() != APPLICANT) {
-                // User most be APPLICANT for upgrading to AGENT.
+                // User must be APPLICANT for upgrading to AGENT.
                 throw new Exception ('No se pueden otorgar diferentes privilegios a este usuario.');
             } else {
                 $user->setType(AGENT);
@@ -305,6 +305,8 @@ class UserModel extends CI_Model
     public function calculateNewConcurrence($loans, $wage, $newFee) {
         $sum = $newFee;
         foreach ($loans as $loan) {
+            // cash vouchers do not count towards user concurrence
+            if ($loan->concepto == CASH_VOUCHER) continue;
             if ($loan->saldo_edo > 0) {
                 // Active loan. Take into account.
                 $sum += intval($loan->otorg_cuota, 10);
@@ -323,6 +325,8 @@ class UserModel extends CI_Model
     public function calculateMaxFeeByConcurrence($loans, $wage) {
         $sum = 0;
         foreach ($loans as $loan) {
+            // cash vouchers do not count towards user concurrence
+            if ($loan->concepto == CASH_VOUCHER) continue;
             if ($loan->saldo_edo > 0) {
                 // Active loan. Take into account.
                 $sum += intval($loan->otorg_cuota, 10);
@@ -335,6 +339,8 @@ class UserModel extends CI_Model
         // Calculate actual concurrence based on other loans payment fees amount
         $sum = 0;
         foreach ($loans as $loan) {
+            // cash vouchers do not count towards user concurrence
+            if ($loan->concepto == CASH_VOUCHER) continue;
             if ($loan->saldo_edo > 0) {
                 // Active loan. Take into account.
                 $sum += intval($loan->otorg_cuota, 10);

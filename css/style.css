@@ -416,6 +416,12 @@ md-select.no-md-select .md-select-value {
     color: #0D47A1;
 }
 
+.perspective-svg {
+    color: grey;
+    height: 128px;
+    width: 128px;
+}
+
 .center-vertical {
     width: 100vw;
 }

@@ -154,21 +154,21 @@ class LoginController extends CI_Controller {
         $result['message'] = 'error';
         $data = json_decode(file_get_contents('php://input'), true);
         $dataSession = array(
-            "id" => $_SESSION['id'],
-            "name" => $_SESSION['name'],
-            "lastName" =>  $_SESSION['lastName'],
+            "id" => $this->session->id,
+            "name" => $this->session->name,
+            "lastName" =>  $this->session->lastName,
             "type" => $data['newType'],
             "logged" => true,
         );
         // Applicant must NEVER be allowed to upgrade it's session.
-        if ($this->session->type == AGENT && $data['newType'] == APPLICANT) {
+        if ($this->session->type == APPLICANT) {
+            $result['message'] = 'No posee los privilegios adecuados para continuar.';
+        } else if ($this->session->type == AGENT && $data['newType'] == REVISER) {
             $this->session->set_userdata($dataSession);
-        } else if ($this->session->type == MANAGER && $data['newType'] == APPLICANT) {
-            $this->session->set_userdata($dataSession);
+            $result['message'] = 'success';
         } else {
             $result['message'] = 'forbidden';
         }
-        $result['message'] = 'success';
         echo json_encode($result);
     }
 

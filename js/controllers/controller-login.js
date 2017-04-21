@@ -2,9 +2,9 @@ angular
     .module('sgdp.login')
     .controller('LoginController', login);
 
-login.$inject = ['$scope', 'Auth', '$state', '$timeout', 'Utils', '$stateParams'];
+login.$inject = ['$scope', 'Auth', '$state', '$timeout', 'Utils', '$stateParams', 'Constants'];
 
-function login($scope, Auth, $state, $timeout, Utils, $stateParams) {
+function login($scope, Auth, $state, $timeout, Utils, $stateParams, Constants) {
     'use strict';
     $scope.idPrefix = "V";
     $scope.model = {};
@@ -16,8 +16,12 @@ function login($scope, Auth, $state, $timeout, Utils, $stateParams) {
     // Transitioning....
     if ($stateParams.token) {
         Auth.verifyUser($stateParams.token).then (
-            function () {
-                Auth.sendHome();
+            function (userType) {
+                if (userType == Constants.Users.AGENT) {
+                    $state.go('perspective');
+                } else {
+                    Auth.sendHome();
+                }
             },
             function (error) {
                 $scope.message = error;

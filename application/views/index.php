@@ -59,12 +59,14 @@
     <script type="text/javascript" src="<?php echo base_url(); ?>js/services/service-manager.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/services/service-agent.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/services/service-applicant.js"></script>
+    <script type="text/javascript" src="<?php echo base_url(); ?>js/services/service-reviser.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/services/service-config.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-login.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-details.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-home-applicant.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-home-agent.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-home-manager.js"></script>
+    <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-home-reviser.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-perspective.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-history.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/controllers/controller-user-info.js"></script>
@@ -74,7 +76,6 @@
     <script type="text/javascript" src="<?php echo base_url(); ?>js/directives/directive-select-fix.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/directives/directive-helps.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/directives/directive-overlay.js"></script>
-    <script type="text/javascript" src="<?php echo base_url(); ?>js/directives/directive-perspective.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/directives/directive-psw-match.js"></script>
     <script type="text/javascript" src="<?php echo base_url(); ?>js/filters/filter-abs.js"></script>
 
