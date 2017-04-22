@@ -560,28 +560,29 @@ class RequestsModel extends CI_Model
         $data['date'] = new DateTime('now', new DateTimeZone('America/Barbados'));
         $data['loanTypeString'] = $this->loanTypes[$data['loanType']]->DescripcionDelPrestamo;
         $data['amount'] = $request->getStatus() != PRE_APPROVED ? $data['reqAmount'] : $data['approvedAmount'];
-        $data['paymentFee'] = $this->utils->calculatePaymentFee($data['amount'],
+        $data['paymentFee'] = round($this->utils->calculatePaymentFee($data['amount'],
                                                                 $data['due'],
-                                                                $this->loanTypes[$data['loanType']]->InteresAnual);
-        $medicalExpenses = $this->requests->getLastLoanInfo($data['userId'], MEDICAL_EXPENSES);
-        if ($medicalExpenses != null) {
-            $contribution = 0.2 * $data['amount'];
-            $data['medicalContribution'] = $medicalExpenses->saldo_actual > $contribution ?
-                $contribution : $medicalExpenses->saldo_actual;
-        } else { $data['medicalContribution'] = 0;}
+                                                                $this->loanTypes[$data['loanType']]->InteresAnual), 2);
         $lastLoan = $this->requests->getLastLoanInfo($data['userId'], PERSONAL_LOAN);
-        $data['lastLoanBalance'] = intval($lastLoan ? $lastLoan->saldo_actual : 0, 10);
-        $data['lastLoanFee'] = intval($lastLoan ? $lastLoan->otorg_cuota : 0, 10);
         // Get interests adjustment data.
         $data['daysOfMonth'] = intval(date("t"), 10);
-        $approvalDate = $request->getCreationDate();
+        $approvalDate = new DateTime('now', new DateTimeZone('America/Barbados'));
         $data['lastLoanInterestDays'] = intval($approvalDate->format('d'), 10);
         $data['newLoanInterestDays'] = $data['daysOfMonth'] - $data['lastLoanInterestDays'];
         $data['lastLoanInterestFee'] = ($lastLoan ? $lastLoan->saldo_actual : 0) * 0.01 /
                                        $data['daysOfMonth'] * $data['lastLoanInterestDays'];
+        $data['lastLoanFee'] = intval($lastLoan ? $lastLoan->otorg_cuota : 0, 10);
         if ($data['lastLoanFee'] > 0) {
-            $data['newLoanInterestFee'] = $data['amount'] * 0.01 / $data['daysOfMonth'] * $data['newLoanInterestDays'];
+            $data['newLoanInterestFee'] = ($data['amount'] + $data['lastLoanFee']) * 0.01 / $data['daysOfMonth'] * $data['newLoanInterestDays'];
         } else {$data['newLoanInterestFee'] = 0;}
+        // Calculate deductions
+        $medicalExpenses = $this->requests->getLastLoanInfo($data['userId'], MEDICAL_EXPENSES);
+        if ($medicalExpenses != null) {
+            $contribution = 0.2 * ($data['amount'] + $data['lastLoanFee']);
+            $data['medicalContribution'] = $medicalExpenses->saldo_actual > $contribution ?
+                $contribution : $medicalExpenses->saldo_actual;
+        } else { $data['medicalContribution'] = 0;}
+        $data['lastLoanBalance'] = intval($lastLoan ? $lastLoan->saldo_actual : 0, 10);
         $data['totalToReceive'] = $data['amount'] - $data['medicalContribution'] + $data['lastLoanFee'] -
                                   $data['newLoanInterestFee'] - $data['lastLoanBalance'];
         $data['totals'] = $this->calculateTotals($request->getLoanType(), $data);
@@ -601,19 +602,18 @@ class RequestsModel extends CI_Model
 
     private function  calculatePersonalLoanTotals($data) {
         $result = array();
-        array_push($result, $data['amount'] - $data['medicalContribution']);
-        array_push($result, $data['amount'] - $data['medicalContribution'] - $data['lastLoanBalance']);
-        array_push($result, $data['amount'] - $data['medicalContribution'] - $data['lastLoanBalance'] +
-                            $data['lastLoanFee']);
-        array_push($result, $data['amount'] - $data['medicalContribution'] - $data['lastLoanBalance'] +
-                            $data['lastLoanFee'] - $data['newLoanInterestFee']);
-
+        array_push($result, round($data['amount'] + $data['lastLoanFee'], 2));
+        array_push($result, round($data['amount'] + $data['lastLoanFee'] - $data['newLoanInterestFee'], 2));
+        array_push($result, round($data['amount'] + $data['lastLoanFee'] - $data['newLoanInterestFee']
+                            - $data['medicalContribution'], 2));
+        array_push($result, round($data['amount'] + $data['lastLoanFee'] - $data['newLoanInterestFee']
+                            - $data['medicalContribution'] - $data['lastLoanBalance'], 2));
         return $result;
     }
 
     private function  calculateCashVoucherTotals($data) {
         $result = array();
-        array_push($result, $data['amount'] - $data['amount'] * $data['interest'] / 100);
+        array_push($result, round($data['amount'] - $data['amount'] * $data['interest'] / 100, 2));
         return $result;
     }
 
@@ -1044,14 +1044,14 @@ class RequestsModel extends CI_Model
                     // Tell user when will he be able to request again in case time constrain is not over.
                     $result['granting']['dateAvailable'] = $granting->modify('+' . $span . ' month')->format('d/m/Y');
                     // Get last loan info
-                    $result['lastLoanBalance'] = intval($lastLoan->saldo_actual, 10);
-                    $result['lastLoanFee'] = intval($lastLoan->otorg_cuota, 10);
+                    $result['lastLoanBalance'] = round(intval($lastLoan->saldo_actual, 10), 10);
+                    $result['lastLoanFee'] = round(intval($lastLoan->otorg_cuota, 10), 10);
                     $result['lastLoanGrantingDate'] = $lastLoan->otorg_fecha;
                     // Get interests adjustment data.
                     $result['daysOfMonth'] = intval(date("t"), 10);
                     $result['lastLoanInterestDays'] = intval($currentDate->format('d'), 10);
                     $result['newLoanInterestDays'] = $result['daysOfMonth'] - $result['lastLoanInterestDays'];
-                    $result['lastLoanInterestFee'] = $lastLoan->saldo_actual * 0.01 / $result['daysOfMonth'] * $result['lastLoanInterestDays'];
+                    $result['lastLoanInterestFee'] = round($lastLoan->saldo_actual * 0.01 / $result['daysOfMonth'] * $result['lastLoanInterestDays'], 2);
                 }
             }
             $userData = $this->users->getPersonalData($uid);
@@ -1084,9 +1084,9 @@ class RequestsModel extends CI_Model
             }
             $medicalExpenses = $this->requests->getLastLoanInfo($uid, MEDICAL_EXPENSES);
             if ($medicalExpenses != null) {
-                $result['medicalDebt'] = $medicalExpenses->saldo_actual;
+                $result['medicalDebt'] = round($medicalExpenses->saldo_actual, 2);
             }
-            $result['maxReqAmount'] = $result['contribution'] * 0.8;
+            $result['maxReqAmount'] = Round($result['contribution'] * 0.8, 2);
             return $result;
         } catch (Exception $e) {
             throw $e;

@@ -210,25 +210,25 @@
                                 <td md-cell>{{(model.approvedAmount | number:2) || '----'}}</td>
                             </tr>
                             <tr md-row>
-                                <td md-cell>Abono (20%) deudas gastos médicos</td>
-                                <td md-cell ng-class="{deduction : calculateTotals(1)}">{{(calculateMedicalDebtContribution() | number:2) || '----'}}-</td>
-                                <td md-cell>{{(calculateTotals(1) | number:2) || '----'}}</td>
-                            </tr>
-                            <tr md-row>
-                                <td md-cell>Saldo de préstamo anterior</td>
-                                <td md-cell ng-class="{deduction : calculateTotals(2)}">{{(model.data.lastLoanBalance | number:2) || '----'}}-</td>
-                                <td md-cell>{{(calculateTotals(2) | number:2) || '----'}}</td>
-                            </tr>
-                            <tr md-row>
                                 <td md-cell>Cuota de préstamo anterior</td>
                                 <td md-cell>{{(model.data.lastLoanFee | number:2) || '----'}}</td>
-                                <td md-cell>{{(calculateTotals(3) | number:2) || '----'}}</td>
+                                <td md-cell>{{(calculateTotals(1) | number:2) || '----'}}</td>
                             </tr>
                             <tr md-row>
                                 <td md-cell>Intereses del préstamo nuevo en {{model.data.newLoanInterestDays}}
                                     {{model.data.newLoanInterestDays == 1 ? 'día' : 'días'}}
                                 </td>
-                                <td md-cell ng-class="{deduction : calculateTotals(4)}">{{(calculateNewInterest() | number:2) || '----'}}-</td>
+                                <td md-cell ng-class="{deduction : calculateTotals(2)}">{{(calculateNewInterest() | number:2) || '----'}}-</td>
+                                <td md-cell>{{(calculateTotals(2) | number:2) || '----'}}</td>
+                            </tr>
+                            <tr md-row>
+                                <td md-cell>Abono (20%) deudas gastos médicos</td>
+                                <td md-cell ng-class="{deduction : calculateTotals(3)}">{{(calculateMedicalDebtContribution() | number:2) || '----'}}-</td>
+                                <td md-cell>{{(calculateTotals(3) | number:2) || '----'}}</td>
+                            </tr>
+                            <tr md-row>
+                                <td md-cell>Saldo de préstamo anterior</td>
+                                <td md-cell ng-class="{deduction : calculateTotals(4)}">{{(model.data.lastLoanBalance | number:2) || '----'}}-</td>
                                 <td md-cell>{{(calculateTotals(4) | number:2) || '----'}}</td>
                             </tr>
                             </tbody>
