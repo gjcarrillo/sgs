@@ -123,12 +123,20 @@ class Request
     private $userOwner;
 
     /**
+     * @var \Doctrine\Common\Collections\Collection
+     *
+     * @ORM\OneToMany(targetEntity="Entity\Request", mappedBy="request")
+     */
+    private $additionalDeductions;
+
+    /**
      * Constructor
      */
     public function __construct()
     {
         $this->documents = new \Doctrine\Common\Collections\ArrayCollection();
         $this->history = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->additionalDeductions = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     /**
@@ -481,5 +489,38 @@ class Request
     public function getUserOwner()
     {
         return $this->userOwner;
+    }
+
+    /**
+     * Add additionalDeductions
+     *
+     * @param \Entity\Request $additionalDeductions
+     * @return Request
+     */
+    public function addAdditionalDeduction(\Entity\Request $additionalDeductions)
+    {
+        $this->additionalDeductions[] = $additionalDeductions;
+
+        return $this;
+    }
+
+    /**
+     * Remove additionalDeductions
+     *
+     * @param \Entity\Request $additionalDeductions
+     */
+    public function removeAdditionalDeduction(\Entity\Request $additionalDeductions)
+    {
+        $this->additionalDeductions->removeElement($additionalDeductions);
+    }
+
+    /**
+     * Get additionalDeductions
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getAdditionalDeductions()
+    {
+        return $this->additionalDeductions;
     }
 }
