@@ -7,6 +7,7 @@ class ValidationController extends CI_Controller {
     public function __construct() {
         parent::__construct();
         $this->load->model('emailModel', 'email');
+        $this->load->model('requestsModel', 'requests');
         $this->load->library('session');
     }
 
@@ -22,6 +23,15 @@ class ValidationController extends CI_Controller {
             if ($request->getUserOwner()->getId() != $this->session->id) {
                 $result['message'] = "Esta solicitud no le pertenece.";
             } else {
+                $data = $this->getRequestData($request);
+                switch (intval($data['loanType'], 10)) {
+                    case CASH_VOUCHER:
+                        $this->requests->validateCashVoucherCreation($data, true);
+                        break;
+                    case PERSONAL_LOAN:
+                        $this->requests->validatePersonalLoanCreation($data, true);
+                        break;
+                }
                 // Validate request and register history.
                 $this->load->model('historyModel', 'history');
                 $this->history->registerValidation($request->getId());
@@ -38,5 +48,14 @@ class ValidationController extends CI_Controller {
         }
 
         echo json_encode($result);
+    }
+
+    private function getRequestData($request) {
+        return array(
+            "userId" => $request->getUserOwner()->getId(),
+            "reqAmount" => $request->getRequestedAmount(),
+            "due" => $request->getPaymentDue(),
+            "loanType" => $request->getLoanType()
+        );
     }
 }

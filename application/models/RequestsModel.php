@@ -86,7 +86,8 @@ class RequestsModel extends CI_Model
                                 if ($array['saldo_actual'] <= 0) {
                                     $array['mensualidad'] = '------';
                                 } else {
-                                    $array['mensualidad'] = $lastLoan->otorg_cuota;
+                                    $array['mensualidad'] =
+                                        $this->isDbPrestamos($request->getLoanType()) ? $lastLoan->otorg_cuota : '------';
                                 }
                                 // Add this array to result.
                                 array_push($result, $array);
@@ -691,33 +692,46 @@ class RequestsModel extends CI_Model
         }
     }
 
+    /**
+     * Determines how many months are still left for applicant to be able to request a specific type of loan again.
+     * * HAS TO BE USED FOR VALIDATION ONLY (e.g. creatin, edition & request validation) *
+     *
+     * @param $uid - applicant's id.
+     * @param $loanType - loan's concept.
+     * @return int|null
+     * @throws Exception
+     */
     public function getSpanLeft ($uid, $loanType) {
         try {
             $em = $this->doctrine->em;
             $span = $em->getRepository('\Entity\Config')->findOneBy(array('key' => 'SPAN' . $loanType))->getValue();
-            $this->ipapedi_db = $this->load->database('ipapedi_db', true);
-            $this->ipapedi_db->select('*');
-            $this->ipapedi_db->from('db_dt_prestamos');
-            $this->ipapedi_db->where('cedula', $uid);
-            $this->ipapedi_db->where('concepto', $loanType);
-            $query = $this->ipapedi_db->order_by('otorg_fecha',"desc")->get();
-            if (empty($query->result())) {
+            $lastLoan = $this->getLastLoanInfo($uid, $loanType);
+            if ($lastLoan == null) {
                 // User's first request.
                 return 0;
-            } else {
-                $granting = date_create_from_format('d/m/Y', $query->result()[0]->otorg_fecha);
+            } else if ($this->isDbPrestamos($loanType)) {
+                $granting = date_create_from_format('d/m/Y', $lastLoan->otorg_fecha);
                 if (!$granting) {
-                    // No granting date found in granting entry. Perhaps it was rejected?
+                    // No granting date found in granting entry. Perhaps it was rejected
                     // Go ahead and allow this request type creation
                     return 0;
+                } else {
+                    $currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
+                    $diff = $this->utils->getDateInterval($currentDate, $granting);
+                    return ($diff['months'] + $diff['years'] * 12) - $span;
                 }
-            }
-            $currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
-            $diff = $this->utils->getDateInterval($currentDate, $granting);
-            if ($diff['years'] > 0) {
-                return 0;
             } else {
-                return $diff['months'] - $span;
+                $lastRequest = $this->getLastRequest($uid, $lastLoan);
+                if ($lastRequest == null || !$lastRequest->getValidationDate()) {
+                    // if last Request is null or it is yet to be validated, it means user has not made requests
+                    // from this systems yet, so if it's already paid (0 or less balance), he can request.
+                    return $lastLoan->saldo_actual;
+                } else {
+                    $granting = date_create_from_format('d/m/Y', $lastRequest->getValidationDate()->modify('+1 day'));
+                    $currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
+                    $diff = $this->utils->getDateInterval($currentDate, $granting);
+                    return ($diff['months'] + $diff['years'] * 12) - $span;
+                }
             }
         } catch (Exception $e) {
             throw $e;
@@ -764,6 +778,23 @@ class RequestsModel extends CI_Model
      */
     public function addGrantingDate($request) {
         try {
+            if ($this->isDbPrestamos($request->getLoanType())) {
+                $this->addPrestamosGrantingDate($request);
+            } else {
+                $this->addPrestamosOtrosGrantingDate($request);
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * TEST PURPOSES ONLY: adds db_dt_prestamos entry.
+     * @param $request - request entity.
+     * @throws Exception
+     */
+    public function addPrestamosGrantingDate($request) {
+        try {
             $fee = round($this->utils->calculatePaymentFee(
                 $request->getApprovedAmount(),
                 $request->getPaymentDue(),
@@ -799,23 +830,69 @@ class RequestsModel extends CI_Model
         }
     }
 
+    /**
+     * TEST PURPOSES ONLY: adds db_dt_prestamosotros entry.
+     * @param $request - request entity.
+     * @throws Exception
+     */
+    public function addPrestamosOtrosGrantingDate($request) {
+        try {
+            $fee = round($this->utils->calculatePaymentFee(
+                $request->getApprovedAmount(),
+                $request->getPaymentDue(),
+                $this->loanTypes[$request->getLoanType()]->InteresAnual
+            ), 2);
+            $newData = array(
+                'cedula' => $request->getUserOwner()->getId(),
+                'concepto' => $request->getLoanType(),
+                'fecha_edo' => $request->getCreationDate()->format('d/m/Y'),
+                'saldo_edo' => $fee * intval($request->getPaymentDue(), 10),
+                'saldo_actual' => $fee * intval($request->getPaymentDue(), 10),
+            );
+            $this->ipapedi_db = $this->load->database('ipapedi_db', true);
+            $this->ipapedi_db->from('db_dt_prestamosotros');
+            $this->ipapedi_db->where('cedula', $request->getUserOwner()->getId());
+            $this->ipapedi_db->where('concepto', $request->getLoanType());
+            $query = $this->ipapedi_db->get();
+            if (empty($query->result())) {
+                $this->ipapedi_db->insert('db_dt_prestamosotros', $newData);
+            } else {
+                $this->ipapedi_db->where('cedula', $request->getUserOwner()->getId());
+                $this->ipapedi_db->where('concepto', $request->getLoanType());
+                $this->ipapedi_db->update('db_dt_prestamosotros', $newData);
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * Determines whether specified loan type belongs to db_dt_prestamos or db_dt_prestamosotros.
+     *
+     * @param $concept - loan type.
+     * @return bool
+     */
+    public function isDbPrestamos($concept) {
+        return $concept == PERSONAL_LOAN || $concept == MEDICAL_EXPENSES;
+    }
+
 
     public function shouldApproveRequest($rid) {
         try {
             $this->ipapedi_db = $this->load->database('ipapedi_db', true);
             $em = $this->doctrine->em;
             $request = $em->find('\Entity\Request', $rid);
-            $this->ipapedi_db->select('*');
-            $this->ipapedi_db->from('db_dt_prestamos');
-            $this->ipapedi_db->where('cedula', $request->getUserOwner()->getId());
-            $this->ipapedi_db->where('concepto', $request->getLoanType());
-            // get last granting date for corresponding request type.
-            $query = $this->ipapedi_db->order_by('otorg_fecha',"desc")->get();
-            if (empty($query->result())) {
+            $lastLoan = $this->getLastLoanInfo($request->getUserOwner()->getId(), $request->getLoanType());
+            if ($lastLoan == null) {
                 // Still no new entry.
                 return false;
             } else {
-                $granting = date_create_from_format('d/m/Y - h:i:sa', $query->result()[0]->otorg_fecha . ' - 11:59:59pm');
+                if (!$this->isDbPrestamos($request->getLoanType())) {
+                    // Cash vouchers are supposed to be available if no debt is pending. If there is any debt pending,
+                    // it means that new cash voucher request is now registered.
+                    return $lastLoan->saldo_actual > 0;
+                }
+                $granting = date_create_from_format('d/m/Y - h:i:sa', $lastLoan->otorg_fecha . ' - 11:59:59pm');
                 if (!$granting) {
                     // No granting date found in most recent granting entry. This means last loan request was rejected.
                     return false;
@@ -881,17 +958,32 @@ class RequestsModel extends CI_Model
      */
     public function getLastLoanInfo($uid, $concept) {
         try {
-            $this->ipapedi_db = $this->load->database('ipapedi_db', true);
-            $this->ipapedi_db->select('*');
-            $this->ipapedi_db->from('db_dt_prestamos');
-            $this->ipapedi_db->where('cedula', $uid);
-            $this->ipapedi_db->where('concepto', $concept);
-            $query = $this->ipapedi_db->order_by('otorg_fecha',"desc")->get();
-            if (empty($query->result())) {
-                // User's first request.
-                return null;
+            if ($this->isDbPrestamos($concept)) {
+                $this->ipapedi_db = $this->load->database('ipapedi_db', true);
+                $this->ipapedi_db->select('*');
+                $this->ipapedi_db->from('db_dt_prestamos');
+                $this->ipapedi_db->where('cedula', $uid);
+                $this->ipapedi_db->where('concepto', $concept);
+                $query = $this->ipapedi_db->order_by('otorg_fecha',"desc")->get();
+                if (empty($query->result())) {
+                    // User's first request.
+                    return null;
+                } else {
+                    return $query->result()[0];
+                }
             } else {
-                return $query->result()[0];
+                $this->ipapedi_db = $this->load->database('ipapedi_db', true);
+                $this->ipapedi_db->select('*');
+                $this->ipapedi_db->from('db_dt_prestamosotros');
+                $this->ipapedi_db->where('cedula', $uid);
+                $this->ipapedi_db->where('concepto', $concept);
+                $query = $this->ipapedi_db->get();
+                if (empty($query->result())) {
+                    // User's first request.
+                    return null;
+                } else {
+                    return $query->result()[0];
+                }
             }
         } catch (Exception $e) {
             throw $e;
@@ -928,7 +1020,7 @@ class RequestsModel extends CI_Model
             $owner = $em->find('\Entity\User', $uid);
             $requests = $em->getRepository('\Entity\Request')->findBy(
                 array('userOwner' => $owner, 'loanType' => $concept),
-                array('creationDate' => 'ASC')
+                array('creationDate' => 'DESC')
             );
             return empty($requests) ? null : $requests[0];
         } catch (Exception $e) {
@@ -975,17 +1067,12 @@ class RequestsModel extends CI_Model
                 // Seems like this is their first request. Grant permission to create!
                 $result['granting']['allow'] = true;
             } else {
-                $granting = date_create_from_format('d/m/Y', $lastLoan->otorg_fecha);
-                if (!$granting) {
-                    // No granting date found in most recent granting entry. Perhaps it was rejected.
-                    // Go ahead and allow this request type creation
-                    $result['granting']['allow'] = true;
-                } else {
-                    $currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
-                    $diff = $this->utils->getDateInterval($currentDate, $granting);
-                    $result['granting']['allow'] =
-                        // Allow if time constrain is over.
-                        ($diff['months'] + ($diff['years'] * 12) >= $span);
+                $result['granting']['allow'] = $lastLoan->saldo_actual <= 0;
+                $lastRequest = $this->getLastRequest($uid, CASH_VOUCHER);
+                if ($lastRequest != null) {
+                    // if last Request is null it means user has not made requests from this systems yet, so we cannot
+                    // tell when will he be able to request again.
+                    $granting = $lastRequest->getValidationDate()->modify('+1 day');
                     // Tell user when will he be able to request again in case time constrain is not over.
                     $result['granting']['dateAvailable'] =
                         $granting->modify('+' . $span . ' month')->format('d/m/Y');
@@ -1022,10 +1109,17 @@ class RequestsModel extends CI_Model
      */
     public function getPersonalLoanAvailabilityData($uid) {
         try {
-            $em = $this->doctrine->em;
             $span = $this->configModel->getRequestSpan(PERSONAL_LOAN);
             $result['granting']['span'] = $span;
             $lastLoan = $this->requests->getLastLoanInfo($uid, PERSONAL_LOAN);
+
+            $result['lastLoanBalance'] = 0;
+            $result['lastLoanFee'] = 0;
+            $result['medicalDebt'] = 0;
+            $result['daysOfMonth'] = intval(date("t"), 10);
+            $result['lastLoanInterestDays'] = 0;
+            $result['newLoanInterestDays'] = 0;
+            $result['lastLoanInterestFee'] = 0;
             if ($lastLoan == null) {
                 // Seems like this is their first request. Grant permission to create!
                 $result['granting']['allow'] = true;
@@ -1048,7 +1142,6 @@ class RequestsModel extends CI_Model
                     $result['lastLoanFee'] = round(intval($lastLoan->otorg_cuota, 10), 10);
                     $result['lastLoanGrantingDate'] = $lastLoan->otorg_fecha;
                     // Get interests adjustment data.
-                    $result['daysOfMonth'] = intval(date("t"), 10);
                     $result['lastLoanInterestDays'] = intval($currentDate->format('d'), 10);
                     $result['newLoanInterestDays'] = $result['daysOfMonth'] - $result['lastLoanInterestDays'];
                     $result['lastLoanInterestFee'] = round($lastLoan->saldo_actual * 0.01 / $result['daysOfMonth'] * $result['lastLoanInterestDays'], 2);

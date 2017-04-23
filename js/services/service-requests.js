@@ -606,14 +606,17 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
                                                   'una solicitud (con ID #' + Utils.pad(data.opened.id, 6) + ') de ' +
                                                   'dicho tipo por atender.');
         } else if (!data.granting.allow && !editMode) {
-            Utils.showAlertDialog('No permitido', 'Estimado usuario, no puede realizar otra solicitud del tipo ' +
-                                                  Config.loanConcepts[concept].DescripcionDelPrestamo + ' debido a que aún no ' +
-                                                  'ha' + (data.granting.span == 1 ? '' : 'n') +
-                                                  ' transcurrido ' + data.granting.span + (data.granting.span == 1 ? ' mes' : ' meses') +
-                                                  ' desde el último préstamo otorgado.<br/><br/>' +
-                                                  'Podrá volver a solicitar un préstamo de dicho tipo a partir del ' + data.granting.dateAvailable +
-                                                  '<br/><br/>Alternativamente, puede pagar su deuda restante para solicitar ' +
-                                                  'otro préstamo si así lo desea.');
+            var msg = 'Estimado usuario, no puede realizar otra solicitud del tipo ' +
+                      Config.loanConcepts[concept].DescripcionDelPrestamo + ' debido a que aún no ' +
+                      'ha' + (data.granting.span == 1 ? '' : 'n') +
+                      ' transcurrido ' + data.granting.span + (data.granting.span == 1 ? ' mes' : ' meses') +
+                      ' desde el último préstamo otorgado.<br/><br/>';
+            if (data.granting.dateAvailable) {
+                msg += 'Podrá volver a solicitar un préstamo de dicho tipo a partir del ' +
+                       data.granting.dateAvailable + '<br/><br/>'
+            }
+            msg += 'Alternativamente, puede pagar su deuda restante para solicitar otro préstamo si así lo desea.'
+            Utils.showAlertDialog('No permitido', msg);
         }
     };
 
