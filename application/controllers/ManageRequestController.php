@@ -10,8 +10,12 @@ class ManageRequestController extends CI_Controller {
         $this->load->library('session');
     }
 
-	public function index() {
-		$this->load->view('templates/dialogs/manageRequest');
+	public function personalLoan() {
+		$this->load->view('templates/dialogs/personalLoan/manageRequest');
+	}
+
+	public function cashVoucher() {
+		$this->load->view('templates/dialogs/cashVoucher/manageRequest');
 	}
 
 	public function updateRequest() {

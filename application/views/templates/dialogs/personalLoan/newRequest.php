@@ -46,6 +46,7 @@
                                     class="md-icon-right no-vertical-margin">
                                     <input
                                         ng-readonly="uploading"
+                                        set-limit="model.maxReqAmount"
                                         ng-model="model.reqAmount"
                                         type="number"
                                         max="{{model.maxReqAmount}}"
@@ -159,53 +160,53 @@
                             </md-card>
                         </div>
                     </div>
-                </div>
-                <!-- information of interest for cash voucher -->
-                <div layout="column" layout-align="start start" ng-if="model.type == LoanTypes.CASH_VOUCHER" id="info">
-                    <md-card class="grayish">
-                        <md-card-title>
-                            <span class="grey-color"><b>Monto máximo a solicitar</b></span>
-                        </md-card-title>
-                        <md-divider></md-divider>
-                        <md-card-content>
-                            <div layout="column" layout-align="start" class="md-table-text">
-                                <span>{{model.data.percentage}}% de su sueldo ({{model.data.salary | number:2}})
-                                    igual a Bs. {{model.maxReqAmount | number:2}}</span>
+                    <!-- Extra deduction if applicant desires so -->
+                    <div
+                        layout="column"
+                        layout-margin
+                        layout-align="center center">
+                        <md-checkbox ng-model="model.deduct"
+                                     ng-disabled="loadingDeductions || uploading"
+                                     aria-label="Other deductions"
+                                     ng-change="loadAdditionalDeductions()">
+                            Deseo pagar deudas de otros préstamos
+                        </md-checkbox>
+                        <div layout layout-align="center center">
+                            <md-progress-circular
+                                ng-if="loadingDeductions" md-mode="indeterminate" md-diameter="60">
+                            </md-progress-circular>
+                            <div ng-if="model.deductions" layout-align="start start">
+                                <md-table-container>
+                                    <table md-table>
+                                        <thead md-head>
+                                        <tr md-row>
+                                            <th md-column><span>Descripción</span></th>
+                                            <th md-column><span>Saldo atual Bs.</span></th>
+                                            <th md-column><span>Monto Bs.</span></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody md-body>
+                                        <tr md-row ng-repeat="(lKey, loan) in model.deductions">
+                                            <td md-cell>{{loan.descripcion}}</td>
+                                            <td md-cell>{{loan.saldo_actual | number:2}}</td>
+                                            <td md-cell>
+                                                <input min="0"
+                                                       ng-readonly="uploading"
+                                                       set-limit="loan.saldo_actual"
+                                                       type="number"
+                                                       ng-model="loan.amount"
+                                                       placeholder="Ej: 2000"/>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </md-table-container>
                             </div>
-                        </md-card-content>
-                    </md-card>
-                    <md-card class="grayish">
-                        <md-card-title>
-                            <span class="grey-color"><b>Cálculo de monto máximo a abonar</b></span>
-                        </md-card-title>
-                        <md-divider></md-divider>
-                        <md-table-container>
-                            <table md-table>
-                                <thead md-head>
-                                <tr md-row>
-                                    <th md-column><span>Descripción</span></th>
-                                    <th md-column><span>Monto Bs.</span></th>
-                                    <th md-column><span>Total Bs.</span></th>
-                                </tr>
-                                </thead>
-                                <tbody md-body>
-                                <tr md-row>
-                                    <td md-cell>Monto del préstamo</td>
-                                    <td md-cell>{{(model.reqAmount | number:2) || '----'}}</td>
-                                    <td md-cell>{{(model.reqAmount | number:2) || '----'}}</td>
-                                </tr>
-                                <tr md-row>
-                                    <td md-cell>2% de interés</td>
-                                    <td md-cell ng-class="{deduction : calculateTotals(1)}">{{(model.reqAmount * getInterestRate()/100 | number:2) || '----'}}-</td>
-                                    <td md-cell>{{(calculateTotals(1) | number:2) || '----'}}</td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </md-table-container>
-                    </md-card>
+                        </div>
+                    </div>
                 </div>
                 <!-- information of interest for personal loan -->
-                <div layout="column" layout-align="start start" ng-if="model.type == LoanTypes.PERSONAL_LOAN" id="info">
+                <div layout="column" layout-align="start start" id="info">
                     <md-card class="grayish">
                         <md-card-title>
                             <span class="grey-color"><b>Monto máximo a solicitar</b></span>
@@ -259,6 +260,11 @@
                                     <td md-cell>Saldo de préstamo anterior</td>
                                     <td md-cell ng-class="{deduction : calculateTotals(4)}">{{(model.data.lastLoanBalance | number:2) || '----'}}-</td>
                                     <td md-cell>{{(calculateTotals(4) | number:2) || '----'}}</td>
+                                </tr>
+                                <tr md-row>
+                                    <td md-cell>Abono para deudas de otros préstamos</td>
+                                    <td md-cell ng-class="{deduction : calculateTotals(5)}">{{(calculateOtherDebtsContribution() | number:2) || '----'}}-</td>
+                                    <td md-cell>{{(calculateTotals(5) | number:2) || '----'}}</td>
                                 </tr>
                                 </tbody>
                             </table>

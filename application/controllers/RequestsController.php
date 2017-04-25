@@ -206,6 +206,23 @@ class RequestsController extends CI_Controller {
         echo json_encode($result);
     }
 
+    public function loadAdditionalDeductions () {
+        if ($this->input->get('uid') != $this->session->id &&
+            $this->session->type == APPLICANT) {
+            $result['message'] = 'forbidden.';
+        } else {
+            try {
+                $result['deductions'] = $this->requests->loadAdditionalDeductions(
+                    $this->input->get('uid'), $this->input->get('rid'), $this->input->get('concept')
+                );
+                $result['message'] = "success";
+            } catch (Exception $e) {
+                $result['message'] = $this->utils->getErrorMsg($e);
+            }
+        }
+        echo json_encode($result);
+    }
+
     public function deleteDocument() {
         if ($this->session->type == APPLICANT) {
             $result['message'] = 'forbidden.';

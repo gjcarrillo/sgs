@@ -483,7 +483,7 @@
                                     <td md-cell ng-click="goToDetails(request)">{{request.fecha_edo}}</td>
                                     <td md-cell ng-click="goToDetails(request)">{{request.saldo_edo | number:2}}</td>
                                     <td md-cell ng-click="goToDetails(request)">{{request.saldo_actual | number:2}}</td>
-                                    <td md-cell ng-click="goToDetails(request)">{{request.mensualidad | number:2}}</td>
+                                    <td md-cell ng-click="goToDetails(request)">{{(request.mensualidad | number:2) || '----'}}</td>
                                 </tr>
                                 </tbody>
                             </table>

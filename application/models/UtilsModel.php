@@ -260,6 +260,12 @@ class UtilsModel extends CI_Model
         $result['due'] = $request->getPaymentDue();
         $result['email'] = $request->getContactEmail();
         $result['validationDate'] = $request->getValidationDate() ? $request->getValidationDate()->format('d/m/Y') : null;
+        $deductions = $request->getAdditionalDeductions();
+        foreach ($deductions as $dKey => $deduction) {
+            $result['deductions'][$dKey]['id'] = $deduction->getId();
+            $result['deductions'][$dKey]['amount'] = $deduction->getAmount();
+            $result['deductions'][$dKey]['description'] = $deduction->getDescription();
+        }
         $docs = $request->getDocuments();
         foreach ($docs as $dKey => $doc) {
             $result['docs'][$dKey]['id'] = $doc->getId();

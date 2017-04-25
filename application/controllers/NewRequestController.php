@@ -11,8 +11,12 @@ class NewRequestController extends CI_Controller {
 		$this->load->model('requestsModel', 'requests');
     }
 
-	public function index() {
-		$this->load->view('templates/dialogs/newRequest');
+	public function personalLoan () {
+		$this->load->view('templates/dialogs/personalLoan/newRequest');
+	}
+
+	public function cashVoucher () {
+		$this->load->view('templates/dialogs/cashVoucher/newRequest');
 	}
 
     public function upload() {
@@ -92,16 +96,6 @@ class NewRequestController extends CI_Controller {
 				$history->addAction($action);
 				$em->persist($action);
 				$action = new \Entity\HistoryAction();
-				$action->setSummary("Número de contacto: " . $data['tel']);
-				$action->setBelongingHistory($history);
-				$history->addAction($action);
-				$em->persist($action);
-				$action = new \Entity\HistoryAction();
-				$action->setSummary("Dirección de correo: " . $data['email']);
-				$action->setBelongingHistory($history);
-				$history->addAction($action);
-				$em->persist($action);
-				$action = new \Entity\HistoryAction();
 				$action->setSummary("Plazo para pagar: " . $data['due'] . " meses.");
 				$action->setBelongingHistory($history);
 				$history->addAction($action);
@@ -124,6 +118,9 @@ class NewRequestController extends CI_Controller {
 				$request->setUserOwner($user);
 				$user->addRequest($request);
 				$em->persist($request);
+				if (isset($data['deductions'])) {
+					$this->addDeductions($request, $data['deductions'], $history);
+				}
 				$em->merge($user);
 				// Create the new request doc.
 				$this->requests->addDocuments($request, $history, $data['docs'], true);
@@ -137,5 +134,17 @@ class NewRequestController extends CI_Controller {
 	        }
 		}
 		echo json_encode($result);
+	}
+
+	private function addDeductions ($request, $deductions, $history) {
+		try {
+			switch ($request->getLoanType()) {
+				case PERSONAL_LOAN:
+					$this->requests->updateDeductions($request, $deductions, $history);
+					break;
+			}
+		} catch (Exception $e) {
+			throw $e;
+		}
 	}
 }

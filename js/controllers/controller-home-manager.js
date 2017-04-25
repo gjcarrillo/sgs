@@ -127,7 +127,7 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
         $mdDialog.show({
             parent: parentEl,
             targetEvent: $event,
-            templateUrl: 'ManageRequestController',
+            templateUrl: Requests.getManageRequestDialog(request.type),
             clickOutsideToClose: false,
             escapeToClose: false,
             fullscreen: $mdMedia('xs'),
@@ -177,7 +177,20 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
                     function (data) {
                         console.log(data);
                         $scope.model.data = data;
-                        $scope.loading = false;
+                        if (request.deductions) {
+                            Requests.loadAdditionalDeductions(fetchId, request.id, request.type).then(
+                                function (deductions) {
+                                    $scope.loading = false;
+                                    $scope.model.deductions = deductions;
+                                },
+                                function (error) {
+                                    $scope.loading = false;
+                                    Utils.handleError(error);
+                                }
+                            );
+                        } else {
+                            $scope.loading = false;
+                        }
                     },
                     function (error) {
                         $scope.loading = false;
@@ -252,7 +265,12 @@ function managerHome($scope, $mdDialog, $state, $timeout, $mdSidenav, $mdMedia,
             };
 
             $scope.calculateTotals = function (subTotal) {
-                return Requests.calculateTotals(request.type, $scope.model.approvedAmount, subTotal, $scope.model.data);
+                return Requests.calculateTotals(request.type, $scope.model.approvedAmount, subTotal, $scope.model.data,
+                                                $scope.model.deductions);
+            };
+
+            $scope.calculateOtherDebtsContribution = function () {
+                return Requests.calculateOtherDebtsContribution($scope.model.deductions);
             };
 
             $scope.getInterestRate = function () {

@@ -445,6 +445,32 @@
                     </md-list>
                 </md-card-content>
             </md-card>
+
+            <md-card class="documents-card" ng-if="req.deductions" id="deductions">
+                <md-toolbar class="md-table-toolbar md-default">
+                    <div class="md-toolbar-tools">
+                        <span>Deducciones adicionales</span>
+                    </div>
+                </md-toolbar>
+                <md-table-container>
+                    <table md-table>
+                        <thead md-head>
+                        <tr md-row>
+                            <th md-column><span>Préstamo</span></th>
+                            <th md-column><span>Deducción (Bs)</span></th>
+                            <th md-column><span>Total (Bs)</span></th>
+                        </tr>
+                        </thead>
+                        <tbody md-body>
+                        <tr md-row ng-repeat="(dKey, deduction) in req.deductions">
+                            <td md-cell>{{deduction.description}}</td>
+                            <td md-cell>{{deduction.amount | number: 2}}</td>
+                            <td md-cell>{{totalDeductions(dKey) | number: 2}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </md-table-container>
+            </md-card>
         </div>
     </md-content>
 </main>

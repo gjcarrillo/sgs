@@ -102,18 +102,74 @@
                         <?php echo number_format($totals[3], 2); ?>
                     </td>
                 </tr>
+                <?php
+                if ($deductionsTotal > 0) {
+                    echo '<tr style="font-family: \'Open Sans\',\'Helvetica Neue\',Helvetica,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">';
+                    echo '<td style="font-family: \'Open Sans\',\'Helvetica Neue\',Helvetica,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" valign="top">';
+                    echo 'Abono para deudas de otros préstamos';
+                    echo '</td>';
+                    echo '<td class="alignright" style="color:red; font-family: \'Open Sans\',\'Helvetica Neue\',Helvetica,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; text-align: right; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" align="right" valign="top">';
+                    echo number_format($deductionsTotal, 2) . '-';
+                    echo '</td>';
+                    echo '<td class="alignright" style="font-family: \'Open Sans\',\'Helvetica Neue\',Helvetica,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; text-align: right; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" align="right" valign="top">';
+                    echo number_format($totals[4], 2);
+                    echo '</td>';
+                    echo '</tr>';
+                }
+                ?>
                 <tr class="total" style="font-family: 'Open Sans, Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
                     <td style="font-family: 'Open Sans, Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; border-top-width: 2px; border-top-color: #333; border-top-style: solid; border-bottom-color: #333; border-bottom-width: 2px; border-bottom-style: solid; font-weight: 700; margin: 0; padding: 5px 0;"valign="top">Total</td>
                     <td class="alignright" style="font-family: 'Open Sans, Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; text-align: right; border-top-width: 2px; border-top-color: #333; border-top-style: solid; border-bottom-color: #333; border-bottom-width: 2px; border-bottom-style: solid; font-weight: 700; margin: 0; padding: 5px 0;" align="right" valign="top">
                     </td>
                     <td class="alignright" style="font-family: 'Open Sans, Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; text-align: right; border-top-width: 2px; border-top-color: #333; border-top-style: solid; border-bottom-color: #333; border-bottom-width: 2px; border-bottom-style: solid; font-weight: 700; margin: 0; padding: 5px 0;" align="right" valign="top">
-                        Bs. <?php echo number_format($totals[3], 2); ?>
+                        Bs. <?php echo number_format($totals[4], 2); ?>
                     </td>
                 </tr>
             </table>
         </td>
     </tr>
-</table><br/>
+</table>
+<?php
+if ($deductionsTotal > 0) {
+    echo '<br/>Se entiende además que fue bajo la solicitud del beneficiario que se realizó ' .
+         'la deducción adicional de Bs. ' . number_format($deductionsTotal, 2) . ' para pagar deudas '.
+         'de otros préstamos, como se detalla a continuación: <br/>';
+    echo '<table class="invoice" style="font-family: \'Open Sans\',\'Helvetica Neue\',Helvetica,sans-serif; box-sizing: border-box; font-size: 14px; text-align: left; width: 80%; margin: 20px auto;">';
+    echo '<tr style="font-family: \'Open Sans\',\'Helvetica Neue\',Helvetica,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">';
+    echo '<td style="font-family: \'Open Sans\',\'Helvetica Neue\',Helvetica,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 5px 0;" valign="top">';
+    echo '<table class="invoice-items" cellpadding="0" cellspacing="0" style="font-family: \'Open Sans\',\'Helvetica Neue\',Helvetica,sans-serif; box-sizing: border-box; font-size: 14px; width: 100%; margin: 0;">';
+    echo '<tr style="font-family: \'Open Sans\',\'Helvetica Neue\',Helvetica,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">';
+    echo '<td style="font-family: \'Open Sans\',\'Helvetica Neue\',Helvetica,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; border-top-width: 2px; border-top-color: #333; border-top-style: solid; border-bottom-color: #333; border-bottom-width: 2px; border-bottom-style: solid; margin: 0; padding: 5px;" valign="top">';
+    echo 'Préstamo';
+    echo '</td>';
+    echo '<td style="font-family: \'Open Sans\',\'Helvetica Neue\',Helvetica,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; border-top-width: 2px; border-top-color: #333; border-top-style: solid; border-bottom-color: #333; border-bottom-width: 2px; border-bottom-style: solid; margin: 0; padding: 5px;" valign="top" align="right">';
+    echo 'Deducción (Bs)';
+    echo '</td>';
+    echo '<td style="font-family: \'Open Sans\',\'Helvetica Neue\',Helvetica,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; border-top-width: 2px; border-top-color: #333; border-top-style: solid; border-bottom-color: #333; border-bottom-width: 2px; border-bottom-style: solid; margin: 0; padding: 5px;" valign="top" align="right">';
+    echo 'Total (Bs)';
+    echo '</td>';
+    echo '</tr>';
+    $acum = 0;
+    foreach ($deductions as $deduction) {
+        echo '<tr style="font-family: \'Open Sans\',\'Helvetica Neue\',Helvetica,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">';
+        echo '<td style="font-family: \'Open Sans\',\'Helvetica Neue\',Helvetica,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" valign="top">';
+        echo $deduction['description'];
+        echo '</td>';
+        echo '<td class="alignright" style="font-family: \'Open Sans\',\'Helvetica Neue\',Helvetica,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; text-align: right; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" align="right" valign="top">';
+        echo number_format($deduction['amount'], 2);
+        echo '</td>';
+        echo '<td class="alignright" style="font-family: \'Open Sans\',\'Helvetica Neue\',Helvetica,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; text-align: right; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" align="right" valign="top">';
+        $acum += $deduction['amount'];
+        echo number_format($acum, 2);
+        echo '</td>';
+        echo '</tr>';
+    }
+    echo '</table>';
+    echo '</td>';
+    echo '</tr>';
+    echo '</table>';
+}
+?>
 
 Constancia expedida a los días <?php echo $date->format('d') ?> del mes <?php echo $date->format('m') ?>, del año
 <?php echo $date->format('Y') ?>.<br />

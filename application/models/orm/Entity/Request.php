@@ -125,7 +125,7 @@ class Request
     /**
      * @var \Doctrine\Common\Collections\Collection
      *
-     * @ORM\OneToMany(targetEntity="Entity\Request", mappedBy="request")
+     * @ORM\OneToMany(targetEntity="Entity\AdditionalDeduction", mappedBy="request")
      */
     private $additionalDeductions;
 
@@ -494,10 +494,10 @@ class Request
     /**
      * Add additionalDeductions
      *
-     * @param \Entity\Request $additionalDeductions
+     * @param \Entity\AdditionalDeduction $additionalDeductions
      * @return Request
      */
-    public function addAdditionalDeduction(\Entity\Request $additionalDeductions)
+    public function addAdditionalDeduction(\Entity\AdditionalDeduction $additionalDeductions)
     {
         $this->additionalDeductions[] = $additionalDeductions;
 
@@ -507,9 +507,9 @@ class Request
     /**
      * Remove additionalDeductions
      *
-     * @param \Entity\Request $additionalDeductions
+     * @param \Entity\AdditionalDeduction $additionalDeductions
      */
-    public function removeAdditionalDeduction(\Entity\Request $additionalDeductions)
+    public function removeAdditionalDeduction(\Entity\AdditionalDeduction $additionalDeductions)
     {
         $this->additionalDeductions->removeElement($additionalDeductions);
     }

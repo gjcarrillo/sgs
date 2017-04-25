@@ -40,9 +40,9 @@
                     <div flex="45" flex-offset="10" flex-xs="100" flex-offset-xs="0">
                         <div layout="column">
                             <div>
-                        <span class="grey-color">
-                            Estatus
-                        </span>
+                                <span class="grey-color">
+                                    Estatus
+                                </span>
                             </div>
                             <md-input-container
                                 id="status"
@@ -60,15 +60,14 @@
                         </div>
                     </div>
                 </div>
-                <div layout layout-xs="column" layout-padding layout-align-gt-xs="center center">
+                <div layout layout-xs="column" layout-padding>
                     <div
                         ng-show="model.status == REJECTED_STRING || model.status == PRE_APPROVED_STRING"
-                        layout-align-gt-xs="center center"
-                        flex-xs="100">
+                        flex="45" flex-xs="100">
                         <div>
-                    <span class="grey-color">
-                        &#8470; de Reunión
-                    </span>
+                            <span class="grey-color">
+                                &#8470; de Reunión
+                            </span>
                         </div>
                         <md-input-container
                             id="reunion"
@@ -79,12 +78,11 @@
                     </div>
                     <div
                         ng-show="model.status == PRE_APPROVED_STRING"
-                        layout-align-gt-xs="center center"
-                        flex-xs="100">
+                        flex="45" flex-offset="10" flex-xs="100" flex-offset-xs="0">
                         <div>
-                    <span class="grey-color">
-                        Monto aprobado (Bs) *
-                    </span>
+                            <span class="grey-color">
+                                Monto aprobado (Bs) *
+                            </span>
                         </div>
                         <md-input-container
                             id="approved-amount"
@@ -133,7 +131,7 @@
             </div>
             <!-- information of interest for cash voucher -->
             <div id="info" layout="column" layout-align="start start"
-                 ng-if="request.type == LoanTypes.CASH_VOUCHER && model.status == PRE_APPROVED_STRING">
+                 ng-if="model.status == PRE_APPROVED_STRING">
                 <md-card class="grayish">
                     <md-card-title>
                         <span class="grey-color"><b>Monto solicitado</b></span>
@@ -169,67 +167,6 @@
                                 <td md-cell>2% de interés</td>
                                 <td md-cell class="deduction">{{(model.approvedAmount * getInterestRate()/100 | number:2) || '----'}}-</td>
                                 <td md-cell>{{(model.approvedAmount - model.approvedAmount * getInterestRate()/100 | number:2) || '----'}}</td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </md-table-container>
-                </md-card>
-            </div>
-            <!-- information of interest for personal loan -->
-            <div id="info" layout="column" layout-align="start start"
-                 ng-if="request.type == LoanTypes.PERSONAL_LOAN && model.status == PRE_APPROVED_STRING">
-                <md-card class="grayish">
-                    <md-card-title>
-                        <span class="grey-color"><b>Monto solicitado</b></span>
-                    </md-card-title>
-                    <md-divider></md-divider>
-                    <md-card-content>
-                        <div layout="column" layout-align="start" class="md-table-text">
-                            <span>Bs. {{request.reqAmount | number:2}}</span>
-                        </div>
-                    </md-card-content>
-                </md-card>
-                <md-card class="grayish">
-                    <md-card-title>
-                        <span class="grey-color"><b>Cálculo de monto a abonar</b></span>
-                    </md-card-title>
-                    <md-divider></md-divider>
-                    <md-table-container>
-                        <table md-table>
-                            <thead md-head>
-                            <tr md-row>
-                                <th md-column><span>Descripción</span></th>
-                                <th md-column><span>Monto Bs.</span></th>
-                                <th md-column><span>Total Bs.</span></th>
-                            </tr>
-                            </thead>
-                            <tbody md-body>
-                            <tr md-row>
-                                <td md-cell>Monto del préstamo</td>
-                                <td md-cell>{{(model.approvedAmount | number:2) || '----'}}</td>
-                                <td md-cell>{{(model.approvedAmount | number:2) || '----'}}</td>
-                            </tr>
-                            <tr md-row>
-                                <td md-cell>Cuota de préstamo anterior</td>
-                                <td md-cell>{{(model.data.lastLoanFee | number:2) || '----'}}</td>
-                                <td md-cell>{{(calculateTotals(1) | number:2) || '----'}}</td>
-                            </tr>
-                            <tr md-row>
-                                <td md-cell>Intereses del préstamo nuevo en {{model.data.newLoanInterestDays}}
-                                    {{model.data.newLoanInterestDays == 1 ? 'día' : 'días'}}
-                                </td>
-                                <td md-cell ng-class="{deduction : calculateTotals(2)}">{{(calculateNewInterest() | number:2) || '----'}}-</td>
-                                <td md-cell>{{(calculateTotals(2) | number:2) || '----'}}</td>
-                            </tr>
-                            <tr md-row>
-                                <td md-cell>Abono (20%) deudas gastos médicos</td>
-                                <td md-cell ng-class="{deduction : calculateTotals(3)}">{{(calculateMedicalDebtContribution() | number:2) || '----'}}-</td>
-                                <td md-cell>{{(calculateTotals(3) | number:2) || '----'}}</td>
-                            </tr>
-                            <tr md-row>
-                                <td md-cell>Saldo de préstamo anterior</td>
-                                <td md-cell ng-class="{deduction : calculateTotals(4)}">{{(model.data.lastLoanBalance | number:2) || '----'}}-</td>
-                                <td md-cell>{{(calculateTotals(4) | number:2) || '----'}}</td>
                             </tr>
                             </tbody>
                         </table>

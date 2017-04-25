@@ -63,6 +63,16 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
         location.href = Requests.getAllDocsDownloadUrl($scope.req.docs);
     };
 
+    $scope.totalDeductions = function (key) {
+        var acum = 0;
+        for (var dKey in $scope.req.deductions) {
+            if ($scope.req.deductions.hasOwnProperty(dKey) && dKey <= key) {
+                acum += $scope.req.deductions[dKey].amount;
+            }
+        }
+        return acum;
+    };
+
     $scope.deleteRequest = function (ev) {
         Utils.showConfirmDialog(
             'Confirmación de eliminación',
@@ -99,7 +109,7 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
         $mdDialog.show({
             parent: parentEl,
             targetEvent: $event,
-            templateUrl: 'NewRequestController',
+            templateUrl: Requests.getNewRequestDialog($scope.req.type),
             clickOutsideToClose: false,
             escapeToClose: false,
             autoWrap: false,
@@ -121,6 +131,7 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
             $scope.APPLICANT = Constants.Users.APPLICANT;
             $scope.AGENT = Constants.Users.AGENT;
             $scope.LoanTypes = Constants.LoanTypes;
+            var originalDeductions = null;
 
             // obj could have a reference to user data, saved
             // before confirmation dialog was opened.
@@ -129,7 +140,8 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                 type: parseInt(request.type, 10),
                 due: request.due,
                 phone: Utils.pad(request.phone, 11),
-                email: request.email
+                email: request.email,
+                deductions: null
             };
             $scope.model = obj || model;
             $scope.model.loanTypes = Config.loanConcepts;
@@ -157,7 +169,23 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                                         $scope.model.maxReqAmount = Requests.getMaxAmount();
                                         $scope.model.terms = terms;
                                         Requests.verifyAvailability(data, model.type, true);
-                                        $scope.loading = false;
+                                        if (request.deductions) {
+                                            $scope.model.deduct = true;
+                                            Requests.loadAdditionalDeductions(fetchId, request.id, request.type).then(
+                                                function (deductions) {
+                                                    $scope.loading = false;
+                                                    $scope.model.deductions = deductions;
+                                                    // Create a copy to see if user edits them.
+                                                    originalDeductions = _.cloneDeep(deductions);
+                                                },
+                                                function (error) {
+                                                    $scope.loading = false;
+                                                    Utils.handleError(error);
+                                                }
+                                            );
+                                        } else {
+                                            $scope.loading = false;
+                                        }
                                     },
                                     function (error) {
                                         Utils.handleError(error);
@@ -180,14 +208,38 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                        || typeof $scope.model.phone === "undefined"
                        || typeof $scope.model.email === "undefined"
                        || !$scope.model.due)
-                       || ($scope.model.reqAmount === request.reqAmount &&
-                           Utils.pad($scope.model.phone, 11) === request.phone &&
-                           $scope.model.email === request.email &&
-                           parseInt($scope.model.due, 10) === request.due);
+                       || ($scope.model.reqAmount == request.reqAmount &&
+                           Utils.pad($scope.model.phone, 11) == request.phone &&
+                           $scope.model.email == request.email &&
+                           $scope.model.due == request.due &&
+                           _.isEqual($scope.model.deductions, originalDeductions));
             };
 
             $scope.closeDialog = function () {
                 $mdDialog.hide();
+            };
+
+            $scope.loadAdditionalDeductions = function () {
+                if ($scope.model.deduct) {
+                    $scope.loadingDeductions = true;
+                    Requests.loadAdditionalDeductions(fetchId, request.id, request.type).then(
+                        function (deductions) {
+                            $scope.loadingDeductions = false;
+                            $scope.model.deductions = deductions;
+                            // Create a copy to see if user edits them.
+                            originalDeductions = _.cloneDeep(deductions);
+                        },
+                        function (error) {
+                            $scope.loadingDeductions = false;
+                            Utils.handleError(error);
+                        }
+                    );
+                } else {
+                    if (!request.deductions) {
+                        originalDeductions = null;
+                    }
+                    $scope.model.deductions = null;
+                }
             };
 
             $scope.calculateMedicalDebtContribution = function () {
@@ -203,7 +255,12 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
             };
 
             $scope.calculateTotals = function (subTotal) {
-                return Requests.calculateTotals($scope.model.type, $scope.model.reqAmount, subTotal, $scope.model.data);
+                return Requests.calculateTotals($scope.model.type, $scope.model.reqAmount, subTotal, $scope.model.data,
+                                                $scope.model.deductions);
+            };
+
+            $scope.calculateOtherDebtsContribution = function () {
+                return Requests.calculateOtherDebtsContribution($scope.model.deductions);
             };
 
             $scope.calculatePaymentFee = function() {
@@ -237,6 +294,7 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                     loanType: parseInt($scope.model.type, 10),
                     email: $scope.model.email
                 };
+                postData.deductions = $scope.model.deduct ? $scope.model.deductions : null;
                 Requests.editRequest(postData).then(
                     function(updatedReq) {
                         Utils.showAlertDialog(
@@ -560,7 +618,7 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
         $mdDialog.show({
             parent: parentEl,
             targetEvent: $event,
-            templateUrl: 'ManageRequestController',
+            templateUrl: Requests.getManageRequestDialog(request.type),
             clickOutsideToClose: false,
             escapeToClose: false,
             fullscreen: $mdMedia('xs'),
@@ -610,7 +668,20 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                     function (data) {
                         console.log(data);
                         $scope.model.data = data;
-                        $scope.loading = false;
+                        if (request.deductions) {
+                            Requests.loadAdditionalDeductions(fetchId, request.id, request.type).then(
+                                function (deductions) {
+                                    $scope.loading = false;
+                                    $scope.model.deductions = deductions;
+                                },
+                                function (error) {
+                                    $scope.loading = false;
+                                    Utils.handleError(error);
+                                }
+                            );
+                        } else {
+                            $scope.loading = false;
+                        }
                     },
                     function (error) {
                         $scope.loading = false;
@@ -685,7 +756,12 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
             };
 
             $scope.calculateTotals = function (subTotal) {
-                return Requests.calculateTotals(request.type, $scope.model.approvedAmount, subTotal, $scope.model.data);
+                return Requests.calculateTotals(request.type, $scope.model.approvedAmount, subTotal, $scope.model.data,
+                                                $scope.model.deductions);
+            };
+
+            $scope.calculateOtherDebtsContribution = function () {
+                return Requests.calculateOtherDebtsContribution($scope.model.deductions);
             };
 
             $scope.getInterestRate = function () {

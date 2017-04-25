@@ -29,6 +29,13 @@ class AdditionalDeduction
     private $concept;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="description", type="string", length=255, precision=0, scale=0, nullable=false, unique=false)
+     */
+    private $description;
+
+    /**
      * @var float
      *
      * @ORM\Column(name="amount", type="float", precision=0, scale=0, nullable=false, unique=false)
@@ -77,6 +84,29 @@ class AdditionalDeduction
     public function getConcept()
     {
         return $this->concept;
+    }
+
+    /**
+     * Set description
+     *
+     * @param string $description
+     * @return AdditionalDeduction
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * Get description
+     *
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
     }
 
     /**

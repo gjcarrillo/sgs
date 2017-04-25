@@ -583,6 +583,49 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
         return qAvailability.promise;
     };
 
+    /**
+     * Loads additional deductions corresponding to the specified request.
+     *
+     * @param uid - request owner's user id.
+     * @param rid - request's id.
+     * @param concept - request's concept.
+     * @returns {*}
+     */
+    self.loadAdditionalDeductions = function (uid, rid, concept) {
+        var qDeductions = $q.defer();
+
+        $http.get('RequestsController/loadAdditionalDeductions',
+            {params: {uid: uid, rid: rid, concept: concept}})
+            .then(
+            function (response) {
+                console.log(response);
+                if (response.data.message == "success") {
+                    qDeductions.resolve(response.data.deductions);
+                } else {
+                    qDeductions.reject(response.data.message);
+                }
+            });
+        return qDeductions.promise;
+    };
+
+    self.getNewRequestDialog = function (concept) {
+        switch (parseInt(concept, 10)) {
+            case Constants.LoanTypes.PERSONAL_LOAN:
+                return 'NewRequestController/personalLoan';
+            case Constants.LoanTypes.CASH_VOUCHER:
+                return 'NewRequestController/cashVoucher';
+        }
+    };
+
+    self.getManageRequestDialog = function (concept) {
+        switch (parseInt(concept, 10)) {
+            case Constants.LoanTypes.PERSONAL_LOAN:
+                return 'ManageRequestController/personalLoan';
+            case Constants.LoanTypes.CASH_VOUCHER:
+                return 'ManageRequestController/cashVoucher';
+        }
+    };
+
     // A request type is available for creation if the following is tue:
     // 1. for personal loans, user has at least 6 months old in our system.
     // 2. User's concurrence level is below 40%.
@@ -667,12 +710,12 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
         return qReq.promise;
     };
 
-    self.calculateTotals = function (concept, reqAmount, subtotal, data) {
+    self.calculateTotals = function (concept, reqAmount, subtotal, data, deductions) {
         switch (parseInt(concept)) {
             case Constants.LoanTypes.CASH_VOUCHER:
                 return self.calculateCashVoucherTotals(reqAmount, subtotal, concept);
             case Constants.LoanTypes.PERSONAL_LOAN:
-                return self.calculatePersonalLoanTotals(reqAmount, subtotal, data);
+                return self.calculatePersonalLoanTotals(reqAmount, subtotal, data, deductions);
         }
     };
 
@@ -685,16 +728,34 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
         return (reqAmount + data.lastLoanFee) * 0.01 / data.daysOfMonth * data.newLoanInterestDays;
     };
 
-    self.calculatePersonalLoanTotals = function(reqAmount, subtotal, data) {
+    self.calculateOtherDebtsContribution = function (deductions) {
+        var acum = 0;
+        for (var key in deductions) {
+            if (deductions.hasOwnProperty(key)) {
+                if (deductions[key].amount) {
+                    acum += deductions[key].amount;
+                }
+            }
+        }
+        return acum;
+    };
+
+    self.calculatePersonalLoanTotals = function(reqAmount, subtotal, data, deductions) {
         switch (subtotal) {
             case 1:
                 return reqAmount ? reqAmount + data.lastLoanFee : null;
             case 2:
                 return reqAmount ? reqAmount + data.lastLoanFee - self.calculateNewInterest(reqAmount, data) : null;
             case 3:
-                return reqAmount ? reqAmount + data.lastLoanFee - self.calculateNewInterest(reqAmount, data) - self.calculateMedicalDebtContribution(reqAmount, data) : null;
+                return reqAmount ? reqAmount + data.lastLoanFee - self.calculateNewInterest(reqAmount, data) -
+                                   self.calculateMedicalDebtContribution(reqAmount, data) : null;
             case 4:
-                return reqAmount ? reqAmount + data.lastLoanFee - self.calculateNewInterest(reqAmount, data) - self.calculateMedicalDebtContribution(reqAmount, data) - data.lastLoanBalance : null;
+                return reqAmount ? reqAmount + data.lastLoanFee - self.calculateNewInterest(reqAmount, data) -
+                                   self.calculateMedicalDebtContribution(reqAmount, data) - data.lastLoanBalance : null;
+            case 5:
+                return reqAmount ? reqAmount + data.lastLoanFee - self.calculateNewInterest(reqAmount, data) -
+                                   self.calculateMedicalDebtContribution(reqAmount, data) - data.lastLoanBalance -
+                                   self.calculateOtherDebtsContribution(deductions): null;
         }
     };
 

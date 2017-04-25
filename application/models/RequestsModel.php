@@ -84,10 +84,10 @@ class RequestsModel extends CI_Model
                                 $array['saldo_edo'] = $lastLoan->saldo_edo;
                                 $array['saldo_actual'] = $lastLoan->saldo_actual;
                                 if ($array['saldo_actual'] <= 0) {
-                                    $array['mensualidad'] = '------';
+                                    $array['mensualidad'] = null;
                                 } else {
                                     $array['mensualidad'] =
-                                        $this->isDbPrestamos($request->getLoanType()) ? $lastLoan->otorg_cuota : '------';
+                                        $this->isDbPrestamos($request->getLoanType()) ? $lastLoan->otorg_cuota : null;
                                 }
                                 // Add this array to result.
                                 array_push($result, $array);
@@ -258,6 +258,105 @@ class RequestsModel extends CI_Model
                 }
                 return null;
             }
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * Loads additional deductions corresponding to the specified request.
+     *
+     * @param uid - request owner's user id.
+     * @param rid - request's id.
+     * @param concept - request's concept.
+     * @return mixed - user's active debts with their corresponding deduction.
+     * @throws Exception
+     */
+    public function loadAdditionalDeductions ($uid, $rid, $concept) {
+        try {
+            $result = $this->getAllActiveLoans($uid);
+            $this->filterAdditionalDeductions($result, $concept);
+            $em = $this->doctrine->em;
+            if ($rid) {
+                $request = $em->find('\Entity\Request', $rid);
+                $deductions = $request->getAdditionalDeductions();
+                if ($deductions !== null) {
+                    foreach ($deductions as $deduction) {
+                        foreach ($result as &$pmo) {
+                            if (intval($pmo['concepto'], 10) == $deduction->getConcept()) {
+                                $pmo['amount'] = $deduction->getAmount();
+                            }
+                        }
+                    }
+                }
+            }
+            return $result;
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * Filters some loans from additional deductions that should not appear
+     *
+     * @param $activeLoans - active loans (still with pending debt).
+     * @param $concept - request type.
+     */
+    private function filterAdditionalDeductions(&$activeLoans, $concept) {
+        switch (intval($concept, 10)) {
+            case PERSONAL_LOAN:
+                foreach ($activeLoans as $key => $pmo) {
+                    // Do not show personal loan or medical expenses (this last one is deducted automatically)
+                    if ($pmo['concepto'] == PERSONAL_LOAN || $pmo['concepto'] == MEDICAL_EXPENSES) {
+                        unset($activeLoans[$key]);
+                    }
+                }
+                break;
+            case CASH_VOUCHER:
+                foreach ($activeLoans as $key => $pmootro) {
+                    if ($pmootro['concepto'] == CASH_VOUCHER) {
+                        // Do not show cash vouchers debt
+                        unset($activeLoans[$key]);
+                    }
+                }
+                break;
+        }
+    }
+
+    /**
+     * Obtains all active loans from the specified user.
+     *
+     * @param $uid - user's id.
+     * @return mixed - all user's active loans and other loans, with their corresponding description.
+     * @throws Exception
+     */
+    public function getAllActiveLoans ($uid) {
+        try {
+            $result = array();
+            $this->ipapedi_db = $this->load->database('ipapedi_db', true);
+
+            $this->ipapedi_db->select('*');
+            $this->ipapedi_db->from('db_dt_prestamos');
+            $this->ipapedi_db->where('cedula', $uid);
+            $this->ipapedi_db->where('saldo_actual > ', 0);
+            $this->ipapedi_db->join('db_ds_conceptos', 'db_dt_prestamos.concepto = db_ds_conceptos.codigo');
+            $pmos = $this->ipapedi_db->get()->result_array();
+            foreach ($pmos as &$pmo) {
+                $pmo['amount'] = null;
+                array_push($result, $pmo);
+            }
+
+            $this->ipapedi_db->select('*');
+            $this->ipapedi_db->from('db_dt_prestamosotros');
+            $this->ipapedi_db->where('cedula', $uid);
+            $this->ipapedi_db->where('saldo_actual > ', 0);
+            $this->ipapedi_db->join('db_ds_conceptos', 'db_dt_prestamosotros.concepto = db_ds_conceptos.codigo');
+            $pmosotros = $this->ipapedi_db->get()->result_array();
+            foreach ($pmosotros as &$pmo) {
+                $pmo['amount'] = null;
+                array_push($result, $pmo);
+            }
+            return $result;
         } catch (Exception $e) {
             throw $e;
         }
@@ -525,7 +624,7 @@ class RequestsModel extends CI_Model
         $pdf->Output($pdfFilePath, 'F'); // save to file
     }
 
-    private function getNewCashVoucherDocData($request) {
+    public function getNewCashVoucherDocData($request) {
         $data['reqAmount'] = $request->getRequestedAmount();
         $data['approvedAmount'] = $request->getApprovedAmount();
         $data['tel'] = $request->getContactNumber();
@@ -547,7 +646,7 @@ class RequestsModel extends CI_Model
         return $data;
     }
 
-    private function getPersonalLoanDocData ($request) {
+    public function getPersonalLoanDocData ($request) {
         $data['reqAmount'] = $request->getRequestedAmount();
         $data['approvedAmount'] = $request->getApprovedAmount();
         $data['tel'] = $request->getContactNumber();
@@ -584,8 +683,13 @@ class RequestsModel extends CI_Model
                 $contribution : $medicalExpenses->saldo_actual;
         } else { $data['medicalContribution'] = 0;}
         $data['lastLoanBalance'] = intval($lastLoan ? $lastLoan->saldo_actual : 0, 10);
-        $data['totalToReceive'] = $data['amount'] - $data['medicalContribution'] + $data['lastLoanFee'] -
-                                  $data['newLoanInterestFee'] - $data['lastLoanBalance'];
+        $deductions = $request->getAdditionalDeductions();
+        $data['deductionsTotal'] = 0;
+        foreach ($deductions as $key => $deduction) {
+            $data['deductions'][$key]['description'] = $deduction->getDescription();
+            $data['deductions'][$key]['amount'] = $deduction->getAmount();
+            $data['deductionsTotal'] += $deduction->getAmount();
+        }
         $data['totals'] = $this->calculateTotals($request->getLoanType(), $data);
         return $data;
     }
@@ -604,11 +708,10 @@ class RequestsModel extends CI_Model
     private function  calculatePersonalLoanTotals($data) {
         $result = array();
         array_push($result, round($data['amount'] + $data['lastLoanFee'], 2));
-        array_push($result, round($data['amount'] + $data['lastLoanFee'] - $data['newLoanInterestFee'], 2));
-        array_push($result, round($data['amount'] + $data['lastLoanFee'] - $data['newLoanInterestFee']
-                            - $data['medicalContribution'], 2));
-        array_push($result, round($data['amount'] + $data['lastLoanFee'] - $data['newLoanInterestFee']
-                            - $data['medicalContribution'] - $data['lastLoanBalance'], 2));
+        array_push($result, round(end($result) - $data['newLoanInterestFee'], 2));
+        array_push($result, round(end($result) - $data['medicalContribution'], 2));
+        array_push($result, round(end($result) - $data['lastLoanBalance'], 2));
+        array_push($result, round(end($result) - $data['deductionsTotal'], 2));
         return $result;
     }
 
@@ -718,7 +821,7 @@ class RequestsModel extends CI_Model
                 } else {
                     $currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
                     $diff = $this->utils->getDateInterval($currentDate, $granting);
-                    return ($diff['months'] + $diff['years'] * 12) - $span;
+                    return $span - ($diff['months'] + $diff['years'] * 12);
                 }
             } else {
                 $lastRequest = $this->getLastRequest($uid, $lastLoan);
@@ -730,9 +833,91 @@ class RequestsModel extends CI_Model
                     $granting = date_create_from_format('d/m/Y', $lastRequest->getValidationDate()->modify('+1 day'));
                     $currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
                     $diff = $this->utils->getDateInterval($currentDate, $granting);
-                    return ($diff['months'] + $diff['years'] * 12) - $span;
+                    return $span - ($diff['months'] + $diff['years'] * 12);
                 }
             }
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function updateDeductions ($request, $deductions, $history) {
+        try {
+            $em = $this->doctrine->em;
+            $originalDeductions = $request->getAdditionalDeductions();
+            // For each new deduction, find out whether there is a previous deduction
+            foreach ($deductions as $deduction) {
+                $found = false;
+                foreach ($originalDeductions as $original) {
+                    if ($original->getConcept() == intval($deduction['concepto'], 10)) {
+                        $found = true;
+                        break;
+                    }
+                }
+                if (isset($deduction['amount']) && $deduction['amount'] > 0) {
+                    if (!$found) {
+                        // If no previous deduction found, create new one.
+                        $deductionEntity = new \Entity\AdditionalDeduction();
+                        $deductionEntity->setAmount($deduction['amount']);
+                        $deductionEntity->setConcept($deduction['concepto']);
+                        $deductionEntity->setRequest($request);
+                        $deductionEntity->setDescription($deduction['descripcion']);
+                        $request->addAdditionalDeduction($deductionEntity);
+                        $action = new \Entity\HistoryAction();
+                        $action->setSummary("Deducción adicional solicitada");
+                        $action->setDetail("Abono de Bs. " . number_format($deduction['amount'], 2) . " para deuda de " .
+                            $deduction['descripcion']);
+                        $action->setBelongingHistory($history);
+                        $history->addAction($action);
+                        $em->persist($action);
+                        $em->merge($request);
+                        $em->persist($deductionEntity);
+                    } else if (isset($original)) {
+                        // Previous deduction found. Update original deduction amount.
+                        $action = new \Entity\HistoryAction();
+                        $action->setSummary("Deducción adicional modificada");
+                        $action->setDetail("Abono para deuda de " . $deduction['descripcion'] . " cambiado de Bs. "
+                                           . number_format($original->getAmount(), 2) .
+                                           " a Bs. " . number_format($deduction['amount'], 2));
+                        $action->setBelongingHistory($history);
+                        $history->addAction($action);
+                        $em->persist($action);
+                        $original->setAmount($deduction['amount']);
+                        $em->merge($original);
+                    }
+                } else if ($found && isset($original)) {
+                    // New amount was set to zero. Remove deduction from request.
+                    $action = new \Entity\HistoryAction();
+                    $action->setSummary("Deducción adicional cancelada");
+                    $action->setDetail("Abono de Bs. " . number_format($original->getAmount(), 2) .
+                                       " para deuda de " . $original->getDescription() . " cancelado.");
+                    $action->setBelongingHistory($history);
+                    $history->addAction($action);
+                    $em->persist($action);
+                    $request->removeAdditionalDeduction($original);
+                    $em->remove($original);
+                    $em->merge($request);
+                }
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function deleteDeductions($request, $history) {
+        try {
+            $em = $this->doctrine->em;
+            $originalDeductions = $request->getAdditionalDeductions();
+            // For each new deduction, find out whether there is a previous deduction
+            foreach ($originalDeductions as $deduction) {
+                $em->remove($deduction);
+            }
+            // Set History action for this request's corresponding history
+            $action = new \Entity\HistoryAction();
+            $action->setSummary("Deducciones adicionales canceladas");
+            $action->setBelongingHistory($history);
+            $history->addAction($action);
+            $em->persist($action);
         } catch (Exception $e) {
             throw $e;
         }

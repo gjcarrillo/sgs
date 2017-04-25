@@ -408,6 +408,12 @@ app.directive('detailsHelp', function(Helps, $mdMedia, Auth, Constants) {
                                              $mdMedia('xs') ? '#request-summary-actions-menu' : '#request-summary-actions',
                                              content, responsivePos,
                                              'Acciones', true, 'fadeInLeft');
+                if ($scope.req.deductions) {
+                    content = 'En la siguiente tabla se muestran las deducciones adicionales solicitadas durante la ' +
+                              'creación de la solicitud para pagar deudas de otros préstamos.';
+                    Helps.addFieldHelpWithHeader(tripToShowNavigation,
+                                                 '#deductions', content, responsivePos, 'Deducciones adicionales', true, 'fadeInLeft');
+                }
                 tripToShowNavigation.start();
             }
 

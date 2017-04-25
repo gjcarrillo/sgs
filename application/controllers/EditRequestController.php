@@ -160,6 +160,15 @@ class EditRequestController extends CI_Controller {
 						$history->addAction($action);
 						$em->persist($action);
 					}
+					if (!$request->getAdditionalDeductions()->isEmpty() && !isset($data['deductions'])) {
+						\ChromePhp::log('DELETE');
+						// Delete all deductions from request.
+						$this->deleteDeductions($request, $history);
+					} else if (isset($data['deductions'])) {
+						\ChromePhp::log('UPDATE');
+						// Update original deductions (and add new ones).
+						$this->updateDeductions($request, $data['deductions'], $history);
+					}
 					// This function will be called if at least one field was edited, so
 					// we can register History without any previous validation.
 					$em->persist($history);
@@ -229,5 +238,41 @@ class EditRequestController extends CI_Controller {
 			}
 		}
 		echo json_encode($result);
+	}
+
+	private function addDeductions ($request, $deductions, $history) {
+		try {
+			switch ($request->getLoanType()) {
+				case PERSONAL_LOAN:
+					$this->requests->addDeductions($request, $deductions, $history);
+					break;
+			}
+		} catch (Exception $e) {
+			throw $e;
+		}
+	}
+
+	private function updateDeductions ($request, $deductions, $history) {
+		try {
+			switch ($request->getLoanType()) {
+				case PERSONAL_LOAN:
+					$this->requests->updateDeductions($request, $deductions, $history);
+					break;
+			}
+		} catch (Exception $e) {
+			throw $e;
+		}
+	}
+
+	private function deleteDeductions ($request, $history) {
+		try {
+			switch ($request->getLoanType()) {
+				case PERSONAL_LOAN:
+					$this->requests->deleteDeductions($request, $history);
+					break;
+			}
+		} catch (Exception $e) {
+			throw $e;
+		}
 	}
 }

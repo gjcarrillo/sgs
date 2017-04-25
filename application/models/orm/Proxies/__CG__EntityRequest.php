@@ -231,10 +231,28 @@ class Request extends \Entity\Request implements \Doctrine\ORM\Proxy\Proxy
         return parent::getUserOwner();
     }
 
+    public function addAdditionalDeduction(\Entity\AdditionalDeduction $additionalDeductions)
+    {
+        $this->__load();
+        return parent::addAdditionalDeduction($additionalDeductions);
+    }
+
+    public function removeAdditionalDeduction(\Entity\AdditionalDeduction $additionalDeductions)
+    {
+        $this->__load();
+        return parent::removeAdditionalDeduction($additionalDeductions);
+    }
+
+    public function getAdditionalDeductions()
+    {
+        $this->__load();
+        return parent::getAdditionalDeductions();
+    }
+
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'creationDate', 'comment', 'reunion', 'requestedAmount', 'approvedAmount', 'status', 'paymentDue', 'loanType', 'contactNumber', 'contactEmail', 'validationDate', 'documents', 'history', 'userOwner');
+        return array('__isInitialized__', 'id', 'creationDate', 'comment', 'reunion', 'requestedAmount', 'approvedAmount', 'status', 'paymentDue', 'loanType', 'contactNumber', 'contactEmail', 'validationDate', 'documents', 'history', 'userOwner', 'additionalDeductions');
     }
 
     public function __clone()

@@ -280,7 +280,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
         $mdDialog.show({
             parent: parentEl,
             targetEvent: $event,
-            templateUrl: 'NewRequestController',
+            templateUrl: Requests.getNewRequestDialog(concept),
             clickOutsideToClose: false,
             escapeToClose: false,
             autoWrap: false,
@@ -333,6 +333,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
                                     function (terms) {
                                         $scope.model.maxReqAmount = Requests.getMaxAmount();
                                         $scope.model.terms = terms;
+                                        $scope.model.due = terms[0];
                                         if (!$scope.model.phone) {
                                             $scope.model.phone = data.userPhone ? Utils.pad(parseInt(data.userPhone, 10), 11) : '';
                                         }
@@ -358,6 +359,24 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
                 );
             }
 
+            $scope.loadAdditionalDeductions = function () {
+                if ($scope.model.deduct) {
+                    $scope.loadingDeductions = true;
+                    Requests.loadAdditionalDeductions(fetchId, null, concept).then(
+                        function (deductions) {
+                            $scope.loadingDeductions = false;
+                            $scope.model.deductions = deductions;
+                        },
+                        function (error) {
+                            $scope.loadingDeductions = false;
+                            Utils.handleError(error);
+                        }
+                    );
+                } else {
+                    $scope.model.deductions = null;
+                }
+            };
+
             $scope.calculateMedicalDebtContribution = function () {
                 return Requests.calculateMedicalDebtContribution($scope.model.reqAmount, $scope.model.data);
             };
@@ -371,7 +390,12 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
             };
 
             $scope.calculateTotals = function (subTotal) {
-                return Requests.calculateTotals($scope.model.type, $scope.model.reqAmount, subTotal, $scope.model.data);
+                return Requests.calculateTotals($scope.model.type, $scope.model.reqAmount, subTotal, $scope.model.data,
+                                                $scope.model.deductions);
+            };
+
+            $scope.calculateOtherDebtsContribution = function () {
+                return Requests.calculateOtherDebtsContribution($scope.model.deductions);
             };
 
             $scope.missingField = function () {
@@ -418,6 +442,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
                     email: $scope.model.email,
                     docs: docs
                 };
+                postData.deductions = $scope.model.deduct ? $scope.model.deductions : null;
                 Requests.createRequest(postData).then(
                     function(request) {
                         Utils.showAlertDialog(
@@ -474,7 +499,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
         $mdDialog.show({
             parent: parentEl,
             targetEvent: $event,
-            templateUrl: 'NewRequestController',
+            templateUrl: Requests.getNewRequestDialog(request.type),
             clickOutsideToClose: false,
             escapeToClose: false,
             autoWrap: false,
@@ -496,6 +521,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
             $scope.APPLICANT = Constants.Users.APPLICANT;
             $scope.AGENT = Constants.Users.AGENT;
             $scope.LoanTypes = Constants.LoanTypes;
+            var originalDeductions;
 
             // obj could have a reference to user data, saved
             // before confirmation dialog was opened.
@@ -504,7 +530,8 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
                 type: parseInt(request.type, 10),
                 due: request.due,
                 phone: Utils.pad(request.phone, 11),
-                email: request.email
+                email: request.email,
+                deductions: null
             };
             $scope.model = obj || model;
             $scope.model.loanTypes = Config.loanConcepts;
@@ -523,7 +550,6 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
                 $scope.loading = true;
                 Requests.getAvailabilityData(fetchId, model.type).then(
                     function (data) {
-                        console.log(data);
                         $scope.model.data = data;
                         Requests.checkPreviousRequests(fetchId, model.type).then(
                             function (opened) {
@@ -533,7 +559,22 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
                                         $scope.model.maxReqAmount = Requests.getMaxAmount();
                                         $scope.model.terms = terms;
                                         Requests.verifyAvailability(data, model.type, true);
-                                        $scope.loading = false;
+                                        if (request.deductions) {
+                                            $scope.model.deduct = true;
+                                            Requests.loadAdditionalDeductions(fetchId, request.id, request.type).then(
+                                                function (deductions) {
+                                                    $scope.loading = false;
+                                                    $scope.model.deductions = deductions;
+                                                    originalDeductions = _.cloneDeep(deductions);
+                                                },
+                                                function (error) {
+                                                    $scope.loading = false;
+                                                    Utils.handleError(error);
+                                                }
+                                            );
+                                        } else {
+                                            $scope.loading = false;
+                                        }
                                     },
                                     function (error) {
                                         Utils.handleError(error);
@@ -553,17 +594,41 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
 
             $scope.missingField = function () {
                 return (typeof $scope.model.reqAmount === "undefined"
-                        || typeof $scope.model.phone === "undefined"
-                        || typeof $scope.model.email === "undefined"
-                        || !$scope.model.due)
-                       || ($scope.model.reqAmount === request.reqAmount &&
-                        Utils.pad($scope.model.phone, 11) === request.phone &&
-                       $scope.model.email === request.email &&
-                       parseInt($scope.model.due, 10) === request.due);
-                };
+                       || typeof $scope.model.phone === "undefined"
+                       || typeof $scope.model.email === "undefined"
+                       || !$scope.model.due)
+                       || ($scope.model.reqAmount == request.reqAmount &&
+                           Utils.pad($scope.model.phone, 11) == request.phone &&
+                           $scope.model.email == request.email &&
+                           $scope.model.due == request.due &&
+                           _.isEqual($scope.model.deductions, originalDeductions));
+            };
 
             $scope.closeDialog = function () {
                 $mdDialog.hide();
+            };
+
+            $scope.loadAdditionalDeductions = function () {
+                if ($scope.model.deduct) {
+                    $scope.loadingDeductions = true;
+                    Requests.loadAdditionalDeductions(fetchId, request.id, request.type).then(
+                        function (deductions) {
+                            $scope.loadingDeductions = false;
+                            $scope.model.deductions = deductions;
+                            // Create a copy to see if user edits them.
+                            originalDeductions = _.cloneDeep(deductions);
+                        },
+                        function (error) {
+                            $scope.loadingDeductions = false;
+                            Utils.handleError(error);
+                        }
+                    );
+                } else {
+                    if (!request.deductions) {
+                        originalDeductions = null;
+                    }
+                    $scope.model.deductions = null;
+                }
             };
 
             $scope.calculateMedicalDebtContribution = function () {
@@ -579,7 +644,12 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
             };
 
             $scope.calculateTotals = function (subTotal) {
-                return Requests.calculateTotals($scope.model.type, $scope.model.reqAmount, subTotal, $scope.model.data);
+                return Requests.calculateTotals($scope.model.type, $scope.model.reqAmount, subTotal, $scope.model.data,
+                                                $scope.model.deductions);
+            };
+
+            $scope.calculateOtherDebtsContribution = function () {
+                return Requests.calculateOtherDebtsContribution($scope.model.deductions);
             };
 
             $scope.calculatePaymentFee = function() {
@@ -613,6 +683,7 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
                     loanType: parseInt($scope.model.type, 10),
                     email: $scope.model.email
                 };
+                postData.deductions = $scope.model.deduct ? $scope.model.deductions : null;
                 Requests.editRequest(postData).then(
                     function(request) {
                         Utils.showAlertDialog(
