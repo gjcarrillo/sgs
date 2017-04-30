@@ -2,10 +2,10 @@ angular
     .module('sgdp')
     .controller('AgentHomeController', agentHome);
 
-agentHome.$inject = ['$scope', '$mdDialog', 'Constants', 'Agent', 'Config', 'Applicant',
+agentHome.$inject = ['$scope', '$mdDialog', 'Constants', 'Agent', 'Config', 'Applicant', '$window',
                      '$state', '$timeout', '$mdSidenav', '$mdMedia', 'Requests', 'Utils'];
 
-function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
+function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant, $window,
                    $state, $timeout, $mdSidenav, $mdMedia, Requests, Utils) {
     'use strict';
     $scope.requests = Applicant.data.requests;
@@ -45,6 +45,10 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant,
         order: 'name',
         limit: 5,
         page: 1
+    };
+
+    $scope.goBack = function () {
+        $window.history.go(-1);
     };
 
     // Get configured loan types.

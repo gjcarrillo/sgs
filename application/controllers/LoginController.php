@@ -166,6 +166,16 @@ class LoginController extends CI_Controller {
         } else if ($this->session->type == AGENT && $data['newType'] == REVISER) {
             $this->session->set_userdata($dataSession);
             $result['message'] = 'success';
+        } else if ($this->session->type == REVISER && $data['newType'] == AGENT) {
+            // Check if this user has AGENT rights. Otherwise, deny upgrade
+            $em = $this->doctrine->em;
+            $user = $em->find('\Entity\User', $this->session->id);
+            if ($user->getType() == AGENT) {
+                $this->session->set_userdata($dataSession);
+                $result['message'] = 'success';
+            } else {
+                $result['message'] = 'forbidden';
+            }
         } else {
             $result['message'] = 'forbidden';
         }

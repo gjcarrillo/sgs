@@ -296,7 +296,7 @@ sgdp.run(['$rootScope', '$location', '$state', 'Auth', '$cookies', '$http', 'Con
                           // if manager then send ipapedi en linea's admin home
                           e.preventDefault();
                           window.location.replace(Constants.IPAPEDI_URL + 'administracion/admin');
-                      } else if (Auth.userType(Constants.Users.AGENT)) {
+                      } else if (Auth.userType(Constants.Users.AGENT) || Auth.userType(Constants.Users.REVISER)) {
                           // if agent then log out
                           e.preventDefault();
                           Auth.logout();
@@ -329,8 +329,8 @@ sgdp.run(['$rootScope', '$location', '$state', 'Auth', '$cookies', '$http', 'Con
                           // every one can come here
                           return true;
                       case '/perspective':
-                          // check for agent rights
-                          return userType == Constants.Users.AGENT;
+                          // check for agent or reviser rights
+                          return userType == Constants.Users.AGENT || userType == Constants.Users.REVISER;
                   }
                   return true;
               }

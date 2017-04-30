@@ -2,9 +2,9 @@ angular
     .module('sgdp')
     .controller('ReviserHomeController', reviserHome);
 
-reviserHome.$inject = ['$scope', 'Reviser', 'Utils', 'Requests', 'Constants', '$state', 'Config'];
+reviserHome.$inject = ['$scope', 'Reviser', 'Utils', 'Requests', 'Constants', '$state', 'Config', '$window'];
 
-function reviserHome($scope, Reviser, Utils, Requests, Constants, $state, Config) {
+function reviserHome($scope, Reviser, Utils, Requests, Constants, $state, Config, $window) {
     'use strict';
 
     $scope.loanTypes = Reviser.data.loanTypes;
@@ -16,6 +16,10 @@ function reviserHome($scope, Reviser, Utils, Requests, Constants, $state, Config
         order: 'name',
         limit: 5,
         page: 1
+    };
+
+    $scope.goBack = function () {
+        $window.history.go(-1);
     };
 
     function getPreApprovedRequests() {
