@@ -1114,8 +1114,8 @@ class RequestsModel extends CI_Model
             $changes = "<li>Cambio de estatus: <s>" . $request->getStatus() .
                        "</s> " . APPROVED . "." . "</li>";
             $changes = $changes .
-                       '<br/><div>El préstamo solicitado ha sido abonado.</div>' .
-                       ' Puede entrar en IPAPEDI en línea para ver los cambios realizados en su Estado de Cuenta.</div>';
+                       '<br/><div>El préstamo solicitado ha sido abonado.<br/>' .
+                       'Puede entrar en IPAPEDI en línea para ver los cambios realizados en su Estado de Cuenta.</div>';
             $em->persist($history);
             $request->setStatus(APPROVED);
             $em->merge($request);
