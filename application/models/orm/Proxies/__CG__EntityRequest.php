@@ -111,6 +111,18 @@ class Request extends \Entity\Request implements \Doctrine\ORM\Proxy\Proxy
         return parent::getApprovedAmount();
     }
 
+    public function setPaidAmount($paidAmount)
+    {
+        $this->__load();
+        return parent::setPaidAmount($paidAmount);
+    }
+
+    public function getPaidAmount()
+    {
+        $this->__load();
+        return parent::getPaidAmount();
+    }
+
     public function setStatus($status)
     {
         $this->__load();
@@ -252,7 +264,7 @@ class Request extends \Entity\Request implements \Doctrine\ORM\Proxy\Proxy
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'creationDate', 'comment', 'reunion', 'requestedAmount', 'approvedAmount', 'status', 'paymentDue', 'loanType', 'contactNumber', 'contactEmail', 'validationDate', 'documents', 'history', 'userOwner', 'additionalDeductions');
+        return array('__isInitialized__', 'id', 'creationDate', 'comment', 'reunion', 'requestedAmount', 'approvedAmount', 'paidAmount', 'status', 'paymentDue', 'loanType', 'contactNumber', 'contactEmail', 'validationDate', 'documents', 'history', 'userOwner', 'additionalDeductions');
     }
 
     public function __clone()

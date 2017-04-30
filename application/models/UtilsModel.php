@@ -251,6 +251,7 @@ class UtilsModel extends CI_Model
         $result['comment'] = $request->getComment();
         $result['reqAmount'] = $request->getRequestedAmount();
         $result['approvedAmount'] = $request->getApprovedAmount();
+        $result['paidAmount'] = $request->getPaidAmount();
         $result['userOwner'] = $request->getUserOwner()->getId();
         $result['userOwnerName'] = $request->getUserOwner()->getFirstName() . ' ' . $request->getUserOwner()->getLastName();
         $result['reunion'] = $request->getReunion();

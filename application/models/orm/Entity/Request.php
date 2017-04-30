@@ -57,6 +57,13 @@ class Request
     private $approvedAmount;
 
     /**
+     * @var float
+     *
+     * @ORM\Column(name="paid_amount", type="float", precision=0, scale=0, nullable=true, unique=false)
+     */
+    private $paidAmount;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="status", type="string", length=255, precision=0, scale=0, nullable=false, unique=false)
@@ -262,6 +269,29 @@ class Request
     public function getApprovedAmount()
     {
         return $this->approvedAmount;
+    }
+
+    /**
+     * Set paidAmount
+     *
+     * @param float $paidAmount
+     * @return Request
+     */
+    public function setPaidAmount($paidAmount)
+    {
+        $this->paidAmount = $paidAmount;
+
+        return $this;
+    }
+
+    /**
+     * Get paidAmount
+     *
+     * @return float
+     */
+    public function getPaidAmount()
+    {
+        return $this->paidAmount;
     }
 
     /**

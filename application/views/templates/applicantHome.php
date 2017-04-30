@@ -286,6 +286,7 @@
                                                 <th md-column><span>Estatus</span></th>
                                                 <th md-column><span>Monto solicitado</span></th>
                                                 <th md-column><span>Monto aprobado</span></th>
+                                                <th md-column><span>Monto aprobado</span></th>
                                             </tr>
                                             </thead>
                                             <tbody md-body>
@@ -296,6 +297,9 @@
                                                 <td md-cell ng-click="goToDetails(request)">{{request.reqAmount | number:2}}</td>
                                                 <td md-cell ng-click="goToDetails(request)">
                                                     {{(request.approvedAmount | number:2) || '----'}}
+                                                </td>
+                                                <td md-cell ng-click="goToDetails(request)">
+                                                    {{(request.paidAmount | number:2) || '----'}}
                                                 </td>
                                                 <td ng-if="!request.validationDate" md-cell ng-click="goToDetails(request)">
                                                     <md-icon style="color: red">
@@ -407,6 +411,7 @@
                                     <th md-column><span>Estatus</span></th>
                                     <th md-column><span>Monto solicitado</span></th>
                                     <th md-column><span>Monto aprobado</span></th>
+                                    <th md-column><span>Monto abonado</span></th>
                                 </tr>
                                 </thead>
                                 <tbody md-body>
@@ -417,6 +422,9 @@
                                     <td md-cell ng-click="goToDetails(request)">{{request.reqAmount | number:2}}</td>
                                     <td md-cell ng-click="goToDetails(request)">
                                         {{(request.approvedAmount | number:2) || '----'}}
+                                    </td>
+                                    <td md-cell ng-click="goToDetails(request)">
+                                        {{(request.paidAmount | number:2) || '----'}}
                                     </td>
                                     <td ng-if="!request.validationDate" md-cell ng-click="goToDetails(request)">
                                         <md-icon style="color: red">

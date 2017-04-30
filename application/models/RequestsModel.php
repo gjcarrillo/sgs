@@ -678,9 +678,7 @@ class RequestsModel extends CI_Model
         // Calculate deductions
         $medicalExpenses = $this->requests->getLastLoanInfo($data['userId'], MEDICAL_EXPENSES);
         if ($medicalExpenses != null) {
-            $contribution = 0.2 * ($data['amount'] + $data['lastLoanFee']);
-            $data['medicalContribution'] = $medicalExpenses->saldo_actual > $contribution ?
-                $contribution : $medicalExpenses->saldo_actual;
+            $data['medicalContribution'] = 0.2 * $medicalExpenses->saldo_actual;
         } else { $data['medicalContribution'] = 0;}
         $data['lastLoanBalance'] = intval($lastLoan ? $lastLoan->saldo_actual : 0, 10);
         $deductions = $request->getAdditionalDeductions();

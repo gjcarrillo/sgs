@@ -720,8 +720,8 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
     };
 
     self.calculateMedicalDebtContribution = function (reqAmount, data) {
-        var contribution = 0.2 * (reqAmount + data.lastLoanFee);
-        return contribution ? (data.medicalDebt > contribution ? contribution : data.medicalDebt) : null;
+        var contribution = 0.2 * data.medicalDebt;
+        return contribution ? contribution : null;
     };
 
     self.calculateNewInterest = function (reqAmount, data) {

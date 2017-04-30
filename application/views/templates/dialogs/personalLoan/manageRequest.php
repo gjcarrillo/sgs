@@ -207,7 +207,7 @@
                                 <td md-cell>{{(calculateTotals(2) | number:2) || '----'}}</td>
                             </tr>
                             <tr md-row>
-                                <td md-cell>Abono (20%) deudas gastos médicos</td>
+                                <td md-cell>Abono (20%) deuda de gastos médicos</td>
                                 <td md-cell ng-class="{deduction : calculateTotals(3)}">{{(calculateMedicalDebtContribution() | number:2) || '----'}}-</td>
                                 <td md-cell>{{(calculateTotals(3) | number:2) || '----'}}</td>
                             </tr>

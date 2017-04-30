@@ -102,6 +102,8 @@ class ManageRequestController extends CI_Controller {
 						$totalPaid = $this->requests->generateApprovalDocument($request, $doc);
 						$changes = $changes . '<br/><div>Se le está realizando el abono de Bs. ' . number_format($totalPaid, 2) .
 								   '. En menos de 24h hábiles estaremos notificándole al respecto.</div>';
+						// Set paid amount
+						$request->setPaidAmount($totalPaid);
 						// Register paid money in history action
 						$action = new \Entity\HistoryAction();
 						$action->setSummary("Monto a abonar calculado.");

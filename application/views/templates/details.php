@@ -142,8 +142,8 @@
                                     Fecha: {{req.creationDate}}
                                 </h3>
                                 <h4>
-                                    Monto solicitado: Bs
-                                    {{req.reqAmount | number:2}}
+                                    Monto aprobado/solicitado (Bs):
+                                    {{(req.approvedAmount | number:2) || '----'}} / {{req.reqAmount | number:2}}
                                 </h4>
                                 <p>
                                     {{req.comment}}
@@ -315,12 +315,12 @@
                             <md-icon class="info-icon">info_outline</md-icon>
                             <div class="md-list-item-text" layout="column">
                                 <h3>Estatus de la solicitud: {{req.status}}</h3>
-                                <h4 ng-if="req.reunion">
-                                    Reunión &#8470; {{req.reunion}}
+                                <h4 ng-if="req.paidAmount">
+                                    Monto abonado: Bs
+                                    {{req.paidAmount | number:2}}
                                 </h4>
-                                <p ng-if="req.approvedAmount">
-                                    Monto aprobado: Bs
-                                    {{req.approvedAmount | number:2}}
+                                <p ng-if="req.reunion">
+                                    Reunión &#8470; {{req.reunion}}
                                 </p>
                             </div>
                         </md-list-item>
