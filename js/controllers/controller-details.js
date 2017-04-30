@@ -618,7 +618,7 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
         $mdDialog.show({
             parent: parentEl,
             targetEvent: $event,
-            templateUrl: Requests.getManageRequestDialog(request.type),
+            templateUrl: Requests.getManageRequestDialog($scope.req.type),
             clickOutsideToClose: false,
             escapeToClose: false,
             fullscreen: $mdMedia('xs'),

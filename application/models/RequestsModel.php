@@ -822,13 +822,13 @@ class RequestsModel extends CI_Model
                     return $span - ($diff['months'] + $diff['years'] * 12);
                 }
             } else {
-                $lastRequest = $this->getLastRequest($uid, $lastLoan);
+                $lastRequest = $this->getLastRequest($uid, CASH_VOUCHER);
                 if ($lastRequest == null || !$lastRequest->getValidationDate()) {
                     // if last Request is null or it is yet to be validated, it means user has not made requests
                     // from this systems yet, so if it's already paid (0 or less balance), he can request.
-                    return $lastLoan->saldo_actual;
+                    return 0;
                 } else {
-                    $granting = date_create_from_format('d/m/Y', $lastRequest->getValidationDate()->modify('+1 day'));
+                    $granting = $lastRequest->getValidationDate();
                     $currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
                     $diff = $this->utils->getDateInterval($currentDate, $granting);
                     return $span - ($diff['months'] + $diff['years'] * 12);
@@ -1245,18 +1245,23 @@ class RequestsModel extends CI_Model
             $span = $this->configModel->getRequestSpan(CASH_VOUCHER);
             $result['granting']['span'] = $span;
             $config = $em->getRepository('\Entity\Config');
-            $lastLoan = $this->requests->getLastLoanInfo($uid, CASH_VOUCHER);
-            if ($lastLoan == null) {
+            $lastRequest = $this->getLastRequest($uid, CASH_VOUCHER);
+            if ($lastRequest == null) {
                 // Seems like this is their first request. Grant permission to create!
                 $result['granting']['allow'] = true;
             } else {
-                $result['granting']['allow'] = $lastLoan->saldo_actual <= 0;
-                $lastRequest = $this->getLastRequest($uid, CASH_VOUCHER);
-                if ($lastRequest != null) {
-                    // if last Request is null it means user has not made requests from this systems yet, so we cannot
-                    // tell when will he be able to request again.
-                    $granting = $lastRequest->getValidationDate()->modify('+1 day');
+                $granting = $lastRequest->getValidationDate();
+                if (!$granting) {
+                    // This would mean last request is open (not validated).
+                    $result['granting']['allow'] = false;
+                } else {
+                    $lastLoan = $this->getLastLoanInfo($uid, CASH_VOUCHER);
+                    $currentDate = new DateTime('now', new DateTimeZone('America/Barbados'));
+                    $diff = $this->utils->getDateInterval($currentDate, $granting);
                     // Tell user when will he be able to request again in case time constrain is not over.
+                    $result['granting']['allow'] =
+                        // Allow if time constrain is over OR if all the debt was paid.
+                        ($diff['months'] + ($diff['years'] * 12) >= $span) || ($lastLoan != null && $lastLoan->saldo_edo <= 0);
                     $result['granting']['dateAvailable'] =
                         $granting->modify('+' . $span . ' month')->format('d/m/Y');
                 }
