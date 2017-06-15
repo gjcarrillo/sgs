@@ -126,6 +126,9 @@
                                 </md-icon>
                             </md-input-container>
                         </div>
+                        <div ng-repeat="f in errFiles" style="color:red" layout-padding>
+                            Error en archivo {{f.name}}: {{showError(f.$error, f.$errorParam)}}
+                        </div>
                     </div>
                 </div>
                 <!-- Extra deductions -->
@@ -276,9 +279,6 @@
                     </md-card-actions>
                 </md-card>
             </div>
-        </div>
-        <div ng-repeat="f in errFiles" style="color:red" layout-padding>
-            Error en archivo {{f.name}}: {{showError(f.$error, f.$errorParam)}}
         </div>
     </md-dialog-content>
     <md-dialog-actions>

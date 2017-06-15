@@ -172,6 +172,9 @@
                         </table>
                     </md-table-container>
                 </md-card>
+                <div ng-repeat="f in errFiles" style="color:red" layout-padding>
+                    Error en archivo {{f.name}}: {{showError(f.$error, f.$errorParam)}}
+                </div>
             </div>
         </div>
         <div layout layout-xs="column" layout-padding>
@@ -223,9 +226,6 @@
                     </md-card-actions>
                 </md-card>
             </div>
-        </div>
-        <div ng-repeat="f in errFiles" style="color:red" layout-padding>
-            Error en archivo {{f.name}}: {{showError(f.$error, f.$errorParam)}}
         </div>
     </md-dialog-content>
     <md-dialog-actions>

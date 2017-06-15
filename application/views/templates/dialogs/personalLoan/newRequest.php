@@ -26,8 +26,8 @@
     <md-dialog-content layout-padding ng-if="!loading">
         <form name="applicantForm">
             <!-- Requested amount -->
-            <div layout layout-xs="column" layout-align="start start">
-                <div>
+            <div layout layout-xs="column">
+                <div flex flex-gt-xs="50">
                     <md-card>
                         <div layout="column" class="amount-wrapper">
                             <div
@@ -206,7 +206,7 @@
                     </div>
                 </div>
                 <!-- information of interest for personal loan -->
-                <div layout="column" layout-align="start start" id="info">
+                <div layout="column" layout-align="start start" id="info" flex flex-gt-xs="50">
                     <md-card class="grayish">
                         <md-card-title>
                             <span class="grey-color"><b>Monto máximo a solicitar</b></span>

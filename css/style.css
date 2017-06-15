@@ -21,7 +21,8 @@ footer {
 }
 
 .wide-dialog {
-    min-width: 60%;
+    min-width: 80%;
+    min-height: 60%;
 }
 
 .help-card {
@@ -360,8 +361,8 @@ md-select.no-md-select .md-select-value {
 }
 
 .full-screen-dialog {
-    max-width: 100%;
-    max-height: 100%;
+    min-width: 100%;
+    min-height: 100%;
 }
 
 .amount-wrapper {
