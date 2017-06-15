@@ -870,7 +870,7 @@ class RequestsModel extends CI_Model
                         $em->persist($action);
                         $em->merge($request);
                         $em->persist($deductionEntity);
-                    } else if (isset($original)) {
+                    } else if (isset($original) && $original->getAmount() != $deduction['amount']) {
                         // Previous deduction found. Update original deduction amount.
                         $action = new \Entity\HistoryAction();
                         $action->setSummary("Deducción adicional modificada");
