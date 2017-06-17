@@ -4,3 +4,4 @@ vendor/
 .env
 client_secret.json
 .credentials
+application/models/orm/Proxies/
