@@ -64,8 +64,8 @@ class EditRequestController extends CI_Controller {
 					$em->persist($history);
                     $em->flush();
                     $result['request'] = $this->utils->reqToArray($request);
-                    $this->load->model('emailModel', 'email');
-                    $this->email->sendRequestUpdateEmail(
+                    $this->load->model('emailModel');
+                    $this->emailModel->sendRequestUpdateEmail(
                         $request->getId(),
                         $loanTypes[$request->getLoanType()]->DescripcionDelPrestamo,
                         $changes
@@ -222,8 +222,8 @@ class EditRequestController extends CI_Controller {
 						// Update doc description
 						$document->setDescription($data['description']);
 						$em->merge($document);
-						$this->load->model('emailModel', 'email');
-                        $this->email->sendRequestUpdateEmail(
+						$this->load->model('emailModel');
+                        $this->emailModel->sendRequestUpdateEmail(
                             $request->getId(),
                             $loanTypes[$request->getLoanType()]->DescripcionDelPrestamo,
                             $changes

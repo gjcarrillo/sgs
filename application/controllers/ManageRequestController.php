@@ -123,8 +123,8 @@ class ManageRequestController extends CI_Controller {
 						$request->setComment($data['comment']);
 					}
 					$em->merge($request);
-					$this->load->model('emailModel', 'email');
-					$this->email->sendRequestUpdateEmail(
+					$this->load->model('emailModel');
+					$this->emailModel->sendRequestUpdateEmail(
                         $request->getId(),
                         $loanTypes[$request->getLoanType()]->DescripcionDelPrestamo,
                         $changes

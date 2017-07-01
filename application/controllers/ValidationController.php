@@ -6,7 +6,7 @@ class ValidationController extends CI_Controller {
 
     public function __construct() {
         parent::__construct();
-        $this->load->model('emailModel', 'email');
+        $this->load->model('emailModel');
         $this->load->model('requestsModel', 'requests');
         $this->load->library('session');
     }
@@ -36,7 +36,7 @@ class ValidationController extends CI_Controller {
                 $this->load->model('historyModel', 'history');
                 $this->history->registerValidation($request->getId());
                 $request->setValidationDate(new DateTime('now', new DateTimeZone('America/Barbados')));
-                $this->email->sendNewRequestEmail($request->getId());
+                $this->emailModel->sendNewRequestEmail($request->getId());
                 $em->merge($request);
                 $em->flush();
                 $em->clear();
