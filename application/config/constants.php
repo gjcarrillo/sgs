@@ -112,7 +112,7 @@ define('RECEIVED', 'Recibida');
 define('PRE_APPROVED', 'Pre-Aprobada');
 define('APPROVED', 'Aprobada');
 define('REJECTED', 'Rechazada');
-define('STATUSES', array('Recibida', 'Pre-Aprobada', 'Aprobada', 'Rechazada'));
+const STATUSES = array('Recibida', 'Pre-Aprobada', 'Aprobada', 'Rechazada');
 /* ======================================
                 MAILGUN
 =========================================*/
@@ -122,7 +122,7 @@ define('MAILGUN_SENDER', getenv('MAILGUN_SENDER'));
 /* ======================================
              HISTORY ACTIONS
 =========================================*/
-define('HISTORY_ACTIONS_CODES', array(
+const HISTORY_ACTIONS_CODES = array(
     'creation' => 1,
     'addition' => 2,
     'modification' => 3,
@@ -131,8 +131,9 @@ define('HISTORY_ACTIONS_CODES', array(
     'report' => 6,
     'validation' => 7,
     'update' => 8
-));
-define('HISTORY_ACTIONS_NAMES', array(
+);
+
+const HISTORY_ACTIONS_NAMES = array(
     1 => 'Creación',
     2 => 'Adición',
     3 => 'Modificación',
@@ -141,7 +142,7 @@ define('HISTORY_ACTIONS_NAMES', array(
     6 => 'Reporte',
     7 => 'Validación',
     8 => 'Actualización'
-));
+);
 
 /* ======================================
        Google Drive API

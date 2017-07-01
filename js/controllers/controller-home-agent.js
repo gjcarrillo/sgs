@@ -494,6 +494,10 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant, $wind
                 $scope.model.reqAmount = $scope.model.maxReqAmount;
             };
 
+            $scope.isObjEmpty = function (obj) {
+                return Utils.isObjEmpty(obj);
+            };
+
             // Shows a dialog asking user to confirm the request creation.
             $scope.confirmOperation = function (ev) {
                 Utils.showConfirmDialog(
@@ -732,6 +736,10 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant, $wind
             // Sets the bound input to the max possibe request amount
             $scope.setMax = function() {
                 $scope.model.reqAmount = $scope.model.maxReqAmount;
+            };
+
+            $scope.isObjEmpty = function (obj) {
+                return Utils.isObjEmpty(obj);
             };
 
             // Shows a dialog asking user to confirm the request creation.

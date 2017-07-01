@@ -336,6 +336,10 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
                 $scope.model.reqAmount = $scope.model.maxReqAmount;
             };
 
+            $scope.isObjEmpty = function (obj) {
+                return Utils.isObjEmpty(obj);
+            };
+
             // Shows a dialog asking user to confirm the request creation.
             $scope.confirmOperation = function (ev) {
                 Utils.showConfirmDialog(

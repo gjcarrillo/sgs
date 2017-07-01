@@ -251,6 +251,11 @@ md-list .md-button {
     padding-top: 30px;
 }
 
+.no-debts {
+    margin-top: 16px;
+    color: green;
+}
+
 .padding-sides {
     padding: 0 8px;
 }

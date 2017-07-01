@@ -579,7 +579,7 @@ class RequestsModel extends CI_Model
                                                                          $data['reqAmount'], $terms, $data['loanType']);
                 throw new Exception ("Su concurrencia con el nuevo préstamo excede el 40%. Su concurrencia " .
                                      "actual (" . $userData->concurrencia ."%) le permite una cuota máxima de Bs. " .
-                                     number_format($maxPaymentFee, 2) .
+                                     $maxPaymentFee .
                                      ", por lo que debe elegir como mínimo un plazo de " . $maxTerms . " meses o " .
                                      "solicitar un monto menor.");
             } else if (($diff['months'] + ($diff['years'] * 12) < 6)) {
@@ -587,7 +587,7 @@ class RequestsModel extends CI_Model
             } else if (!$editMode && !$this->utils->checkPreviousRequests($data['userId'], $data['loanType'])) {
                 // Another request of same type is already open.
                 throw new Exception ('Usted ya posee una solicitud del tipo ' .
-                                     $loanTypes[$data['loanType']]->description . ' en transcurso.');
+                                     $loanTypes[$data['loanType']]->DescripcionDelPrestamo . ' en transcurso.');
             } else if ($this->requests->getSpanLeft($data['userId'], $data['loanType']) > 0 &&
                        ($lastLoan != null && $lastLoan->saldo_edo > 0)) {
                 // Span between requests of same type not yet through and debts still not paid.
@@ -617,7 +617,7 @@ class RequestsModel extends CI_Model
             $data = $this->getPersonalLoanDocData($request);
             $html = $this->load->view('templates/docsTemplates/personalLoan/newRequest', $data, true);
         }
-        $this->load->library('pdf');
+        $this->load->library('Pdf');
         $pdf = $this->pdf->load();
         $pdf->WriteHTML($html); // write the HTML into the PDF
         $pdfFilePath = DropPath . $data['lpath'];
@@ -730,7 +730,7 @@ class RequestsModel extends CI_Model
             $html = $this->load->view('templates/docsTemplates/personalLoan/requestApproval', $data, true);
         }
         // Generate the document.
-        $this->load->library('pdf');
+        $this->load->library('Pdf');
         $pdf = $this->pdf->load();
         $pdf->WriteHTML($html); // write the HTML into the PDF
         $pdfFilePath = DropPath . $doc['lpath'];
@@ -1188,7 +1188,7 @@ class RequestsModel extends CI_Model
             $this->ipapedi_db->where('cedula', $uid);
             $query = $this->ipapedi_db->get();
             if (empty($query->result())) {
-                return null;
+                return [];
             } else {
                 return $query->result();
             }

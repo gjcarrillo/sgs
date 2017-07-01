@@ -175,7 +175,7 @@
                             <md-progress-circular
                                 ng-if="loadingDeductions" md-mode="indeterminate" md-diameter="60">
                             </md-progress-circular>
-                            <div ng-if="model.deductions" layout-align="start start">
+                            <div ng-if="model.deductions && !isObjEmpty(model.deductions)" layout-align="start start">
                                 <md-table-container>
                                     <table md-table>
                                         <thead md-head>
@@ -201,6 +201,9 @@
                                         </tbody>
                                     </table>
                                 </md-table-container>
+                            </div>
+                            <div ng-if="model.deductions && isObjEmpty(model.deductions)" layout-align="start start">
+                                <span class="no-debts">Ud. no posee préstamos concurrentes</span>
                             </div>
                         </div>
                     </div>
