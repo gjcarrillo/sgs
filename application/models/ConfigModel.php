@@ -94,7 +94,7 @@ class ConfigModel extends CI_Model
     private function getPersonalLoan($id){
         $this->ipapedi_db = $this->load->database('ipapedi_db', true);
         $this->ipapedi_db->select('*');
-        $this->ipapedi_db->from('prestamospersonales');
+        $this->ipapedi_db->from('PrestamosPersonales');
         $this->ipapedi_db->where('id', $id);
         $query = $this->ipapedi_db->get();
         if (empty($query->result())) {
@@ -108,7 +108,7 @@ class ConfigModel extends CI_Model
     private function getShortTermLoan($id) {
         $this->ipapedi_db = $this->load->database('ipapedi_db', true);
         $this->ipapedi_db->select('*');
-        $this->ipapedi_db->from('prestamosacortoplazo');
+        $this->ipapedi_db->from('PrestamosACortoPlazo');
         $this->ipapedi_db->where('id', $id);
         $query = $this->ipapedi_db->get();
         if (empty($query->result())) {
