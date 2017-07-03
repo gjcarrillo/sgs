@@ -375,6 +375,14 @@ md-select.no-md-select .md-select-value {
     background-color: #F5F5F6;
 }
 
+.full-width {
+    width: 100% !important;
+}
+
+.max-wrapper{
+    background-color: #F5F5F6;
+}
+
 .grayish {
     background-color: #F5F5F6;
 }
@@ -434,6 +442,10 @@ md-select.no-md-select .md-select-value {
 
 .margin-16 {
     margin: 16px;
+}
+
+.margin-left {
+    margin-left: 16px;
 }
 
 .white-txt {

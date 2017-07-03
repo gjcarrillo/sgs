@@ -8,10 +8,6 @@
             <md-icon>help_outline</md-icon>
             <md-tooltip md-direction="bottom">Ayuda</md-tooltip>
         </md-button>
-        <md-button class="md-icon-button" ng-click="logout()" aria-label="Logout">
-            <md-icon>exit_to_app</md-icon>
-            <md-tooltip md-direction="bottom">Cerrar sesión</md-tooltip>
-        </md-button>
     </div>
 </md-toolbar>
 <main>

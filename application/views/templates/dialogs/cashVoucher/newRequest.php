@@ -29,23 +29,21 @@
             <div layout layout-xs="column">
                 <div flex flex-gt-xs="50">
                     <md-card>
-                        <div layout="column" class="amount-wrapper">
-                            <div
-                                layout layout-align="center"
-                                class="grey-color">
-                                <b>Monto solicitado (Bs)</b>
-                            </div>
-                            <div layout>
+                        <div layout>
+                            <div layout="column" class="amount-wrapper full-width">
+                                <div
+                                    layout layout-align="center"
+                                    class="grey-color">
+                                    <b>Monto solicitado (Bs)</b>
+                                </div>
                                 <md-input-container
                                     id="req-amount"
-                                    flex="70"
-                                    flex-xs="100"
-                                    flex-offset="15"
-                                    flex-offset-xs="0"
+                                    flex="100"
                                     md-no-float
-                                    class="md-icon-right no-vertical-margin">
+                                    class="no-vertical-margin margin-left">
                                     <input
                                         ng-readonly="uploading"
+                                        set-limit="model.maxReqAmount"
                                         ng-model="model.reqAmount"
                                         type="number"
                                         max="{{model.maxReqAmount}}"
@@ -53,17 +51,18 @@
                                         name="reqAmount"
                                         required
                                         placeholder="Ej: 300000.25"/>
-                                    <md-icon
-                                        class="pointer"
-                                        ng-click="uploading ? null : setMax()">
-                                        all_out
-                                        <md-tooltip md-direction="bottom">Max</md-tooltip>
-                                    </md-icon>
                                     <div ng-messages="applicantForm.reqAmount.$error" ng-show="applicantForm.reqAmount.$dirty">
                                         <div ng-message="required">¡Este campo es obligatorio!</div>
                                         <div ng-message="max">Monto máximo: Bs. {{model.maxReqAmount | number:2}}</div>
                                     </div>
                                 </md-input-container>
+                            </div>
+                            <div layout="column" layout-align="center center" class="max-wrapper">
+                                <md-button hide-xs class="md-primary" ng-click="uploading ? null : setMax()">Max</md-button>
+                                <md-button hide show-xs class="md-icon-button" ng-click="uploading ? null : setMax()" aria-label="Max">
+                                    <md-icon>all_out</md-icon>
+                                    <md-tooltip md-direction="bottom">Max</md-tooltip>
+                                </md-button>
                             </div>
                         </div>
                     </md-card>
