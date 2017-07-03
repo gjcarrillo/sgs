@@ -214,8 +214,8 @@
                         </md-card-title>
                         <md-divider></md-divider>
                         <md-card-content>
-                            <div layout="column" layout-align="start" class="md-table-text">
-                                <span>80% de sus aportes totales ({{model.data.contribution | number:2}})
+                            <div layout="column" layout-align="start">
+                                <span class="data-table-text">80% de sus aportes totales ({{model.data.contribution | number:2}})
                                     igual a Bs. {{model.maxReqAmount | number:2}}</span>
                             </div>
                         </md-card-content>

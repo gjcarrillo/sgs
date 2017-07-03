@@ -375,6 +375,11 @@ md-select.no-md-select .md-select-value {
     background-color: #F5F5F6;
 }
 
+.data-table-text {
+    color: rgba(0,0,0,.87);
+    font-size: 13px;
+}
+
 .full-width {
     width: 100% !important;
 }

@@ -159,8 +159,8 @@
                         </md-card-title>
                         <md-divider></md-divider>
                         <md-card-content>
-                            <div layout="column" layout-align="start" class="md-table-text">
-                                <span>{{model.data.percentage}}% de su sueldo ({{model.data.salary | number:2}})
+                            <div layout="column" layout-align="start">
+                                <span class="data-table-text">{{model.data.percentage}}% de su sueldo ({{model.data.salary | number:2}})
                                     igual a Bs. {{model.maxReqAmount | number:2}}</span>
                             </div>
                         </md-card-content>
