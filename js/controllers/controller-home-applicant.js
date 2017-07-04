@@ -796,7 +796,8 @@ function userHome($scope, $cookies, $timeout, Config, Applicant,
     }
 
     $scope.loadUserData = function() {
+        preserveState();
         sessionStorage.setItem("fetchId", fetchId);
-        window.open(Utils.getUserDataUrl(), '_blank');
+        $state.go('userInfo');
     };
 }

@@ -2,9 +2,9 @@ angular
     .module('sgdp')
     .controller('UserInfoController', info);
 
-info.$inject = ['$scope', '$http', 'Utils', 'Constants'];
+info.$inject = ['$scope', '$http', 'Utils', 'Constants', '$window'];
 
-function info($scope, $http, Utils, Constants) {
+function info($scope, $http, Utils, Constants, $window) {
     'use strict';
 
     // If no data has been sent, show nothing.
@@ -36,5 +36,9 @@ function info($scope, $http, Utils, Constants) {
         } else {
             return {'color':'red'};
         }
+    };
+
+    $scope.goBack = function () {
+        $window.history.go(-1);
     };
 }

@@ -1,5 +1,10 @@
 <md-toolbar layout-padding>
     <div class="md-toolbar-tools">
+        <md-button ng-click="goBack()" class="md-icon-button">
+            <md-icon>
+                arrow_back
+            </md-icon>
+        </md-button>
         <h2 class="md-headline">
             <span>Detalles de usuario</span>
         </h2>
@@ -7,6 +12,10 @@
         <md-button class="md-icon-button" user-info-help ng-click="showHelp()" aria-label="Help">
             <md-icon>help_outline</md-icon>
             <md-tooltip md-direction="bottom">Ayuda</md-tooltip>
+        </md-button>
+        <md-button class="md-icon-button" ng-click="logout()" aria-label="Logout">
+            <md-icon>exit_to_app</md-icon>
+            <md-tooltip md-direction="bottom">Cerrar sesión</md-tooltip>
         </md-button>
     </div>
 </md-toolbar>

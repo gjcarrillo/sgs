@@ -844,7 +844,8 @@ function agentHome($scope, $mdDialog, Constants, Agent, Config, Applicant, $wind
     };
 
     $scope.loadUserData = function() {
+        preserveState();
         sessionStorage.setItem("fetchId", $scope.fetchId);
-        window.open(Utils.getUserDataUrl(), '_blank');
+        $state.go('userInfo');
     };
 }
