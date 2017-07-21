@@ -334,7 +334,7 @@
                 <div class="margin-16" ng-show="!isObjEmpty(requests) && !fetching" id="requests-group">
                     <md-expansion-panel-group md-component-id="requests">
                         <md-expansion-panel ng-repeat="(lKey, loanType) in loanTypes" md-component-id="{{lKey}}">
-                            <md-expansion-panel-collapsed>
+                            <md-expansion-panel-collapsed class="pointer">
                                 <div>Solicitudes de {{loanType.DescripcionDelPrestamo}}</div>
                                 <span flex></span>
                                 <md-expansion-panel-icon></md-expansion-panel-icon>
