@@ -114,6 +114,46 @@
                     </md-button>
                 </md-card-actions>
             </md-card>
+
+            <!-- WAITING FOR REGISTRATION message for AGENTS -->
+            <md-card id="registration-card" class="registration-card" ng-if="req.validationDate && !req.registrationDate && req.status == RECEIVED && userType(AGENT)">
+                <md-card-title class="registration-card-title">EN ESPERA POR REGISTRO</md-card-title>
+                <md-card-content>
+                    <br/>
+                    <p>
+                        Esta solicitud necesita ser registrada en el sistema interno de IPAPEDI antes de proceder a gestionarla.
+                        <br/><br/>
+                        En caso de que el sistema interno no permita crear la solicitud, por favor haga clic
+                        en el botón CERRAR para cerrar la solicitud. De lo contrario, haga clic en CONFIRMAR para permitir
+                        gestionar esta solicitud.
+                    </p>
+                </md-card-content>
+                <md-card-actions layout="row" layout-align="end center">
+                    <md-button
+                        ng-click="validating ? null : closeRequest($event)"
+                        aria-label="Cerrar">
+                            <span ng-if="!validating">
+                                Cerrar
+                                <md-tooltip>Cerrará la solicitud</md-tooltip>
+                            </span>
+                    </md-button>
+                    <md-button
+                        ng-click="validating ? null : confirmRequest($event)"
+                        class="md-primary"
+                        aria-label="Confirmar">
+                            <span ng-if="!validating">
+                                Confirmar
+                                <md-tooltip>Permitirá gestionar esta solicitud</md-tooltip>
+                            </span>
+                        <div ng-if="validating" layout layout-align="center center">
+                            <md-progress-circular
+                                md-mode="indeterminate"
+                                md-diameter="30">
+                            </md-progress-circular>
+                        </div>
+                    </md-button>
+                </md-card-actions>
+            </md-card>
             <!-- Information of interest -->
             <md-card ng-show="req.status == APPROVED && !loading" md-theme="manual-card" class="margin-16 interest-info-card">
                 <md-card-content>

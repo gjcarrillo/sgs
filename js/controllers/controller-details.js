@@ -614,6 +614,76 @@ function details($scope, Utils, Requests, Auth, Config, Constants, $mdDialog, $m
         }
     };
 
+    /*
+     * Mini custom dialog to close a request.
+     */
+    $scope.closeRequest = function ($event) {
+        var parentEl = angular.element(document.body);
+        $mdDialog.show({
+            parent: parentEl,
+            targetEvent: $event,
+            clickOutsideToClose: true,
+            escapeToClose: true,
+            locals: {
+                rid: $scope.req.id
+            },
+            templateUrl: 'ManageRequestController/closeReqDialog',
+            controller: DialogController
+        });
+
+        function DialogController($scope, $mdDialog, rid) {
+
+            $scope.missingField = function () {
+                return !$scope.comment;
+            };
+            $scope.saveEdition = function () {
+                if ($scope.missingField()) {return;}
+                $scope.uploading = true;
+                Requests.closeRequest(rid, $scope.comment).then(
+                    function (updatedReq) {
+                        $scope.uploading = false;
+                        $mdDialog.hide();
+                        Utils.showAlertDialog('Solicitud cerrada', 'La solicitud ha sido cerrada satisfactoriamente.');
+                        sessionStorage.setItem("req", JSON.stringify(updatedReq));
+                        $state.go($state.current, {}, {reload: true})
+                    },
+                    function (errorMsg) {
+                        $scope.uploading = false;
+                        $mdDialog.hide();
+                        Utils.handleError(errorMsg);
+                    }
+                );
+            }
+        }
+    };
+
+    $scope.confirmRequest = function (ev) {
+        Utils.showConfirmDialog(
+            'Confirmación',
+            'Tras confirmar la solicitud ésta podrá ser gestionada. ¿Desea continuar?' ,
+            'Sí',
+            'Cancelar',
+            ev, true).then(
+            function() {
+                $scope.overlay = true;
+                $scope.validating = true;
+                Requests.confirmRequest($scope.req.id).then(
+                    function (date) {
+                        $scope.overlay = false;
+                        $scope.validating = false;
+                        Utils.showAlertDialog('Confirmación exitosa',
+                                              'La solicitud puede ahora ser gestionada.');
+                        $scope.req.registrationDate = date;
+                    },
+                    function (error) {
+                        $scope.overlay = false;
+                        $scope.validating = false;
+                        Utils.handleError(error);
+                    }
+                );
+            });
+    };
+
     /**
      * Custom dialog for updating an existing request (as Manager)
      */

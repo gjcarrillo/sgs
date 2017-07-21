@@ -106,6 +106,13 @@ class Request
     private $validationDate;
 
     /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="registration_date", type="datetime", precision=0, scale=0, nullable=true, unique=false)
+     */
+    private $registrationDate;
+
+    /**
      * @var \Doctrine\Common\Collections\Collection
      *
      * @ORM\OneToMany(targetEntity="Entity\Document", mappedBy="belongingRequest")
@@ -430,6 +437,29 @@ class Request
     public function getValidationDate()
     {
         return $this->validationDate;
+    }
+
+    /**
+     * Set registrationDate
+     *
+     * @param \DateTime $registrationDate
+     * @return Request
+     */
+    public function setRegistrationDate($registrationDate)
+    {
+        $this->registrationDate = $registrationDate;
+
+        return $this;
+    }
+
+    /**
+     * Get registrationDate
+     *
+     * @return \DateTime
+     */
+    public function getRegistrationDate()
+    {
+        return $this->registrationDate;
     }
 
     /**

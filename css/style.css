@@ -58,6 +58,16 @@ footer {
     color: white;
 }
 
+.registration-card {
+    width: 85%;
+    margin-top: 30px;
+}
+
+.registration-card-title {
+    background-color: #F44336;
+    color: white;
+}
+
 .interest-info-card {
     width: 85%;
 }

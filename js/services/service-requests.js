@@ -217,6 +217,54 @@ function reqService($q, $http, Constants, $filter, Utils, Config) {
     };
 
     /**
+     * Closes the specified request.
+     *
+     * @param rid - request's id.
+     * @param comment - closure's comment.
+     */
+    self.closeRequest = function (rid, comment) {
+        var qUpdate = $q.defer();
+        $http.post('ManageRequestController/closeRequest', {rid: rid, comment: comment})
+            .then(
+            function (response) {
+                console.log(response);
+                if (response.data.message == "success") {
+                    qUpdate.resolve(response.data.request);
+                } else {
+                    qUpdate.reject(response.data.message);
+                }
+            },
+            function(response) {
+                console.log(response);
+                qUpdate.reject(response.data.message);
+            });
+        return qUpdate.promise;
+    };
+
+    /**
+     * Confirms the the specified requests has been successfully registered in IPAPEDI's internal system.
+     * @param rid - request's id.
+     */
+    self.confirmRequest = function (rid) {
+        var qUpdate = $q.defer();
+        $http.post('ManageRequestController/confirmRequest', {rid: rid})
+            .then(
+            function (response) {
+                console.log(response);
+                if (response.data.message == "success") {
+                    qUpdate.resolve(response.data.date);
+                } else {
+                    qUpdate.reject(response.data.message);
+                }
+            },
+            function(response) {
+                console.log(response);
+                qUpdate.reject(response.data.message);
+            });
+        return qUpdate.promise;
+    };
+
+    /**
      * Edits the given request.
      *
      * @param postData - data to be sent to the server for editing the request.

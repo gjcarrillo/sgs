@@ -139,4 +139,109 @@ class ManageRequestController extends CI_Controller {
 		}
 		echo json_encode($result);
 	}
+
+	function closeReqDialog () {
+		$this->load->view('templates/dialogs/closeRequest');
+	}
+
+	function closeRequest() {
+		if ($this->session->type != AGENT) {
+			$result['message'] = 'forbidden';
+		} else {
+			$data = json_decode(file_get_contents('php://input'), true);
+			try {
+				$loanTypes = $this->configModel->getLoanTypes();
+				$em = $this->doctrine->em;
+				// Update request
+				$request = $em->find('\Entity\Request', $data['rid']);
+				$this->load->model('requestsModel', 'requests');
+				if ($request->getStatus() != RECEIVED) {
+					$result['message'] = 'Uso incorrecto.';
+				} else {
+					// Register History
+					$history = new \Entity\History();
+					$changes = '';
+					$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
+					$history->setUserResponsible($this->users->getUser($this->session->id));
+					$history->setOrigin($request);
+					$request->addHistory($history);
+					// Register it's corresponding actions
+					$action = new \Entity\HistoryAction();
+					$action->setSummary("Cambio de estatus.");
+					$history->setTitle($this->utils->getHistoryActionCode('closure'));
+					$action->setSummary("Cierre de solicitud.");
+					$action->setBelongingHistory($history);
+					$history->addAction($action);
+					$em->persist($action);
+					$changes = $changes .
+							   "<li>Cambio de estatus: <s>" . $request->getStatus() .
+							   "</s> " . REJECTED . ".</li>";
+					$request->setStatus(REJECTED);
+					$action = new \Entity\HistoryAction();
+					$action->setSummary("Comentario acerca de la solicitud.");
+					$action->setDetail("Comentario realizado: " . $data['comment']);
+					$changes = $changes . '<li>Comentario realizado: ' . $data['comment'] . '</li>';
+					$request->setComment($data['comment']);
+					$action->setBelongingHistory($history);
+					$history->addAction($action);
+					$em->persist($action);
+					$em->persist($history);
+					$em->merge($request);
+					$this->load->model('emailModel');
+					$this->emailModel->sendRequestUpdateEmail(
+						$request->getId(),
+						$loanTypes[$request->getLoanType()]->DescripcionDelPrestamo,
+						$changes
+					);
+					$em->flush();
+					$result['request'] = $this->utils->reqToArray($request);
+					$result['message'] = "success";
+				}
+			} catch (Exception $e) {
+				$result['message'] = $this->utils->getErrorMsg($e);
+			}
+		}
+		echo json_encode($result);
+	}
+
+	function confirmRequest() {
+		if ($this->session->type != AGENT) {
+			$result['message'] = 'forbidden';
+		} else {
+			$data = json_decode(file_get_contents('php://input'), true);
+			try {
+				$em = $this->doctrine->em;
+				// Update request
+				$request = $em->find('\Entity\Request', $data['rid']);
+				$this->load->model('requestsModel', 'requests');
+				if ($request->getStatus() != RECEIVED) {
+					$result['message'] = 'Uso incorrecto.';
+				} else {
+					// Register History
+					$history = new \Entity\History();
+					$history->setDate(new DateTime('now', new DateTimeZone('America/Barbados')));
+					$history->setUserResponsible($this->users->getUser($this->session->id));
+					$history->setTitle($this->utils->getHistoryActionCode('update'));
+					$history->setOrigin($request);
+					$request->addHistory($history);
+					// Register it's corresponding actions
+					$action = new \Entity\HistoryAction();
+					$action->setSummary("Confirmación de solicitud.");
+					$action->setDetail("Solicitud registrada en el sistema de IPAPEDI exitosamente.");
+					$action->setBelongingHistory($history);
+					$history->addAction($action);
+					$em->persist($action);
+					$em->persist($history);
+					$request->setRegistrationDate(new DateTime('now', new DateTimeZone('America/Barbados')));
+					$em->merge($request);
+					$em->flush();
+					$result['date'] = $request->getRegistrationDate()->format('d/m/Y');
+					$result['message'] = "success";
+				}
+			} catch (Exception $e) {
+				$result['message'] = $this->utils->getErrorMsg($e);
+			}
+		}
+		echo json_encode($result);
+	}
 }

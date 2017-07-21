@@ -64,7 +64,7 @@ class ManagerHomeController extends CI_Controller {
                             $statusCounter[$status] = 0;
                         }
 						foreach ($requests as $request) {
-							if ($request->getValidationDate() === null) continue;
+							if ($request->getValidationDate() === null || $request->getRegistrationDate() === null) continue;
                             $result['requests'][$rKey] = $this->utils->reqToArray($request);
 							// Gather pie chart information
                             $statusCounter[$request->getStatus()] ++;
@@ -162,7 +162,7 @@ class ManagerHomeController extends CI_Controller {
                         $statusCounter[$status] = 0;
                     }
                     foreach ($requests as $request) {
-                        if ($request->getValidationDate() === null) continue;
+                        if ($request->getValidationDate() === null || $request->getRegistrationDate() === null) continue;
                         $user = $request->getUserOwner();
                         $result['requests'][$rKey] = $this->utils->reqToArray($request);
                         // Gather pie chart information
@@ -249,7 +249,7 @@ class ManagerHomeController extends CI_Controller {
                 $requests = $requestsRepo->findBy(array("status" => $statuses));
                 $rKey = 0;
                 foreach ($requests as $request) {
-                    if ($request->getValidationDate() === null) continue;
+                    if ($request->getValidationDate() === null || $request->getRegistrationDate() === null) continue;
                     $result['requests'][$rKey] = $this->utils->reqToArray($request);
                     $rKey++;
                 }
@@ -283,7 +283,7 @@ class ManagerHomeController extends CI_Controller {
                         $statusCounter[$status] = 0;
                     }
                     foreach ($requests as $request) {
-						if ($request->getValidationDate() === null) continue;
+						if ($request->getValidationDate() === null || $request->getRegistrationDate() === null) continue;
 						$user = $request->getUserOwner();
                         $result['requests'][$rKey] = $this->utils->reqToArray($request);
                         // Gather up report information
@@ -407,7 +407,7 @@ class ManagerHomeController extends CI_Controller {
                         $statusCounter[$status] = 0;
                     }
                     foreach ($requests as $request) {
-						if ($request->getValidationDate() === null) continue;
+						if ($request->getValidationDate() === null || $request->getRegistrationDate() === null) continue;
 						$user = $request->getUserOwner();
                         $result['requests'][$rKey] = $this->utils->reqToArray($request);
                         // Gather pie chart information
@@ -511,7 +511,7 @@ class ManagerHomeController extends CI_Controller {
                         $statusCounter[$status] = 0;
                     }
 					foreach ($requests as $request) {
-						if ($request->getValidationDate() === null) continue;
+						if ($request->getValidationDate() === null || $request->getRegistrationDate() === null) continue;
 						$user = $request->getUserOwner();
                         $result['requests'][$rKey] = $this->utils->reqToArray($request);
                         // Gather pie chart information
