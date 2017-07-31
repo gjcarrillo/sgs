@@ -184,12 +184,12 @@ gulp.task('html', function () {
 
 gulp.task('images', function () {
   return gulp.src(yeoman.app + '/images/**/*')
-    //.pipe($.cache($.imagemin({
-    //    optimizationLevel: 5,
-    //    progressive: true,
-    //    interlaced: true
-    //})))
     .pipe(gulp.dest(yeoman.dist + '/images'));
+});
+
+gulp.task('copy:back-end', function () {
+  return gulp.src('server/**/*')
+      .pipe(gulp.dest(yeoman.dist + '/server'));
 });
 
 gulp.task('copy:extras', function () {
@@ -203,7 +203,7 @@ gulp.task('copy:fonts', function () {
 });
 
 gulp.task('build', ['clean:dist'], function () {
-  runSequence(['images', 'copy:extras', 'copy:fonts', 'client:build']);
+  runSequence(['images', 'copy:extras', 'copy:fonts', 'copy:back-end', 'client:build']);
 });
 
 gulp.task('default', ['build']);
