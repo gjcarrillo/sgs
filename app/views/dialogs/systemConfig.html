@@ -1,0 +1,245 @@
+<md-dialog aria-label="Edit Request" class="wide-dialog">
+    <!-- Dialog title -->
+    <md-toolbar class="md-table-toolbar md-default">
+        <div class="md-toolbar-tools">
+            <h2>Configuración del sistema</h2>
+            <span flex></span>
+            <md-button class="md-icon-button" config-help ng-click="showHelp()" aria-label="Help">
+                <md-icon>help_outline</md-icon>
+                <md-tooltip md-direction="top">Ayuda</md-tooltip>
+            </md-button>
+            <md-button ng-show="!uploading" class="md-icon-button" ng-click="closeDialog()">
+                <md-icon aria-label="Close dialog">close</md-icon>
+            </md-button>
+        </div>
+    </md-toolbar>
+    <md-dialog-content>
+        <md-tabs md-border-bottom="true" md-dynamic-height="true" md-stretch-tabs="never" md-swipe-content="true">
+            <md-tab label="Estatus de solicitudes" md-on-select="selectTab(1)">
+                <md-content layout-padding>
+                    <div>
+                        <div layout layout-xs="column">
+                            <div flex="45" flex-xs="100">
+                                <p>Estatus del sistema (no editables)</p>
+                                <md-chips
+                                    ng-model="statuses.systemStatuses"
+                                    readonly="true">
+                                </md-chips>
+                            </div>
+                            <div flex="45" flex-xs="100" flex-offset="10" flex-offset-xs="0">
+                                <div layout>
+                                    <p>Estatus en uso (no editables)</p>
+                                    <div layout layout-align="center center">
+                                        <md-progress-circular
+                                            ng-if="statuses.loading"
+                                            md-mode="indeterminate"
+                                            md-diameter="30">
+                                        </md-progress-circular>
+                                    </div>
+                                </div>
+                                <md-chips
+                                    ng-model="statuses.inUse"
+                                    readonly="true">
+                                </md-chips>
+                            </div>
+                        </div>
+                        <div layout>
+                            <p>Estatus adicionales (presione ENTER para ingresarlos)</p>
+                            <div layout layout-align="center center">
+                                <md-progress-circular
+                                    ng-if="statuses.loading"
+                                    md-mode="indeterminate"
+                                    md-diameter="30">
+                                </md-progress-circular>
+                            </div>
+                        </div>
+                        <md-chips
+                            id="additional-statuses"
+                            ng-model="statuses.newStatuses"
+                            readonly="statuses.loading"
+                            placeholder="Nuevo estatus"
+                            delete-button-label="Delelete status"
+                            delete-hint="Borrar Estatus">
+                        </md-chips>
+                    </div>
+                    <!-- Operation error -->
+                    <div ng-if="statuses.errorMsg != ''" layout layout-align="center center" class="md-padding">
+                        <span style="color:red">{{statuses.errorMsg}}</span>
+                    </div>
+                </md-content>
+            </md-tab>
+            <md-tab label="Monto a solicitar" md-on-select="selectTab(2)">
+                <md-content layout-padding>
+                    <form name="amountsForm">
+                        <div layout="column">
+                            <div layout>
+                                <span class="grey-color">
+                                    Especifique el porcentaje del sueldo del asociado que se puede solicitar en
+                                    préstamos de {{loanConcepts[LoanTypes.CASH_VOUCHER].DescripcionDelPrestamo}}.
+                                </span>
+                                <md-progress-circular
+                                    ng-if="amount.max.loading"
+                                    md-mode="indeterminate"
+                                    md-diameter="30">
+                                </md-progress-circular>
+                            </div>
+                            <md-input-container
+                                id="max-amount"
+                                md-no-float
+                                class="no-vertical-margin">
+                                <input required name="maxAmount"
+                                       type="number"
+                                       ng-min="amount.min.new"
+                                       ng-model="amount.max.new"
+                                       placeholder="Ej: 30"/>
+                                <div ng-messages="amountsForm.maxAmount.$error" ng-show="amountsForm.maxAmount.$dirty">
+                                    <div ng-message="required">¡Este campo es obligatorio!</div>
+                                </div>
+                            </md-input-container>
+                        </div>
+                    </form>
+                </md-content>
+            </md-tab>
+            <!-- Requests frequency restrain -->
+            <md-tab label="Frecuencia" md-on-select="selectTab(3)">
+                <md-content layout-padding>
+                    <form name="freqForm">
+                        <div layout="column">
+                            <div layout>
+                                <span class="grey-color">Elija el tipo de préstamo</span>
+                                <md-progress-circular
+                                    ng-if="span.loading"
+                                    md-mode="indeterminate"
+                                    md-diameter="30">
+                                </md-progress-circular>
+                            </div>
+                            <md-input-container id="span-select" class="requestItems">
+                                <md-select
+                                    ng-disabled="span.loading"
+                                    placeholder="Seleccione el tipo de préstamo"
+                                    ng-model="selectedQuery">
+                                    <md-option ng-value="lKey" ng-repeat="(lKey, loanType) in loanTypes">
+                                        {{loanType.DescripcionDelPrestamo}}
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                            <div ng-if="selectedQuery" layout="column">
+                                <span class="grey-color">Ingrese la frecuencia (en meses) a transcurrir entre solicitudes</span>
+                                <md-input-container
+                                    id="min-span"
+                                    md-no-float>
+                                    <input required
+                                           name="value"
+                                           type="number"
+                                           ng-min="0"
+                                           ng-model="loanTypes[selectedQuery].span"
+                                           placeholder="Ej: 4"/>
+                                    <div ng-messages="freqForm.value.$error" ng-show="freqForm.value.$dirty">
+                                        <div ng-message="required">¡Este campo es obligatorio!</div>
+                                        <div ng-message="min">El mínimo es 0</div>
+                                    </div>
+                                </md-input-container>
+                            </div>
+                            </div>
+                        <div ng-if="span.errorMsg != ''" layout layout-align="center center" class="md-padding">
+                            <span style="color:red">{{span.errorMsg}}</span>
+                        </div>
+                    </form>
+                </md-content>
+            </md-tab>
+            <!-- Requests Terms -->
+            <md-tab label="Plazos" md-on-select="selectTab(4)">
+                <md-content layout-padding>
+                    <form name="termsForm">
+                        <div layout="column">
+                            <div layout>
+                                <span class="grey-color">Elija el tipo de préstamo</span>
+                                <md-progress-circular
+                                    ng-if="terms.loading"
+                                    md-mode="indeterminate"
+                                    md-diameter="30">
+                                </md-progress-circular>
+                            </div>
+                            <md-input-container id="terms-select" class="requestItems">
+                                <md-select
+                                    ng-disabled="terms.loading"
+                                    placeholder="Seleccione el tipo de préstamo"
+                                    ng-model="selectedQuery">
+                                    <md-option ng-value="lKey" ng-repeat="(lKey, loanType) in loanTypes">
+                                        {{loanType.DescripcionDelPrestamo}}
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                            <div ng-if="selectedQuery" layout="column">
+                                <span class="grey-color">Ingrese los plazos a pagar en meses (presione ENTER para ingresarlos) <br/><br/></span>
+                                <span class="grey-color">Debe ser menor a
+                                    {{loanTypes[selectedQuery].PlazoEnMeses}}
+                                    {{loanTypes[selectedQuery].PlazoEnMeses == 1 ? 'mes' : 'meses'}}
+                                    <br/></span>
+                                <md-chips
+                                    id="terms"
+                                    md-on-add="checkTerm(selectedQuery)"
+                                    ng-model="loanTypes[selectedQuery].terms"
+                                    delete-button-label="Delelete term"
+                                    delete-hint="Borrar Plazo">
+                                    <input type="number"
+                                           name="terms"
+                                           placeholder="Ingrese un plazo (ej: 24)"/>
+                                    <div ng-messages="termsForm.terms.$error" ng-show="termsForm.terms.$dirty">
+                                        <div ng-message="max">
+                                            El plazo debe ser menor a {{loanTypes[selectedQuery].PlazoEnMeses}}
+                                        </div>
+                                        <div ng-message="min">
+                                            El plazo debe ser mayor a 0
+                                        </div>
+                                    </div>
+                                </md-chips>
+                            </div>
+                        </div>
+                        <div ng-if="terms.errorMsg != ''" layout layout-align="center center" class="md-padding">
+                            <span style="color:red">{{terms.errorMsg}}</span>
+                        </div>
+                    </form>
+                </md-content>
+            </md-tab>
+        </md-tabs>
+    </md-dialog-content>
+    <md-dialog-actions>
+        <md-button
+            id="save-statuses"
+            ng-if="selectedTab == 1"
+            ng-disabled="!updatedStatuses()"
+            ng-hide="uploading" ng-click="updateStatuses()"
+            class="md-primary">
+            Guardar
+        </md-button>
+        <md-button
+            id="save-amounts"
+            ng-if="selectedTab == 2"
+            ng-disabled="missingField()"
+            ng-hide="uploading" ng-click="updateReqAmount()"
+            class="md-primary">
+            Guardar
+        </md-button>
+        <md-button
+            id="save-span"
+            ng-if="selectedTab == 3"
+            ng-disabled="missingSpan()"
+            ng-hide="uploading" ng-click="updateRequestsSpan()"
+            class="md-primary">
+            Guardar
+        </md-button>
+        <md-button
+            id="save-terms"
+            ng-if="selectedTab == 4"
+            ng-disabled="missingTerms()"
+            ng-hide="uploading" ng-click="updateRequestsTerms()"
+            class="md-primary">
+            Guardar
+        </md-button>
+        <md-progress-circular ng-show="uploading" md-mode="indeterminate" md-diameter="60"></md-progress-circular>
+        <md-button ng-disabled="uploading" ng-click="closeDialog()" class="md-primary">
+            Cancelar
+        </md-button>
+    </md-dialog-actions>
+</md-dialog>

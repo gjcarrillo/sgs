@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+  <head>
+    <base href="/sgs/app/">
+    <meta charset="utf-8">
+    <title>SGS - Sistema de Gestión de Solicitudes de IPAPEDI</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Import Google Roboto Font Family -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic">
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+    <link href="images/favicon.ico" type="image/x-icon" rel="shortcut icon" />
+    <!-- build:css(.) styles/vendor.css -->
+    <link rel="stylesheet" href="bower_components/angular-material/angular-material.css" />
+    <link rel="stylesheet" href="bower_components/angular-material-data-table/dist/md-data-table.css" />
+    <link rel="stylesheet" href="bower_components/angular-material-expansion-panel/dist/md-expansion-panel.css" />
+    <link rel="stylesheet" href="bower_components/animate.css/animate.css" />
+    <!-- bower:css -->
+    <!-- endbower -->
+    <!-- endbuild -->
+    <!-- build:css(.tmp) styles/main.css -->
+    <link rel="stylesheet" href="styles/main.css">
+    <!-- endbuild -->
+  </head>
+  <body ng-app="sgdp">
+  <div ui-view="content"></div>
+  <div ui-view="footer"></div>
+
+    <!-- build:js(.) scripts/vendor.js -->
+    <!-- bower:js -->
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/angular-animate/angular-animate.js"></script>
+    <script src="bower_components/angular-aria/angular-aria.js"></script>
+    <script src="bower_components/angular-cookies/angular-cookies.js"></script>
+    <script src="bower_components/angular-messages/angular-messages.js"></script>
+    <script src="bower_components/angular-material/angular-material.js"></script>
+    <script src="bower_components/angular-material-data-table/dist/md-data-table.js"></script>
+    <script src="bower_components/angular-material-expansion-panel/dist/md-expansion-panel.js"></script>
+    <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
+    <script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+    <script src="bower_components/bowser/src/bowser.js"></script>
+    <script src="bower_components/chart.js/dist/Chart.js"></script>
+    <script src="bower_components/lodash/lodash.js"></script>
+    <script src="bower_components/mobile-detect/mobile-detect.js"></script>
+    <script src="bower_components/moment/moment.js"></script>
+    <!-- endbower -->
+  <script src="bower_components/ng-file-upload/dist/ng-file-upload.min.js"></script>
+  <script src="bower_components/ng-file-upload/dist/ng-file-upload-shim.min.js"></script>
+    <!-- endbuild -->
+
+    <!-- build:js({.tmp,app}) scripts/scripts.js -->
+    <script src="scripts/app.js"></script>
+    <script src="./scripts/services/service-auth.js"></script>
+    <script src="./scripts/services/service-constants.js"></script>
+    <script src="./scripts/services/service-utils.js"></script>
+    <script src="./scripts/services/service-requests.js"></script>
+    <script src="./scripts/services/service-file-upload.js"></script>
+    <script src="./scripts/services/service-helps.js"></script>
+    <script src="./scripts/services/service-manager.js"></script>
+    <script src="./scripts/services/service-agent.js"></script>
+    <script src="./scripts/services/service-applicant.js"></script>
+    <script src="./scripts/services/service-reviser.js"></script>
+    <script src="./scripts/services/service-config.js"></script>
+    <script src="./scripts/controllers/controller-login.js"></script>
+    <script src="./scripts/controllers/controller-details.js"></script>
+    <script src="./scripts/controllers/controller-home-applicant.js"></script>
+    <script src="./scripts/controllers/controller-home-agent.js"></script>
+    <script src="./scripts/controllers/controller-home-manager.js"></script>
+    <script src="./scripts/controllers/controller-home-reviser.js"></script>
+    <script src="./scripts/controllers/controller-perspective.js"></script>
+    <script src="./scripts/controllers/controller-history.js"></script>
+    <script src="./scripts/controllers/controller-user-info.js"></script>
+    <script src="./scripts/controllers/controller-session-expired.js"></script>
+    <script src="./scripts/controllers/controller-incompatibility.js"></script>
+    <script src="./scripts/directives/directive-animate-change.js"></script>
+    <script src="./scripts/directives/directive-select-fix.js"></script>
+    <script src="./scripts/directives/directive-helps.js"></script>
+    <script src="./scripts/directives/directive-overlay.js"></script>
+    <script src="./scripts/directives/directive-psw-match.js"></script>
+    <script src="./scripts/directives/directive-set-limit.js"></script>
+    <script src="./scripts/filters/filter-abs.js"></script>
+    <script src="lib/trip.js/trip.js"></script>
+  <!-- endbuild -->
+</body>
+</html>
