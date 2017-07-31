@@ -5,3 +5,4 @@ vendor/
 client_secret.json
 .credentials
 application/models/orm/Proxies/
+app/bower_components/
