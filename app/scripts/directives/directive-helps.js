@@ -85,7 +85,7 @@ app.directive('applicantHelp', function(Helps, Requests, $mdMedia, $mdSidenav) {
                             "categorizadas por los tipos de solicitud disponibles por el sistema.<br/>" +
                             "Para ver una lista de solicitudes, haga clic encima del tipo de préstamo correspondiente.<br/>" +
                             "Para ver los detalles de una solicitud en particular, haga clic encima de la fila correspondiente.";
-                        Helps.addFieldHelpWithHeader(tripToShowNavigation, '#requests-group', content, 'w',
+                        Helps.addFieldHelpWithHeader(tripToShowNavigation, '#requests-group', content, 's',
                                                      'Panel de solicitudes');
                         tripToShowNavigation.start();
                     } else if ($scope.singleType.length > 0) {
@@ -265,7 +265,7 @@ app.directive('agentHelp', function(Helps, Requests, $mdMedia, $mdSidenav) {
                             "categorizadas por los tipos de solicitud disponibles por el sistema.<br/>" +
                             "Para ver una lista de solicitudes, haga clic encima del tipo de préstamo correspondiente.<br/>" +
                             "Para ver los detalles de una solicitud en particular, haga clic encima de la fila correspondiente.";
-                        Helps.addFieldHelpWithHeader(tripToShowNavigation, '#requests-group', content, 'w',
+                        Helps.addFieldHelpWithHeader(tripToShowNavigation, '#requests-group', content, 's',
                                                      'Panel de solicitudes');
                         tripToShowNavigation.start();
                     } else if ($scope.singleType.length > 0) {
@@ -344,6 +344,7 @@ app.directive('detailsHelp', function(Helps, $mdMedia, Auth, Constants) {
                 options.showHeader = true;
                 var responsivePos = $mdMedia('xs') ? 's' : 'w';
                 var responsiveNorthPos = $mdMedia('xs') ? 'n' : 'w';
+                var responsiveNSPos = $mdMedia('xs') ? 'n' : 's';
                 var tripToShowNavigation = new Trip([], options);
                 var content;
                 // Validation help
@@ -366,12 +367,12 @@ app.directive('detailsHelp', function(Helps, $mdMedia, Auth, Constants) {
                                              'Resumen de la solicitud', true);
                 // Request status information
                 content = "Esta sección provee información acerca del estatus de la solicitud.";
-                Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-status-summary', content, 's',
+                Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-status-summary', content, responsiveNSPos,
                                              'Resumen de estatus', true);
                 // Request validation date
                 if ($scope.req.validationDate) {
                     content = "A continuación se muestra la fecha en la se realizó la validación de la solicitud.";
-                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-validation-date', content, 's',
+                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-validation-date', content, responsiveNSPos,
                                                  'Fecha de validación', true);
                 }
                 // Request payment due information
@@ -846,7 +847,7 @@ app.directive('managerHelp', function(Helps, $mdSidenav) {
                         "Para ver una lista de solicitudes, haga clic encima del tipo de préstamo correspondiente.<br/>" +
                         "Para ver los detalles de una solicitud en particular y gestionarla, haga clic encima de la " +
                         "fila correspondiente.";
-                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#requests-group', content, 'w',
+                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#requests-group', content, 's',
                                                  'Panel de solicitudes');
                     tripToShowNavigation.start();
                 } else if ($scope.singleType.length > 0) {
