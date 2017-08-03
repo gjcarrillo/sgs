@@ -97,8 +97,9 @@ angular.module('sgdp').controller('ReviserHomeController', function ($scope, Rev
     }
 
     $scope.loadUserData = function(user) {
+        preserveState();
         sessionStorage.setItem("fetchId", user);
-        window.open(Utils.getUserDataUrl(), '_blank');
+        $state.go('userInfo');
     };
 
     $scope.showWatermark = function () {

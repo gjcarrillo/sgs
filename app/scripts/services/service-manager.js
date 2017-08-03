@@ -122,7 +122,7 @@ angular
      */
     self.fetchRequestsByStatus = function (status) {
         var qStatus = $q.defer();
-        $http.get('ManagerHomeController/fetchRequestsByStatus',
+        $http.get(Constants.SERVER_URL + 'ManagerHomeController/fetchRequestsByStatus',
             {params: {status: status}})
             .then(
             function (response) {
@@ -140,7 +140,7 @@ angular
 
     self.fetchPendingRequests = function () {
         var qPending = $q.defer();
-        $http.get('ManagerHomeController/fetchPendingRequests')
+        $http.get(Constants.SERVER_URL + 'ManagerHomeController/fetchPendingRequests')
             .then(
             function (response) {
                 if (response.data.message === "success") {
@@ -157,7 +157,7 @@ angular
 
     self.loadPendingRequests = function () {
         var qPending = $q.defer();
-        $http.get('ManagerHomeController/loadPendingRequests')
+        $http.get(Constants.SERVER_URL + 'ManagerHomeController/loadPendingRequests')
             .then(
             function (response) {
                 console.log(response);
@@ -179,7 +179,7 @@ angular
      */
     self.fetchRequestsByLoanType = function (loanType) {
         var qLoanType = $q.defer();
-        $http.get('ManagerHomeController/fetchRequestsByLoanType',
+        $http.get(Constants.SERVER_URL + 'ManagerHomeController/fetchRequestsByLoanType',
             {params: {loanType: loanType}})
             .then(
             function (response) {
@@ -201,7 +201,7 @@ angular
      */
     self.getRequestById = function (rid) {
         var qRequests = $q.defer();
-        $http.get('ManagerHomeController/getRequestById',
+        $http.get(Constants.SERVER_URL + 'ManagerHomeController/getRequestById',
             {params: {rid: rid}})
             .then(
             function (response) {
@@ -223,7 +223,7 @@ angular
      */
     self.getUserRequests = function (fetchId) {
         var qRequests = $q.defer();
-        $http.get('ManagerHomeController/getUserRequests',
+        $http.get(Constants.SERVER_URL + 'ManagerHomeController/getUserRequests',
             {params: {fetchId: fetchId}})
             .then(
             function (response) {
@@ -246,7 +246,7 @@ angular
      */
     self.fetchRequestsByDateInterval = function (from, to) {
         var qRequests = $q.defer();
-        $http.get('ManagerHomeController/' +
+        $http.get(Constants.SERVER_URL + 'ManagerHomeController/' +
                   'fetchRequestsByDateInterval',
             {
                 params: {
@@ -274,7 +274,7 @@ angular
      */
     self.fetchRequestsByExactDate = function (date) {
         var qRequests = $q.defer();
-        $http.get('ManagerHomeController/' +
+        $http.get(Constants.SERVER_URL + 'ManagerHomeController/' +
                   'fetchRequestsByDateInterval',
             {
                 params: {
@@ -304,7 +304,7 @@ angular
      */
     self.getApprovedAmountByDateInterval = function (from, to) {
         var qAmount = $q.defer();
-        $http.get('ManagerHomeController/' +
+        $http.get(Constants.SERVER_URL + 'ManagerHomeController/' +
                   'getApprovedAmountByDateInterval',
             {
                 params: {
@@ -332,7 +332,7 @@ angular
      */
     self.getApprovedAmountById = function (userId) {
         var qAmount = $q.defer();
-        $http.get('ManagerHomeController/getApprovedAmountById',
+        $http.get(Constants.SERVER_URL + 'ManagerHomeController/getApprovedAmountById',
             {params: {userId: userId}})
             .then(
             function (response) {
@@ -352,7 +352,7 @@ angular
      */
     self.getClosedReportByCurrentWeek = function () {
         var qReport = $q.defer();
-        $http.get('ManagerHomeController/' +
+        $http.get(Constants.SERVER_URL + 'ManagerHomeController/' +
                   'getClosedReportByCurrentWeek')
             .then(
             function (response) {
@@ -374,7 +374,7 @@ angular
      */
     self.getClosedReportByDateInterval = function (from, to) {
         var qReport = $q.defer();
-        $http.get('ManagerHomeController/' +
+        $http.get(Constants.SERVER_URL + 'ManagerHomeController/' +
                   'getClosedReportByDateInterval',
             {
                 params: {
@@ -402,7 +402,7 @@ angular
     self.updateRequest = function (request) {
         var qUpdate = $q.defer();
 
-        $http.post('ManageRequestController/updateRequest', JSON.stringify(request))
+        $http.post(Constants.SERVER_URL + 'ManageRequestController/updateRequest', JSON.stringify(request))
             .then(
             function (response) {
                 if (response.data.message == 'success') {
@@ -422,7 +422,7 @@ angular
      */
     self.createNewAgent = function (userData) {
         var qAgent = $q.defer();
-        $http.post('ManageAgentUsers/createNewAgent', userData)
+        $http.post(Constants.SERVER_URL + 'ManageAgentUsers/createNewAgent', userData)
             .then(
             function (response) {
                 if (response.data.message == "success") {
@@ -441,7 +441,7 @@ angular
      */
     self.upgradeApplicant = function (uid) {
         var qUser = $q.defer();
-        $http.post('ManageAgentUsers/upgradeUser', {userId: uid})
+        $http.post(Constants.SERVER_URL + 'ManageAgentUsers/upgradeUser', {userId: uid})
             .then(
             function (response) {
                 if (response.data.message == "success") {
@@ -460,7 +460,7 @@ angular
      */
     self.degradeAgent = function (uid) {
         var qUser = $q.defer();
-        $http.post('ManageAgentUsers/degradeUser', {userId: uid})
+        $http.post(Constants.SERVER_URL + 'ManageAgentUsers/degradeUser', {userId: uid})
             .then(
             function (response) {
                 if (response.data.message == "success") {
@@ -479,7 +479,7 @@ angular
      */
     self.fetchAllAgents = function () {
         var qAgents = $q.defer();
-        $http.get('ManageAgentUsers/fetchAllAgents')
+        $http.get(Constants.SERVER_URL + 'ManageAgentUsers/fetchAllAgents')
             .then(
             function (response) {
                 if (response.data.message == 'success') {
@@ -500,7 +500,7 @@ angular
      */
     self.deleteAgentUser = function (userId) {
         var qAgent = $q.defer();
-        $http.post('ManageAgentUsers/deleteAgentUser', userId)
+        $http.post(Constants.SERVER_URL + 'ManageAgentUsers/deleteAgentUser', userId)
             .then(
             function (response) {
                 if (response.data.message == 'success') {
@@ -550,9 +550,9 @@ angular
             url = 'DocumentGenerator/generateClosedRequestsReport';
         }
         var report = JSON.stringify(reportData);
-        $http.post(url, report).then(function (response) {
+        $http.post(Constants.SERVER_URL + url, report).then(function (response) {
             if (response.data.message == "success") {
-                qReport.resolve('DocumentGenerator/' +
+                qReport.resolve(Constants.SERVER_URL + 'DocumentGenerator/' +
                                 'downloadReport?lpath=' + response.data.lpath);
             } else {
                 qReport.reject(response.data.message);

@@ -626,8 +626,9 @@ angular
     }
 
     $scope.loadUserData = function(userId) {
+        preserveState();
         sessionStorage.setItem("fetchId", userId);
-        window.open(Utils.getUserDataUrl(), '_blank');
+        $state.go('userInfo');
     };
 
     $scope.loadStatuses = function() {
@@ -714,7 +715,7 @@ angular
         $mdDialog.show({
             parent: parentEl,
             targetEvent: $event,
-            templateUrl: 'ManageAgentUsers',
+            templateUrl: 'views/dialogs/manageAgentUsers.html',
             fullscreen: $mdMedia('xs'),
             clickOutsideToClose: false,
             escapeToClose: false,
@@ -816,7 +817,7 @@ angular
             parent: parentEl,
             targetEvent: $event,
             fullscreen: $mdMedia('xs'),
-            templateUrl: 'ConfigController',
+            templateUrl: 'views/dialogs/systemConfig.html',
             clickOutsideToClose: false,
             escapeToClose: false,
             controller: DialogController
