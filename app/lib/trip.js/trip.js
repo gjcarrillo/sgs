@@ -1214,7 +1214,7 @@
                     }
                     else {
                         var self = this;
-                        var move = selTop < tripBlockTop ? tripBlockTop : selTop;
+                        var move = selTop < tripBlockTop ? selTop : tripBlockTop;
                         this.$root.animate({ scrollTop: move - OFFSET }, 'fast', function() {
                             self.setTripBlock(o);
                         });
