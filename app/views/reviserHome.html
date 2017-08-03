@@ -2,9 +2,7 @@
 <md-toolbar layout-padding>
     <div class="md-toolbar-tools">
         <md-button ng-click="goBack()" class="md-icon-button">
-            <md-icon>
-                arrow_back
-            </md-icon>
+            <md-icon>&#xe5c4</md-icon> <!-- arrow_back -->
         </md-button>
         <md-button
             id="nav-panel"
@@ -13,7 +11,7 @@
             class="md-icon-button"
             ng-click="openMenu()"
             aria-label="Open sidenav">
-            <md-icon>menu</md-icon>
+            <md-icon>&#xe5d2</md-icon> <!-- menu -->
         </md-button>
         <h2 class="md-headline">
             Revisión de solicitudes
@@ -25,14 +23,14 @@
                 class="md-icon-button"
                 aria-label="Help">
                 <md-icon>
-                    help_outline
+                    &#xe8fd <!-- help_outline -->
                 </md-icon>
                 <md-tooltip md-direction="bottom">Ayuda</md-tooltip>
             </md-button>
             <md-menu-content>
                 <md-menu-item>
                     <md-button reviser-help ng-click="showHelp()" aria-label="Tutorial">
-                        <md-icon>live_help</md-icon>
+                        <md-icon>&#xe0c6</md-icon> <!-- live_help -->
                         Diálogo de ayuda
                         <md-tooltip md-direction="bottom">Ayuda</md-tooltip>
                     </md-button>
@@ -40,7 +38,8 @@
                 <md-menu-item>
                     <md-button ng-click="downloadManual()">
                         <md-icon class="md-secondary">
-                            file_download
+                            &#xe2c4
+                            <!-- file_download -->
                         </md-icon>
                         Descargar manual
                     </md-button>
@@ -48,7 +47,7 @@
             </md-menu-content>
         </md-menu>
         <md-button class="md-icon-button" ng-click="logout()" aria-label="Logout">
-            <md-icon>exit_to_app</md-icon>
+            <md-icon>&#xe879</md-icon> <!-- exit_to_app -->
             <md-tooltip md-direction="bottom">Cerrar sesión</md-tooltip>
         </md-button>
     </div>

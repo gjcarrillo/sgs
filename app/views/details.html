@@ -1,20 +1,18 @@
 <md-toolbar layout-padding>
     <div class="md-toolbar-tools">
         <md-button ng-click="goHome()" class="md-icon-button">
-            <md-icon>
-                arrow_back
-            </md-icon>
+            <md-icon>&#xe5c4</md-icon> <!-- arrow_back -->
         </md-button>
         <h2 class="md-headline">
             <span>Detalles de solicitud ID {{pad(req.id, 6)}}</span>
         </h2>
         <span flex></span>
-        <md-button class="md-icon-button" details-help="" ng-click="showHelp()" aria-label="Help">
-            <md-icon>help_outline</md-icon>
-            <md-tooltip md-direction="bottom">Ayuda</md-tooltip>
+        <md-button class="md-icon-button" config-help ng-click="showHelp()" aria-label="Help">
+            <md-icon>&#xe8fd</md-icon> <!-- help_outline -->
+            <md-tooltip md-direction="top">Ayuda</md-tooltip>
         </md-button>
         <md-button class="md-icon-button" ng-click="logout()" aria-label="Logout">
-            <md-icon>exit_to_app</md-icon>
+            <md-icon>&#xe879</md-icon> <!-- exit_to_app -->
             <md-tooltip md-direction="bottom">Cerrar sesión</md-tooltip>
         </md-button>
     </div>
@@ -33,7 +31,7 @@
                         Puede editar la información de su solicitud haciendo clic en
                         <md-icon ng-if="!req.validationDate"
                                  ng-click="openEditRequestDialog($event)" class="md-secondary pointer padding-sides">
-                            edit
+                            &#xe3c9 <!-- edit -->
                             <md-tooltip>
                                 Editar solicitud
                             </md-tooltip>
@@ -41,7 +39,7 @@
 
                         o eliminarla haciendo clic en
                         <md-icon ng-click="deleteRequest($event)" class="md-secondary pointer padding-sides">
-                            delete
+                            &#xe872 <!-- delete -->
                             <md-tooltip>
                                 Eliminar solicitud
                             </md-tooltip>
@@ -78,7 +76,7 @@
                         Puede editar la información de la solicitud haciendo clic en
                         <md-icon ng-if="!req.validationDate"
                                  ng-click="openEditRequestDialog($event)" class="md-secondary pointer padding-sides">
-                            edit
+                            &#xe3c9 <!-- edit -->
                             <md-tooltip>
                                 Editar solicitud
                             </md-tooltip>
@@ -86,7 +84,7 @@
 
                         o eliminarla haciendo clic en
                         <md-icon ng-click="deleteRequest($event)" class="md-secondary pointer padding-sides">
-                            delete
+                            &#xe872 <!-- delete -->
                             <md-tooltip>
                                 Eliminar solicitud
                             </md-tooltip>
@@ -198,7 +196,7 @@
                                     ng-click="loadUserData(req.userOwner)"
                                     class="md-icon-button">
                                     <md-icon class="md-secondary">
-                                        person
+                                        &#xe7fd <!-- person -->
                                     </md-icon>
                                     <md-tooltip>Datos del asociado</md-tooltip>
                                 </md-button>
@@ -208,7 +206,7 @@
                                     ng-if="showManagerEditBtn()"
                                     ng-click="openManageRequestDialog($event)">
                                     <md-icon class="md-secondary">
-                                        edit
+                                        &#xe3c9 <!-- edit -->
                                     </md-icon>
                                     <md-tooltip>
                                         Gestionar solicitud
@@ -220,7 +218,7 @@
                                     ng-click="loadHistory()"
                                     class="md-icon-button">
                                     <md-icon class="md-secondary">
-                                        history
+                                        &#xe889 <!-- history -->
                                     </md-icon>
                                     <md-tooltip>Historial</md-tooltip>
                                 </md-button>
@@ -230,7 +228,7 @@
                                     ng-if="showAgentEditBtn()"
                                     ng-click="openUpdateRequestDialog($event)">
                                     <md-icon class="md-secondary">
-                                        edit
+                                        &#xe3c9 <!-- edit -->
                                     </md-icon>
                                     <md-tooltip>
                                         Editar solicitud
@@ -242,7 +240,7 @@
                                     ng-if="!req.validationDate"
                                     ng-click="openEditRequestDialog($event)">
                                     <md-icon class="md-secondary">
-                                        edit
+                                        &#xe3c9 <!-- edit -->
                                     </md-icon>
                                     <md-tooltip>
                                         Editar solicitud
@@ -252,7 +250,7 @@
                                     ng-click="downloadAll()"
                                     class="md-icon-button">
                                     <md-icon class="md-secondary">
-                                        cloud_download
+                                        &#xe2c0 <!-- cloud_download -->
                                     </md-icon>
                                     <md-tooltip>
                                         Descargar documentos
@@ -263,7 +261,7 @@
                                     ng-click="deleteRequest($event)"
                                     class="md-icon-button">
                                     <md-icon class="md-secondary">
-                                        delete
+                                        &#xe872 <!-- delete -->
                                     </md-icon>
                                     <md-tooltip>
                                         Eliminar solicitud
@@ -279,7 +277,7 @@
                                     class="md-icon-button"
                                     aria-label="More">
                                     <md-icon class="md-secondary">
-                                        more_vert
+                                        &#xe5d4 <!-- more_vert -->
                                     </md-icon>
                                 </md-button>
                                 <md-menu-content>
@@ -288,7 +286,7 @@
                                         <md-button
                                             ng-click="loadUserData(req.userOwner)">
                                             <md-icon class="md-secondary">
-                                                person
+                                                &#xe7fd <!-- person -->
                                             </md-icon>
                                             Datos del asociado
                                         </md-button>
@@ -298,7 +296,7 @@
                                         <md-button
                                             ng-click="openManageRequestDialog($event)">
                                             <md-icon class="md-secondary">
-                                                edit
+                                                &#xe3c9 <!-- edit -->
                                             </md-icon>
                                             Gestionar solicitud
                                         </md-button>
@@ -308,7 +306,7 @@
                                         <md-button
                                             ng-click="loadHistory()">
                                             <md-icon class="md-secondary">
-                                                history
+                                                &#xe889 <!-- history -->
                                             </md-icon>
                                             Historial
                                         </md-button>
@@ -318,7 +316,7 @@
                                         <md-button
                                             ng-click="openUpdateRequestDialog($event)">
                                             <md-icon class="md-secondary">
-                                                edit
+                                                &#xe3c9 <!-- edit -->
                                             </md-icon>
                                             Editar solicitud
                                         </md-button>
@@ -327,7 +325,7 @@
                                     <md-menu-item ng-if="!req.validationDate">
                                         <md-button ng-click="openEditRequestDialog($event)">
                                             <md-icon class="md-secondary">
-                                                edit
+                                                &#xe3c9 <!-- edit -->
                                             </md-icon>
                                             Editar solicitud
                                         </md-button>
@@ -335,14 +333,14 @@
                                     <md-menu-item>
                                         <md-button ng-click="downloadAll()">
                                             <md-icon class="md-secondary">
-                                                cloud_download
+                                                &#xe2c0 <!-- cloud_download -->
                                             </md-icon>
                                             Descargar documentos
                                         </md-button>
                                     </md-menu-item>
                                     <md-menu-item ng-if="!req.validationDate">
                                         <md-button ng-click="deleteRequest($event)">
-                                            <md-icon>delete</md-icon>
+                                            <md-icon>&#xe872 <!-- delete --></md-icon>
                                             Eliminar solicitud
                                         </md-button>
                                     </md-menu-item>
@@ -352,7 +350,7 @@
                         <md-list-item
                             id="request-status-summary"
                             class="md-2-line noright">
-                            <md-icon class="info-icon">info_outline</md-icon>
+                            <md-icon class="info-icon">&#xe88f</md-icon> <!-- info_outline -->
                             <div class="md-list-item-text" layout="column">
                                 <h3>Estatus de la solicitud: {{req.status}}</h3>
                                 <h4 ng-if="req.paidAmount">
@@ -367,7 +365,7 @@
                         <md-divider md-inset ng-if="req.validationDate"></md-divider>
                         <md-list-item ng-if="req.validationDate" class="md-2-line noright"
                                       id="request-validation-date">
-                            <md-icon class="phone-icon">verified_user</md-icon>
+                            <md-icon class="phone-icon">&#xe8e8</md-icon> <!-- verified_user -->
                             <div class="md-list-item-text" layout="column">
                                 <h3>
                                     Fecha de validación
@@ -380,7 +378,7 @@
                         <md-divider md-inset></md-divider>
                         <md-list-item class="md-2-line noright"
                                       id="request-payment-due">
-                            <md-icon class="payment-icon">payment</md-icon>
+                            <md-icon class="payment-icon">&#xe8a1</md-icon> <!-- payment -->
                             <div class="md-list-item-text" layout="column">
                                 <h3>
                                     Cuotas a pagar
@@ -396,7 +394,7 @@
                         <md-divider md-inset></md-divider>
                         <md-list-item class="md-2-line noright"
                                       id="request-contact-number">
-                            <md-icon class="phone-icon">phone</md-icon>
+                            <md-icon class="phone-icon">&#xe0cd</md-icon> <!-- phone -->
                             <div class="md-list-item-text" layout="column">
                                 <h3>
                                     Número de contacto
@@ -409,7 +407,7 @@
                         <md-divider md-inset></md-divider>
                         <md-list-item class="md-2-line noright"
                                       id="request-email">
-                            <md-icon>mail_outline</md-icon>
+                            <md-icon>&#xe0e1</md-icon> <!-- mail_outline -->
                             <div class="md-list-item-text" layout="column">
                                 <h3>
                                     Correo electrónico
@@ -427,7 +425,7 @@
                                 ng-click="downloadDoc(doc)">
                                 <md-icon
                                     class="docs-icon">
-                                    insert_drive_file
+                                    &#xe24d <!-- insert_drive_file -->
                                 </md-icon>
                                 <div class="md-list-item-text" layout="column">
                                     <h3>{{doc.name}}</h3>
@@ -437,7 +435,7 @@
                                     ng-if="!isDocEditable(doc.type)"
                                     class="md-icon-button">
                                     <md-icon class="md-secondary">
-                                        file_download
+                                        &#xe2c4 <!-- file_download -->
                                     </md-icon>
                                 </md-button>
                                 <!-- Agents editable docs -->
@@ -454,14 +452,14 @@
                                         class="md-icon-button"
                                         aria-label="More">
                                         <md-icon class="md-secondary">
-                                            more_vert
+                                            &#xe5d4 <!-- more_vert -->
                                         </md-icon>
                                     </md-button>
                                     <md-menu-content>
                                         <md-menu-item>
                                             <md-button ng-click="editDescription($event, doc)">
                                                 <md-icon class="md-secondary">
-                                                    edit
+                                                    &#xe3c9 <!-- edit -->
                                                 </md-icon>
                                                 Descripción
                                             </md-button>
@@ -469,7 +467,7 @@
                                         <md-menu-item>
                                             <md-button ng-click="downloadDoc(doc)">
                                                 <md-icon class="md-secondary">
-                                                    file_download
+                                                    &#xe2c4 <!-- file_download -->
                                                 </md-icon>
                                                 Descargar
                                             </md-button>
@@ -477,7 +475,7 @@
                                         <md-menu-item>
                                             <md-button ng-click="deleteDoc($event, dKey)">
                                                 <md-icon class="md-secondary">
-                                                    delete
+                                                    &#xe872 <!-- delete -->
                                                 </md-icon>
                                                 Eliminar
                                             </md-button>

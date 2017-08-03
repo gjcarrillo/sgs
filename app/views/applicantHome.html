@@ -3,8 +3,8 @@
     <div class="md-toolbar-tools">
         <md-button ng-click="goBack()" class="md-icon-button">
             <md-icon>
-                arrow_back
-            </md-icon>
+                &#xe5c4
+            </md-icon> <!-- arrow_back -->
         </md-button>
         <md-button
             id="nav-panel"
@@ -13,7 +13,7 @@
             class="md-icon-button"
             ng-click="openMenu()"
             aria-label="Open sidenav">
-            <md-icon>menu</md-icon>
+            <md-icon>&#xe5d2</md-icon> <!-- menu -->
         </md-button>
         <h2 class="md-headline">
             Mis Solicitudes
@@ -24,15 +24,13 @@
                 ng-click="$mdOpenMenu($event)"
                 class="md-icon-button"
                 aria-label="Help">
-                <md-icon>
-                    help_outline
-                </md-icon>
+                <md-icon>&#xe8fd</md-icon> <!-- help_outline -->
                 <md-tooltip md-direction="bottom">Ayuda</md-tooltip>
             </md-button>
             <md-menu-content>
                 <md-menu-item>
                     <md-button applicant-help ng-click="showHelp()" aria-label="Tutorial">
-                        <md-icon>live_help</md-icon>
+                        <md-icon>&#xe0c6</md-icon> <!-- live_help -->
                         Diálogo de ayuda
                         <md-tooltip md-direction="bottom">Ayuda</md-tooltip>
                     </md-button>
@@ -40,15 +38,15 @@
                 <md-menu-item>
                     <md-button ng-click="downloadManual()">
                         <md-icon class="md-secondary">
-                            file_download
-                        </md-icon>
+                            &#xe2c4
+                        </md-icon> <!-- file_download -->
                         Descargar manual
                     </md-button>
                 </md-menu-item>
             </md-menu-content>
         </md-menu>
         <md-button class="md-icon-button" ng-click="logout()" aria-label="Logout">
-            <md-icon>exit_to_app</md-icon>
+            <md-icon>&#xe879</md-icon> <!-- exit_to_app -->
             <md-tooltip md-direction="bottom">Cerrar sesión</md-tooltip>
         </md-button>
     </div>
@@ -90,8 +88,8 @@
                     <p class="sidenavTitle">
                         Consultar
                     </p>
-                    <md-icon ng-class="md-secondary" ng-if="selectedList != 1">keyboard_arrow_down</md-icon>
-                    <md-icon ng-class="md-secondary" ng-if="selectedList == 1">keyboard_arrow_up</md-icon>
+                    <md-icon ng-class="md-secondary" ng-if="selectedList != 1">&#xe313</md-icon> <!-- keyboard_arrow_down -->
+                    <md-icon ng-class="md-secondary" ng-if="selectedList == 1">&#xe316</md-icon> <!-- keyboard_arrow_up -->
                 </md-list-item>
                 <md-divider></md-divider>
                 <div class="slide-toggle" ng-show="selectedList == 1" layout="column" layout-align="center" ng-repeat="query in queryList">
@@ -110,8 +108,8 @@
                     <p class="sidenavTitle">
                         Nueva Solicitud
                     </p>
-                    <md-icon ng-class="md-secondary" ng-if="selectedList != 2">keyboard_arrow_down</md-icon>
-                    <md-icon ng-class="md-secondary" ng-if="selectedList == 2">keyboard_arrow_up</md-icon>
+                    <md-icon ng-class="md-secondary" ng-if="selectedList != 2">&#xe313</md-icon> <!-- keyboard_arrow_down -->
+                    <md-icon ng-class="md-secondary" ng-if="selectedList == 2">&#xe316</md-icon> <!-- keyboard_arrow_up -->
                 </md-list-item>
                 <md-divider></md-divider>
                 <div class="slide-toggle" ng-show="selectedList == 2" layout="column" layout-align="center" ng-repeat="(lKey, loanType) in loanTypes">
@@ -181,7 +179,7 @@
                             ng-disabled="!queries[selectedAction]"
                             ng-click="getRequestById(queries[selectedAction])"
                             class="md-raised md-primary">
-                            <md-icon>search</md-icon>Consultar
+                            <md-icon>&#xe8b6 <!-- search --></md-icon>Consultar
                         </md-button>
                     </div>
                 </div>
@@ -200,7 +198,7 @@
                             ng-disabled="!queries[selectedAction].from || !queries[selectedAction].to"
                             ng-click="getRequestsByDate(queries[selectedAction].from, queries[selectedAction].to)"
                             class="md-raised md-primary">
-                            <md-icon>search</md-icon>Consultar
+                            <md-icon>&#xe8b6 <!-- search --></md-icon>Consultar
                         </md-button>
                     </div>
                 </div>
@@ -249,11 +247,11 @@
                 <md-card ng-show="showMsg && selectedAction == 6 && !fetching" md-theme="help-card" class="margin-16">
                     <md-card-content layout layout-align="space-between start">
                         <div layout layout-align="center center">
-                            <md-icon style="color:#827717; margin-right:10px">info_outline</md-icon>
+                            <md-icon style="color:#827717; margin-right:10px">&#xe88f</md-icon> <!-- info_outline -->
                             <span> Le recordamos que las solicitudes pendientes son aquellas que aún no han sido Aprobadas o Rechazadas.</span>
                         </div>
                         <md-button ng-click="showMsg = !showMsg" class="md-icon-button">
-                            <md-icon>close</md-icon>
+                            <md-icon>&#xe5cd</md-icon> <!-- close -->
                             <md-tooltip>Cerrar</md-tooltip>
                         </md-button>
                     </md-card-content>
@@ -303,7 +301,7 @@
                                                 </td>
                                                 <td ng-if="!request.validationDate" md-cell ng-click="goToDetails(request)">
                                                     <md-icon style="color: red">
-                                                        warning
+                                                        &#xe002 <!-- warning -->
                                                         <md-tooltip>Solicitud no validada</md-tooltip>
                                                     </md-icon>
                                                 </td>
@@ -335,11 +333,11 @@
                     <md-card ng-show="showMsg" md-theme="help-card" class="margin-16">
                         <md-card-content layout layout-align="space-between start">
                             <div layout layout-align="center center">
-                                <md-icon style="color:#827717; margin-right:10px">info_outline</md-icon>
+                                <md-icon style="color:#827717; margin-right:10px">&#xe88f</md-icon> <!-- info_outline -->
                                 <span> Le recordamos que las solicitudes editables son aquellas que aún no han sido validadas.</span>
                             </div>
                             <md-button ng-click="showMsg = !showMsg" class="md-icon-button">
-                                <md-icon>close</md-icon>
+                                <md-icon>&#xe5cd</md-icon> <!-- close -->
                                 <md-tooltip>Cerrar</md-tooltip>
                             </md-button>
                         </md-card-content>
@@ -368,13 +366,13 @@
                                     <td md-cell ng-click="goToDetails(request)">{{request.reqAmount | number:2}}</td>
                                     <td md-cell ng-click="openEditRequestDialog($event, request)">
                                         <md-icon>
-                                            edit
+                                            &#xe3c9 <!-- edit -->
                                             <md-tooltip>Editar solicitud</md-tooltip>
                                         </md-icon>
                                     </td>
                                     <td md-cell ng-click="deleteRequest($event, request)">
                                         <md-icon>
-                                            delete
+                                            &#xe872 <!-- delete -->
                                             <md-tooltip>Eliminar solicitud</md-tooltip>
                                         </md-icon>
                                     </td>
@@ -428,7 +426,7 @@
                                     </td>
                                     <td ng-if="!request.validationDate" md-cell ng-click="goToDetails(request)">
                                         <md-icon style="color: red">
-                                            warning
+                                            &#xe002 <!-- warning -->
                                             <md-tooltip>Solicitud no validada</md-tooltip>
                                         </md-icon>
                                     </td>
@@ -454,14 +452,14 @@
                     <md-card ng-show="showMsg" md-theme="help-card" class="margin-16">
                         <md-card-content layout layout-align="space-between start">
                             <div layout layout-align="center center">
-                                <md-icon style="color:#827717; margin-right:10px">info_outline</md-icon>
+                                <md-icon style="color:#827717; margin-right:10px">&#xe88f</md-icon> <!-- info_outline -->
                                 <span>
                                     Le recordamos que las solicitudes activas son aquellas cuya deuda sigue viegente y registradas en su
                                     <a href="{{IPAPEDI_URL + 'cuenta'}}" target="_blank">Estado de Cuenta</a>.
                                 </span>
                             </div>
                             <md-button ng-click="showMsg = !showMsg" class="md-icon-button">
-                                <md-icon>close</md-icon>
+                                <md-icon>&#xe5cd</md-icon> <!-- close -->
                                 <md-tooltip>Cerrar</md-tooltip>
                             </md-button>
                         </md-card-content>

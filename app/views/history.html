@@ -18,7 +18,7 @@
                     placeholder="Filtre su búsqueda"
                     ng-model="filterInput"
                     type="text" />
-                <md-icon class="search-icon">search</md-icon>
+                <md-icon class="search-icon">&#xe8b6</md-icon> <!-- search -->
             </div>
             <md-tooltip md-direction="right">Puede buscar por nombre, acción o fecha</md-tooltip>
         </div>
@@ -28,16 +28,16 @@
             hide-gt-sm
             ng-click="toggleSearch()"
             aria-label="Search">
-            <md-icon>search</md-icon>
+            <md-icon>&#xe8b6</md-icon> <!-- search -->
             <md-tooltip md-direction="bottom">Buscar</md-tooltip>
         </md-button>
         <md-button class="md-icon-button" history-help ng-click="showHelp()" aria-label="Help">
-            <md-icon>help_outline</md-icon>
-            <md-tooltip md-direction="down">Ayuda</md-tooltip>
+            <md-icon>&#xe8fd</md-icon> <!-- help_outline -->
+            <md-tooltip md-direction="top">Ayuda</md-tooltip>
         </md-button>
         <md-button class="md-icon-button" ng-click="logout()" aria-label="Logout">
-            <md-icon>exit_to_app</md-icon>
-            <md-tooltip md-direction="down">Cerrar sesión</md-tooltip>
+            <md-icon>&#xe879</md-icon> <!-- exit_to_app -->
+            <md-tooltip md-direction="bottom">Cerrar sesión</md-tooltip>
         </md-button>
     </div>
     <!-- Mobile filter search bar -->
@@ -45,7 +45,7 @@
         <div class="search-wrapper-xs" flex>
             <div layout layout-align="center center">
                 <md-icon ng-click="toggleSearch()" class="toggle-search-icon">
-                    arrow_back
+                    <md-icon>&#xe5c4</md-icon> <!-- arrow_back -->
                 </md-icon>
                 <input
                     id="filter-input"
@@ -54,7 +54,7 @@
                     placeholder="Filtre su búsqueda"
                     ng-model="filterInput"
                     type="text" />
-                <md-icon ng-click="clearInput()" class="search-icon">close</md-icon>
+                <md-icon ng-click="clearInput()" class="search-icon">&#xe5cd</md-icon> <!-- close -->
             </div>
         </div>
     </div>
@@ -88,7 +88,7 @@
                                <p>{{hist.date}}</p>
                              </div>
                              <md-button aria-label="See details" class="md-icon-button">
-                                 <md-icon aria-label="Eye icon" ng-click="null" class="md-secondary">remove_red_eye</md-icon>
+                                 <md-icon aria-label="Eye icon" ng-click="null" class="md-secondary">&#xe417</md-icon> <!-- remove_red_eye -->
                              </md-button>
                         </md-list-item>
                         <md-divider ng-if="!$last" class="md-inset"></md-divider>

@@ -9,11 +9,11 @@
                        class="md-icon-button"
                        ng-click="showHelp()"
                        aria-label="Help">
-                <md-icon>help_outline</md-icon>
+                <md-icon>&#xe8fd</md-icon> <!-- help_outline -->
                 <md-tooltip md-direction="top">Ayuda</md-tooltip>
             </md-button>
             <md-button ng-show="!uploading" class="md-icon-button" ng-click="closeDialog()">
-                <md-icon aria-label="Close dialog">close</md-icon>
+                <md-icon aria-label="Close dialog">&#xe5cd</md-icon> <!-- close -->
             </md-button>
         </div>
     </md-toolbar>
@@ -60,7 +60,7 @@
                             <div layout="column" layout-align="center center" class="max-wrapper">
                                 <md-button hide-xs class="md-primary" ng-click="uploading ? null : setMax()">Max</md-button>
                                 <md-button hide show-xs class="md-icon-button" ng-click="uploading ? null : setMax()" aria-label="Max">
-                                    <md-icon>all_out</md-icon>
+                                    <md-icon>&#xe90b</md-icon> <!-- all_out -->
                                     <md-tooltip md-direction="bottom">Max</md-tooltip>
                                 </md-button>
                             </div>
@@ -143,7 +143,7 @@
                             <md-card md-theme="help-card">
                                 <md-card-content>
                                     <div layout layout-align="center center">
-                                        <md-icon style="color:#827717; margin-right:10px">info_outline</md-icon>
+                                        <md-icon style="color:#827717; margin-right:10px">&#xe88f</md-icon> <!-- info_outline -->
                                         <span> Mensualidad a pagar: Bs. <b>{{calculatePaymentFee()}}</b></span>
                                     </div>
                                 </md-card-content>

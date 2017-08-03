@@ -2,9 +2,7 @@
 <md-toolbar layout-padding>
     <div class="md-toolbar-tools">
         <md-button ng-click="return()" class="md-icon-button">
-            <md-icon>
-                arrow_back
-            </md-icon>
+            <md-icon>&#xe5c4</md-icon> <!-- arrow_back -->
         </md-button>
         <md-button
             id="nav-panel"
@@ -12,7 +10,7 @@
             class="md-icon-button"
             ng-click="openMenu()"
             aria-label="Open sidenav">
-            <md-icon>menu</md-icon>
+            <md-icon>&#xe5d2</md-icon> <!-- menu -->
         </md-button>
         <h2 class="md-headline">
             <span>Gestión de Solicitudes</span>
@@ -20,11 +18,11 @@
         <span flex></span>
         <div hide show-gt-sm id="manager-options">
             <md-button class="md-icon-button" ng-click="openManageUserAgentDialog($event)" aria-label="Manage Agents">
-                <md-icon>account_box</md-icon>
+                <md-icon>&#xe851</md-icon> <!-- account_box -->
                 <md-tooltip md-direction="bottom">Administrar usuarios</md-tooltip>
             </md-button>
             <md-button class="md-icon-button" ng-click="openConfigDialog($event)" aria-label="System Configuration">
-                <md-icon>settings</md-icon>
+                <md-icon>&#xe8b8</md-icon> <!-- settings -->
                 <md-tooltip md-direction="bottom">Configuración del sistema</md-tooltip>
             </md-button>
             <md-menu>
@@ -33,14 +31,14 @@
                     class="md-icon-button"
                     aria-label="Help">
                     <md-icon>
-                        help_outline
+                        &#xe8fd <!-- help_outline -->
                     </md-icon>
                     <md-tooltip md-direction="bottom">Ayuda</md-tooltip>
                 </md-button>
                 <md-menu-content>
                     <md-menu-item>
                         <md-button manager-help ng-click="showHelp()" aria-label="Tutorial">
-                            <md-icon>live_help</md-icon>
+                            <md-icon>&#xe0c6</md-icon> <!-- live_help -->
                             Diálogo de ayuda
                             <md-tooltip md-direction="bottom">Ayuda</md-tooltip>
                         </md-button>
@@ -48,7 +46,8 @@
                     <md-menu-item>
                         <md-button ng-click="downloadManual()">
                             <md-icon class="md-secondary">
-                                file_download
+                                &#xe2c4
+                                <!-- file_download -->
                             </md-icon>
                             Descargar manual
                         </md-button>
@@ -56,7 +55,7 @@
                 </md-menu-content>
             </md-menu>
             <md-button class="md-icon-button" ng-click="logout()" aria-label="Logout">
-                <md-icon>exit_to_app</md-icon>
+                <md-icon>&#xe879</md-icon> <!-- exit_to_app -->
                 <md-tooltip md-direction="bottom">Cerrar sesión</md-tooltip>
             </md-button>
         </div>
@@ -69,31 +68,31 @@
                 class="md-icon-button"
                 aria-label="More">
                 <md-icon class="md-secondary">
-                    more_vert
+                    &#xe5d4 <!-- more_vert -->
                 </md-icon>
             </md-button>
             <md-menu-content>
                 <md-menu-item>
                     <md-button ng-click="openManageUserAgentDialog($event)" aria-label="Manage Agents">
-                        <md-icon>account_box</md-icon>
+                        <md-icon>&#xe851</md-icon> <!-- account_box -->
                         Administrar
                     </md-button>
                 </md-menu-item>
                 <md-menu-item>
                     <md-button ng-click="openConfigDialog($event)" aria-label="System Configuration">
-                        <md-icon>settings</md-icon>
+                        <md-icon>&#xe8b8</md-icon> <!-- settings -->
                         Configuración del sistema
                     </md-button>
                 </md-menu-item>
                 <md-menu-item>
                     <md-button ng-click="showHelp()" manager-help aria-label="Help">
-                        <md-icon>help_outline</md-icon>
+                        &#xe8fd <!-- help_outline -->
                         Ayuda
                     </md-button>
                 </md-menu-item>
                 <md-menu-item>
                     <md-button ng-click="logout()" aria-label="Logout">
-                        <md-icon>exit_to_app</md-icon>
+                        <md-icon>&#xe879</md-icon> <!-- exit_to_app -->
                         Cerrar sesión
                     </md-button>
                 </md-menu-item>
@@ -117,8 +116,8 @@
                         <p class="sidenavTitle">
                             Búsqueda avanzada
                         </p>
-                        <md-icon ng-class="md-secondary" ng-if="selectedList != 1">keyboard_arrow_down</md-icon>
-                        <md-icon ng-class="md-secondary" ng-if="selectedList == 1">keyboard_arrow_up</md-icon>
+                        <md-icon ng-class="md-secondary" ng-if="selectedList != 1">&#xe313</md-icon> <!-- keyboard_arrow_down -->
+                        <md-icon ng-class="md-secondary" ng-if="selectedList == 1">&#xe316</md-icon> <!-- keyboard_arrow_up -->
                     </md-list-item>
                     <md-divider></md-divider>
                     <div class="slide-toggle"
@@ -141,8 +140,8 @@
                         <p class="sidenavTitle">
                             Reporte de solicitudes cerradas
                         </p>
-                        <md-icon ng-class="md-secondary" ng-if="selectedList != 2">keyboard_arrow_down</md-icon>
-                        <md-icon ng-class="md-secondary" ng-if="selectedList == 2">keyboard_arrow_up</md-icon>
+                        <md-icon ng-class="md-secondary" ng-if="selectedList != 2">&#xe313</md-icon> <!-- keyboard_arrow_down -->
+                        <md-icon ng-class="md-secondary" ng-if="selectedList == 2">&#xe316</md-icon> <!-- keyboard_arrow_up -->
                     </md-list-item>
                     <md-divider></md-divider>
                     <div class="slide-toggle"
@@ -174,7 +173,7 @@
             <div ng-if="showResult != null && !loading">
                 <div id="back-to-query" class="md-toolbar-tools md-whiteframe-z1">
                     <md-button ng-click="goBack()" class="md-icon-button">
-                        <md-icon>arrow_back</md-icon>
+                        <md-icon>&#xe5c4</md-icon> <!-- arrow_back -->
                     </md-button>
                     <span>Atrás</span>
                 </div>
@@ -242,7 +241,7 @@
                             ng-hide="loadingReport"
                             class="md-icon-button"
                             ng-click="generateExcelReport()">
-                            <md-icon>assignment</md-icon>
+                            <md-icon>&#xe85d</md-icon> <!-- assignment -->
                             <md-tooltip md-direction="top">
                                 Generar reporte
                             </md-tooltip>
@@ -279,7 +278,7 @@
                             ng-disabled="!model.perform[selectedAction].id || loading"
                             ng-click="fetchRequestById()"
                             class="md-raised md-primary">
-                            <md-icon>search</md-icon>Consultar
+                            <md-icon>&#xe8b6 <!-- search --></md-icon>Consultar
                         </md-button>
                     </div>
                 </div>
@@ -322,7 +321,7 @@
                             ng-disabled="!model.perform[selectedAction].id || loading"
                             ng-click="fetchUserRequests(selectedAction)"
                             class="md-raised md-primary">
-                            <md-icon>search</md-icon>Consultar
+                            <md-icon>&#xe8b6 <!-- search --></md-icon>Consultar
                         </md-button>
                     </div>
                 </div>
@@ -377,7 +376,7 @@
                             ng-disabled="!model.perform[selectedAction] || loading"
                             ng-click="fetchPendingRequests(selectedAction)"
                             class="md-raised md-primary">
-                            <md-icon>search</md-icon>Consultar
+                            <md-icon>&#xe8b6 <!-- search --></md-icon>Consultar
                         </md-button>
                     </div>
                 </div>
@@ -401,7 +400,7 @@
                                 selectedAction
                              )"
                             class="md-raised md-primary">
-                            <md-icon>search</md-icon>Consultar
+                            <md-icon>&#xe8b6 <!-- search --></md-icon>Consultar
                         </md-button>
                     </div>
                 </div>
@@ -425,7 +424,7 @@
                                 model.perform[selectedAction].to
                             )"
                             class="md-raised md-primary">
-                            <md-icon>search</md-icon>Consultar
+                            <md-icon>&#xe8b6 <!-- search --></md-icon>Consultar
                         </md-button>
                     </div>
                 </div>
@@ -468,7 +467,7 @@
                             ng-disabled="!model.perform[selectedAction].id || loading"
                             ng-click="getApprovedAmountById(selectedAction)"
                             class="md-raised md-primary">
-                            <md-icon>search</md-icon>Consultar
+                            <md-icon>&#xe8b6 <!-- search --></md-icon>Consultar
                         </md-button>
                     </div>
                 </div>
@@ -493,7 +492,7 @@
                                 model.perform[selectedAction].to
                             )"
                             class="md-raised md-primary">
-                            <md-icon>assignment</md-icon> Generar
+                            <md-icon>&#xe85d</md-icon> Generar <!-- assignment -->
                         </md-button>
                         <md-progress-circular ng-if="loadingReport" md-mode="indeterminate">
                     </div>
@@ -509,7 +508,7 @@
                             ng-hide="loadingReport"
                             ng-click="getClosedReportByCurrentWeek()"
                             class="md-raised md-primary">
-                            <md-icon>assignment</md-icon> Generar
+                            <md-icon>&#xe85d</md-icon> Generar <!-- assignment -->
                         </md-button>
                         <md-progress-circular ng-if="loadingReport" md-mode="indeterminate">
                         </md-progress-circular>
@@ -577,7 +576,7 @@
                                                 <td md-cell ng-if="isReqManageable(request)"
                                                     ng-click="openManageRequestDialog($event, request)">
                                                     <md-icon class="md-secondary">
-                                                        edit
+                                                        &#xe3c9 <!-- edit -->
                                                     </md-icon>
                                                     <md-tooltip>
                                                         Gestionar solicitud
@@ -647,7 +646,7 @@
                                     <td md-cell ng-if="isReqManageable(request)"
                                         ng-click="openManageRequestDialog($event, request)">
                                         <md-icon class="md-secondary">
-                                            edit
+                                            &#xe3c9 <!-- edit -->
                                         </md-icon>
                                         <md-tooltip>
                                             Gestionar solicitud

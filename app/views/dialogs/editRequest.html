@@ -5,11 +5,11 @@
             <h2>Edición de solicitud</h2>
             <span flex></span>
             <md-button class="md-icon-button" agent-update-help ng-click="showHelp()" aria-label="Help">
-                <md-icon>help_outline</md-icon>
+                <md-icon>&#xe8fd</md-icon> <!-- help_outline -->
                 <md-tooltip md-direction="top">Ayuda</md-tooltip>
             </md-button>
             <md-button ng-show="!uploading" class="md-icon-button" ng-click="closeDialog()">
-                <md-icon aria-label="Close dialog">close</md-icon>
+                <md-icon aria-label="Close dialog">&#xe5cd</md-icon> <!-- close -->
             </md-button>
         </div>
     </md-toolbar>
@@ -48,20 +48,20 @@
                         <input type="text" readonly ng-model="selectedFiles"
                             class="pointer" placeholder="Clic para subir"/>
                         <md-icon
-                            ng-show="files.length == 0"
-                            class="pointer grey-color">
+                                ng-show="model.files.length == 0"
+                                class="pointer grey-color">
                             <md-tooltip>
                                 Subir archivo
                             </md-tooltip>
-                            file_upload
-                        </md-icon>
+                            &#xe2c6
+                        </md-icon> <!-- file_upload-->
                         <md-icon
-                            ng-show="files.length > 0"
-                            ng-click="deleteFiles($event)"
-                            class="grey-color">
+                                ng-show="model.files.length > 0"
+                                ng-click="deleteFiles($event)"
+                                class="grey-color">
                             <md-tooltip>Descartar todos los archivos</md-tooltip>
-                            delete
-                        </md-icon>
+                            &#xe872
+                        </md-icon> <!-- delete -->
                     </md-input-container>
                 </div>
             </div>
@@ -81,14 +81,14 @@
                         <md-button class="md-icon-button" ng-click="enableDescription(dKey)">
                             <md-icon>
                                 <md-tooltip>Agregar descripción</md-tooltip>
-                                message
-                            </md-icon>
+                                &#xe0c9
+                            </md-icon> <!-- message -->
                         </md-button>
                         <md-button class="md-icon-button" ng-click="removeDoc(dKey)">
                             <md-icon>
                                 <md-tooltip>Descartar archivo</md-tooltip>
-                                delete
-                            </md-icon>
+                                &#xe872
+                            </md-icon> <!-- delete -->
                         </md-button>
                     </md-card-actions>
                     <!-- Add description input -->
@@ -105,7 +105,7 @@
                                 ng-keyup="$event.keyCode == 13 && enableDescription(-1)">
                             </textarea>
                         </md-input-container>
-                        <md-button class="md-icon-button" ng-click="enableDescription(-1)"><md-icon>send</md-icon></md-button>
+                        <md-button class="md-icon-button" ng-click="enableDescription(-1)"><md-icon>&#xe163</md-icon></md-button> <!-- send -->
                     </md-card-actions>
                     <!-- Uploading progress -->
                     <md-card-actions ng-show="uploading">
