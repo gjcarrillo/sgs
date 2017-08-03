@@ -315,7 +315,7 @@ angular
             controller: DialogController
         });
         // Isolated dialog controller for the new request dialog
-        function DialogController($scope, $mdDialog, fetchId, parentScope, obj) {
+        function DialogController($scope, $mdDialog, fetchId, parentScope, obj, $filter) {
             $scope.docPicTaken = false;
             $scope.uploading = false;
             // if user data exists, it means the ID was
@@ -497,7 +497,10 @@ angular
             $scope.confirmOperation = function (ev) {
                 Utils.showConfirmDialog(
                     'Confirmación de creación de solicitud',
-                    'El sistema generará el documento correspondiente a su solicitud. ¿Desea proceder?',
+                    'El sistema generará el documento correspondiente a su solicitud.<br/><br/>Además se le informa que' +
+                    ' se cobrará el 1% sobre el monto del préstamo, equivalente a ' +
+                    $filter('number')($scope.calculateTotals(5) * 0.01, 2) + ', a razón de Servicios Administrativos, ' +
+                    'que será descontado de su próximo aporte. ¿Desea proceder?',
                     'Sí', 'Cancelar', ev, true
                 ).then(
                     function() {

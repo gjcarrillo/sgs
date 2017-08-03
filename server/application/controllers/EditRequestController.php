@@ -160,12 +160,11 @@ class EditRequestController extends CI_Controller {
 						$history->addAction($action);
 						$em->persist($action);
 					}
-					if (!$request->getAdditionalDeductions()->isEmpty() && !isset($data['deductions'])) {
-						\ChromePhp::log('DELETE');
+					if (!$request->getAdditionalDeductions()->isEmpty() || !isset($data['deductions'])) {
+						console.log($data['deductions']);
 						// Delete all deductions from request.
 						$this->deleteDeductions($request, $history);
 					} else if (isset($data['deductions'])) {
-						\ChromePhp::log('UPDATE');
 						// Update original deductions (and add new ones).
 						$this->updateDeductions($request, $data['deductions'], $history);
 					}
