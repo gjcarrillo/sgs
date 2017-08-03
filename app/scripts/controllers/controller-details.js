@@ -17,6 +17,7 @@ angular
     $scope.loanTypes = Config.loanConcepts;
     $scope.APPLICANT = Constants.Users.APPLICANT;
     $scope.AGENT = Constants.Users.AGENT;
+    $scope.REVISER = Constants.Users.REVISER;
     $scope.MANAGER = Constants.Users.MANAGER;
     $scope.RECEIVED = Constants.Statuses.RECEIVED;
     $scope.APPROVED = Constants.Statuses.APPROVED;
@@ -389,7 +390,7 @@ angular
         $mdDialog.show({
             parent: parentEl,
             targetEvent: $event,
-            templateUrl: 'EditRequestController',
+            templateUrl: 'views/dialogs/editRequest.html',
             clickOutsideToClose: false,
             escapeToClose: false,
             fullscreen: $mdMedia('xs'),
@@ -545,7 +546,7 @@ angular
     };
 
     $scope.showAgentEditBtn = function () {
-        return $scope.req.validationDate && $scope.userType($scope.AGENT) &&
+        return $scope.req.validationDate && ($scope.userType($scope.AGENT) || $scope.userType($scope.REVISER)) &&
                $scope.req.status != $scope.APPROVED && $scope.req.status != $scope.REJECTED &&
                $scope.req.status != $scope.PRE_APPROVED;
     };
@@ -563,7 +564,7 @@ angular
 
     $scope.loadUserData = function(userId) {
         sessionStorage.setItem("fetchId", userId);
-        window.open(Utils.getUserDataUrl(), '_blank');
+        $state.go('userInfo');
     };
 
     /*
@@ -576,7 +577,7 @@ angular
             targetEvent: $event,
             clickOutsideToClose: true,
             escapeToClose: true,
-            templateUrl: 'EditRequestController/editionDialog',
+            templateUrl: 'views/dialogs/editDocDescription.html',
             locals: {
                 doc: doc
             },
@@ -593,10 +594,11 @@ angular
             $scope.saveEdition = function () {
                 if ($scope.missingField()) {return;}
                 doc.description = $scope.description;
+                doc.loading = true;
                 Requests.updateDocDescription(doc).then(
                     function (updatedReq) {
+                        doc.loading = false;
                         sessionStorage.setItem("req", JSON.stringify(updatedReq));
-                        $state.go($state.current, {}, {reload: true})
                     },
                     function (errorMsg) {
                         Utils.handleError(errorMsg);
@@ -620,7 +622,7 @@ angular
             locals: {
                 rid: $scope.req.id
             },
-            templateUrl: 'ManageRequestController/closeReqDialog',
+            templateUrl: 'views/dialogs/closeRequest.html',
             controller: DialogController
         });
 

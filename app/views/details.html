@@ -116,7 +116,7 @@
             </md-card>
 
             <!-- WAITING FOR REGISTRATION message for AGENTS -->
-            <md-card id="registration-card" class="registration-card" ng-if="req.validationDate && !req.registrationDate && req.status == RECEIVED && userType(AGENT)">
+            <md-card id="registration-card" class="registration-card" ng-if="req.validationDate && !req.registrationDate && req.status == RECEIVED && (userType(AGENT) || userType(REVISER))">
                 <md-card-title class="registration-card-title">EN ESPERA POR REGISTRO</md-card-title>
                 <md-card-content>
                     <br/>
@@ -124,16 +124,16 @@
                         Esta solicitud necesita ser registrada en el sistema interno de IPAPEDI antes de proceder a gestionarla.
                         <br/><br/>
                         En caso de que el sistema interno no permita crear la solicitud, por favor haga clic
-                        en el botón CERRAR para cerrar la solicitud. De lo contrario, haga clic en CONFIRMAR para permitir
+                        en el botón RECHAZAR para cerrar la solicitud. De lo contrario, haga clic en CONFIRMAR para permitir
                         gestionar esta solicitud.
                     </p>
                 </md-card-content>
                 <md-card-actions layout="row" layout-align="end center">
                     <md-button
                         ng-click="validating ? null : closeRequest($event)"
-                        aria-label="Cerrar">
+                        aria-label="Cerrar solicitud">
                             <span ng-if="!validating">
-                                Cerrar
+                                Rechazar
                                 <md-tooltip>Cerrará la solicitud</md-tooltip>
                             </span>
                     </md-button>
@@ -441,9 +441,14 @@
                                     </md-icon>
                                 </md-button>
                                 <!-- Agents editable docs -->
+                                <md-progress-circular
+                                        ng-if="doc.loading"
+                                        md-mode="indeterminate"
+                                        md-diameter="30">
+                                </md-progress-circular>
                                 <md-menu
                                     id="request-docs-actions"
-                                    ng-if="isDocEditable(doc.type)">
+                                    ng-if="isDocEditable(doc.type) && !doc.loading">
                                     <md-button
                                         ng-click="$mdOpenMenu($event)"
                                         class="md-icon-button"

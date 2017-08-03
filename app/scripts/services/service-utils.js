@@ -79,7 +79,7 @@ angular.module('sgdp.service-utils', ['ngSanitize']).factory('Utils', function (
      * @returns {string} - containing the user info url.
      */
     self.getUserDataUrl = function() {
-        return Constants.BASEURL + '#/userInfo';
+        return Constants.BASEURL + 'userInfo';
     };
 
     /**

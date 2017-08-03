@@ -145,7 +145,7 @@ class ManageRequestController extends CI_Controller {
 	}
 
 	function closeRequest() {
-		if ($this->session->type != AGENT) {
+		if ($this->session->type != AGENT && $this->session->type != REVISER) {
 			$result['message'] = 'forbidden';
 		} else {
 			$data = json_decode(file_get_contents('php://input'), true);
@@ -205,7 +205,7 @@ class ManageRequestController extends CI_Controller {
 	}
 
 	function confirmRequest() {
-		if ($this->session->type != AGENT) {
+		if ($this->session->type != AGENT && $this->session->type != REVISER) {
 			$result['message'] = 'forbidden';
 		} else {
 			$data = json_decode(file_get_contents('php://input'), true);

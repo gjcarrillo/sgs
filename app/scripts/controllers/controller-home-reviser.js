@@ -1,10 +1,9 @@
-angular
-    .module('sgdp')
-    .controller('ReviserHomeController', function ($scope, Reviser, Utils, Requests, Constants, $state, Config, $window) {
+angular.module('sgdp').controller('ReviserHomeController', function ($scope, Reviser, Utils, Requests, Constants, $state, Config, $window, $mdSidenav) {
     'use strict';
 
     $scope.loanTypes = Reviser.data.loanTypes;
     $scope.requests = Reviser.data.requests;
+    $scope.selectedAction = Reviser.data.selectedAction;
 
     $scope.selected = [];
 
@@ -19,14 +18,31 @@ angular
     };
 
     function getPreApprovedRequests() {
-        $scope.loading = true;
+        $scope.fetching = true;
         Reviser.getPreApprovedRequests().then(
             function (requests) {
                 $scope.requests = requests;
-                $scope.loading = false;
+                $scope.fetching = false;
             },
             function (error) {
-                $scope.loading = false;
+                console.log(error);
+                $scope.fetching = false;
+                $scope.requests = Requests.filterRequests([]);
+                Utils.handleError(error);
+            }
+        );
+    }
+
+    function getWaitingForRegistrationRequests() {
+        $scope.fetching = true;
+        Reviser.getWaitingForRegistrationRequests().then(
+            function (requests) {
+                $scope.requests = requests;
+                $scope.fetching = false;
+            },
+            function (error) {
+                console.log(error);
+                $scope.fetching = false;
                 $scope.requests = Requests.filterRequests([]);
                 Utils.handleError(error);
             }
@@ -75,6 +91,7 @@ angular
         var data = {};
         data.requests = $scope.requests;
         data.loanTypes = $scope.loanTypes;
+        data.selectedAction = $scope.selectedAction;
 
         Reviser.updateData(data);
     }
@@ -84,19 +101,46 @@ angular
         window.open(Utils.getUserDataUrl(), '_blank');
     };
 
+    $scope.showWatermark = function () {
+        return !$scope.loading && !$scope.fetching &&
+               $scope.selectedAction != 1 && $scope.selectedAction != 2;
+    };
+
+    $scope.selectAction = function (id) {
+        $mdSidenav('left').close();
+        $scope.requests = {};
+        $scope.selectedAction = id;
+        performAction(id);
+    };
+
+    function performAction (action) {
+        switch (action) {
+            case 1:
+                // Waiting-for-registration-requests
+                getWaitingForRegistrationRequests();
+                break;
+            case 2:
+                // Pre-Approved requests
+                getPreApprovedRequests();
+                break;
+        }
+    }
+
     if (!$scope.loanTypes) {
         $scope.loading = true;
         Requests.initializeListType().then(
             function (list) {
+                $scope.loading = false;
+                $scope.contentLoaded = true;
                 $scope.loanTypes = list;
-                getPreApprovedRequests();
             },
             function (error) {
                 $scope.loading = false;
                 Utils.handleError(error);
             }
         );
-    } else {
-        getPreApprovedRequests();
+    } else if ($scope.selectedAction) {
+        $scope.contentLoaded = true;
+        $scope.selectAction($scope.selectedAction);
     }
 });

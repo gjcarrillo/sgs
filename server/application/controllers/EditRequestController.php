@@ -21,7 +21,7 @@ class EditRequestController extends CI_Controller {
 	 * Update request for Agent users (i.e. comment & files attachment)
 	 */
 	public function updateRequest() {
-		if ($this->session->type != AGENT) {
+		if ($this->session->type != AGENT && $this->session->type != REVISER) {
 			$result['message'] = 'forbidden';
 		} else {
 			$data = json_decode(file_get_contents('php://input'), true);

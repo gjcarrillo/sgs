@@ -13,7 +13,7 @@ angular
     // Take the stored data of interest
     var request = JSON.parse(sessionStorage.getItem("req"));
 
-    $http.get('HistoryController/fetchRequestHistory', {params:{id: request.id}})
+    $http.get(Constants.SERVER_URL + 'HistoryController/fetchRequestHistory', {params:{id: request.id}})
         .then(function (response) {
             if (response.data.message === "success") {
                 $scope.history = response.data.history;
@@ -23,7 +23,7 @@ angular
 
     $scope.showListBottomSheet = function(selectedHistory) {
         $mdBottomSheet.show({
-            templateUrl: 'HistoryController/actionDetails',
+            templateUrl: 'views/detailsBottomSheet.html',
             locals:{
                 actions:selectedHistory.actions
             },

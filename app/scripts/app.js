@@ -134,7 +134,7 @@ sgdp.config(function ($stateProvider, $urlRouterProvider, $mdThemingProvider,
         url: '/expired',
         views: {
           'content': {
-            templateUrl: 'views/sessionExpired',
+            templateUrl: 'views/sessionExpired.html',
             controller: 'SessionExpiredController'
           },
           'footer': {

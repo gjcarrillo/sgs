@@ -148,8 +148,72 @@ app.directive('applicantHelp', function(Helps, Requests, $mdMedia, $mdSidenav) {
     };
 });
 
-app.directive('reviserHelp', function(Helps) {
+app.directive('reviserHelp', function(Helps, $mdSidenav) {
+    return {
+        restrict: 'A',
+        link: function ($scope) {
+            $scope.showHelp = function () {
+                if ($scope.showWatermark()) {
+                    // User has not selected any action yet, tell him to do it.
+                    showSidenavHelp(Helps.getDialogsHelpOpt());
+                } else {
+                    // Guide user through request selection's possible actions
+                    showActionsHelp(Helps.getDialogsHelpOpt());
+                }
+            };
 
+            /**
+             * Shows tour-based help of side navigation panel
+             * @param options: Obj containing tour.js options
+             */
+
+            function showSidenavHelp(options) {
+                var tripToShowNavigation = new Trip([], options);
+                var content;
+                if ($mdSidenav('left').isLockedOpen()) {
+                    options.showHeader = true;
+                    content = "Consulte las solicitudes por registrar; es decir, las solicitudes que aún deben " +
+                              "ser registradas en el sistema interno de IPAPEDI para poder ser gestionadas.";
+                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#waiting-for-reg-requests', content, 'e',
+                                                 'Solicitudes Por Registrar', false);
+                    content = "Consulte las solicitudes Pre-Aprobadas por los gestores del sistema.";
+                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#pre-approved-requests', content, 'e',
+                                                 'Solicitudes Pre-Aprobadas', false);
+                    tripToShowNavigation.start();
+                } else if ($scope.contentLoaded) {
+                    content = "Haga clic en el ícono para abrir el panel de navegación para ver los datos de su cuenta, " +
+                              "consultar, editar o crear solicitudes";
+                    Helps.addFieldHelp(tripToShowNavigation, '#nav-panel', content, 's', false);
+                    tripToShowNavigation.start();
+                }
+            }
+
+            /**
+             * Shows tour-based help of selected action.
+             * @param options: Obj containing tour.js options
+             */
+            function showActionsHelp(options) {
+                options.showHeader = true;
+                var tripToShowNavigation = new Trip([], options);
+                var content;
+
+                showResultHelp();
+
+                function showResultHelp() {
+                    if (!$scope.isObjEmpty($scope.requests)) {
+                        content =
+                            "A continuación se muestra un panel con todas sus solciitudes resultantes, " +
+                            "categorizadas por los tipos de solicitud disponibles por el sistema.<br/>" +
+                            "Para ver una lista de solicitudes, haga clic encima del tipo de préstamo correspondiente.<br/>" +
+                            "Para ver los detalles de una solicitud en particular, haga clic encima de la fila correspondiente.";
+                        Helps.addFieldHelpWithHeader(tripToShowNavigation, '#requests-group', content, 's',
+                                                     'Panel de solicitudes');
+                        tripToShowNavigation.start();
+                    }
+                }
+            }
+        }
+    };
 });
 
 app.directive('agentHelp', function(Helps, Requests, $mdMedia, $mdSidenav) {
@@ -360,19 +424,27 @@ app.directive('detailsHelp', function(Helps, $mdMedia, Auth, Constants) {
                     Helps.addFieldHelpWithHeader(tripToShowNavigation, '#validation-card', content, 's',
                                                  'Validación de solicitud', true);
                 }
+                if ($scope.req.validationDate && !$scope.req.registrationDate && $scope.req.status == Constants.Statuses.RECEIVED &&
+                    (Auth.userType(Constants.Users.AGENT) || Auth.userType(Constants.Users.REVISER))) {
+                    content = 'Como indicado, es necesario que registre esta solicitud en el sistema interno de IPAPEDI ' +
+                              'antes de proceder a gestionarla.<br/>Al registrarla exitosamente presione CONFIRMAR, de ' +
+                              'lo contrario, presione RECHAZAR para cerrar la solicitud.';
+                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#registration-card', content, 's',
+                                                 'Registro de solicitud', true);
+                }
                 // Request summary information
                 content = "Aquí se muestra información acerca de la fecha de creación, monto solicitado," +
                           " y un posible comentario.";
-                Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-summary', content, 's',
+                Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-summary', content, responsiveNSPos,
                                              'Resumen de la solicitud', true);
                 // Request status information
                 content = "Esta sección provee información acerca del estatus de la solicitud.";
-                Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-status-summary', content, responsiveNSPos,
+                Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-status-summary', content, 'n',
                                              'Resumen de estatus', true);
                 // Request validation date
                 if ($scope.req.validationDate) {
                     content = "A continuación se muestra la fecha en la se realizó la validación de la solicitud.";
-                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-validation-date', content, responsiveNSPos,
+                    Helps.addFieldHelpWithHeader(tripToShowNavigation, '#request-validation-date', content, 'n',
                                                  'Fecha de validación', true);
                 }
                 // Request payment due information
@@ -407,7 +479,7 @@ app.directive('detailsHelp', function(Helps, $mdMedia, Auth, Constants) {
                 content = getDetailsOptionHelpContent();
                 Helps.addFieldHelpWithHeader(tripToShowNavigation,
                                              $mdMedia('xs') ? '#request-summary-actions-menu' : '#request-summary-actions',
-                                             content, responsivePos,
+                                             content, $mdMedia('xs') ? 'n' : 'w',
                                              'Acciones', true, 'fadeInLeft');
                 if ($scope.req.deductions) {
                     content = 'En la siguiente tabla se muestran las deducciones adicionales solicitadas durante la ' +
@@ -430,7 +502,7 @@ app.directive('detailsHelp', function(Helps, $mdMedia, Auth, Constants) {
                     } else {
                         content += "descargar todos los documentos presionando el botón correspondiente.";
                     }
-                } else if (Auth.userType($scope.AGENT)) {
+                } else if (Auth.userType($scope.AGENT) || Auth.userType($scope.REVISER)) {
                     if (!$scope.req.validationDate) {
                         content += "ver los datos del " +
                                   "asociado, editar la información de la solicitud, ver el historial de acciones, " +

@@ -37,4 +37,34 @@ class ReviserHomeController extends CI_Controller {
         echo json_encode($result);
     }
 
+    public function getWaitingForRegistrationRequests() {
+        if ($this->session->type != REVISER) {
+            $result['message'] = 'forbidden';
+        } else {
+            try {
+                $em = $this->doctrine->em;
+                $requestsRepo = $em->getRepository('\Entity\Request');
+                $requests = $requestsRepo->findBy(array("status" => RECEIVED));
+                if (empty($requests)) {
+                    $result['message'] = "No se encontraron solicitudes por registrar";
+                } else {
+                    $rKey = 0;
+                    foreach ($requests as $request) {
+                        if ($request->getValidationDate() === null || $request->getRegistrationDate() !== null) continue;
+                        $result['requests'][$rKey++] = $this->utils->reqToArray($request);
+                    }
+                    if ($rKey == 0) {
+                        $result['message'] = "No se encontraron solicitudes por registrar";
+                    } else {
+                        $result['message'] = 'success';
+                    }
+                }
+            } catch (Exception $e) {
+                $result['message'] = $this->utils->getErrorMsg($e);
+            }
+        }
+
+        echo json_encode($result);
+    }
+
 }

@@ -1207,15 +1207,15 @@
                     var tripBlockTop = this.$tripBlock.offset().top;
                     var tripBlockHeight = this.$tripBlock.height();
                     var OFFSET = 100; // make it look nice
-                    if (selTop > 0 && (selTop + selHeight  + 48 < windowTop + windowHeight &&
-                        tripBlockTop >= windowTop)) {
+                    if (selTop - 80 > 0 && (selTop + selHeight < windowTop + windowHeight - 48)) { // 48 from footer, 80 from header
                         // tripBlock is located inside the current screen,
                         // so we don't have to scroll
                         this.setTripBlock(o);
                     }
                     else {
                         var self = this;
-                        this.$root.animate({ scrollTop: selTop + selHeight - OFFSET }, 'fast', function() {
+                        var move = selTop < tripBlockTop ? tripBlockTop : selTop;
+                        this.$root.animate({ scrollTop: move - OFFSET }, 'fast', function() {
                             self.setTripBlock(o);
                         });
                     }

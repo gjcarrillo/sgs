@@ -7,7 +7,7 @@
                 md-auto-focus
                 ng-keyup="$event.keyCode == 13 && saveEdition()"
                 ng-model="comment"
-                placeholder="Indique razón de cierre"/>
+                placeholder="Indique razón de rechazo"/>
         </md-input-container>
         <md-button aria-label="send" class="md-icon-button" ng-disabled="missingField()" ng-click="saveEdition()">
             <md-icon ng-if="!uploading">send</md-icon>

@@ -1,4 +1,4 @@
-angular.module('sgdp.service-reviser', []).factory('Reviser', function ($http, $q, Requests) {
+angular.module('sgdp.service-reviser', []).factory('Reviser', function ($http, $q, Requests, Constants) {
 
     var self = this;
 
@@ -6,6 +6,7 @@ angular.module('sgdp.service-reviser', []).factory('Reviser', function ($http, $
     var data = {};
     data.requests = {};
     data.loanTypes = null;
+    data.selectedAction = -1;
 
     self.data = data;
 
@@ -33,13 +34,39 @@ angular.module('sgdp.service-reviser', []).factory('Reviser', function ($http, $
     self.getPreApprovedRequests = function () {
         var qReq = $q.defer();
 
-        $http.get('reviserHomeController/getPreApprovedRequests').then(
+        $http.get(Constants.SERVER_URL + 'reviserHomeController/getPreApprovedRequests').then(
             function (response) {
                 if (response.data.message == "success") {
                     qReq.resolve(Requests.filterRequests(response.data.requests));
                 } else {
                     qReq.reject(response.data.message);
                 }
+            },
+            function (response) {
+                qReq.reject(response.data.message);
+            }
+        );
+        return qReq.promise;
+    };
+
+    /**
+     * Obtains all requests currently waiting for system registration
+     * @returns {*}
+     */
+
+    self.getWaitingForRegistrationRequests = function () {
+        var qReq = $q.defer();
+
+        $http.get(Constants.SERVER_URL + 'reviserHomeController/getWaitingForRegistrationRequests').then(
+            function (response) {
+                if (response.data.message == "success") {
+                    qReq.resolve(Requests.filterRequests(response.data.requests));
+                } else {
+                    qReq.reject(response.data.message);
+                }
+            },
+            function (response) {
+                qReq.reject(response.data.message);
             }
         );
         return qReq.promise;
