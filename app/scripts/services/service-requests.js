@@ -668,6 +668,18 @@ angular.module('sgdp.service-requests', []).factory('Requests', function ($q, $h
         }
     };
 
+    self.getNewRequestConfirmationMsg = function (concept, total) {
+        switch (parseInt(concept, 10)) {
+            case Constants.LoanTypes.PERSONAL_LOAN:
+                return 'El sistema generará el documento correspondiente a su solicitud.<br/><br/>Además se le informa que' +
+                       ' se cobrará el 1% sobre el monto del préstamo, equivalente a Bs. ' +
+                       $filter('number')(total * 0.01, 2) + ', a razón de Servicios Administrativos, ' +
+                       'que será descontado de su próximo aporte. ¿Desea proceder?';
+            case Constants.LoanTypes.CASH_VOUCHER:
+                return 'El sistema generará el documento correspondiente a su solicitud. ¿Desea proceder?';
+        }
+    };
+
     // A request type is available for creation if the following is tue:
     // 1. for personal loans, user has at least 6 months old in our system.
     // 2. User's concurrence level is below 40%.

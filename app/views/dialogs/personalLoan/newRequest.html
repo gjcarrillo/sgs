@@ -276,7 +276,7 @@
         </form>
         <p>
             <strong>ATENCIÓN: Se le informa que se cobrará el 1% sobre el monto del préstamo, equivalente a Bs.
-                {{(calculateTotals(5)*0.01 | number:2)}} a razón de Servicios Administrativos, que será descontado
+                {{(model.reqAmount * 0.01 | number:2)}} a razón de Servicios Administrativos, que será descontado
             de su próximo aporte.
             </strong>
         </p>

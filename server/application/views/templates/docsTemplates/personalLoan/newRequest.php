@@ -187,8 +187,8 @@ if ($deductionsTotal > 0) {
 ?>
 
 <p>
-    Adicionalmente, comprendo que se descontará del próximo aporte el 1% del monto del préstamo otorgado,
-    equivalente a Bs. <?php echo number_format($totals[4]*0.01, 2); ?> a razón de Servicios Administrativos.</p>
+    Adicionalmente, comprendo que se descontará del próximo aporte el 1% del monto del préstamo,
+    equivalente a Bs. <?php echo number_format($reqAmount * 0.01, 2); ?> a razón de Servicios Administrativos.</p>
 
 <br/>
     Constancia expedida a los días <?php echo $date->format('d') ?> del mes <?php echo $date->format('m') ?>, del año

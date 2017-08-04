@@ -111,8 +111,6 @@ class ManageRequestController extends CI_Controller {
 						$action->setBelongingHistory($history);
 						$history->addAction($action);
 						$em->persist($action);
-						// ALERT: FOR TESTING PURPOSES ONLY!!!! DELETE LATER!
-						$this->requests->addGrantingDate($request);
 					}
 					$em->persist($history);
 					if (isset($data['reunion'])) {
