@@ -24,9 +24,9 @@ var obj = {
         APPROVED: 'Aprobada',
         REJECTED: 'Rechazada'
     },
-    BASEURL: 'http://localhost:8080/sgs/',
-    SERVER_URL: 'http://localhost:8080/sgs/server/index.php/',
-    IPAPEDI_URL: 'http://localhost:8080/ipapedi_en_linea/'
+    BASEURL: 'http://sgs.ipapedi.com/',
+    SERVER_URL: 'http://sgs.ipapedi.com/server/index.php/',
+    IPAPEDI_URL: 'http://enlinea.ipapedi.com/'
 };
 
 constants.constant('Constants', obj);

@@ -84,6 +84,7 @@ defined('EXIT_DATABASE')       OR define('EXIT_DATABASE', 8); // database error
 defined('EXIT__AUTO_MIN')      OR define('EXIT__AUTO_MIN', 9); // lowest automatically-assigned error code
 defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest automatically-assigned error code
 
+
 /* ======================================
              UPLOADS PATH
 =========================================*/
@@ -132,7 +133,6 @@ const HISTORY_ACTIONS_CODES = array(
     'validation' => 7,
     'update' => 8
 );
-
 const HISTORY_ACTIONS_NAMES = array(
     1 => 'Creación',
     2 => 'Adición',
