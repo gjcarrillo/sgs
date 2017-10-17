@@ -1261,7 +1261,7 @@ class RequestsModel extends CI_Model
                     // Tell user when will he be able to request again in case time constrain is not over.
                     $result['granting']['allow'] =
                         // Allow if time constrain is over OR if all the debt was paid.
-                        ($diff['months'] + ($diff['years'] * 12) >= $span) || ($lastLoan != null && $lastLoan->saldo_edo <= 0);
+                        ($diff['months'] + ($diff['years'] * 12) >= $span) || ($lastLoan != null && $lastLoan->saldo_actual <= 0);
                     $result['granting']['dateAvailable'] =
                         $granting->modify('+' . $span . ' month')->format('d/m/Y');
                 }
@@ -1322,7 +1322,7 @@ class RequestsModel extends CI_Model
                     $diff = $this->utils->getDateInterval($currentDate, $granting);
                     $result['granting']['allow'] =
                         // Allow if time constrain is over OR if all the debt was paid.
-                        ($diff['months'] + ($diff['years'] * 12) >= $span) || ($lastLoan->saldo_edo <= 0);
+                        ($diff['months'] + ($diff['years'] * 12) >= $span) || ($lastLoan->saldo_actual <= 0);
                     // Tell user when will he be able to request again in case time constrain is not over.
                     $result['granting']['dateAvailable'] = $granting->modify('+' . $span . ' month')->format('d/m/Y');
                     // Get last loan info
