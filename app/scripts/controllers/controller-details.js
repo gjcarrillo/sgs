@@ -669,6 +669,8 @@ angular
                         Utils.showAlertDialog('Confirmación exitosa',
                                               'La solicitud puede ahora ser gestionada.');
                         $scope.req.registrationDate = date;
+                        sessionStorage.setItem("req", JSON.stringify($scope.req));
+                        $state.go($state.current, {}, {reload: true})
                     },
                     function (error) {
                         $scope.overlay = false;
