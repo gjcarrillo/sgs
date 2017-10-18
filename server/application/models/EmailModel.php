@@ -1,6 +1,5 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-use Mailgun\Mailgun;
 /**
  * Created by PhpStorm.
  * User: Kristopher
@@ -10,6 +9,7 @@ use Mailgun\Mailgun;
 class EmailModel extends CI_Model
 {
     public function __construct() {
+        $this->load->library('email');
         parent::__construct();
     }
 
@@ -69,14 +69,16 @@ class EmailModel extends CI_Model
 
     private function sendEmail ($to, $subject, $html) {
         try {
-            $mgClient = new Mailgun(MAILGUN_PRIVATE_KEY, new \Http\Adapter\Guzzle6\Client());
-            $email = array(
-                'from'    => MAILGUN_SENDER,
-                'to'      => $to,
-                'subject' => $subject,
-                'html'    => $html
-            );
-            $mgClient->sendMessage(MAILGUN_SENDER_DOMAIN, $email);
+            $config['mailtype'] = 'html';
+            $this->email->initialize($config);
+            //Especificamos la direccion
+            $this->email->from('<noreply@ipapedi.com>', 'IPAPEDI');
+            $this->email->to($to);
+            //Cuerpo del correo
+            $this->email->subject($subject);
+            $this->email->message($html);
+            //Finalizamos
+            $this->email->send();
         } catch (Exception $e) {
             throw $e;
         }
